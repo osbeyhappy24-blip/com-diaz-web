@@ -290,7 +290,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
           e.stopPropagation();
           const nuevas = times.filter(v => v !== t);
           if (!nuevas.length) { alert('Debe haber al menos 1 horario'); return; }
-          await fetch((window.API||'http://localhost:3000') + '/api/publish-times', {
+          await fetch(API + '/api/publish-times', {
             method:'POST', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({ times: nuevas })
           });
@@ -326,7 +326,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (!v) return;
       if ((st.automation.publishTimes || []).includes(v)) { alert('Esa hora ya está'); return; }
       const nuevas = [...(st.automation.publishTimes || []), v].sort();
-      await fetch((window.API||'http://localhost:3000') + '/api/publish-times', {
+      await fetch(API + '/api/publish-times', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ times: nuevas })
       });
