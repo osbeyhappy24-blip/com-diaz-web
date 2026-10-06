@@ -702,45 +702,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   console.log('✅ Modos de resumen inicializados');
 })();
 
-// ---------- Candado del margen ----------
-(function initMarginLock(){
-  const btn = document.getElementById('lockMargin');
-  const row = document.querySelector('.margin-row');
-  const slider = document.getElementById('marginRange');
-  if (!btn || !row || !slider) return;
 
-  const KEY = 'comdiaz_margin_locked';
-  let locked = localStorage.getItem(KEY) === '1';
-
-  function aplicar() {
-    btn.textContent = locked ? '🔒' : '🔓';
-    btn.classList.toggle('locked', locked);
-    row.classList.toggle('locked', locked);
-    // Guardar
-    try { localStorage.setItem(KEY, locked ? '1' : '0'); } catch(_) {}
-  }
-
-  // Bloquear input directo si está locked
-  slider.addEventListener('input', (e) => {
-    if (locked) {
-      e.preventDefault();
-      return false;
-    }
-  }, { capture:true });
-
-  // Botón toggle
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    locked = !locked;
-    aplicar();
-    if (typeof toast === 'function') {
-      toast(locked ? '🔒 Margen bloqueado' : '🔓 Margen desbloqueado');
-    }
-  });
-
-  aplicar();
-  console.log('✅ Candado del margen inicializado');
-})();
 
 // ---------- Análisis y medición de red ----------
 (function initAnalytics(){
@@ -1000,69 +962,85 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   }
 })();
 
-// ---------- Cambio de PIN ----------
-(function initChangePin(){
-  const btnOpen = document.getElementById('changePinBtn');
-  const modal   = document.getElementById('pinModal');
-  const btnClose= document.getElementById('closePinModal');
-  const btnSave = document.getElementById('savePinBtn');
-  const msg     = document.getElementById('pinMsg');
-  if (!btnOpen || !modal || !btnSave) return;
 
-  function abrir() {
-    document.getElementById('pinActual').value = '';
-    document.getElementById('pinNuevo').value = '';
-    document.getElementById('pinConfirm').value = '';
-    msg.textContent = '';
-    msg.style.color = '#94a3b8';
-    modal.classList.remove('hidden');
+
+
+
+
+
+
+
+
+
+
+
+// ═══════════════════════════════════════════════
+// INTERACCIONES CRÍTICAS (delegación — v3)
+// ═══════════════════════════════════════════════
+(function initDelegado(){
+  console.log('🔧 initDelegado arrancando');
+
+  // --- CANDADO DEL PLAY ---
+  const KEY_LOCK = 'comdiaz_play_locked';
+  function aplicarLockPlay() {
+    const btn = document.getElementById('lockPlay');
+    const row = document.querySelector('.play-row');
+    if (!btn || !row) return;
+    const locked = localStorage.getItem(KEY_LOCK) === '1';
+    btn.textContent = locked ? '🔒' : '🔓';
+    btn.classList.toggle('locked', locked);
+    row.classList.toggle('locked', locked);
   }
-  function cerrar() {
-    modal.classList.add('hidden');
+
+  // --- MODAL DE PIN ---
+  function abrirPinModal() {
+    const m = document.getElementById('pinModal');
+    if (!m) { console.log('❌ pinModal no existe'); return; }
+    const a = document.getElementById('pinActual');
+    const n = document.getElementById('pinNuevo');
+    const c = document.getElementById('pinConfirm');
+    const msg = document.getElementById('pinMsg');
+    if (a) a.value = '';
+    if (n) n.value = '';
+    if (c) c.value = '';
+    if (msg) { msg.textContent = ''; msg.style.color = '#94a3b8'; }
+    m.classList.remove('hidden');
+    console.log('🔑 Modal abierto');
   }
+  function cerrarPinModal() {
+    const m = document.getElementById('pinModal');
+    if (m) m.classList.add('hidden');
+  }
+  async function guardarPin() {
+    const a = document.getElementById('pinActual').value.trim();
+    const n = document.getElementById('pinNuevo').value.trim();
+    const c = document.getElementById('pinConfirm').value.trim();
+    const msg = document.getElementById('pinMsg');
 
-  btnOpen.addEventListener('click', abrir);
-  btnClose.addEventListener('click', cerrar);
-  modal.addEventListener('click', e => {
-    if (e.target === modal) cerrar();
-  });
-
-  btnSave.addEventListener('click', async () => {
-    const actual  = document.getElementById('pinActual').value.trim();
-    const nuevo   = document.getElementById('pinNuevo').value.trim();
-    const confirm = document.getElementById('pinConfirm').value.trim();
-
-    if (!/^[0-9]{4,10}$/.test(nuevo)) {
+    if (!/^[0-9]{4,10}$/.test(n)) {
       msg.textContent = '✕ El PIN debe tener 4-10 dígitos';
-      msg.style.color = '#ef4444';
-      return;
+      msg.style.color = '#ef4444'; return;
     }
-    if (nuevo !== confirm) {
+    if (n !== c) {
       msg.textContent = '✕ Los PIN nuevos no coinciden';
-      msg.style.color = '#ef4444';
-      return;
+      msg.style.color = '#ef4444'; return;
     }
-
     msg.textContent = 'Guardando…';
     msg.style.color = '#94a3b8';
 
     try {
       const r = await fetch(API + '/api/pin/change', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Comdiaz-Key': actual,
-        },
-        body: JSON.stringify({ actual, nuevo }),
+        headers: { 'Content-Type': 'application/json', 'X-Comdiaz-Key': a },
+        body: JSON.stringify({ actual: a, nuevo: n }),
       });
       const data = await r.json();
       if (data.ok) {
-        // Actualizar la clave guardada
-        localStorage.setItem('comdiaz_api_key', nuevo);
+        localStorage.setItem('comdiaz_api_key', n);
         msg.textContent = '✓ PIN actualizado';
         msg.style.color = '#10b981';
         if (typeof toast === 'function') toast('PIN actualizado ✅', 'ok');
-        setTimeout(cerrar, 900);
+        setTimeout(cerrarPinModal, 1200);
       } else {
         msg.textContent = '✕ ' + (data.error || 'Error');
         msg.style.color = '#ef4444';
@@ -1071,52 +1049,164 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       msg.textContent = '✕ Error de conexión';
       msg.style.color = '#ef4444';
     }
-  });
+  }
 
-  console.log('✅ Cambio de PIN inicializado');
+  // --- Delegación de clicks ---
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    const btn = t.closest ? t.closest('button') : null;
+
+    // Cambiar PIN
+    if (btn && btn.id === 'changePinBtn') {
+      e.preventDefault(); e.stopPropagation();
+      abrirPinModal();
+      return;
+    }
+    if (btn && btn.id === 'closePinModal') {
+      e.preventDefault(); e.stopPropagation();
+      cerrarPinModal();
+      return;
+    }
+    if (btn && btn.id === 'savePinBtn') {
+      e.preventDefault(); e.stopPropagation();
+      guardarPin();
+      return;
+    }
+    // Cerrar modal si toca el fondo
+    if (t.id === 'pinModal') {
+      cerrarPinModal();
+      return;
+    }
+
+    // Candado del Play
+    if (btn && btn.id === 'lockPlay') {
+      e.preventDefault(); e.stopPropagation();
+      const locked = localStorage.getItem(KEY_LOCK) === '1';
+      localStorage.setItem(KEY_LOCK, locked ? '0' : '1');
+      aplicarLockPlay();
+      if (typeof toast === 'function') {
+        toast(!locked ? '🔒 Play bloqueado' : '🔓 Play desbloqueado');
+      }
+      return;
+    }
+
+    // Bloquear el Play si el candado está cerrado
+    if (btn && btn.id === 'toggleBtn') {
+      if (localStorage.getItem(KEY_LOCK) === '1') {
+        e.preventDefault(); e.stopPropagation();
+        if (typeof toast === 'function') toast('🔒 Desbloquea el candado primero', 'err');
+        return false;
+      }
+    }
+  }, true); // capture:true para anticiparnos a otros listeners
+
+  // Aplicar estado inicial
+  function aplicarTodo() {
+    aplicarLockPlay();
+  }
+  aplicarTodo();
+  // Por si el DOM se carga después
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarTodo);
+  }
+  setTimeout(aplicarTodo, 500);
+
+  console.log('✅ initDelegado listo');
 })();
 
 
-// ---------- Candado del botón Play ----------
-(function initPlayLock(){
-  const btn = document.getElementById('lockPlay');
-  const row = document.querySelector('.play-row');
-  const playBtn = document.getElementById('toggleBtn');
-  if (!btn || !row || !playBtn) {
-    console.log('⚠️ Elementos de Play no encontrados');
-    return;
-  }
+// ═══════════════════════════════════════════════
+// CANDADOS: Play + Margen (delegación — v3)
+// ═══════════════════════════════════════════════
+(function initCandados(){
+  console.log('🔐 initCandados arrancando');
 
-  const KEY = 'comdiaz_play_locked';
-  let locked = localStorage.getItem(KEY) === '1';
+  const KEY_PLAY = 'comdiaz_play_locked';
+  const KEY_MARGIN = 'comdiaz_margin_locked';
 
-  function aplicar() {
+  // ─── Aplicar estados ───
+  function aplicarPlayLock() {
+    const btn = document.getElementById('lockPlay');
+    const row = document.querySelector('.play-row');
+    if (!btn || !row) return;
+    const locked = localStorage.getItem(KEY_PLAY) === '1';
     btn.textContent = locked ? '🔒' : '🔓';
     btn.classList.toggle('locked', locked);
     row.classList.toggle('locked', locked);
-    try { localStorage.setItem(KEY, locked ? '1' : '0'); } catch(_) {}
   }
 
-  // Bloquear el click del Play si está locked (fase captura)
-  playBtn.addEventListener('click', (e) => {
-    if (locked) {
-      e.preventDefault();
-      e.stopPropagation();
+  function aplicarMarginLock() {
+    const btn = document.getElementById('lockMargin');
+    const row = document.querySelector('.margin-row');
+    const slider = document.getElementById('marginRange');
+    if (!btn || !row) return;
+    const locked = localStorage.getItem(KEY_MARGIN) === '1';
+    btn.textContent = locked ? '🔒' : '🔓';
+    btn.classList.toggle('locked', locked);
+    row.classList.toggle('locked', locked);
+    if (slider) slider.style.pointerEvents = locked ? 'none' : '';
+    if (slider) slider.style.filter = locked ? 'grayscale(1) brightness(.7)' : '';
+  }
+
+  // ─── Delegación de clicks ───
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest ? e.target.closest('button') : null;
+    if (!btn) return;
+
+    // Candado del Play
+    if (btn.id === 'lockPlay') {
+      e.preventDefault(); e.stopPropagation();
+      const locked = localStorage.getItem(KEY_PLAY) === '1';
+      const nuevo = !locked;
+      localStorage.setItem(KEY_PLAY, nuevo ? '1' : '0');
+      aplicarPlayLock();
+      if (typeof toast === 'function') {
+        toast(nuevo ? '🔒 Play bloqueado' : '🔓 Play desbloqueado');
+      }
+      return;
+    }
+
+    // Candado del Margen
+    if (btn.id === 'lockMargin') {
+      e.preventDefault(); e.stopPropagation();
+      const locked = localStorage.getItem(KEY_MARGIN) === '1';
+      const nuevo = !locked;
+      localStorage.setItem(KEY_MARGIN, nuevo ? '1' : '0');
+      aplicarMarginLock();
+      if (typeof toast === 'function') {
+        toast(nuevo ? '🔒 Margen bloqueado' : '🔓 Margen desbloqueado');
+      }
+      return;
+    }
+  }, true);
+
+  // ─── Bloquear el Play si el candado está cerrado ───
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest ? e.target.closest('button') : null;
+    if (!btn || btn.id !== 'toggleBtn') return;
+    if (localStorage.getItem(KEY_PLAY) === '1') {
+      e.preventDefault(); e.stopPropagation();
       if (typeof toast === 'function') toast('🔒 Desbloquea el candado primero', 'err');
       return false;
     }
   }, true);
 
-  // Toggle candado
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    locked = !locked;
-    aplicar();
-    if (typeof toast === 'function') {
-      toast(locked ? '🔒 Automatización bloqueada' : '🔓 Automatización desbloqueada');
-    }
-  });
+  // ─── Aplicar al cargar ───
+  function aplicarTodo() {
+    aplicarPlayLock();
+    aplicarMarginLock();
+  }
+  aplicarTodo();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarTodo);
+  }
+  // Por si el DOM cambia después
+  setTimeout(aplicarTodo, 800);
+  setTimeout(aplicarTodo, 2000);
 
-  aplicar();
-  console.log('✅ Candado del Play inicializado');
+  // Observer: si aparecen los botones después, aplicar
+  const obs = new MutationObserver(() => aplicarTodo());
+  obs.observe(document.body, { childList: true, subtree: true });
+
+  console.log('✅ initCandados listo');
 })();

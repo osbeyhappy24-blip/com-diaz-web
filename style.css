@@ -686,3 +686,14 @@ input[type=range]::-webkit-slider-thumb{
   pointer-events:none;
   filter:grayscale(.7);
 }
+
+/* Fix: modal de PIN siempre arriba */
+#pinModal.modal{
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+#pinModal.modal.hidden{
+  display: none !important;
+}

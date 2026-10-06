@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.onrender.com_diaz_web.twa",
+        "sha256_cert_fingerprints": ["72:9B:79:6A:9F:FC:11:FA:1F:E3:07:EC:7F:21:62:69:9D:B6:5F:C2:6A:7D:C2:4D:10:11:58:30:2F:6F:1D:98"]
+      }
+    }]
