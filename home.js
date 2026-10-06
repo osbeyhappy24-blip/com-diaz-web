@@ -926,3 +926,36 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Analytics inicializado');
 })();
+
+
+
+
+
+// ---------- Logout (v3, directo al botón) ----------
+(function initLogoutV3(){
+  function bind() {
+    const btn = document.getElementById('logoutBtn');
+    if (!btn) {
+      console.log('⚠️ logoutBtn no encontrado en el DOM');
+      return;
+    }
+    // onclick sobreescribe cualquier listener anterior
+    btn.onclick = function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      console.log('🔓 Logout: limpiando sesión y redirigiendo');
+      try { localStorage.removeItem('comdiaz_auth_until'); } catch(_) {}
+      // Forzar recarga limpia
+      setTimeout(() => {
+        window.location.replace('index.html');
+      }, 50);
+    };
+    console.log('✅ Logout bindeado al botón');
+  }
+  // El script corre al final del body, el botón ya debería existir
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
