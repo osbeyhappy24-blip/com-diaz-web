@@ -20,6 +20,7 @@
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
+      <button id="changePinBtn" class="btn-mini" title="Cambiar PIN">🔑</button>
       <button id="logoutBtn" class="btn-mini" title="Cerrar sesión">⎋</button>
       <div class="status-pill" id="statusPill">● —</div>
     </div>
@@ -28,10 +29,13 @@
   <main class="container">
 
     <section class="hero-card collapsible" data-card="hero" data-default="open">
-      <button id="toggleBtn" class="toggle-btn paused">
-        <span class="icon" id="toggleIcon">▶</span>
-        <span class="label" id="toggleLabel">Iniciar automatización</span>
-      </button>
+      <div class="play-row">
+        <button id="toggleBtn" class="toggle-btn paused">
+          <span class="icon" id="toggleIcon">▶</span>
+          <span class="label" id="toggleLabel">Iniciar automatización</span>
+        </button>
+        <button id="lockPlay" class="lock-btn" title="Bloquear/Desbloquear automatización">🔓</button>
+      </div>
       <div class="meta-row">
         <div class="meta">
           <div class="meta-num" id="countProducts">—</div>
@@ -211,6 +215,26 @@
       });
     }
   </script>
+
+  <div id="pinModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>🔑 Cambiar PIN</h3>
+        <button id="closePinModal" class="btn-mini">✕</button>
+      </div>
+      <div class="pin-change-form">
+        <label>PIN actual</label>
+        <input id="pinActual" type="password" inputmode="numeric" maxlength="10" placeholder="••••">
+        <label>PIN nuevo (4-10 dígitos)</label>
+        <input id="pinNuevo" type="password" inputmode="numeric" maxlength="10" placeholder="••••">
+        <label>Confirmar PIN nuevo</label>
+        <input id="pinConfirm" type="password" inputmode="numeric" maxlength="10" placeholder="••••">
+        <button id="savePinBtn" class="btn-primary">Guardar</button>
+        <p id="pinMsg" class="pin-msg"></p>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
 <!-- Se agrega vía script para evitar problemas de shell -->

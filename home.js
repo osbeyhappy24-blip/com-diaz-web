@@ -1,3 +1,18 @@
+// ---- Envía la clave en cada request ----
+(function inyectarAuth(){
+  const _fetch = window.fetch.bind(window);
+  window.fetch = function(input, init) {
+    init = init || {};
+    init.headers = init.headers || {};
+    const key = localStorage.getItem('comdiaz_api_key');
+    if (key) {
+      if (init.headers instanceof Headers) init.headers.set('X-Comdiaz-Key', key);
+      else if (typeof init.headers === 'object') init.headers['X-Comdiaz-Key'] = key;
+    }
+    return _fetch(input, init);
+  };
+})();
+
 const API_LOCAL = 'http://localhost:3000';
 const API_PROD  = 'https://com-diaz.onrender.com';
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
@@ -17,11 +32,13 @@ function toast(msg, kind='') {
   t._t = setTimeout(() => t.className = 'toast ' + kind, 2200);
 }
 
-async function api(path, opts={}) {
-  const r = await fetch(API + path, {
-    headers: { 'Content-Type':'application/json' },
-    ...opts,
-  });
+async function api(path, opts = {}) {
+  const headers = Object.assign({}, opts.headers || {});
+  // Solo agrega Content-Type si hay body
+  if (opts.body && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+  const r = await fetch(API + path, Object.assign({}, opts, { headers }));
   return r.json();
 }
 
@@ -131,17 +148,40 @@ async function refresh() {
 // ---------- Acciones ----------
 $('toggleBtn').onclick = async () => {
   const on = state.automation.running;
+  const btn = $('toggleBtn');
+
   if (!on) {
-    $('toggleBtn').className = 'toggle-btn loading';
+    // Optimista: pinta ámbar de inmediato
+    btn.className = 'toggle-btn loading';
     $('toggleIcon').textContent = '⏱';
     $('toggleLabel').textContent = 'Arrancando en 5s…';
     toast('Arrancando en 5 segundos…');
-    await api('/api/automation/play', { method:'POST' });
-    setTimeout(refresh, 5500);
+
+    try {
+      const r = await api('/api/automation/play', { method:'POST' });
+      // Refresh inmediato del estado (sin esperar los 5s)
+      await refresh();
+      // Refresh tras 5.5s para reflejar primera búsqueda
+      setTimeout(refresh, 5500);
+      toast('▶ Automatización activada', 'ok');
+    } catch (e) {
+      toast('Error al activar: ' + e.message, 'err');
+      await refresh();
+    }
   } else {
-    await api('/api/automation/pause', { method:'POST' });
-    await refresh();
-    toast('Automatización pausada');
+    // Pausa: optimista
+    btn.className = 'toggle-btn loading';
+    $('toggleIcon').textContent = '⏱';
+    $('toggleLabel').textContent = 'Pausando…';
+
+    try {
+      await api('/api/automation/pause', { method:'POST' });
+      await refresh();
+      toast('⏸ Automatización pausada');
+    } catch (e) {
+      toast('Error al pausar: ' + e.message, 'err');
+      await refresh();
+    }
   }
 };
 
@@ -958,4 +998,125 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   } else {
     bind();
   }
+})();
+
+// ---------- Cambio de PIN ----------
+(function initChangePin(){
+  const btnOpen = document.getElementById('changePinBtn');
+  const modal   = document.getElementById('pinModal');
+  const btnClose= document.getElementById('closePinModal');
+  const btnSave = document.getElementById('savePinBtn');
+  const msg     = document.getElementById('pinMsg');
+  if (!btnOpen || !modal || !btnSave) return;
+
+  function abrir() {
+    document.getElementById('pinActual').value = '';
+    document.getElementById('pinNuevo').value = '';
+    document.getElementById('pinConfirm').value = '';
+    msg.textContent = '';
+    msg.style.color = '#94a3b8';
+    modal.classList.remove('hidden');
+  }
+  function cerrar() {
+    modal.classList.add('hidden');
+  }
+
+  btnOpen.addEventListener('click', abrir);
+  btnClose.addEventListener('click', cerrar);
+  modal.addEventListener('click', e => {
+    if (e.target === modal) cerrar();
+  });
+
+  btnSave.addEventListener('click', async () => {
+    const actual  = document.getElementById('pinActual').value.trim();
+    const nuevo   = document.getElementById('pinNuevo').value.trim();
+    const confirm = document.getElementById('pinConfirm').value.trim();
+
+    if (!/^[0-9]{4,10}$/.test(nuevo)) {
+      msg.textContent = '✕ El PIN debe tener 4-10 dígitos';
+      msg.style.color = '#ef4444';
+      return;
+    }
+    if (nuevo !== confirm) {
+      msg.textContent = '✕ Los PIN nuevos no coinciden';
+      msg.style.color = '#ef4444';
+      return;
+    }
+
+    msg.textContent = 'Guardando…';
+    msg.style.color = '#94a3b8';
+
+    try {
+      const r = await fetch(API + '/api/pin/change', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Comdiaz-Key': actual,
+        },
+        body: JSON.stringify({ actual, nuevo }),
+      });
+      const data = await r.json();
+      if (data.ok) {
+        // Actualizar la clave guardada
+        localStorage.setItem('comdiaz_api_key', nuevo);
+        msg.textContent = '✓ PIN actualizado';
+        msg.style.color = '#10b981';
+        if (typeof toast === 'function') toast('PIN actualizado ✅', 'ok');
+        setTimeout(cerrar, 900);
+      } else {
+        msg.textContent = '✕ ' + (data.error || 'Error');
+        msg.style.color = '#ef4444';
+      }
+    } catch (e) {
+      msg.textContent = '✕ Error de conexión';
+      msg.style.color = '#ef4444';
+    }
+  });
+
+  console.log('✅ Cambio de PIN inicializado');
+})();
+
+
+// ---------- Candado del botón Play ----------
+(function initPlayLock(){
+  const btn = document.getElementById('lockPlay');
+  const row = document.querySelector('.play-row');
+  const playBtn = document.getElementById('toggleBtn');
+  if (!btn || !row || !playBtn) {
+    console.log('⚠️ Elementos de Play no encontrados');
+    return;
+  }
+
+  const KEY = 'comdiaz_play_locked';
+  let locked = localStorage.getItem(KEY) === '1';
+
+  function aplicar() {
+    btn.textContent = locked ? '🔒' : '🔓';
+    btn.classList.toggle('locked', locked);
+    row.classList.toggle('locked', locked);
+    try { localStorage.setItem(KEY, locked ? '1' : '0'); } catch(_) {}
+  }
+
+  // Bloquear el click del Play si está locked (fase captura)
+  playBtn.addEventListener('click', (e) => {
+    if (locked) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof toast === 'function') toast('🔒 Desbloquea el candado primero', 'err');
+      return false;
+    }
+  }, true);
+
+  // Toggle candado
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    locked = !locked;
+    aplicar();
+    if (typeof toast === 'function') {
+      toast(locked ? '🔒 Automatización bloqueada' : '🔓 Automatización desbloqueada');
+    }
+  });
+
+  aplicar();
+  console.log('✅ Candado del Play inicializado');
 })();
