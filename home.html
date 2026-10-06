@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Comdiaz · Home</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-badge small">C</div>
+      <div>
+        <div class="brand-name">Comdiaz</div>
+        <div class="brand-sub" id="statusText">Cargando…</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="logoutBtn" class="btn-mini" title="Cerrar sesión">⎋</button>
+      <div class="status-pill" id="statusPill">● —</div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero-card collapsible" data-card="hero" data-default="open">
+      <button id="toggleBtn" class="toggle-btn paused">
+        <span class="icon" id="toggleIcon">▶</span>
+        <span class="label" id="toggleLabel">Iniciar automatización</span>
+      </button>
+      <div class="meta-row">
+        <div class="meta">
+          <div class="meta-num" id="countProducts">—</div>
+          <div class="meta-lbl">productos</div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" id="countCats">—</div>
+          <div class="meta-lbl">categorías</div>
+        </div>
+        <div class="meta">
+          <div class="meta-num" id="lastRun">—</div>
+          <div class="meta-lbl">última búsqueda</div>
+        </div>
+      </div>
+      <button id="searchNow" class="btn-ghost">🔍 Buscar ahora</button>
+      <button id="shareBtn" class="btn-ghost primary">📤 Compartir resumen</button>
+    </section>
+
+    <section class="card collapsible" data-card="margin" data-default="closed">
+      <h2>Margen de ganancia</h2>
+      <div class="margin-row">
+        <button id="lockMargin" class="lock-btn" title="Bloquear/Desbloquear margen">🔓</button>
+        <input type="range" id="marginRange" min="10" max="200" step="1" value="35">
+        <div class="margin-val"><span id="marginVal">35</span>%</div>
+      </div>
+      <div class="margin-hint" id="marginExample">—</div>
+    </section>
+
+    <section class="card collapsible" data-card="cats" data-default="closed">
+      <div class="card-head">
+        <h2>Categorías</h2>
+        <button id="toggleCats" class="btn-mini">Editar</button>
+      </div>
+      <div id="catsList" class="chips"></div>
+      <div id="addCatBox" class="add-cat hidden">
+        <input id="newCatInput" placeholder="Nueva categoría (ej. Ropa de Mujer)">
+        <button id="addCatBtn">Agregar</button>
+      </div>
+    </section>
+
+    <section class="card collapsible" data-card="results" data-default="closed">
+      <div class="card-head" id="resultsHead" style="cursor:pointer;user-select:none">
+        <div style="display:flex;align-items:center;gap:10px"><span id="resultsChevron" class="chevron">▸</span><h2>Resultados</h2></div>
+        <span class="badge" id="resultsBadge">0</span>
+      </div>
+      <div id="resultsCollapse" class="collapse collapsed"><div id="results" class="grid"></div></div>
+    </section>
+
+  
+        <section class="card collapsible" data-card="sources" data-default="closed" id="sourcesCard">
+      <div class="card-head">
+        <h2>Fuentes de productos</h2>
+        <button id="toggleSources" class="btn-mini">Configurar</button>
+      </div>
+      <div id="sourcesList" class="sources-list"></div>
+      <div class="margin-hint">Activa las fuentes que quieras usar en las búsquedas.</div>
+    </section>
+
+    <section class="card collapsible" data-card="hours" data-default="closed">
+      <div class="card-head">
+        <h2>Horarios de publicación</h2>
+        <button id="toggleHours" class="btn-mini">Editar</button>
+      </div>
+      <div id="hoursList" class="chips"></div>
+      <div id="addHourBox" class="add-cat hidden">
+        <input id="newHourInput" type="time" step="60">
+        <button id="addHourBtn">Agregar</button>
+      </div>
+      <div class="margin-hint">Próximas ejecuciones: <span id="nextRuns">—</span></div>
+    </section>
+
+  
+    <section class="card collapsible" data-card="analysis" data-default="closed" id="analysisCard">
+      <div class="card-head">
+        <h2>Análisis y estadísticas</h2>
+        <button id="resetStats" class="btn-mini">Reiniciar</button>
+      </div>
+      <div class="card-body">
+        <div class="analysis-grid">
+          <div class="stat">
+            <div class="stat-num" id="statSearches">0</div>
+            <div class="stat-lbl">Búsquedas hoy</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" id="statProducts">0</div>
+            <div class="stat-lbl">Productos hoy</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" id="statShares">0</div>
+            <div class="stat-lbl">Resúmenes</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" id="statUptime">0m</div>
+            <div class="stat-lbl">Sesión activa</div>
+          </div>
+        </div>
+
+        <h3 class="sub-h">Consumo de datos</h3>
+        <div class="data-usage">
+          <div class="du-row">
+            <span class="du-label">Hoy</span>
+            <span class="du-value" id="duDay">0 KB</span>
+          </div>
+          <div class="du-row">
+            <span class="du-label">Esta semana</span>
+            <span class="du-value" id="duWeek">0 KB</span>
+          </div>
+          <div class="du-row">
+            <span class="du-label">Este mes</span>
+            <span class="du-value" id="duMonth">0 KB</span>
+          </div>
+          <div class="du-row">
+            <span class="du-label">Este año</span>
+            <span class="du-value" id="duYear">0 KB</span>
+          </div>
+        </div>
+
+        <h3 class="sub-h">Últimas búsquedas</h3>
+        <div id="historyList" class="history-list">
+          <div class="hist-empty">Sin historial todavía</div>
+        </div>
+
+        <h3 class="sub-h">Actividad de red</h3>
+        <div class="net-log" id="netLog">—</div>
+
+        <button id="exportStats" class="btn-ghost primary">📥 Exportar reporte (JSON)</button>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="shareModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>📤 Resumen listo para publicar</h3>
+      <button id="closeModal" class="btn-mini">✕</button>
+    </div>
+    <textarea id="shareText" class="share-text"></textarea>
+    <div class="modal-foot">
+      <button id="copyBtn" class="btn-primary">📋 Copiar texto</button>
+      <a id="waBtn" class="btn-primary wa" target="_blank">💬 WhatsApp</a>
+      <a id="fbBtn" class="btn-primary fb" target="_blank">📘 Facebook</a>
+    </div>
+    
+      <div class="share-modes" id="shareModeBar">
+        <button class="mode-btn active" data-mode="custom">✏️ Personalizado</button>
+        <button class="mode-btn" data-mode="completo">📋 Completo</button>
+        <button class="mode-btn" data-mode="mitad">½ Mitad</button>
+        <button class="mode-btn" data-mode="tercios">⅓ Tercios</button>
+        <button class="mode-btn" data-mode="rotativo">🔄 Rotativo</button>
+      </div>
+      <div id="partSelector" class="part-selector hidden">
+        <span>Parte:</span>
+        <button class="part-btn active" data-part="1">1</button>
+        <button class="part-btn" data-part="2">2</button>
+        <button class="part-btn" data-part="3">3</button>
+      </div>
+      <div class="modal-hint">Ajusta cuántos productos incluir:</div>
+    <div class="modal-ctrl">
+      <label>Total: <input id="shareLimit" type="number" min="5" max="100" value="30"></label>
+      <label>Por categoría: <input id="sharePerCat" type="number" min="1" max="10" value="5"></label>
+      <button id="regenBtn" class="btn-mini">🔄 Regenerar</button>
+    </div>
+  </div>
+</div>
+
+  <script src="home.js"></script>
+</body>
+</html>
+<!-- Se agrega vía script para evitar problemas de shell -->
