@@ -1210,3 +1210,39 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ initCandados listo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// PANEL DE DIAGNÓSTICO (temporal)
+// ═══════════════════════════════════════════════
+(function comdiaz_debug_panel(){
+  setTimeout(() => {
+    const key = localStorage.getItem('comdiaz_api_key');
+    const session = localStorage.getItem('comdiaz_auth_until');
+    const debug = document.createElement('div');
+    debug.id = 'comdiaz_debug_panel';
+    debug.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0f1524;border-top:2px solid #7c3aed;padding:10px;font-size:11px;color:#e5e7eb;z-index:99999;font-family:monospace;max-height:200px;overflow:auto';
+    debug.innerHTML = '<b>🔍 DIAGNÓSTICO</b><br>' +
+      'API key en localStorage: <b>' + (key ? '"' + key + '"' : 'NULL ❌') + '</b><br>' +
+      'Sesión: <b>' + (session ? 'activa' : 'null') + '</b><br>' +
+      'API backend: <b>' + (typeof API !== 'undefined' ? API : 'undefined') + '</b><br>' +
+      'Interceptor: <b>' + (typeof window.fetch.toString().includes('comdiaz') ? 'activo' : 'no detectado') + '</b><br>' +
+      '<span id="dbg_result">Probando fetch…</span>';
+
+    document.body.appendChild(debug);
+
+    // Test fetch con la clave
+    fetch(API + '/api/state', {
+      headers: { 'X-Comdiaz-Key': key || '' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('dbg_result');
+      if (el) el.innerHTML = 'Fetch con key: <b style="color:#10b981">' + (d.results ? d.results.length + ' productos ✅' : JSON.stringify(d).slice(0,80)) + '</b>';
+    })
+    .catch(e => {
+      const el = document.getElementById('dbg_result');
+      if (el) el.innerHTML = 'Fetch con key: <b style="color:#ef4444">ERROR: ' + e.message + '</b>';
+    });
+  }, 3000);
+})();
