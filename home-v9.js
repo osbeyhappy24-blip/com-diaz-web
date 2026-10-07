@@ -156,7 +156,7 @@ $('toggleBtn').onclick = async () => {
   if (!on) {
     // Optimista: pinta mbar de inmediato
     btn.className = 'toggle-btn loading';
-    $('toggleIcon').textContent = '';
+    $('toggleIcon').textContent = '\u23F1';
     $('toggleLabel').textContent = 'Arrancando en 5s';
     toast('Arrancando en 5 segundos');
 
@@ -174,7 +174,7 @@ $('toggleBtn').onclick = async () => {
   } else {
     // Pausa: optimista
     btn.className = 'toggle-btn loading';
-    $('toggleIcon').textContent = '';
+    $('toggleIcon').textContent = '\u23F1';
     $('toggleLabel').textContent = 'Pausando';
 
     try {
@@ -325,7 +325,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       el.innerHTML = '<span>\uD83D\uDD50 ' + t + '</span>';
       if (editing) {
         const x = document.createElement('span');
-        x.textContent = '';
+        x.textContent = '\u00D7';
         x.style.opacity = '.7';
         x.style.cursor = 'pointer';
         x.style.marginLeft = '6px';
@@ -411,7 +411,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     box.classList.remove('collapsed');
     box.classList.add('open');
     chev.classList.add('open');
-    chev.textContent = '';
+    chev.textContent = '\u25BE';
   }
 
   head.addEventListener('click', () => {
@@ -420,13 +420,13 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       box.classList.remove('open');
       box.classList.add('collapsed');
       chev.classList.remove('open');
-      chev.textContent = '';
+      chev.textContent = '\u25B8';
       localStorage.setItem(KEY, '0');
     } else {
       box.classList.remove('collapsed');
       box.classList.add('open');
       chev.classList.add('open');
-      chev.textContent = '';
+      chev.textContent = '\u25BE';
       localStorage.setItem(KEY, '1');
     }
   });
@@ -580,7 +580,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
       const chev = document.createElement('span');
       chev.className = 'card-chev';
-      chev.textContent = '';
+      chev.textContent = '\u25B8';
       left.insertBefore(chev, left.firstChild);
     }
 
@@ -613,10 +613,10 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     function aplicar(abrir) {
       if (abrir) {
         card.classList.add('open');
-        if (chev) chev.textContent = '';
+        if (chev) chev.textContent = '\u25BE';
       } else {
         card.classList.remove('open');
-        if (chev) chev.textContent = '';
+        if (chev) chev.textContent = '\u25B8';
       }
     }
     aplicar(estado);
