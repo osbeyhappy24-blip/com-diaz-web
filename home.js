@@ -22,16 +22,14 @@
   console.log('✅ Capturador de errores activo');
 })();
 
-// ---- Envía la clave en cada request ----
+// ---- Envía la clave como ?k= (evita preflight CORS) ----
 (function inyectarAuth(){
   const _fetch = window.fetch.bind(window);
   window.fetch = function(input, init) {
-    init = init || {};
-    init.headers = init.headers || {};
     const key = localStorage.getItem('comdiaz_api_key');
-    if (key) {
-      if (init.headers instanceof Headers) init.headers.set('X-Comdiaz-Key', key);
-      else if (typeof init.headers === 'object') init.headers['X-Comdiaz-Key'] = key;
+    if (key && typeof input === 'string' && input.includes(API)) {
+      const sep = input.includes('?') ? '&' : '?';
+      input = input + sep + 'k=' + encodeURIComponent(key);
     }
     return _fetch(input, init);
   };
