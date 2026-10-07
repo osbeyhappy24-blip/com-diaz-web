@@ -1,3 +1,11 @@
+// Helper de progreso
+window.comdiaz_progress_marker = function(msg, color) {
+  const el = document.getElementById('comdiaz_progress');
+  if (el) { el.textContent = msg; el.style.background = color || '#10b981'; }
+  console.log('[COMDIAZ] ' + msg);
+};
+window.comdiaz_progress_marker('Paso 1: home.js arrancando');
+
 // ═══════════════════════════════════════════════
 // CAPTURADOR DE ERRORES (temporal)
 // ═══════════════════════════════════════════════
@@ -1268,3 +1276,6 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     });
   }, 3000);
 })();
+
+
+window.comdiaz_progress_marker('Paso 99: home.js terminó OK');
