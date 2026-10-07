@@ -1,3 +1,27 @@
+// ═══════════════════════════════════════════════
+// CAPTURADOR DE ERRORES (temporal)
+// ═══════════════════════════════════════════════
+(function comdiaz_error_catcher(){
+  function mostrar(msg, tipo) {
+    let box = document.getElementById('comdiaz_error_box');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'comdiaz_error_box';
+      box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:10px;font-size:11px;font-family:monospace;z-index:999999;max-height:40vh;overflow:auto;white-space:pre-wrap';
+      box.innerHTML = '<b>🚨 ERRORES DETECTADOS:</b>\n';
+      (document.body || document.documentElement).appendChild(box);
+    }
+    box.innerHTML += '\n[' + tipo + '] ' + msg;
+  }
+  window.addEventListener('error', e => {
+    mostrar(e.message + '\n  en ' + (e.filename||'?') + ' línea ' + e.lineno, 'error');
+  });
+  window.addEventListener('unhandledrejection', e => {
+    mostrar('Promise rechazada: ' + (e.reason && e.reason.message ? e.reason.message : e.reason), 'promise');
+  });
+  console.log('✅ Capturador de errores activo');
+})();
+
 // ---- Envía la clave en cada request ----
 (function inyectarAuth(){
   const _fetch = window.fetch.bind(window);
