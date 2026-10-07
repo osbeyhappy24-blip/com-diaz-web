@@ -1,36 +1,9 @@
-// Helper de progreso
-window.comdiaz_progress_marker = function(msg, color) {
-  const el = document.getElementById('comdiaz_progress');
-  if (el) { el.textContent = msg; el.style.background = color || '#10b981'; }
-  console.log('[COMDIAZ] ' + msg);
-};
-window.comdiaz_progress_marker('Paso 1: home.js arrancando');
-
-// ═══════════════════════════════════════════════
+// 
 // CAPTURADOR DE ERRORES (temporal)
-// ═══════════════════════════════════════════════
-(function comdiaz_error_catcher(){
-  function mostrar(msg, tipo) {
-    let box = document.getElementById('comdiaz_error_box');
-    if (!box) {
-      box = document.createElement('div');
-      box.id = 'comdiaz_error_box';
-      box.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#7f1d1d;color:#fff;padding:10px;font-size:11px;font-family:monospace;z-index:999999;max-height:40vh;overflow:auto;white-space:pre-wrap';
-      box.innerHTML = '<b>🚨 ERRORES DETECTADOS:</b>\n';
-      (document.body || document.documentElement).appendChild(box);
-    }
-    box.innerHTML += '\n[' + tipo + '] ' + msg;
-  }
-  window.addEventListener('error', e => {
-    mostrar(e.message + '\n  en ' + (e.filename||'?') + ' línea ' + e.lineno, 'error');
-  });
-  window.addEventListener('unhandledrejection', e => {
-    mostrar('Promise rechazada: ' + (e.reason && e.reason.message ? e.reason.message : e.reason), 'promise');
-  });
-  console.log('✅ Capturador de errores activo');
-})();
+// 
 
-// ---- Envía la clave como ?k= (evita preflight CORS) ----
+
+// ---- Enva la clave como ?k= (evita preflight CORS) ----
 (function inyectarAuth(){
   const _fetch = window.fetch.bind(window);
   window.fetch = function(input, init) {
@@ -73,7 +46,7 @@ async function api(path, opts = {}) {
 }
 
 function timeAgo(iso) {
-  if (!iso) return '—';
+  if (!iso) return '';
   const s = Math.floor((Date.now() - new Date(iso).getTime())/1000);
   if (s < 60) return `hace ${s}s`;
   if (s < 3600) return `hace ${Math.floor(s/60)}m`;
@@ -84,13 +57,13 @@ function timeAgo(iso) {
 // ---------- Render ----------
 function renderStatus() {
   const on = state.automation.running;
-  $('statusPill').textContent = on ? '● ACTIVO' : '● EN PAUSA';
+  $('statusPill').textContent = on ? ' ACTIVO' : ' EN PAUSA';
   $('statusPill').className = 'status-pill ' + (on ? 'on' : 'off');
   $('statusText').textContent = on ? 'Automatización activa' : 'Automatización pausada';
 
   const btn = $('toggleBtn');
   btn.className = 'toggle-btn ' + (on ? 'running' : 'paused');
-  $('toggleIcon').textContent = on ? '❚❚' : '▶';
+  $('toggleIcon').textContent = on ? '' : '';
   $('toggleLabel').textContent = on ? 'Pausar automatización' : 'Iniciar automatización';
 }
 
@@ -104,8 +77,8 @@ function renderMargin() {
   $('marginRange').value = state.margin;
   $('marginVal').textContent = state.margin;
   const example = state.results[0]
-    ? `${fmtMoney(state.results[0].basePrice)} → ${fmtMoney(state.results[0].salePrice)}`
-    : 'Sin productos aún';
+    ? `${fmtMoney(state.results[0].basePrice)}  ${fmtMoney(state.results[0].salePrice)}`
+    : 'Sin productos an';
   $('marginExample').textContent = `Ejemplo: ${example}`;
 }
 
@@ -118,7 +91,7 @@ function renderCategories() {
     el.innerHTML = `<span>${c.label}</span>`;
     if ($('addCatBox').classList.contains('hidden') === false) {
       const x = document.createElement('span');
-      x.textContent = '✕';
+      x.textContent = '\u00D7';
       x.style.opacity = '.7';
       x.onclick = async (e) => {
         e.stopPropagation();
@@ -181,19 +154,19 @@ $('toggleBtn').onclick = async () => {
   const btn = $('toggleBtn');
 
   if (!on) {
-    // Optimista: pinta ámbar de inmediato
+    // Optimista: pinta mbar de inmediato
     btn.className = 'toggle-btn loading';
-    $('toggleIcon').textContent = '⏱';
-    $('toggleLabel').textContent = 'Arrancando en 5s…';
-    toast('Arrancando en 5 segundos…');
+    $('toggleIcon').textContent = '\u23F1';
+    $('toggleLabel').textContent = 'Arrancando en 5s';
+    toast('Arrancando en 5 segundos');
 
     try {
       const r = await api('/api/automation/play', { method:'POST' });
       // Refresh inmediato del estado (sin esperar los 5s)
       await refresh();
-      // Refresh tras 5.5s para reflejar primera búsqueda
+      // Refresh tras 5.5s para reflejar primera bsqueda
       setTimeout(refresh, 5500);
-      toast('▶ Automatización activada', 'ok');
+      toast(' Automatización activada', 'ok');
     } catch (e) {
       toast('Error al activar: ' + e.message, 'err');
       await refresh();
@@ -201,13 +174,13 @@ $('toggleBtn').onclick = async () => {
   } else {
     // Pausa: optimista
     btn.className = 'toggle-btn loading';
-    $('toggleIcon').textContent = '⏱';
-    $('toggleLabel').textContent = 'Pausando…';
+    $('toggleIcon').textContent = '\u23F1';
+    $('toggleLabel').textContent = 'Pausando';
 
     try {
       await api('/api/automation/pause', { method:'POST' });
       await refresh();
-      toast('⏸ Automatización pausada');
+      toast(' Automatización pausada');
     } catch (e) {
       toast('Error al pausar: ' + e.message, 'err');
       await refresh();
@@ -216,7 +189,7 @@ $('toggleBtn').onclick = async () => {
 };
 
 $('searchNow').onclick = async () => {
-  toast('Buscando…');
+  toast('Buscando');
   const r = await api('/api/search/now', { method:'POST' });
   window.__lastSearchCount = r.count;
   await refresh();
@@ -273,7 +246,7 @@ async function generarShare() {
 }
 
 $('shareBtn').onclick = async () => {
-  toast('Generando resumen…');
+  toast('Generando resumen');
   await generarShare();
   $('shareModal').classList.remove('hidden');
 };
@@ -293,7 +266,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   modal.addEventListener('click', (e) => {
     const t = e.target;
 
-    // Botón ✕ o clic en el fondo oscuro => cerrar
+    // Botn  o clic en el fondo oscuro => cerrar
     if (t.id === 'closeModal' || t.closest('#closeModal') || t === modal) {
       e.stopPropagation();
       modal.classList.add('hidden');
@@ -307,7 +280,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (!ta) return;
       try { navigator.clipboard.writeText(ta.value); }
       catch { ta.select(); document.execCommand('copy'); }
-      if (typeof toast === 'function') toast('Copiado ✅','ok');
+      if (typeof toast === 'function') toast('Copiado ','ok');
       return;
     }
 
@@ -315,7 +288,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     if (t.id === 'regenBtn' || t.closest('#regenBtn')) {
       e.stopPropagation();
       if (typeof generarShare === 'function') {
-        toast('Regenerando…');
+        toast('Regenerando');
         generarShare().then(()=> toast('Listo','ok'));
       }
       return;
@@ -349,10 +322,10 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     times.forEach(t => {
       const el = document.createElement('div');
       el.className = 'chip active';
-      el.innerHTML = '<span>🕐 ' + t + '</span>';
+      el.innerHTML = '<span>\uD83D\uDD50 ' + t + '</span>';
       if (editing) {
         const x = document.createElement('span');
-        x.textContent = '✕';
+        x.textContent = '\u00D7';
         x.style.opacity = '.7';
         x.style.cursor = 'pointer';
         x.style.marginLeft = '6px';
@@ -376,8 +349,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       ? next.slice(0,3).map(d => {
           const f = new Date(d);
           return f.toLocaleString('es', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'short' });
-        }).join(' · ')
-      : '—';
+        }).join('  ')
+      : '';
     const span = $id('nextRuns');
     if (span) span.textContent = hint;
   }
@@ -394,7 +367,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const st = window.state || state;
       const v = $id('newHourInput').value;
       if (!v) return;
-      if ((st.automation.publishTimes || []).includes(v)) { alert('Esa hora ya está'); return; }
+      if ((st.automation.publishTimes || []).includes(v)) { alert('Esa hora ya est'); return; }
       const nuevas = [...(st.automation.publishTimes || []), v].sort();
       await fetch(API + '/api/publish-times', {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -416,7 +389,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     }
   }, 300);
 
-  // Y también en cada cambio de #countProducts (señal de refresh)
+  // Y tambin en cada cambio de #countProducts (seal de refresh)
   const target = document.getElementById('countProducts');
   if (target) {
     new MutationObserver(renderHoras).observe(target, { childList:true, characterData:true, subtree:true });
@@ -438,7 +411,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     box.classList.remove('collapsed');
     box.classList.add('open');
     chev.classList.add('open');
-    chev.textContent = '▾';
+    chev.textContent = '\u25BE';
   }
 
   head.addEventListener('click', () => {
@@ -447,13 +420,13 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       box.classList.remove('open');
       box.classList.add('collapsed');
       chev.classList.remove('open');
-      chev.textContent = '▸';
+      chev.textContent = '\u25B8';
       localStorage.setItem(KEY, '0');
     } else {
       box.classList.remove('collapsed');
       box.classList.add('open');
       chev.classList.add('open');
-      chev.textContent = '▾';
+      chev.textContent = '\u25BE';
       localStorage.setItem(KEY, '1');
     }
   });
@@ -493,8 +466,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const info = document.createElement('div');
       info.className = 'source-info';
       let sub = src.needsKey
-        ? (src.hasConfig ? '<span class="source-sub ok">✓ Configurada</span>' : '<span class="source-sub warn">⚠ Requiere configuración</span>')
-        : '<span class="source-sub">Sin clave · lista para usar</span>';
+        ? (src.hasConfig ? '<span class="source-sub ok"> Configurada</span>' : '<span class="source-sub warn"> Requiere configuración</span>')
+        : '<span class="source-sub">Sin clave  lista para usar</span>';
       info.innerHTML = '<div class="source-name">' + src.label + '</div>' + sub;
 
       const toggle = document.createElement('button');
@@ -507,7 +480,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
           body: JSON.stringify({ id: src.id, enabled: nuevo })
         });
         await cargarSources();
-        if (typeof toast === 'function') toast((nuevo?'✅ Activada: ':'⏸ Desactivada: ') + src.label);
+        if (typeof toast === 'function') toast((nuevo?' Activada: ':' Desactivada: ') + src.label);
       };
 
       row.appendChild(emoji);
@@ -531,7 +504,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
         const btn = document.createElement('button');
         btn.className = 'save-cfg';
-        btn.textContent = '💾 Guardar credenciales';
+        btn.textContent = ' Guardar credenciales';
         btn.onclick = async () => {
           const config = {};
           src.keyFields.forEach(f => {
@@ -552,7 +525,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
           a.className = 'docs-link';
           a.href = src.docsUrl;
           a.target = '_blank';
-          a.textContent = '¿Cómo obtener las claves? →';
+          a.textContent = 'Cmo obtener las claves? ';
           cfg.appendChild(a);
         }
         wrap.appendChild(cfg);
@@ -574,9 +547,9 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 })();
 
 
-// ════════════════════════════════════════
+// 
 //  SISTEMA COLAPSABLE (Comdiaz v0.2)
-// ════════════════════════════════════════
+// 
 (function initCollapsible(){
   const STORAGE_KEY = 'comdiaz_cards_state';
 
@@ -599,7 +572,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     if (!head.querySelector('.card-chev')) {
       const left = document.createElement('div');
       left.className = 'head-left';
-      // Mover los hijos del head a la izquierda (excepto el botón/label derecho)
+      // Mover los hijos del head a la izquierda (excepto el botn/label derecho)
       const rightBtn = head.querySelector('.btn-mini, .badge, button');
       const h2 = head.querySelector('h2');
       if (h2) left.appendChild(h2);
@@ -607,7 +580,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
       const chev = document.createElement('span');
       chev.className = 'card-chev';
-      chev.textContent = '▸';
+      chev.textContent = '\u25B8';
       left.insertBefore(chev, left.firstChild);
     }
 
@@ -620,7 +593,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
       const nodos = Array.from(card.childNodes);
       const headIdx = nodos.indexOf(head);
-      // Mover todo lo que viene después del head
+      // Mover todo lo que viene despus del head
       nodos.slice(headIdx + 1).forEach(n => {
         if (n.nodeType === 1 || (n.nodeType === 3 && n.textContent.trim())) {
           body.appendChild(n);
@@ -636,21 +609,21 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     // El chevron
     const chev = head.querySelector('.card-chev');
 
-    // Función para aplicar
+    // Funcin para aplicar
     function aplicar(abrir) {
       if (abrir) {
         card.classList.add('open');
-        if (chev) chev.textContent = '▾';
+        if (chev) chev.textContent = '\u25BE';
       } else {
         card.classList.remove('open');
-        if (chev) chev.textContent = '▸';
+        if (chev) chev.textContent = '\u25B8';
       }
     }
     aplicar(estado);
 
     // Click para togglear
     head.addEventListener('click', (e) => {
-      // Ignorar si el click fue en un botón de acción (ej: Configurar, Editar)
+      // Ignorar si el click fue en un botn de accin (ej: Configurar, Editar)
       if (e.target.closest('.btn-mini')) return;
       const abrir = !card.classList.contains('open');
       aplicar(abrir);
@@ -659,7 +632,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     });
   });
 
-  console.log('✅ Sistema colapsable inicializado');
+  console.log(' Sistema colapsable inicializado');
 })();
 
 // ---------- Modos de resumen ----------
@@ -699,7 +672,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     if (mb) {
       currentMode = mb.dataset.mode;
       actualizar();
-      // Regenerar automáticamente
+      // Regenerar automticamente
       if (typeof generarShare === 'function') {
         generarShare();
       }
@@ -729,12 +702,12 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   };
 
   actualizar();
-  console.log('✅ Modos de resumen inicializados');
+  console.log(' Modos de resumen inicializados');
 })();
 
 
 
-// ---------- Análisis y medición de red ----------
+// ---------- Análisis y medicin de red ----------
 (function initAnalytics(){
   const KEY = 'comdiaz_analytics';
   const SESSION_START = Date.now();
@@ -746,7 +719,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       return raw ? JSON.parse(raw) : {
         searches: [],      // {ts, count}
         shares: [],        // {ts, mode}
-        net: {             // bytes por período
+        net: {             // bytes por perodo
           day:   { date: '', bytes: 0 },
           week:  { key: '',  bytes: 0 },
           month: { key: '',  bytes: 0 },
@@ -807,7 +780,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   window.comdiazTrack = {
     search(count) {
       stats.searches.push({ ts: Date.now(), count });
-      // Mantener últimos 100
+      // Mantener ltimos 100
       if (stats.searches.length > 100) stats.searches = stats.searches.slice(-100);
       saveStats(stats);
       updateStatsDisplay();
@@ -871,7 +844,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const data = await r.json();
       const list = (data.summaries || []).slice(0, 10);
       if (!list.length) {
-        box.innerHTML = '<div class="hist-empty">Sin historial todavía</div>';
+        box.innerHTML = '<div class="hist-empty">Sin historial todava</div>';
         return;
       }
       box.innerHTML = '';
@@ -882,8 +855,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
         const timeAgo = Math.floor((Date.now() - date.getTime()) / 60000);
         const timeStr = timeAgo < 1 ? 'ahora' : timeAgo < 60 ? 'hace ' + timeAgo + 'm' : 'hace ' + Math.floor(timeAgo/60) + 'h';
         el.innerHTML = '<div>' +
-          '<div class="h-trigger">' + s.trigger + (s.mode ? ' · ' + s.mode : '') + '</div>' +
-          '<div class="h-info">' + s.products + ' productos · ' + s.margin + '%</div>' +
+          '<div class="h-trigger">' + s.trigger + (s.mode ? '  ' + s.mode : '') + '</div>' +
+          '<div class="h-info">' + s.products + ' productos  ' + s.margin + '%</div>' +
           '</div>' +
           '<div class="h-time">' + timeStr + '</div>';
         box.appendChild(el);
@@ -930,7 +903,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   const resetBtn = document.getElementById('resetStats');
   if (resetBtn) {
     resetBtn.onclick = () => {
-      if (!confirm('¿Borrar todas las estadísticas locales?')) return;
+      if (!confirm('Borrar todas las estadísticas locales?')) return;
       stats = { searches: [], shares: [], net: { day:{date:'',bytes:0},week:{key:'',bytes:0},month:{key:'',bytes:0},year:{key:'',bytes:0} } };
       saveStats(stats);
       resetIfNeeded();
@@ -943,7 +916,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   setInterval(renderAll, 30000);
   renderAll();
 
-  // Enganchar al botón "Buscar ahora"
+  // Enganchar al botn "Buscar ahora"
   const searchBtn = document.getElementById('searchNow');
   if (searchBtn) {
     const original = searchBtn.onclick;
@@ -956,35 +929,35 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     };
   }
 
-  console.log('✅ Analytics inicializado');
+  console.log(' Analytics inicializado');
 })();
 
 
 
 
 
-// ---------- Logout (v3, directo al botón) ----------
+// ---------- Logout (v3, directo al botn) ----------
 (function initLogoutV3(){
   function bind() {
     const btn = document.getElementById('logoutBtn');
     if (!btn) {
-      console.log('⚠️ logoutBtn no encontrado en el DOM');
+      console.log(' logoutBtn no encontrado en el DOM');
       return;
     }
     // onclick sobreescribe cualquier listener anterior
     btn.onclick = function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
-      console.log('🔓 Logout: limpiando sesión y redirigiendo');
+      console.log(' Logout: limpiando sesión y redirigiendo');
       try { localStorage.removeItem('comdiaz_auth_until'); } catch(_) {}
       // Forzar recarga limpia
       setTimeout(() => {
         window.location.replace('index.html');
       }, 50);
     };
-    console.log('✅ Logout bindeado al botón');
+    console.log(' Logout bindeado al botn');
   }
-  // El script corre al final del body, el botón ya debería existir
+  // El script corre al final del body, el botn ya debera existir
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bind);
   } else {
@@ -1004,11 +977,11 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
 
 
-// ═══════════════════════════════════════════════
-// INTERACCIONES CRÍTICAS (delegación — v3)
-// ═══════════════════════════════════════════════
+// 
+// INTERACCIONES CRTICAS (delegacin  v3)
+// 
 (function initDelegado(){
-  console.log('🔧 initDelegado arrancando');
+  console.log(' initDelegado arrancando');
 
   // --- CANDADO DEL PLAY ---
   const KEY_LOCK = 'comdiaz_play_locked';
@@ -1017,7 +990,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const row = document.querySelector('.play-row');
     if (!btn || !row) return;
     const locked = localStorage.getItem(KEY_LOCK) === '1';
-    btn.textContent = locked ? '🔒' : '🔓';
+    btn.textContent = locked ? '' : '';
     btn.classList.toggle('locked', locked);
     row.classList.toggle('locked', locked);
   }
@@ -1025,7 +998,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   // --- MODAL DE PIN ---
   function abrirPinModal() {
     const m = document.getElementById('pinModal');
-    if (!m) { console.log('❌ pinModal no existe'); return; }
+    if (!m) { console.log(' pinModal no existe'); return; }
     const a = document.getElementById('pinActual');
     const n = document.getElementById('pinNuevo');
     const c = document.getElementById('pinConfirm');
@@ -1035,7 +1008,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     if (c) c.value = '';
     if (msg) { msg.textContent = ''; msg.style.color = '#94a3b8'; }
     m.classList.remove('hidden');
-    console.log('🔑 Modal abierto');
+    console.log(' Modal abierto');
   }
   function cerrarPinModal() {
     const m = document.getElementById('pinModal');
@@ -1048,14 +1021,14 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const msg = document.getElementById('pinMsg');
 
     if (!/^[0-9]{4,10}$/.test(n)) {
-      msg.textContent = '✕ El PIN debe tener 4-10 dígitos';
+      msg.textContent = ' El PIN debe tener 4-10 dígitos';
       msg.style.color = '#ef4444'; return;
     }
     if (n !== c) {
-      msg.textContent = '✕ Los PIN nuevos no coinciden';
+      msg.textContent = ' Los PIN nuevos no coinciden';
       msg.style.color = '#ef4444'; return;
     }
-    msg.textContent = 'Guardando…';
+    msg.textContent = 'Guardando';
     msg.style.color = '#94a3b8';
 
     try {
@@ -1067,21 +1040,21 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const data = await r.json();
       if (data.ok) {
         localStorage.setItem('comdiaz_api_key', n);
-        msg.textContent = '✓ PIN actualizado';
+        msg.textContent = ' PIN actualizado';
         msg.style.color = '#10b981';
-        if (typeof toast === 'function') toast('PIN actualizado ✅', 'ok');
+        if (typeof toast === 'function') toast('PIN actualizado ', 'ok');
         setTimeout(cerrarPinModal, 1200);
       } else {
-        msg.textContent = '✕ ' + (data.error || 'Error');
+        msg.textContent = ' ' + (data.error || 'Error');
         msg.style.color = '#ef4444';
       }
     } catch (e) {
-      msg.textContent = '✕ Error de conexión';
+      msg.textContent = ' Error de conexin';
       msg.style.color = '#ef4444';
     }
   }
 
-  // --- Delegación de clicks ---
+  // --- Delegacin de clicks ---
   document.addEventListener('click', (e) => {
     const t = e.target;
     const btn = t.closest ? t.closest('button') : null;
@@ -1108,26 +1081,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       return;
     }
 
-    // Candado del Play
-    if (btn && btn.id === 'lockPlay') {
-      e.preventDefault(); e.stopPropagation();
-      const locked = localStorage.getItem(KEY_LOCK) === '1';
-      localStorage.setItem(KEY_LOCK, locked ? '0' : '1');
-      aplicarLockPlay();
-      if (typeof toast === 'function') {
-        toast(!locked ? '🔒 Play bloqueado' : '🔓 Play desbloqueado');
-      }
-      return;
-    }
+    // Candado del Play: manejado por initCandados
 
-    // Bloquear el Play si el candado está cerrado
-    if (btn && btn.id === 'toggleBtn') {
-      if (localStorage.getItem(KEY_LOCK) === '1') {
-        e.preventDefault(); e.stopPropagation();
-        if (typeof toast === 'function') toast('🔒 Desbloquea el candado primero', 'err');
-        return false;
-      }
-    }
   }, true); // capture:true para anticiparnos a otros listeners
 
   // Aplicar estado inicial
@@ -1135,32 +1090,32 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     aplicarLockPlay();
   }
   aplicarTodo();
-  // Por si el DOM se carga después
+  // Por si el DOM se carga despus
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', aplicarTodo);
   }
   setTimeout(aplicarTodo, 500);
 
-  console.log('✅ initDelegado listo');
+  console.log(' initDelegado listo');
 })();
 
 
-// ═══════════════════════════════════════════════
-// CANDADOS: Play + Margen (delegación — v3)
-// ═══════════════════════════════════════════════
+// 
+// CANDADOS: Play + Margen (delegacin  v3)
+// 
 (function initCandados(){
-  console.log('🔐 initCandados arrancando');
+  console.log(' initCandados arrancando');
 
   const KEY_PLAY = 'comdiaz_play_locked';
   const KEY_MARGIN = 'comdiaz_margin_locked';
 
-  // ─── Aplicar estados ───
+  //  Aplicar estados 
   function aplicarPlayLock() {
     const btn = document.getElementById('lockPlay');
     const row = document.querySelector('.play-row');
     if (!btn || !row) return;
     const locked = localStorage.getItem(KEY_PLAY) === '1';
-    btn.textContent = locked ? '🔒' : '🔓';
+    btn.textContent = locked ? '' : '';
     btn.classList.toggle('locked', locked);
     row.classList.toggle('locked', locked);
   }
@@ -1171,14 +1126,14 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const slider = document.getElementById('marginRange');
     if (!btn || !row) return;
     const locked = localStorage.getItem(KEY_MARGIN) === '1';
-    btn.textContent = locked ? '🔒' : '🔓';
+    btn.textContent = locked ? '' : '';
     btn.classList.toggle('locked', locked);
     row.classList.toggle('locked', locked);
     if (slider) slider.style.pointerEvents = locked ? 'none' : '';
     if (slider) slider.style.filter = locked ? 'grayscale(1) brightness(.7)' : '';
   }
 
-  // ─── Delegación de clicks ───
+  //  Delegacin de clicks 
   document.addEventListener('click', (e) => {
     const btn = e.target.closest ? e.target.closest('button') : null;
     if (!btn) return;
@@ -1191,7 +1146,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       localStorage.setItem(KEY_PLAY, nuevo ? '1' : '0');
       aplicarPlayLock();
       if (typeof toast === 'function') {
-        toast(nuevo ? '🔒 Play bloqueado' : '🔓 Play desbloqueado');
+        toast(nuevo ? ' Play bloqueado' : ' Play desbloqueado');
       }
       return;
     }
@@ -1204,24 +1159,24 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       localStorage.setItem(KEY_MARGIN, nuevo ? '1' : '0');
       aplicarMarginLock();
       if (typeof toast === 'function') {
-        toast(nuevo ? '🔒 Margen bloqueado' : '🔓 Margen desbloqueado');
+        toast(nuevo ? ' Margen bloqueado' : ' Margen desbloqueado');
       }
       return;
     }
   }, true);
 
-  // ─── Bloquear el Play si el candado está cerrado ───
+  //  Bloquear el Play si el candado est cerrado 
   document.addEventListener('click', (e) => {
     const btn = e.target.closest ? e.target.closest('button') : null;
     if (!btn || btn.id !== 'toggleBtn') return;
     if (localStorage.getItem(KEY_PLAY) === '1') {
       e.preventDefault(); e.stopPropagation();
-      if (typeof toast === 'function') toast('🔒 Desbloquea el candado primero', 'err');
+      if (typeof toast === 'function') toast(' Desbloquea el candado primero', 'err');
       return false;
     }
   }, true);
 
-  // ─── Aplicar al cargar ───
+  //  Aplicar al cargar 
   function aplicarTodo() {
     aplicarPlayLock();
     aplicarMarginLock();
@@ -1230,52 +1185,18 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', aplicarTodo);
   }
-  // Por si el DOM cambia después
+  // Por si el DOM cambia despus
   setTimeout(aplicarTodo, 800);
   setTimeout(aplicarTodo, 2000);
 
-  // Observer: si aparecen los botones después, aplicar
+  // Observer: si aparecen los botones despus, aplicar
   const obs = new MutationObserver(() => aplicarTodo());
   obs.observe(document.body, { childList: true, subtree: true });
 
-  console.log('✅ initCandados listo');
+  console.log(' initCandados listo');
 })();
 
 
-// ═══════════════════════════════════════════════
-// PANEL DE DIAGNÓSTICO (temporal)
-// ═══════════════════════════════════════════════
-(function comdiaz_debug_panel(){
-  setTimeout(() => {
-    const key = localStorage.getItem('comdiaz_api_key');
-    const session = localStorage.getItem('comdiaz_auth_until');
-    const debug = document.createElement('div');
-    debug.id = 'comdiaz_debug_panel';
-    debug.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0f1524;border-top:2px solid #7c3aed;padding:10px;font-size:11px;color:#e5e7eb;z-index:99999;font-family:monospace;max-height:200px;overflow:auto';
-    debug.innerHTML = '<b>🔍 DIAGNÓSTICO</b><br>' +
-      'API key en localStorage: <b>' + (key ? '"' + key + '"' : 'NULL ❌') + '</b><br>' +
-      'Sesión: <b>' + (session ? 'activa' : 'null') + '</b><br>' +
-      'API backend: <b>' + (typeof API !== 'undefined' ? API : 'undefined') + '</b><br>' +
-      'Interceptor: <b>' + (typeof window.fetch.toString().includes('comdiaz') ? 'activo' : 'no detectado') + '</b><br>' +
-      '<span id="dbg_result">Probando fetch…</span>';
-
-    document.body.appendChild(debug);
-
-    // Test fetch con la clave
-    fetch(API + '/api/state', {
-      headers: { 'X-Comdiaz-Key': key || '' }
-    })
-    .then(r => r.json())
-    .then(d => {
-      const el = document.getElementById('dbg_result');
-      if (el) el.innerHTML = 'Fetch con key: <b style="color:#10b981">' + (d.results ? d.results.length + ' productos ✅' : JSON.stringify(d).slice(0,80)) + '</b>';
-    })
-    .catch(e => {
-      const el = document.getElementById('dbg_result');
-      if (el) el.innerHTML = 'Fetch con key: <b style="color:#ef4444">ERROR: ' + e.message + '</b>';
-    });
-  }, 3000);
-})();
-
-
-window.comdiaz_progress_marker('Paso 99: home.js terminó OK');
+// 
+// PANEL DE DIAGNSTICO (temporal)
+// 
