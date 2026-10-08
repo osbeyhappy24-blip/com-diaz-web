@@ -144,8 +144,41 @@ function renderAll() {
 
 // ---------- Carga ----------
 async function refresh() {
-  state = await api('/api/state');
-  renderAll();
+  const cached = window.comdiaz_read_cache ? window.comdiaz_read_cache() : null;
+
+  // 1) Si hay caché, mostrarlo primero (rápido)
+  if (cached && (!state || !state.categories)) {
+    state = cached;
+    try { renderAll(); } catch(e) { console.warn(e); }
+  }
+
+  // 2) Si no hay internet, no intentar actualizar
+  if (!navigator.onLine) {
+    if (window.comdiaz_update_badge) window.comdiaz_update_badge('offline');
+    if (!cached) toast('🔴 Sin conexión y sin datos guardados', 'err');
+    return;
+  }
+
+  // 3) Intentar traer del servidor
+  try {
+    if (window.comdiaz_update_badge) window.comdiaz_update_badge('syncing');
+    state = await api('/api/state');
+    if (window.comdiaz_save_cache) window.comdiaz_save_cache(state);
+    renderAll();
+    if (window.comdiaz_update_badge) window.comdiaz_update_badge('online');
+  } catch (e) {
+    console.error('refresh error:', e);
+    if (cached) {
+      // Usar caché y marcar offline
+      state = cached;
+      try { renderAll(); } catch(_){}
+      if (window.comdiaz_update_badge) window.comdiaz_update_badge('offline');
+      toast('🔴 Sin conexión · usando datos guardados', 'err');
+    } else {
+      if (window.comdiaz_update_badge) window.comdiaz_update_badge('error');
+      toast('No se pudo conectar y no hay datos guardados', 'err');
+    }
+  }
 }
 
 // ---------- Acciones ----------
@@ -1200,3 +1233,118 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 // 
 // PANEL DE DIAGNSTICO (temporal)
 // 
+
+// ═══════════════════════════════════════════════
+// SISTEMA OFFLINE-FIRST (comdiaz_offline_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_offline_v1(){
+  const KEY_CACHE = 'comdiaz_state_cache';
+  const KEY_LAST_SYNC = 'comdiaz_last_sync';
+  const KEY_LAST_ATTEMPT = 'comdiaz_last_attempt';
+
+  // ─── Estado de conexión ───
+  window.comdiaz_online = navigator.onLine;
+  window.comdiaz_syncing = false;
+
+  // ─── Guardar estado en caché ───
+  window.comdiaz_save_cache = function(state) {
+    try {
+      localStorage.setItem(KEY_CACHE, JSON.stringify(state));
+      localStorage.setItem(KEY_LAST_SYNC, String(Date.now()));
+    } catch(e) { console.warn('Error guardando caché:', e); }
+  };
+
+  // ─── Leer estado del caché ───
+  window.comdiaz_read_cache = function() {
+    try {
+      const raw = localStorage.getItem(KEY_CACHE);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  };
+
+  // ─── Actualizar badge de sincronización ───
+  window.comdiaz_update_badge = function(estado) {
+    let badge = document.getElementById('syncBadge');
+    if (!badge) {
+      // Crear el badge si no existe
+      const topbar = document.querySelector('.topbar');
+      if (!topbar) return;
+      badge = document.createElement('div');
+      badge.id = 'syncBadge';
+      badge.style.cssText = 'position:absolute;bottom:-22px;left:12px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;font-family:monospace;transition:all .3s;z-index:10';
+      topbar.style.position = 'relative';
+      topbar.appendChild(badge);
+    }
+
+    const lastSync = Number(localStorage.getItem(KEY_LAST_SYNC) || 0);
+    const diff = lastSync ? Math.floor((Date.now() - lastSync) / 1000) : null;
+    const diffText = diff === null ? 'nunca' :
+                     diff < 60 ? diff + 's' :
+                     diff < 3600 ? Math.floor(diff/60) + 'm' :
+                     Math.floor(diff/3600) + 'h';
+
+    const configs = {
+      online:    { texto: '🟢 Sincronizado hace ' + diffText, bg: 'rgba(16,185,129,.15)', color: '#10b981', borde: 'rgba(16,185,129,.35)' },
+      syncing:   { texto: '🟡 Sincronizando...', bg: 'rgba(245,158,11,.15)', color: '#f59e0b', borde: 'rgba(245,158,11,.35)' },
+      offline:   { texto: '🔴 Sin conexión · última sync hace ' + diffText, bg: 'rgba(239,68,68,.15)', color: '#ef4444', borde: 'rgba(239,68,68,.35)' },
+      error:     { texto: '⚠️ Error de sync · reintentando', bg: 'rgba(245,158,11,.15)', color: '#f59e0b', borde: 'rgba(245,158,11,.35)' }
+    };
+    const c = configs[estado] || configs.offline;
+    badge.textContent = c.texto;
+    badge.style.background = c.bg;
+    badge.style.color = c.color;
+    badge.style.border = '1px solid ' + c.borde;
+  };
+
+  // ─── Actualizar badge cada 30s (para que el "hace Xs" avance) ───
+  setInterval(() => {
+    if (navigator.onLine) window.comdiaz_update_badge('online');
+    else window.comdiaz_update_badge('offline');
+  }, 30000);
+
+  // ─── Detectar online/offline ───
+  window.addEventListener('online', () => {
+    console.log('[COMDIAZ] Recuperó conexión');
+    window.comdiaz_update_badge('syncing');
+    if (typeof refresh === 'function') {
+      refresh().then(() => window.comdiaz_update_badge('online'))
+              .catch(() => window.comdiaz_update_badge('error'));
+    }
+  });
+
+  window.addEventListener('offline', () => {
+    console.log('[COMDIAZ] Perdió conexión');
+    window.comdiaz_update_badge('offline');
+  });
+
+  // ─── Envolver fetch para detectar fallos y bloquear acciones sin red ───
+  const _fetchOrig = window.fetch.bind(window);
+  window.fetch = function(input, init) {
+    // Si está offline y no es un GET, bloquear
+    if (!navigator.onLine && init && init.method && init.method !== 'GET') {
+      console.warn('[COMDIAZ] Acción bloqueada: sin conexión');
+      if (typeof toast === 'function') toast('🔴 Sin conexión · acción bloqueada', 'err');
+      return Promise.reject(new Error('Sin conexión'));
+    }
+    return _fetchOrig(input, init);
+  };
+
+  // ─── Marcar en el localStorage que estamos intentando sync ───
+  const _apiOrig = window.api;
+  window.api = async function(path, opts) {
+    localStorage.setItem(KEY_LAST_ATTEMPT, String(Date.now()));
+    return _apiOrig(path, opts);
+  };
+  // Actualizar la referencia global
+  if (typeof api === 'function') {
+    // No se puede sobreescribir una const, hacemos un workaround: parche sobre fetch
+  }
+
+  // ─── Estado inicial del badge ───
+  setTimeout(() => {
+    if (navigator.onLine) window.comdiaz_update_badge('online');
+    else window.comdiaz_update_badge('offline');
+  }, 1500);
+
+  console.log('✅ comdiaz_offline_v1 listo');
+})();
