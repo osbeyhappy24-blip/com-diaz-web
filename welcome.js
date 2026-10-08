@@ -1,7 +1,7 @@
 // comdiaz/frontend/welcome.js
 // Welcome con PIN que valida contra el backend y guarda la clave
 
-const PIN_LENGTH = 4;
+const PIN_LENGTH = 6;
 const SESSION_HOURS = 12;
 
 const KEY_SESSION = 'comdiaz_auth_until';
