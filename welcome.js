@@ -63,6 +63,28 @@ async function checkPin() {
   $('pinError').textContent = 'Validando…';
   $('pinError').style.color = '#94a3b8';
 
+  // ¿Hay internet?
+  const online = navigator.onLine;
+
+  if (!online) {
+    // Modo offline: comparar con el PIN guardado
+    const pinGuardado = localStorage.getItem('comdiaz_offline_pin');
+    if (pinGuardado && pinGuardado === pin) {
+      localStorage.setItem(KEY_SESSION, String(Date.now() + SESSION_HOURS * 3600 * 1000));
+      $('pinError').textContent = '✓ Acceso offline';
+      $('pinError').style.color = '#f59e0b';
+      if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+      setTimeout(goHome, 400);
+      return;
+    }
+    $('pinError').textContent = '🔴 Sin conexión · PIN incorrecto';
+    $('pinError').style.color = '#ef4444';
+    buffer = '';
+    renderDots();
+    return;
+  }
+
+  // Modo online: validar contra el backend
   try {
     const r = await fetch(API_BASE + '/api/auth', {
       method: 'POST',
@@ -72,6 +94,8 @@ async function checkPin() {
     const data = await r.json();
 
     if (data.ok) {
+      // Guardar el PIN para uso offline
+      localStorage.setItem('comdiaz_offline_pin', pin);
       localStorage.setItem(KEY_SESSION, String(Date.now() + SESSION_HOURS * 3600 * 1000));
       localStorage.setItem(KEY_API, pin);
       $('pinError').textContent = '✓ Acceso concedido';
@@ -82,6 +106,15 @@ async function checkPin() {
       mostrarError();
     }
   } catch (e) {
+    // Falla de red aunque navigator.onLine diga online
+    const pinGuardado = localStorage.getItem('comdiaz_offline_pin');
+    if (pinGuardado && pinGuardado === pin) {
+      localStorage.setItem(KEY_SESSION, String(Date.now() + SESSION_HOURS * 3600 * 1000));
+      $('pinError').textContent = '✓ Acceso offline';
+      $('pinError').style.color = '#f59e0b';
+      setTimeout(goHome, 400);
+      return;
+    }
     $('pinError').textContent = '✕ Sin conexión';
     $('pinError').style.color = '#ef4444';
     buffer = '';
