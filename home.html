@@ -165,6 +165,25 @@
       </div>
     </section>
 
+  
+    <section class="card collapsible" data-card="activity" data-default="closed" id="activityCard">
+      <div class="card-head">
+        <h2>Actividad reciente</h2>
+        <button id="clearActivity" class="btn-mini">Limpiar</button>
+      </div>
+      <div class="card-body">
+        <div id="activityList" class="activity-list">
+          <div class="act-empty">Cargando actividad…</div>
+        </div>
+        <div class="act-filters">
+          <button class="filter-btn active" data-filter="all">Todo</button>
+          <button class="filter-btn" data-filter="search">Búsquedas</button>
+          <button class="filter-btn" data-filter="login">Accesos</button>
+          <button class="filter-btn" data-filter="security">Seguridad</button>
+        </div>
+      </div>
+    </section>
+  
   </main>
 
   <div id="toast" class="toast"></div>

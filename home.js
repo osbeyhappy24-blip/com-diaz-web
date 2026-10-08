@@ -1348,3 +1348,183 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ comdiaz_offline_v1 listo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// SEGURIDAD FRONTEND (comdiaz_security_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_security_v1(){
+  // ─────────────────────────────────────────────
+  // A) AUTO-LOGOUT tras 30 min de inactividad
+  // ─────────────────────────────────────────────
+  const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutos
+  const KEY_LAST_ACTIVE = 'comdiaz_last_active';
+  let lastActivity = Number(localStorage.getItem(KEY_LAST_ACTIVE) || Date.now());
+
+  function registrarActividad() {
+    lastActivity = Date.now();
+    try { localStorage.setItem(KEY_LAST_ACTIVE, String(lastActivity)); } catch(_) {}
+  }
+
+  // Detectar eventos del usuario
+  ['click', 'touchstart', 'keydown', 'scroll'].forEach(evt => {
+    document.addEventListener(evt, registrarActividad, { passive: true });
+  });
+
+  // Chequear cada 60 segundos
+  setInterval(() => {
+    const inactivo = Date.now() - lastActivity;
+    if (inactivo >= INACTIVITY_MS) {
+      mostrarSesionExpirada();
+    }
+  }, 60000);
+
+  function mostrarSesionExpirada() {
+    if (document.getElementById('sessionExpiredOverlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'sessionExpiredOverlay';
+    overlay.className = 'session-expired-overlay';
+    overlay.innerHTML = `
+      <h2>🔒 Sesión expirada</h2>
+      <p>Por seguridad, tu sesión se cerró tras 30 minutos de inactividad.</p>
+      <button id="reloginBtn">Volver a entrar</button>
+    `;
+    document.body.appendChild(overlay);
+
+    // Al tocar, limpiar y volver al welcome
+    overlay.querySelector('#reloginBtn').onclick = () => {
+      try {
+        localStorage.removeItem('comdiaz_auth_until');
+        localStorage.removeItem('comdiaz_last_active');
+      } catch(_) {}
+      location.href = 'index.html';
+    };
+  }
+
+  // ─────────────────────────────────────────────
+  // B) CARD DE ACTIVIDAD
+  // ─────────────────────────────────────────────
+  let filtroActividad = 'all';
+  const ICONOS = {
+    login_success: '🟢', login_failed: '🔴', login_blocked: '🚫',
+    ip_blocked: '🚫', logout: '⎋',
+    play: '▶️', pause: '⏸️',
+    search: '🔍',
+    margin: '💸',
+    publish_times: '⏰',
+    pin_change: '🔑',
+    log_cleared: '🧹',
+  };
+  const TITULOS = {
+    login_success: 'Acceso exitoso',
+    login_failed: 'Intento fallido',
+    login_blocked: 'Acceso bloqueado',
+    ip_blocked: 'IP bloqueada',
+    play: 'Play activado',
+    pause: 'Automatización pausada',
+    search: 'Búsqueda realizada',
+    margin: 'Cambio de margen',
+    publish_times: 'Cambio de horarios',
+    pin_change: 'PIN cambiado',
+    log_cleared: 'Log limpiado',
+  };
+
+  function fmtHora(iso) {
+    const d = new Date(iso);
+    const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (diff < 60) return 'hace ' + diff + 's';
+    if (diff < 3600) return 'hace ' + Math.floor(diff/60) + 'm';
+    if (diff < 86400) return 'hace ' + Math.floor(diff/3600) + 'h';
+    return 'hace ' + Math.floor(diff/86400) + 'd';
+  }
+
+  function fmtDetalle(tipo, d) {
+    if (!d) return '';
+    if (tipo === 'search') return d.productos + ' productos · ' + d.categorias + ' categorías · ' + d.fuentes + ' fuentes (' + d.trigger + ')';
+    if (tipo === 'margin') return 'De ' + d.viejo + '% a ' + d.nuevo + '%';
+    if (tipo === 'publish_times') return 'De [' + (d.viejo||[]).join(', ') + '] a [' + (d.nuevo||[]).join(', ') + ']';
+    if (tipo === 'login_success') return 'Desde ' + d.ip;
+    if (tipo === 'login_failed') return 'Intento #' + d.intento + ' desde ' + d.ip;
+    if (tipo === 'login_blocked' || tipo === 'ip_blocked') return d.ip + ' · bloqueado ' + (d.minutosRestantes||15) + ' min';
+    if (tipo === 'play') return 'Arranca en ' + d.delay + 's';
+    if (tipo === 'pin_change') return 'Desde ' + d.ip;
+    return JSON.stringify(d).slice(0, 80);
+  }
+
+  function renderActividad(events) {
+    const box = document.getElementById('activityList');
+    if (!box) return;
+
+    let filtered = events;
+    if (filtroActividad === 'search') filtered = events.filter(e => e.tipo === 'search');
+    else if (filtroActividad === 'login') filtered = events.filter(e => e.tipo.startsWith('login'));
+    else if (filtroActividad === 'security') filtered = events.filter(e => e.tipo.includes('blocked') || e.tipo === 'pin_change');
+
+    if (!filtered.length) {
+      box.innerHTML = '<div class="act-empty">Sin eventos' + (filtroActividad !== 'all' ? ' en este filtro' : '') + '</div>';
+      return;
+    }
+
+    box.innerHTML = '';
+    filtered.slice(0, 50).forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'act-item tipo-' + e.tipo;
+      div.innerHTML = `
+        <div class="act-icon">${ICONOS[e.tipo] || '•'}</div>
+        <div class="act-body">
+          <div class="act-title">${TITULOS[e.tipo] || e.tipo}</div>
+          <div class="act-detail">${fmtDetalle(e.tipo, e.detalle)}</div>
+        </div>
+        <div class="act-time">${fmtHora(e.ts)}</div>
+      `;
+      box.appendChild(div);
+    });
+  }
+
+  async function cargarActividad() {
+    if (!navigator.onLine) return;
+    try {
+      const r = await fetch(API + '/api/activity?limit=100');
+      const data = await r.json();
+      if (data.ok) renderActividad(data.events || []);
+    } catch(e) {
+      const box = document.getElementById('activityList');
+      if (box && box.innerHTML.includes('Cargando')) {
+        box.innerHTML = '<div class="act-empty">Sin conexión · no se puede cargar</div>';
+      }
+    }
+  }
+
+  // Delegación de clicks para filtros y limpiar
+  document.addEventListener('click', async (e) => {
+    const t = e.target;
+
+    // Filtros
+    const fb = t.closest && t.closest('.filter-btn');
+    if (fb) {
+      filtroActividad = fb.dataset.filter;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.filter === filtroActividad);
+      });
+      cargarActividad();
+      return;
+    }
+
+    // Limpiar
+    if (t.id === 'clearActivity' || (t.closest && t.closest('#clearActivity'))) {
+      if (!confirm('¿Borrar todo el registro de actividad?')) return;
+      try {
+        await fetch(API + '/api/activity', { method: 'DELETE' });
+        await cargarActividad();
+        if (typeof toast === 'function') toast('Log limpiado', 'ok');
+      } catch(_) {}
+    }
+  });
+
+  // Cargar al inicio y cada 30s
+  setTimeout(cargarActividad, 2000);
+  setInterval(cargarActividad, 30000);
+
+  console.log('✅ Seguridad frontend lista');
+})();

@@ -697,3 +697,65 @@ input[type=range]::-webkit-slider-thumb{
 #pinModal.modal.hidden{
   display: none !important;
 }
+
+
+/* ---------- Actividad reciente ---------- */
+.activity-list{
+  display:flex;flex-direction:column;gap:6px;
+  max-height:300px;overflow-y:auto;
+  margin-bottom:10px;
+}
+.act-empty{
+  text-align:center;color:var(--muted);
+  padding:20px;font-size:12px;
+}
+.act-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px;border-radius:10px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  font-size:12px;
+}
+.act-icon{font-size:16px;flex-shrink:0;line-height:1}
+.act-body{flex:1;min-width:0}
+.act-title{font-weight:700;color:#e5e7eb;margin-bottom:2px}
+.act-detail{color:var(--muted);font-size:11px;line-height:1.4}
+.act-time{color:#64748b;font-size:10.5px;flex-shrink:0;font-family:monospace}
+.act-item.tipo-login_success{border-color:rgba(16,185,129,.35)}
+.act-item.tipo-login_failed,.act-item.tipo-login_blocked,.act-item.tipo-ip_blocked{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.04)}
+.act-item.tipo-search{border-color:rgba(124,58,237,.35)}
+.act-item.tipo-play{border-color:rgba(16,185,129,.25)}
+.act-item.tipo-pause{border-color:rgba(245,158,11,.25)}
+
+.act-filters{
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.filter-btn{
+  flex:1;min-width:70px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  color:var(--muted);
+  padding:6px 10px;border-radius:8px;
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .15s;
+}
+.filter-btn:hover{color:var(--text);border-color:var(--accent)}
+.filter-btn.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff;border-color:transparent;
+}
+
+/* ---------- Overlay de sesión expirada ---------- */
+.session-expired-overlay{
+  position:fixed;inset:0;background:rgba(11,15,26,.95);
+  z-index:99999;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:20px;
+  animation:fadeUp .3s ease;
+}
+.session-expired-overlay h2{color:#e5e7eb;font-size:22px;font-weight:800}
+.session-expired-overlay p{color:var(--muted);font-size:14px;text-align:center;max-width:300px}
+.session-expired-overlay button{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border:0;color:#fff;font-weight:700;font-size:14px;
+  padding:14px 28px;border-radius:12px;cursor:pointer;
+}
