@@ -60,7 +60,42 @@
     <p>Cargando catalogo...</p>
   </div>
 
+  <div id="filtersBar" class="filters-bar hidden">
+    <div class="filters-left">
+      <button id="filtersToggle" class="filter-btn-main">
+        <span>⚙️</span> Filtros
+      </button>
+      <select id="sortSelect" class="sort-select">
+        <option value="default">Ordenar: Relevancia</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+        <option value="newest">Más nuevos</option>
+      </select>
+    </div>
+    <div class="filters-right">
+      <span id="resultsCount" class="results-count">0 productos</span>
+    </div>
+  </div>
+
+  <div id="filtersPanel" class="filters-panel hidden">
+    <div class="filter-group">
+      <label>Precio mínimo ($)</label>
+      <input id="priceMin" type="number" min="0" placeholder="0">
+    </div>
+    <div class="filter-group">
+      <label>Precio máximo ($)</label>
+      <input id="priceMax" type="number" min="0" placeholder="999">
+    </div>
+    <button id="applyFilters" class="btn-primary">Aplicar filtros</button>
+    <button id="clearFilters" class="btn-secondary">Limpiar</button>
+  </div>
+
   <div id="products" class="products-grid hidden"></div>
+
+  <div id="loadMoreWrap" class="load-more-wrap hidden">
+    <button id="loadMoreBtn" class="load-more-btn">Ver más productos</button>
+    <p id="loadMoreInfo" class="load-more-info"></p>
+  </div>
 
   <div id="liveSearchContainer" class="live-search-container hidden">
     <div class="live-search-info">

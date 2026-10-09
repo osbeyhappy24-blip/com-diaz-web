@@ -794,3 +794,217 @@ cargarCatalogo();
 
   console.log('✅ Búsqueda en vivo lista');
 })();
+
+
+// ═══════════════════════════════════════════════
+// FILTROS, ORDEN Y PAGINACIÓN (comdiaz_controls_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_controls_v1(){
+  const $id = (id) => document.getElementById(id);
+
+  // Estado
+  let ordenActual = 'default';
+  let precioMin = 0;
+  let precioMax = 999999;
+  let productosMostrados = 20;
+  const INCREMENTO = 20;
+
+  // ─── Aplicar orden y filtros a la lista filtrada ───
+  function aplicarOrdenYFiltros() {
+    let lista = [...state.filtered];
+
+    // Filtro de precio
+    lista = lista.filter(p => {
+      const precio = Number(p.salePrice) || 0;
+      return precio >= precioMin && precio <= precioMax;
+    });
+
+    // Orden
+    if (ordenActual === 'price-asc') {
+      lista.sort((a, b) => (Number(a.salePrice) || 0) - (Number(b.salePrice) || 0));
+    } else if (ordenActual === 'price-desc') {
+      lista.sort((a, b) => (Number(b.salePrice) || 0) - (Number(a.salePrice) || 0));
+    } else if (ordenActual === 'newest') {
+      // Los que tienen foundAt (recién traídos) primero
+      lista.sort((a, b) => {
+        const fa = a.foundAt || '';
+        const fb = b.foundAt || '';
+        return fb.localeCompare(fa);
+      });
+    }
+
+    state.filteredOrdenados = lista;
+    productosMostrados = 20;
+    renderPaginado();
+    actualizarContadores();
+  }
+
+  // ─── Renderizar solo los productos visibles ───
+  function renderPaginado() {
+    const grid = $id('products');
+    const empty = $id('empty');
+    const loading = $id('loading');
+    const loadMoreWrap = $id('loadMoreWrap');
+
+    if (!grid) return;
+    if (loading) loading.classList.add('hidden');
+
+    const lista = state.filteredOrdenados || state.filtered || [];
+    const visibles = lista.slice(0, productosMostrados);
+
+    if (!lista.length) {
+      grid.classList.add('hidden');
+      if (empty) empty.classList.remove('hidden');
+      if (loadMoreWrap) loadMoreWrap.classList.add('hidden');
+      return;
+    }
+
+    if (empty) empty.classList.add('hidden');
+    grid.classList.remove('hidden');
+    grid.innerHTML = '';
+
+    visibles.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      const sourceLabel = p.source === 'manual' ? 'Local' : 'Importado';
+      const sourceClass = p.source === 'manual' ? 'local' : '';
+
+      card.innerHTML = `
+        <div class="product-img-wrap">
+          <img class="product-img" src="${p.image || ''}" alt="" loading="lazy" onerror="this.style.opacity=.3">
+          <span class="product-source ${sourceClass}">${sourceLabel}</span>
+        </div>
+        <div class="product-body">
+          <div class="product-category">${p.category || ''}</div>
+          <div class="product-title">${p.title || 'Sin titulo'}</div>
+          <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
+          <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
+          <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.product-buy')) return;
+        if (e.target.closest('.product-add')) return;
+        abrirModalProducto(p);
+      });
+
+      card.querySelector('.product-buy').addEventListener('click', (e) => {
+        e.stopPropagation();
+        pedirPorWhatsApp(p);
+      });
+
+      grid.appendChild(card);
+    });
+
+    // Actualizar marca de "En el pedido" si el carrito está activo
+    if (typeof window.comdiaz_cart_update_ui === 'function') {
+      setTimeout(window.comdiaz_cart_update_ui, 50);
+    }
+
+    // Mostrar/ocultar botón "Ver más"
+    if (loadMoreWrap) {
+      if (visibles.length < lista.length) {
+        loadMoreWrap.classList.remove('hidden');
+        const info = $id('loadMoreInfo');
+        if (info) info.textContent = 'Mostrando ' + visibles.length + ' de ' + lista.length;
+      } else {
+        loadMoreWrap.classList.add('hidden');
+      }
+    }
+  }
+
+  // ─── Actualizar contadores ───
+  function actualizarContadores() {
+    const badge = $id('resultsCount');
+    const lista = state.filteredOrdenados || state.filtered || [];
+    if (badge) {
+      badge.textContent = lista.length + ' producto' + (lista.length === 1 ? '' : 's');
+    }
+  }
+
+  // ─── Actualizar visibilidad de la barra ───
+  function actualizarBarra() {
+    const bar = $id('filtersBar');
+    const lista = state.filtered || [];
+    if (bar) {
+      if (lista.length > 0) bar.classList.remove('hidden');
+      else bar.classList.add('hidden');
+    }
+  }
+
+  // ─── Enganchar al aplicarFiltros existente ───
+  const _origAplicar = window.aplicarFiltros;
+  if (typeof _origAplicar === 'function') {
+    window.aplicarFiltros = function() {
+      _origAplicar.apply(this, arguments);
+      setTimeout(() => {
+        aplicarOrdenYFiltros();
+        actualizarBarra();
+      }, 100);
+    };
+  }
+
+  // ─── Eventos ───
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'sortSelect') {
+      ordenActual = e.target.value;
+      aplicarOrdenYFiltros();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+
+    // Toggle panel de filtros
+    if (t.id === 'filtersToggle' || (t.closest && t.closest('#filtersToggle'))) {
+      const panel = $id('filtersPanel');
+      const btn = $id('filtersToggle');
+      if (panel) panel.classList.toggle('hidden');
+      if (btn) btn.classList.toggle('active');
+      return;
+    }
+
+    // Aplicar filtros
+    if (t.id === 'applyFilters' || (t.closest && t.closest('#applyFilters'))) {
+      precioMin = Number($id('priceMin')?.value) || 0;
+      precioMax = Number($id('priceMax')?.value) || 999999;
+      aplicarOrdenYFiltros();
+      const panel = $id('filtersPanel');
+      if (panel) panel.classList.add('hidden');
+      const btn = $id('filtersToggle');
+      if (btn) btn.classList.remove('active');
+      return;
+    }
+
+    // Limpiar filtros
+    if (t.id === 'clearFilters' || (t.closest && t.closest('#clearFilters'))) {
+      if ($id('priceMin')) $id('priceMin').value = '';
+      if ($id('priceMax')) $id('priceMax').value = '';
+      precioMin = 0;
+      precioMax = 999999;
+      ordenActual = 'default';
+      if ($id('sortSelect')) $id('sortSelect').value = 'default';
+      aplicarOrdenYFiltros();
+      return;
+    }
+
+    // Ver más
+    if (t.id === 'loadMoreBtn' || (t.closest && t.closest('#loadMoreBtn'))) {
+      productosMostrados += INCREMENTO;
+      renderPaginado();
+      return;
+    }
+  });
+
+  // Exponer
+  window.comdiaz_render_paginado = renderPaginado;
+
+  // Arrancar
+  setTimeout(() => {
+    aplicarOrdenYFiltros();
+    actualizarBarra();
+  }, 1500);
+
+  console.log('✅ Controles listos');
+})();
