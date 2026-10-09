@@ -333,3 +333,298 @@ cargarCatalogo();
     };
   }
 })();
+
+
+// ═══════════════════════════════════════════════
+// CARRITO DE COMPRAS (comdiaz_cart_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_cart_v1(){
+  const CART_KEY = 'comdiaz_cart';
+  const $id = (id) => document.getElementById(id);
+
+  // ─── Estado del carrito ───
+  let cart = loadCart();
+
+  function loadCart() {
+    try {
+      const raw = localStorage.getItem(CART_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(_) { return []; }
+  }
+
+  function saveCart() {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    } catch(_) {}
+  }
+
+  // ─── Agregar producto ───
+  function addToCart(producto) {
+    if (!producto || !producto.id) return;
+
+    const existente = cart.find(x => x.id === producto.id);
+    if (existente) {
+      existente.qty = (existente.qty || 1) + 1;
+    } else {
+      cart.push({
+        id: producto.id,
+        title: producto.title || 'Producto',
+        image: producto.image || '',
+        price: Number(producto.salePrice) || 0,
+        url: producto.url || '',
+        source: producto.source || '',
+        category: producto.category || '',
+        qty: 1,
+      });
+    }
+    saveCart();
+    updateCartUI();
+    if (typeof toast === 'function') toast('✅ Agregado al pedido', 'ok');
+  }
+
+  // ─── Quitar producto ───
+  function removeFromCart(id) {
+    cart = cart.filter(x => x.id !== id);
+    saveCart();
+    updateCartUI();
+  }
+
+  // ─── Cambiar cantidad ───
+  function changeQty(id, delta) {
+    const item = cart.find(x => x.id === id);
+    if (!item) return;
+    item.qty = (item.qty || 1) + delta;
+    if (item.qty <= 0) {
+      removeFromCart(id);
+    } else {
+      saveCart();
+      updateCartUI();
+    }
+  }
+
+  // ─── Vaciar ───
+  function clearCart() {
+    if (!cart.length) return;
+    if (!confirm('¿Vaciar el carrito?')) return;
+    cart = [];
+    saveCart();
+    updateCartUI();
+  }
+
+  // ─── Calcular total ───
+  function getTotal() {
+    return cart.reduce((acc, item) => acc + (Number(item.price) * (item.qty || 1)), 0);
+  }
+
+  // ─── Actualizar UI ───
+  function updateCartUI() {
+    const badge = $id('cartBadge');
+    if (badge) {
+      const total = cart.reduce((a, i) => a + (i.qty || 1), 0);
+      if (total > 0) {
+        badge.textContent = total;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    // Actualizar botones de "Agregar" en las tarjetas
+    document.querySelectorAll('.product-add').forEach(btn => {
+      const pid = btn.dataset.pid;
+      const enCarrito = cart.some(x => x.id === pid);
+      btn.classList.toggle('added', enCarrito);
+      btn.innerHTML = enCarrito ? '✓ En el pedido' : '🛒 Agregar al pedido';
+    });
+  }
+
+  // ─── Renderizar el modal del carrito ───
+  function renderCartModal() {
+    const itemsBox = $id('cartItems');
+    const footerBox = $id('cartFooter');
+    const emptyBox = $id('cartEmpty');
+    const totalBox = $id('cartTotal');
+
+    if (!itemsBox || !footerBox || !emptyBox) return;
+
+    if (!cart.length) {
+      itemsBox.classList.add('hidden');
+      footerBox.classList.add('hidden');
+      emptyBox.classList.remove('hidden');
+      return;
+    }
+
+    emptyBox.classList.add('hidden');
+    itemsBox.classList.remove('hidden');
+    footerBox.classList.remove('hidden');
+
+    // Render items
+    itemsBox.innerHTML = '';
+    cart.forEach(item => {
+      const subtotal = (Number(item.price) * (item.qty || 1)).toFixed(2);
+      const el = document.createElement('div');
+      el.className = 'cart-item';
+      el.innerHTML = `
+        <img class="cart-item-img" src="${item.image}" alt="" onerror="this.style.opacity=.3">
+        <div class="cart-item-body">
+          <div class="cart-item-title">${item.title}</div>
+          <div class="cart-item-price">$${Number(item.price).toFixed(2)} c/u</div>
+          <div class="cart-item-subtotal">$${subtotal}</div>
+        </div>
+        <div class="cart-item-qty">
+          <button class="cart-qty-btn" data-id="${item.id}" data-delta="-1">−</button>
+          <span class="cart-qty-num">${item.qty || 1}</span>
+          <button class="cart-qty-btn" data-id="${item.id}" data-delta="1">+</button>
+        </div>
+        <button class="cart-item-remove" data-id="${item.id}" title="Quitar">✕</button>
+      `;
+      itemsBox.appendChild(el);
+    });
+
+    // Total
+    if (totalBox) {
+      totalBox.textContent = '$' + getTotal().toFixed(2);
+    }
+  }
+
+  // ─── Abrir/cerrar modal ───
+  function openCart() {
+    renderCartModal();
+    $id('cartModal')?.classList.remove('hidden');
+  }
+
+  function closeCart() {
+    $id('cartModal')?.classList.add('hidden');
+  }
+
+  // ─── Enviar pedido por WhatsApp ───
+  function sendOrder() {
+    if (!cart.length) return;
+
+    const nombre = ($id('cartName')?.value || '').trim();
+    const notas = ($id('cartNotes')?.value || '').trim();
+
+    if (!nombre) {
+      if (typeof toast === 'function') toast('Escribe tu nombre para enviar el pedido', 'err');
+      $id('cartName')?.focus();
+      return;
+    }
+
+    const wa = state.config?.whatsapp || '5351425691';
+    const tienda = state.config?.titulo || 'Comdiaz Shop';
+
+    let msg = '🛒 *NUEVO PEDIDO — ' + tienda + '*\n\n';
+    msg += '👤 *Cliente:* ' + nombre + '\n\n';
+    msg += '📦 *Productos:*\n\n';
+
+    cart.forEach((item, i) => {
+      const subtotal = (Number(item.price) * (item.qty || 1)).toFixed(2);
+      msg += (i + 1) + '. ' + item.title + '\n';
+      msg += '   x' + (item.qty || 1) + ' · $' + Number(item.price).toFixed(2) + ' c/u → $' + subtotal + '\n';
+      if (item.url) msg += '   ' + item.url + '\n';
+      msg += '\n';
+    });
+
+    msg += '━━━━━━━━━━━━━━━\n';
+    msg += '💰 *TOTAL: $' + getTotal().toFixed(2) + '*\n';
+    msg += '━━━━━━━━━━━━━━━\n';
+
+    if (notas) {
+      msg += '\n📝 *Notas:* ' + notas + '\n';
+    }
+
+    msg += '\n¿Me confirman disponibilidad?';
+
+    window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  // ─── Exponer funciones ───
+  window.comdiaz_cart = {
+    add: addToCart,
+    remove: removeFromCart,
+    changeQty: changeQty,
+    clear: clearCart,
+    open: openCart,
+    close: closeCart,
+    send: sendOrder,
+    count: () => cart.reduce((a, i) => a + (i.qty || 1), 0),
+    total: getTotal,
+  };
+
+  // ─── Eventos ───
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+
+    // Abrir carrito
+    if (t.closest && t.closest('#cartBtn')) {
+      e.preventDefault();
+      openCart();
+      return;
+    }
+
+    // Cerrar
+    if (t.id === 'cartClose' || (t.closest && t.closest('#cartClose')) ||
+        (t.classList && t.classList.contains('cart-backdrop'))) {
+      e.preventDefault();
+      closeCart();
+      return;
+    }
+
+    // Seguir comprando
+    if (t.id === 'cartContinue' || (t.closest && t.closest('#cartContinue'))) {
+      e.preventDefault();
+      closeCart();
+      return;
+    }
+
+    // Enviar por WhatsApp
+    if (t.id === 'cartSend' || (t.closest && t.closest('#cartSend'))) {
+      e.preventDefault();
+      sendOrder();
+      return;
+    }
+
+    // Vaciar carrito
+    if (t.id === 'cartClear' || (t.closest && t.closest('#cartClear'))) {
+      e.preventDefault();
+      clearCart();
+      return;
+    }
+
+    // Cambiar cantidad
+    if (t.classList && t.classList.contains('cart-qty-btn')) {
+      e.preventDefault();
+      const id = t.dataset.id;
+      const delta = Number(t.dataset.delta);
+      changeQty(id, delta);
+      return;
+    }
+
+    // Quitar producto
+    if (t.classList && t.classList.contains('cart-item-remove')) {
+      e.preventDefault();
+      removeFromCart(t.dataset.id);
+      return;
+    }
+
+    // Agregar al pedido (en la tarjeta del producto)
+    if (t.classList && t.classList.contains('product-add')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pid = t.dataset.pid;
+      const prod = state.products.find(p => p.id === pid);
+      if (prod) addToCart(prod);
+      return;
+    }
+  }, true);
+
+  // ─── Inicializar ───
+  setTimeout(() => {
+    updateCartUI();
+  }, 500);
+
+  // Exponer función para actualizar cuando se renderizan productos
+  window.comdiaz_cart_update_ui = updateCartUI;
+
+  console.log('✅ Carrito listo · productos guardados:', cart.length);
+})();

@@ -27,6 +27,14 @@
         <p id="shopSubtitle">Productos importados y locales</p>
       </div>
     </div>
+
+    <div class="header-actions">
+      <button id="cartBtn" class="header-cart" title="Mi carrito">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span id="cartBadge" class="cart-badge hidden">0</span>
+      </button>
+      <button id="headerWaBtn" class="header-wa" title="Contactar por WhatsApp">💬</button>
+    </div>
   </div>
 
   <div class="search-bar">
@@ -113,5 +121,48 @@
       });
     }
   </script>
+
+<div id="cartModal" class="cart-modal hidden">
+  <div class="cart-backdrop"></div>
+  <div class="cart-content">
+    <div class="cart-head">
+      <h2>🛒 Mi pedido</h2>
+      <button id="cartClose" class="cart-close">&times;</button>
+    </div>
+
+    <div id="cartEmpty" class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p>Tu carrito esta vacio</p>
+      <button id="cartContinue" class="btn-secondary">Seguir comprando</button>
+    </div>
+
+    <div id="cartItems" class="cart-items hidden"></div>
+
+    <div id="cartFooter" class="cart-footer hidden">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+
+      <div class="cart-inputs">
+        <label>
+          <span>Tu nombre</span>
+          <input id="cartName" type="text" placeholder="Ej: Juan Perez" maxlength="60">
+        </label>
+        <label>
+          <span>Notas (opcional)</span>
+          <input id="cartNotes" type="text" placeholder="Ej: Urgente, envio a La Habana" maxlength="200">
+        </label>
+      </div>
+
+      <button id="cartSend" class="btn-primary wa big">
+        Enviar pedido por WhatsApp
+      </button>
+
+      <button id="cartClear" class="btn-secondary danger">Vaciar carrito</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
