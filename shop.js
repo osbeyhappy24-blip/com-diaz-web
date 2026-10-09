@@ -4,6 +4,37 @@ const API_BASE = (location.hostname === 'localhost' || location.hostname === '12
   ? 'http://localhost:3000'
   : 'https://com-diaz.onrender.com';
 
+
+// ─── Helper: abrir WhatsApp en la app (no en el navegador) ───
+function abrirWhatsApp(numero, mensaje) {
+  const text = encodeURIComponent(mensaje || '');
+  const clean = String(numero).replace(/[^0-9]/g, '');
+
+  // 1) Intentar abrir la app directamente con el esquema nativo
+  const appUrl = 'whatsapp://send?phone=' + clean + (text ? '&text=' + text : '');
+
+  // 2) Fallback web (solo si la app no existe)
+  const webUrl = 'https://wa.me/' + clean + (text ? '?text=' + text : '');
+
+  // En móvil, usar el esquema nativo
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // Redirigir al esquema nativo
+    window.location.href = appUrl;
+    // Si en 1.5s no cambió nada, abrir web
+    const t = Date.now();
+    setTimeout(() => {
+      if (Date.now() - t < 2000 && !document.hidden) {
+        window.location.href = webUrl;
+      }
+    }, 1500);
+  } else {
+    // Desktop: usar web directo
+    window.open(webUrl, '_blank');
+  }
+}
+
 let state = {
   products: [],
   filtered: [],
@@ -163,7 +194,16 @@ function generarLinkWhatsApp(producto) {
 }
 
 function pedirPorWhatsApp(producto) {
-  window.open(generarLinkWhatsApp(producto), '_blank');
+  const wa = state.config?.whatsapp || "5351425691";
+  const titulo = producto.title || "producto";
+  const precio = Number(producto.salePrice || 0).toFixed(2);
+  const url = producto.url || "";
+  let mensaje = "Hola, me interesa este producto de Comdiaz Shop:\n\n";
+  mensaje += "*" + titulo + "*\n";
+  mensaje += "Precio: $" + precio + "\n";
+  if (url) mensaje += url + "\n";
+  mensaje += "\n¿Esta disponible?";
+  abrirWhatsApp(wa, mensaje);
 }
 
 // ─── Modal de producto ───
@@ -275,7 +315,7 @@ $('searchInput').oninput = (e) => {
 $('waFloat').onclick = () => {
   const wa = state.config.whatsapp || '5351425691';
   const msg = 'Hola, quiero información sobre los productos de Comdiaz Shop.';
-  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+  abrirWhatsApp(wa, msg);
 };
 
 // ─── Arranque ───
@@ -319,7 +359,7 @@ cargarCatalogo();
       const horario = state.config?.horarioAtencion || '';
       let msg = 'Hola, vengo de *' + nombre + '* y quiero información sobre productos.';
       if (horario) msg += '\n\n(Su horario: ' + horario + ')';
-      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+      abrirWhatsApp(wa, msg);
     };
   }
 
@@ -330,7 +370,7 @@ cargarCatalogo();
       const wa = state.config?.whatsapp || '5351425691';
       const nombre = state.config?.titulo || 'Comdiaz Shop';
       const msg = 'Hola, vengo de *' + nombre + '* y quiero hablar con un vendedor.';
-      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+      abrirWhatsApp(wa, msg);
     };
   }
 })();
@@ -536,7 +576,7 @@ cargarCatalogo();
 
     msg += '\n¿Me confirman disponibilidad?';
 
-    window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+    abrirWhatsApp(wa, msg);
   }
 
   // ─── Exponer funciones ───
@@ -635,7 +675,7 @@ cargarCatalogo();
   var $id = function(id){ return document.getElementById(id); };
   function abrir(){ var p = $id("waInfoPanel"); if(!p) return; var hh = $id("waInfoHorario"); if(hh && state.config && state.config.horarioAtencion) hh.textContent = state.config.horarioAtencion; p.classList.remove("hidden"); }
   function cerrar(){ var p = $id("waInfoPanel"); if(p) p.classList.add("hidden"); }
-  function wa(){ var w = (state.config && state.config.whatsapp) || "5351425691"; var t = (state.config && state.config.titulo) || "Comdiaz Shop"; var m = "Hola, vengo de *" + t + "* y quiero informacion."; window.open("https://wa.me/" + w + "?text=" + encodeURIComponent(m), "_blank"); }
+  function wa(){ var w = (state.config && state.config.whatsapp) || "5351425691"; var t = (state.config && state.config.titulo) || "Comdiaz Shop"; var m = "Hola, vengo de *" + t + "* y quiero informacion."; abrirWhatsApp(w, m); }
   document.addEventListener("click", function(e){
     var t = e.target;
     if (t.closest && t.closest("#headerWaBtn")) { e.preventDefault(); abrir(); return; }
