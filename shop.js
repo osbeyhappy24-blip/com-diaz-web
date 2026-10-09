@@ -125,6 +125,7 @@ function renderProductos() {
         <div class="product-category">${p.category || ''}</div>
         <div class="product-title">${p.title || 'Sin titulo'}</div>
         <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
+        <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
         <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
       </div>
     `;
@@ -627,4 +628,20 @@ cargarCatalogo();
   window.comdiaz_cart_update_ui = updateCartUI;
 
   console.log('✅ Carrito listo · productos guardados:', cart.length);
+})();
+
+
+(function comdiaz_wa_panel_v1(){
+  var $id = function(id){ return document.getElementById(id); };
+  function abrir(){ var p = $id("waInfoPanel"); if(!p) return; var hh = $id("waInfoHorario"); if(hh && state.config && state.config.horarioAtencion) hh.textContent = state.config.horarioAtencion; p.classList.remove("hidden"); }
+  function cerrar(){ var p = $id("waInfoPanel"); if(p) p.classList.add("hidden"); }
+  function wa(){ var w = (state.config && state.config.whatsapp) || "5351425691"; var t = (state.config && state.config.titulo) || "Comdiaz Shop"; var m = "Hola, vengo de *" + t + "* y quiero informacion."; window.open("https://wa.me/" + w + "?text=" + encodeURIComponent(m), "_blank"); }
+  document.addEventListener("click", function(e){
+    var t = e.target;
+    if (t.closest && t.closest("#headerWaBtn")) { e.preventDefault(); abrir(); return; }
+    if (t.id === "waInfoClose" || (t.closest && t.closest("#waInfoClose"))) { e.preventDefault(); cerrar(); return; }
+    if (t.classList && t.classList.contains("wa-info-backdrop")) { cerrar(); return; }
+    if (t.id === "waInfoBtn" || (t.closest && t.closest("#waInfoBtn"))) { e.preventDefault(); cerrar(); wa(); return; }
+  });
+  console.log("Panel de contacto listo");
 })();

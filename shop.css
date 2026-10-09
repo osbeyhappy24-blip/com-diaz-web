@@ -877,3 +877,20 @@ body{
   background: rgba(239,68,68,.05);
   border-color: #ef4444;
 }
+
+.wa-info{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:640px){.wa-info{align-items:center}}
+.wa-info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.wa-info-card{position:relative;background:#fff;width:100%;max-width:400px;border-radius:20px 20px 0 0;padding:20px;z-index:1}
+@media(min-width:640px){.wa-info-card{border-radius:20px}}
+.wa-info-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.wa-info-head h3{font-size:17px;font-weight:800;color:var(--text)}
+.wa-info-close{width:30px;height:30px;border:0;border-radius:50%;background:#f3f4f6;font-size:20px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.wa-info-close:hover{background:#e5e7eb;color:var(--text)}
+.wa-info-body{display:flex;flex-direction:column;gap:14px}
+.wa-info-line{display:flex;gap:14px;padding:12px;background:#f9fafb;border-radius:12px;border:1px solid var(--border)}
+.wa-info-ico{font-size:22px;flex-shrink:0}
+.wa-info-label{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.wa-info-value{font-size:14px;font-weight:700;color:var(--text)}
+.wa-info-btn{margin-top:8px;padding:15px;border:0;border-radius:12px;background:var(--wa);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.35)}
+.wa-info-btn:active{transform:scale(.97)}
