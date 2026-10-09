@@ -1068,3 +1068,29 @@ input[type=range]::-webkit-slider-thumb{
   font-weight: 600;
   color: var(--muted);
 }
+
+/* ═══════════════════════════════════════
+   FIX: modal manual scrolleable
+   ═══════════════════════════════════════ */
+#manualModal .modal-card {
+  max-height: 92vh;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+#manualModal .modal-card::-webkit-scrollbar {
+  width: 6px;
+}
+#manualModal .modal-card::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+
+/* Asegurar que el botón sea visible */
+#manualModal .btn-primary {
+  margin-top: 10px;
+  margin-bottom: 8px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
