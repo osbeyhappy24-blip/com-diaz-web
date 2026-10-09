@@ -697,15 +697,14 @@ cargarCatalogo();
 
   // Crear el botón "Buscar en eBay" si no existe
   function ensureBotonLive() {
-    if ($id('liveSearchBtn')) return $id('liveSearchBtn');
-    const empty = $id('empty');
-    if (!empty) return null;
-    const btn = document.createElement('button');
-    btn.id = 'liveSearchBtn';
-    btn.className = 'live-search-btn hidden';
-    btn.innerHTML = '🔍 Buscar <b id="liveQuery"></b> en eBay';
-    empty.appendChild(btn);
-    return btn;
+    return $id('liveSearchBtn') || null;
+  }
+
+  function mostrarBotonLive(mostrar) {
+    const container = $id('liveSearchContainer');
+    if (!container) return;
+    if (mostrar) container.classList.remove('hidden');
+    else container.classList.add('hidden');
   }
 
   // Agregar productos al estado y re-renderizar
@@ -756,18 +755,16 @@ cargarCatalogo();
 
   // Actualizar visibilidad del botón después de aplicar filtros
   function actualizarBotonLive() {
-    const btn = ensureBotonLive();
-    if (!btn) return;
     const q = (state.searchQuery || '').trim();
-    const hayPocos = state.filtered.length < 5;
+    const hayBusqueda = q.length >= 2;
 
-    if (q.length >= 2 && hayPocos) {
-      btn.classList.remove('hidden');
+    if (hayBusqueda) {
+      mostrarBotonLive(true);
       const lq = $id('liveQuery');
       if (lq) lq.textContent = '"' + q + '"';
       ultimaQuery = q;
     } else {
-      btn.classList.add('hidden');
+      mostrarBotonLive(false);
     }
   }
 

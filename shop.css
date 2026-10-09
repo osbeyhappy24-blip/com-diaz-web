@@ -941,3 +941,29 @@ body{
 .empty p {
   margin: 0;
 }
+
+/* Contenedor del botón de búsqueda en vivo */
+.live-search-container {
+  margin-top: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(124,58,237,.05), rgba(236,72,153,.05));
+  border: 1px solid rgba(124,58,237,.15);
+  border-radius: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.live-search-info p {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.live-search-hint {
+  font-size: 12.5px !important;
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+  margin-top: 4px !important;
+}
