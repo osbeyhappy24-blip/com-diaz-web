@@ -117,6 +117,9 @@ function renderResults() {
     div.className = 'prod';
     div.dataset.pid = r.id || '';
     div.innerHTML = `
+      <div class="prod-actions">
+        <button class="prod-btn" data-pid="${r.id || ''}" title="Publicar al catálogo">📤</button>
+      </div>
       <img src="${r.image}" alt="" loading="lazy" onerror="this.style.opacity=.2">
       <div class="prod-body">
         <div class="prod-cat">${r.category || r.source}</div>
@@ -141,6 +144,11 @@ function renderAll() {
   renderMargin();
   renderCategories();
   renderResults();
+  // Después del render, marcar cuáles están publicados
+  setTimeout(() => {
+    if (typeof marcarPublicados === 'function') marcarPublicados();
+    else if (window.comdiaz_shop_actualizar) window.comdiaz_shop_actualizar();
+  }, 100);
 }
 
 // ---------- Carga ----------
@@ -1692,23 +1700,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   // ─── Agregar botones a los productos del grid ───
   function inyectarBotonesProductos() {
-    document.querySelectorAll('.prod').forEach(card => {
-      if (card.querySelector('.prod-btn')) return;
-
-      const pid = card.dataset.pid;
-      if (!pid) return;
-
-      const actions = document.createElement('div');
-      actions.className = 'prod-actions';
-      const btn = document.createElement('button');
-      btn.className = 'prod-btn';
-      btn.dataset.pid = pid;
-      btn.textContent = '📤';
-      btn.title = 'Publicar al catálogo';
-      actions.appendChild(btn);
-      card.appendChild(actions);
-    });
-
+    // Ya no hace falta inyectar: el botón se agrega en el render
     marcarPublicados();
   }
 
