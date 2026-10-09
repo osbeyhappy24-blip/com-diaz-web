@@ -2107,16 +2107,16 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     // 2) Calcular factores
     // Brillo: acercar el promedio a 128
     let brillo = 0;
-    if (avgLum < 100) brillo = Math.min(30, (128 - avgLum) * 0.5);
-    else if (avgLum > 180) brillo = Math.max(-20, (128 - avgLum) * 0.4);
+    if (avgLum < 110) brillo = Math.min(40, (128 - avgLum) * 0.7);
+    else if (avgLum > 175) brillo = Math.max(-25, (128 - avgLum) * 0.6);
 
     // Contraste: si el rango es pequeño, aumentarlo
     let contraste = 1.0;
-    if (rango < 180) contraste = 1 + (180 - rango) / 300;
+    if (rango < 200) contraste = 1 + (200 - rango) / 250;
     contraste = Math.min(contraste, 1.5);
 
     // Saturación: subir ligeramente
-    const saturacion = 1.15;
+    const saturacion = 1.30;
 
     // 3) Aplicar los ajustes
     for (let i = 0; i < data.length; i += 4) {
@@ -2147,6 +2147,33 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     }
 
     ctx.putImageData(imageData, 0, 0);
+
+    // Aplicar sharpen suave (mejora la nitidez)
+    try {
+      const w2 = canvas.width;
+      const h2 = canvas.height;
+      const original = ctx.getImageData(0, 0, w2, h2);
+      const data2 = original.data;
+      const copy = new Uint8ClampedArray(data2);
+      const amount = 0.4;
+      
+      for (let y = 1; y < h2 - 1; y++) {
+        for (let x = 1; x < w2 - 1; x++) {
+          const i = (y * w2 + x) * 4;
+          for (let c = 0; c < 3; c++) {
+            const idx = i + c;
+            const arriba = ((y-1) * w2 + x) * 4 + c;
+            const abajo = ((y+1) * w2 + x) * 4 + c;
+            const izq = (y * w2 + (x-1)) * 4 + c;
+            const der = (y * w2 + (x+1)) * 4 + c;
+            const val = copy[idx] * (1 + 4 * amount) - amount * (copy[arriba] + copy[abajo] + copy[izq] + copy[der]);
+            data2[idx] = Math.max(0, Math.min(255, val));
+          }
+        }
+      }
+      ctx.putImageData(original, 0, 0);
+    } catch(e) { console.warn('Sharpen error:', e); }
+
     return { brillo, contraste, saturacion };
   }
 
