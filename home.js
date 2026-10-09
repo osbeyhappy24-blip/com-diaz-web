@@ -1580,6 +1580,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (sub) sub.value = cfg.subtitulo || 'Productos importados y locales';
       if (wa) wa.value = cfg.whatsapp || '5351425691';
       if (mx) mx.value = cfg.maxProductos || 200;
+      const hor = $id('shopHorario');
+      if (hor) hor.value = cfg.horarioAtencion || 'Lun-Sab 9:00am - 9:00pm';
     } catch(e) { console.warn(e); }
   }
 
@@ -1589,6 +1591,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const subtitulo = ($id('shopSubtitulo')?.value || '').trim();
     const whatsapp = ($id('shopWhatsapp')?.value || '').replace(/[^0-9]/g, '');
     const maxProductos = Number($id('shopMax')?.value) || 200;
+    const horarioAtencion = ($id('shopHorario')?.value || '').trim() || 'Lun-Sab 9:00am - 9:00pm';
 
     if (!titulo) { toast('El nombre no puede estar vacío', 'err'); return; }
     if (!whatsapp || whatsapp.length < 8) { toast('WhatsApp inválido', 'err'); return; }
@@ -1598,7 +1601,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const r = await fetch(API + '/api/shop-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos }),
+        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos, horarioAtencion }),
       });
       const d = await r.json();
       if (d.ok) {
