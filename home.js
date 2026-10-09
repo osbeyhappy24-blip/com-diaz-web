@@ -524,13 +524,29 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (editMode && src.needsKey) {
         const cfg = document.createElement('div');
         cfg.className = 'source-cfg';
+        // Selector de environment (solo eBay)
+        if (src.id === 'ebay') {
+          const lblEnv = document.createElement('label');
+          lblEnv.textContent = 'Ambiente';
+          const selEnv = document.createElement('select');
+          selEnv.id = 'cfg-ebay-environment';
+          selEnv.style.cssText = 'background:#0f1524;border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:12.5px;outline:none;width:100%';
+          selEnv.innerHTML = '<option value="sandbox">Sandbox (pruebas)</option><option value="production">Production (real)</option>';
+          const savedEnv = (src.config && src.config.environment) || 'sandbox';
+          selEnv.value = savedEnv;
+          cfg.appendChild(lblEnv);
+          cfg.appendChild(selEnv);
+        }
+
         src.keyFields.forEach(field => {
           const lbl = document.createElement('label');
-          lbl.textContent = field;
+          const nombres = { appId: 'App ID (Client ID)', certId: 'Cert ID (Client Secret)', accessKey: 'Access Key', secretKey: 'Secret Key', partnerTag: 'Partner Tag', apiKey: 'API Key' };
+          lbl.textContent = nombres[field] || field;
           const inp = document.createElement('input');
-          inp.type = 'password';
-          inp.placeholder = 'Pega aquí tu ' + field;
+          inp.type = field === 'appId' ? 'text' : 'password';
+          inp.placeholder = 'Pega aquí tu ' + (nombres[field] || field);
           inp.id = 'cfg-' + src.id + '-' + field;
+          if (src.config && src.config[field]) inp.value = src.config[field];
           cfg.appendChild(lbl);
           cfg.appendChild(inp);
         });
@@ -540,6 +556,10 @@ if (window.comdiazTrack) window.comdiazTrack.share();
         btn.textContent = ' Guardar credenciales';
         btn.onclick = async () => {
           const config = {};
+          if (src.id === 'ebay') {
+            const selEnv = $id('cfg-ebay-environment');
+            if (selEnv) config.environment = selEnv.value;
+          }
           src.keyFields.forEach(f => {
             const v = $id('cfg-' + src.id + '-' + f).value.trim();
             if (v) config[f] = v;
