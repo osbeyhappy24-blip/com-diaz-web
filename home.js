@@ -1565,6 +1565,55 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 (function comdiaz_shop_ui_v1(){
   const $id = (id) => document.getElementById(id);
 
+  // ─── Cargar config del shop en los inputs ───
+  async function cargarConfigShop() {
+    try {
+      if (!navigator.onLine) return;
+      const r = await fetch(API + '/api/state');
+      const s = await r.json();
+      const cfg = s.shopConfig || {};
+      const t = $id('shopTitulo');
+      const sub = $id('shopSubtitulo');
+      const wa = $id('shopWhatsapp');
+      const mx = $id('shopMax');
+      if (t) t.value = cfg.titulo || 'Comdiaz Shop';
+      if (sub) sub.value = cfg.subtitulo || 'Productos importados y locales';
+      if (wa) wa.value = cfg.whatsapp || '5351425691';
+      if (mx) mx.value = cfg.maxProductos || 200;
+    } catch(e) { console.warn(e); }
+  }
+
+  // ─── Guardar config ───
+  async function guardarConfigShop() {
+    const titulo = ($id('shopTitulo')?.value || '').trim();
+    const subtitulo = ($id('shopSubtitulo')?.value || '').trim();
+    const whatsapp = ($id('shopWhatsapp')?.value || '').replace(/[^0-9]/g, '');
+    const maxProductos = Number($id('shopMax')?.value) || 200;
+
+    if (!titulo) { toast('El nombre no puede estar vacío', 'err'); return; }
+    if (!whatsapp || whatsapp.length < 8) { toast('WhatsApp inválido', 'err'); return; }
+    if (maxProductos < 10 || maxProductos > 500) { toast('Máximo debe estar entre 10 y 500', 'err'); return; }
+
+    try {
+      const r = await fetch(API + '/api/shop-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        toast('✅ Configuración guardada', 'ok');
+        await actualizarContadores();
+      } else {
+        toast('Error: ' + (d.error || ''), 'err');
+      }
+    } catch(_) { toast('Error de conexión', 'err'); }
+  }
+
+  // Exponer
+  window.comdiaz_shop_cargar_config = cargarConfigShop;
+  window.comdiaz_shop_guardar_config = guardarConfigShop;
+
   // ─── Actualizar contadores y estado ───
   async function actualizarContadores() {
     try {
@@ -1649,6 +1698,13 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const btn = t.closest ? t.closest('button, a') : null;
     if (!btn) return;
 
+    // Guardar config del shop
+    if (btn.id === 'saveShopConfigBtn') {
+      e.preventDefault();
+      await guardarConfigShop();
+      return;
+    }
+
     // Publicar todos
     if (btn.id === 'publishAllBtn') {
       e.preventDefault();
@@ -1712,6 +1768,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   // Arrancar
   setTimeout(actualizarContadores, 2000);
+  setTimeout(cargarConfigShop, 2000);
   setTimeout(inyectarBotonesProductos, 2500);
   setInterval(() => {
     actualizarContadores();

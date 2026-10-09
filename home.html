@@ -203,6 +203,26 @@
           <input type="checkbox" id="autoPublishToggle">
         </label>
 
+        <div class="shop-config-form" id="shopConfigForm">
+          <label>
+            <span>Nombre de la tienda</span>
+            <input id="shopTitulo" type="text" maxlength="40" placeholder="Comdiaz Shop">
+          </label>
+          <label>
+            <span>Subtítulo</span>
+            <input id="shopSubtitulo" type="text" maxlength="60" placeholder="Productos importados y locales">
+          </label>
+          <label>
+            <span>WhatsApp (con código de país, sin +)</span>
+            <input id="shopWhatsapp" type="tel" inputmode="numeric" placeholder="5351425691">
+          </label>
+          <label>
+            <span>Máximo de productos</span>
+            <input id="shopMax" type="number" min="10" max="500" step="10" placeholder="200">
+          </label>
+          <button id="saveShopConfigBtn" class="btn-ghost primary">💾 Guardar cambios</button>
+        </div>
+
         <div class="shop-actions">
           <button id="publishAllBtn" class="btn-ghost">📤 Publicar todos</button>
           <button id="unpublishAllBtn" class="btn-ghost danger">🗑 Vaciar catálogo</button>
