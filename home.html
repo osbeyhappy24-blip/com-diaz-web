@@ -240,6 +240,19 @@
       </div>
     </section>
   
+  
+    <section class="card collapsible" data-card="manual" data-default="closed" id="manualCard">
+      <div class="card-head">
+        <h2>Productos manuales (locales)</h2>
+        <span class="badge" id="manualCount">0</span>
+      </div>
+      <div class="card-body">
+        <p class="manual-hint">Sube productos que tengas en casa con foto, precio y cantidad. Aparecerán automáticamente en Comdiaz Shop.</p>
+        <button id="addManualBtn" class="btn-ghost primary">➕ Agregar producto</button>
+        <div id="manualList" class="manual-list"></div>
+      </div>
+    </section>
+
   </main>
 
   <div id="toast" class="toast"></div>
@@ -311,6 +324,60 @@
       });
     }
   </script>
+
+<!-- Modal: agregar/editar producto manual -->
+<div id="manualModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="manualModalTitle">➕ Agregar producto</h3>
+      <button id="manualClose" class="btn-mini">✕</button>
+    </div>
+    <div class="manual-form">
+      <label>Foto del producto</label>
+      <div class="photo-upload" id="photoUpload">
+        <input id="photoInput" type="file" accept="image/*" capture="environment" hidden>
+        <div id="photoPreviewBox" class="photo-preview-box">
+          <div id="photoPlaceholder" class="photo-placeholder">
+            <span>📷</span>
+            <p>Toca para subir foto</p>
+          </div>
+          <img id="photoPreview" class="photo-preview hidden">
+        </div>
+      </div>
+
+      <label>Título del producto</label>
+      <input id="manualTitle" type="text" placeholder="Ej: Batería portátil 20000mAh" maxlength="100">
+
+      <label>Categoría</label>
+      <input id="manualCategory" type="text" placeholder="Ej: Local" maxlength="40" value="Local">
+
+      <label>Descripción (opcional)</label>
+      <textarea id="manualDescription" rows="2" placeholder="Detalles del producto..." maxlength="300"></textarea>
+
+      <div class="manual-row-2">
+        <div>
+          <label>Precio de costo ($)</label>
+          <input id="manualPrice" type="number" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div>
+          <label>Cantidad</label>
+          <input id="manualQty" type="number" min="1" value="1">
+        </div>
+      </div>
+
+      <label>Margen de ganancia (%)</label>
+      <div class="margin-row-manual">
+        <input id="manualMargin" type="number" min="0" max="300" value="35">
+        <span>%</span>
+      </div>
+      <p class="manual-preview-price">Precio de venta: <b id="salePreview">$0.00</b></p>
+
+      <button id="manualSave" class="btn-primary">💾 Guardar y publicar</button>
+      <p id="manualMsg" class="manual-msg"></p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
 <!-- Se agrega vía script para evitar problemas de shell -->

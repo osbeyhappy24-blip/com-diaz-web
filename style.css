@@ -865,3 +865,206 @@ input[type=range]::-webkit-slider-thumb{
   padding:12px;font-size:13px;font-weight:700;
   margin-top:4px;
 }
+
+/* ═══════════════════════════════════════
+   PRODUCTOS MANUALES
+   ═══════════════════════════════════════ */
+.manual-hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.manual-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manual-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border);
+  align-items: center;
+}
+.manual-item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #0f1524;
+  flex-shrink: 0;
+}
+.manual-item-body {
+  flex: 1;
+  min-width: 0;
+}
+.manual-item-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.manual-item-info {
+  font-size: 11.5px;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.manual-item-info b { color: #10b981; }
+.manual-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-direction: column;
+}
+.manual-item-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all .15s;
+}
+.manual-item-btn:hover { color: var(--text); border-color: var(--accent); }
+.manual-item-btn.sold:hover { color: #10b981; border-color: #10b981; }
+.manual-item-btn.delete:hover { color: #ef4444; border-color: #ef4444; }
+
+.manual-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 20px;
+}
+
+/* Form del modal */
+.manual-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.manual-form label {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-top: 4px;
+}
+.manual-form input,
+.manual-form textarea {
+  background: #0f1524;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+}
+.manual-form input:focus,
+.manual-form textarea:focus {
+  border-color: var(--accent);
+}
+.manual-form textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+/* Upload de foto */
+.photo-upload {
+  margin-bottom: 6px;
+}
+.photo-preview-box {
+  width: 100%;
+  height: 180px;
+  background: #0f1524;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.photo-preview-box:hover {
+  border-color: var(--accent);
+}
+.photo-placeholder {
+  text-align: center;
+  color: var(--muted);
+}
+.photo-placeholder span {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 6px;
+}
+.photo-placeholder p {
+  font-size: 12.5px;
+}
+.photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Filas de 2 columnas */
+.manual-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Margen inline */
+.margin-row-manual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.margin-row-manual input {
+  flex: 1;
+}
+.margin-row-manual span {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Preview del precio de venta */
+.manual-preview-price {
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+  padding: 8px;
+  background: rgba(16,185,129,.08);
+  border: 1px solid rgba(16,185,129,.25);
+  border-radius: 8px;
+  margin: 4px 0;
+}
+.manual-preview-price b {
+  color: #10b981;
+  font-size: 16px;
+}
+
+.manual-msg {
+  font-size: 12.5px;
+  text-align: center;
+  min-height: 16px;
+  font-weight: 600;
+  color: var(--muted);
+}

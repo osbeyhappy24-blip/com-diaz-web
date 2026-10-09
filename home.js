@@ -1789,3 +1789,281 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ comdiaz_shop_ui_v1 listo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// PRODUCTOS MANUALES (comdiaz_manual_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_manual_v1(){
+  const $id = (id) => document.getElementById(id);
+  let fotoBase64 = '';
+  let productosManuales = [];
+
+  // ─── Cargar productos manuales ───
+  async function cargarManuales() {
+    if (!navigator.onLine) return;
+    try {
+      const r = await fetch(API + '/api/manual/products');
+      const data = await r.json();
+      productosManuales = data.products || [];
+      renderManuales();
+      const badge = $id('manualCount');
+      if (badge) badge.textContent = productosManuales.length;
+    } catch(e) { console.warn('Error manuales:', e); }
+  }
+
+  // ─── Renderizar lista ───
+  function renderManuales() {
+    const box = $id('manualList');
+    if (!box) return;
+
+    if (!productosManuales.length) {
+      box.innerHTML = '<div class="manual-empty">No hay productos manuales aún</div>';
+      return;
+    }
+
+    box.innerHTML = '';
+    productosManuales.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'manual-item';
+      el.innerHTML = `
+        <img src="${p.image}" alt="" onerror="this.style.opacity=.3">
+        <div class="manual-item-body">
+          <div class="manual-item-title">${p.title}</div>
+          <div class="manual-item-info">
+            <span>Costo: $${Number(p.priceBase).toFixed(2)}</span>
+            <span>Venta: <b>$${Number(p.salePrice).toFixed(2)}</b></span>
+            <span>Stock: ${p.cantidad}</span>
+          </div>
+        </div>
+        <div class="manual-item-actions">
+          <button class="manual-item-btn sold" data-action="sold" data-id="${p.id}" title="Marcar 1 vendido">✓</button>
+          <button class="manual-item-btn delete" data-action="delete" data-id="${p.id}" title="Eliminar">🗑</button>
+        </div>
+      `;
+      box.appendChild(el);
+    });
+  }
+
+  // ─── Comprimir imagen (canvas) ───
+  async function comprimirImagen(file, maxSize = 800, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > h && w > maxSize) { h = h * maxSize / w; w = maxSize; }
+          else if (h > maxSize) { w = w * maxSize / h; h = maxSize; }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ─── Subir imagen a ImgBB ───
+  async function subirFoto(base64) {
+    const r = await fetch(API + '/api/upload-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: base64,
+        nombre: 'comdiaz-manual-' + Date.now(),
+      }),
+    });
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.error || 'Error al subir');
+    return data.url;
+  }
+
+  // ─── Actualizar preview del precio ───
+  function updatePreview() {
+    const base = Number($id('manualPrice')?.value) || 0;
+    const margen = Number($id('manualMargin')?.value) || 0;
+    const sale = base * (1 + margen / 100);
+    const preview = $id('salePreview');
+    if (preview) preview.textContent = '$' + sale.toFixed(2);
+  }
+
+  // ─── Abrir modal ───
+  function abrirModal() {
+    const m = $id('manualModal');
+    if (!m) return;
+    // Reset
+    fotoBase64 = '';
+    $id('manualTitle').value = '';
+    $id('manualCategory').value = 'Local';
+    $id('manualDescription').value = '';
+    $id('manualPrice').value = '';
+    $id('manualQty').value = '1';
+    $id('manualMargin').value = state?.margin || 35;
+    $id('photoPreview').classList.add('hidden');
+    $id('photoPreview').src = '';
+    $id('photoPlaceholder').classList.remove('hidden');
+    $id('manualMsg').textContent = '';
+    updatePreview();
+    m.classList.remove('hidden');
+  }
+
+  function cerrarModal() {
+    $id('manualModal')?.classList.add('hidden');
+  }
+
+  // ─── Guardar producto ───
+  async function guardarProducto() {
+    const msg = $id('manualMsg');
+    const btn = $id('manualSave');
+
+    const title = ($id('manualTitle')?.value || '').trim();
+    const category = ($id('manualCategory')?.value || 'Local').trim() || 'Local';
+    const description = ($id('manualDescription')?.value || '').trim();
+    const priceBase = Number($id('manualPrice')?.value) || 0;
+    const cantidad = Number($id('manualQty')?.value) || 1;
+    const margenPct = Number($id('manualMargin')?.value) || 35;
+
+    if (!fotoBase64) { msg.textContent = '✕ Sube una foto'; msg.style.color = '#ef4444'; return; }
+    if (!title) { msg.textContent = '✕ Escribe un título'; msg.style.color = '#ef4444'; return; }
+    if (priceBase <= 0) { msg.textContent = '✕ Precio inválido'; msg.style.color = '#ef4444'; return; }
+
+    if (btn) btn.disabled = true;
+    msg.textContent = 'Subiendo foto...';
+    msg.style.color = '#94a3b8';
+
+    try {
+      // 1. Subir la foto a ImgBB
+      const imageUrl = await subirFoto(fotoBase64);
+
+      msg.textContent = 'Guardando producto...';
+
+      // 2. Guardar el producto
+      const r = await fetch(API + '/api/manual/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title, category, description,
+          image: imageUrl,
+          images: [imageUrl],
+          priceBase, cantidad, margenPct,
+          publicado: true,
+        }),
+      });
+      const data = await r.json();
+
+      if (!data.ok) throw new Error(data.error || 'Error al guardar');
+
+      msg.textContent = '✓ Producto publicado en Comdiaz Shop';
+      msg.style.color = '#10b981';
+      if (typeof toast === 'function') toast('✅ Publicado en la tienda', 'ok');
+
+      await cargarManuales();
+      setTimeout(cerrarModal, 800);
+    } catch(e) {
+      msg.textContent = '✕ ' + e.message;
+      msg.style.color = '#ef4444';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // ─── Delegación de eventos ───
+  document.addEventListener('click', async (e) => {
+    const t = e.target;
+
+    // Abrir modal
+    if (t.id === 'addManualBtn' || (t.closest && t.closest('#addManualBtn'))) {
+      e.preventDefault();
+      abrirModal();
+      return;
+    }
+
+    // Cerrar modal
+    if (t.id === 'manualClose' || (t.closest && t.closest('#manualClose')) ||
+        (t.classList && t.classList.contains('modal') && t.id === 'manualModal')) {
+      cerrarModal();
+      return;
+    }
+
+    // Subir foto
+    if (t.id === 'photoPreviewBox' || (t.closest && t.closest('#photoPreviewBox'))) {
+      $id('photoInput')?.click();
+      return;
+    }
+
+    // Guardar
+    if (t.id === 'manualSave' || (t.closest && t.closest('#manualSave'))) {
+      e.preventDefault();
+      guardarProducto();
+      return;
+    }
+
+    // Acciones de items
+    const btn = t.closest && t.closest('.manual-item-btn');
+    if (btn) {
+      e.preventDefault();
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+
+      if (action === 'sold') {
+        if (!confirm('¿Marcar 1 unidad como vendida?')) return;
+        await fetch(API + '/api/manual/products/' + id + '/sold', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cantidad: 1 }),
+        });
+        await cargarManuales();
+        if (typeof toast === 'function') toast('✓ Vendido');
+      } else if (action === 'delete') {
+        if (!confirm('¿Eliminar este producto?')) return;
+        await fetch(API + '/api/manual/products/' + id, { method: 'DELETE' });
+        await cargarManuales();
+        if (typeof toast === 'function') toast('🗑 Eliminado');
+      }
+    }
+  }, true);
+
+  // ─── Cambio de foto ───
+  document.addEventListener('change', async (e) => {
+    if (e.target.id === 'photoInput') {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        fotoBase64 = await comprimirImagen(file);
+        const img = $id('photoPreview');
+        img.src = fotoBase64;
+        img.classList.remove('hidden');
+        $id('photoPlaceholder').classList.add('hidden');
+      } catch(err) {
+        if (typeof toast === 'function') toast('Error al procesar foto', 'err');
+      }
+    }
+    if (e.target.id === 'manualMargin' || e.target.id === 'manualPrice') {
+      updatePreview();
+    }
+  });
+
+  // Input change para el preview
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'manualMargin' || e.target.id === 'manualPrice') {
+      updatePreview();
+    }
+  });
+
+  // Exponer
+  window.comdiaz_manual_actualizar = cargarManuales;
+
+  // Cargar al arrancar
+  setTimeout(cargarManuales, 2000);
+  setInterval(cargarManuales, 30000);
+
+  console.log('✅ Productos manuales listos');
+})();
