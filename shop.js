@@ -685,3 +685,115 @@ cargarCatalogo();
   });
   console.log("Panel de contacto listo");
 })();
+
+
+// ═══════════════════════════════════════════════
+// BÚSQUEDA EN VIVO EN EBAY (comdiaz_live_search_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_live_search_v1(){
+  const $id = (id) => document.getElementById(id);
+  let ultimaQuery = '';
+  let buscandoLive = false;
+
+  // Crear el botón "Buscar en eBay" si no existe
+  function ensureBotonLive() {
+    if ($id('liveSearchBtn')) return $id('liveSearchBtn');
+    const empty = $id('empty');
+    if (!empty) return null;
+    const btn = document.createElement('button');
+    btn.id = 'liveSearchBtn';
+    btn.className = 'live-search-btn hidden';
+    btn.innerHTML = '🔍 Buscar <b id="liveQuery"></b> en eBay';
+    empty.appendChild(btn);
+    return btn;
+  }
+
+  // Agregar productos al estado y re-renderizar
+  function addProductosLive(productos) {
+    // Evitar duplicados
+    const existentes = new Set(state.products.map(p => p.id));
+    const nuevos = productos.filter(p => !existentes.has(p.id));
+    state.products = [...nuevos, ...state.products];
+    // Re-aplicar filtros para que aparezcan
+    state.currentCat = 'todas';
+    aplicarFiltros();
+  }
+
+  async function buscarEnEbay(q) {
+    if (buscandoLive) return;
+    if (!q || q.length < 2) return;
+    buscandoLive = true;
+
+    const btn = $id('liveSearchBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Buscando en eBay…';
+    }
+
+    try {
+      const r = await fetch(API_BASE + '/api/public/live-search?q=' + encodeURIComponent(q));
+      const data = await r.json();
+
+      if (!data.ok) {
+        if (typeof toast === 'function') toast('Error: ' + (data.error || 'no encontrado'), 'err');
+      } else if (!data.products.length) {
+        if (typeof toast === 'function') toast('Sin resultados en eBay', 'err');
+      } else {
+        addProductosLive(data.products);
+        if (typeof toast === 'function') toast('✅ ' + data.products.length + ' productos encontrados', 'ok');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error al buscar: ' + e.message, 'err');
+    } finally {
+      buscandoLive = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '🔍 Buscar <b id="liveQuery"></b> en eBay';
+        if ($id('liveQuery')) $id('liveQuery').textContent = '"' + q + '"';
+      }
+    }
+  }
+
+  // Actualizar visibilidad del botón después de aplicar filtros
+  function actualizarBotonLive() {
+    const btn = ensureBotonLive();
+    if (!btn) return;
+    const q = (state.searchQuery || '').trim();
+    const hayPocos = state.filtered.length < 5;
+
+    if (q.length >= 2 && hayPocos) {
+      btn.classList.remove('hidden');
+      const lq = $id('liveQuery');
+      if (lq) lq.textContent = '"' + q + '"';
+      ultimaQuery = q;
+    } else {
+      btn.classList.add('hidden');
+    }
+  }
+
+  // Enganchar al final de aplicarFiltros
+  const _origAplicar = window.aplicarFiltros;
+  if (typeof _origAplicar === 'function') {
+    window.aplicarFiltros = function() {
+      _origAplicar.apply(this, arguments);
+      setTimeout(actualizarBotonLive, 50);
+    };
+  }
+
+  // Delegación de clicks
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t.id === 'liveSearchBtn' || (t.closest && t.closest('#liveSearchBtn'))) {
+      e.preventDefault();
+      const q = (state.searchQuery || '').trim();
+      if (q) buscarEnEbay(q);
+      return;
+    }
+  });
+
+  // Actualizar al arrancar
+  setTimeout(actualizarBotonLive, 1500);
+  setInterval(actualizarBotonLive, 3000);
+
+  console.log('✅ Búsqueda en vivo lista');
+})();

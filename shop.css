@@ -894,3 +894,50 @@ body{
 .wa-info-value{font-size:14px;font-weight:700;color:var(--text)}
 .wa-info-btn{margin-top:8px;padding:15px;border:0;border-radius:12px;background:var(--wa);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.35)}
 .wa-info-btn:active{transform:scale(.97)}
+
+/* ═══════════════════════════════════════
+   BOTÓN "BUSCAR EN EBAY" (búsqueda en vivo)
+   ═══════════════════════════════════════ */
+.live-search-btn {
+  margin-top: 20px;
+  padding: 16px 24px;
+  border: 2px dashed var(--accent);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(124,58,237,.08), rgba(236,72,153,.08));
+  color: var(--accent);
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-search-btn:hover {
+  background: linear-gradient(135deg, rgba(124,58,237,.15), rgba(236,72,153,.15));
+  border-style: solid;
+  transform: translateY(-1px);
+}
+.live-search-btn:active {
+  transform: scale(.97);
+}
+.live-search-btn:disabled {
+  opacity: .7;
+  cursor: wait;
+}
+.live-search-btn b {
+  color: var(--accent-2);
+  font-weight: 800;
+}
+
+/* Ajuste del contenedor de "vacío" para que el botón se vea centrado */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.empty p {
+  margin: 0;
+}
