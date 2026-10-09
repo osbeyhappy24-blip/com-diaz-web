@@ -279,3 +279,57 @@ $('waFloat').onclick = () => {
 
 // ─── Arranque ───
 cargarCatalogo();
+
+
+// ─── WhatsApp mejorado (header + footer) ───
+(function mejorarWhatsApp(){
+  const updateConfig = () => {
+    // Actualizar footer con datos del config
+    const cfg = state.config || {};
+    const fTitle = document.getElementById('footerTitle');
+    const fSub = document.getElementById('footerSubtitle');
+    const fHor = document.getElementById('footerHorario');
+    const fYear = document.getElementById('footerYear');
+
+    if (fTitle && cfg.titulo) fTitle.textContent = cfg.titulo;
+    if (fSub && cfg.subtitulo) fSub.textContent = cfg.subtitulo;
+    if (fHor && cfg.horarioAtencion) fHor.textContent = cfg.horarioAtencion;
+    if (fYear) fYear.textContent = new Date().getFullYear();
+  };
+
+  // Actualizar después de cargar el catálogo
+  const _orig = window.cargarCatalogo;
+  if (typeof _orig === 'function') {
+    window.cargarCatalogo = async function() {
+      await _orig.apply(this, arguments);
+      setTimeout(updateConfig, 300);
+    };
+  }
+
+  // Si ya cargó, actualizar ahora
+  setTimeout(updateConfig, 800);
+
+  // Botón del header
+  const headerBtn = document.getElementById('headerWaBtn');
+  if (headerBtn) {
+    headerBtn.onclick = () => {
+      const wa = state.config?.whatsapp || '5351425691';
+      const nombre = state.config?.titulo || 'Comdiaz Shop';
+      const horario = state.config?.horarioAtencion || '';
+      let msg = 'Hola, vengo de *' + nombre + '* y quiero información sobre productos.';
+      if (horario) msg += '\n\n(Su horario: ' + horario + ')';
+      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+    };
+  }
+
+  // Botón del footer
+  const footerBtn = document.getElementById('footerWaBtn');
+  if (footerBtn) {
+    footerBtn.onclick = () => {
+      const wa = state.config?.whatsapp || '5351425691';
+      const nombre = state.config?.titulo || 'Comdiaz Shop';
+      const msg = 'Hola, vengo de *' + nombre + '* y quiero hablar con un vendedor.';
+      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+    };
+  }
+})();
