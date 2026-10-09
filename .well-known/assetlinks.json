@@ -1,8 +1,16 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.onrender.com_diaz_web.twa",
-        "sha256_cert_fingerprints": ["73:06:76:7C:47:CF:C3:59:B3:46:E6:E0:9A:8F:06:B0:B0:06:FE:57:BF:95:D7:B5:96:32:D2:18:0A:A2:80:99"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.onrender.com_diaz_web.twa",
+    "sha256_cert_fingerprints": ["73:06:76:7C:47:CF:C3:59:B3:46:E6:E0:9A:8F:06:B0:B0:06:FE:57:BF:95:D7:B5:96:32:D2:18:0A:A2:80:99"]
+  }
+},
+{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.comdiaz.shop.twa",
+    "sha256_cert_fingerprints": ["3C:FC:8B:60:6D:B2:04:1E:B3:31:43:FF:C6:3E:82:CD:9B:00:E1:BD:00:2A:1C:36:64:BA:05:F9:79:68:35:F2"]
+  }
+}]
