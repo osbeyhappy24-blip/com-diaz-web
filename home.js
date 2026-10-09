@@ -1845,8 +1845,13 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     });
   }
 
-  // ─── Comprimir imagen (canvas) ───
+  // ─── Comprimir imagen (usa editor automático profesional) ───
   async function comprimirImagen(file, maxSize = 800, quality = 0.8) {
+    // Usar el editor automático profesional
+    if (typeof window.comdiaz_procesarFoto === 'function') {
+      return await window.comdiaz_procesarFoto(file, true);
+    }
+    // Fallback: compresión simple
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -1860,8 +1865,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
           canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', quality);
-          resolve(dataUrl);
+          resolve(canvas.toDataURL('image/jpeg', quality));
         };
         img.onerror = reject;
         img.src = e.target.result;
@@ -2066,4 +2070,146 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   setInterval(cargarManuales, 30000);
 
   console.log('✅ Productos manuales listos');
+})();
+
+
+// ═══════════════════════════════════════════════
+// EDITOR AUTOMÁTICO DE FOTOS (comdiaz_auto_edit_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_auto_edit_v1(){
+  const $id = (id) => document.getElementById(id);
+
+  // ─── Aplicar auto-ajustes a una imagen ───
+  function aplicarAutoAjustes(canvas) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const w = canvas.width;
+    const h = canvas.height;
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+
+    // 1) Calcular promedio de luminosidad y contraste
+    let sumLum = 0;
+    let minLum = 255;
+    let maxLum = 0;
+    const lumValues = new Uint8Array(w * h);
+
+    for (let i = 0; i < data.length; i += 4) {
+      const lum = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      lumValues[i/4] = lum;
+      sumLum += lum;
+      if (lum < minLum) minLum = lum;
+      if (lum > maxLum) maxLum = lum;
+    }
+
+    const avgLum = sumLum / (w * h);
+    const rango = maxLum - minLum;
+
+    // 2) Calcular factores
+    // Brillo: acercar el promedio a 128
+    let brillo = 0;
+    if (avgLum < 100) brillo = Math.min(30, (128 - avgLum) * 0.5);
+    else if (avgLum > 180) brillo = Math.max(-20, (128 - avgLum) * 0.4);
+
+    // Contraste: si el rango es pequeño, aumentarlo
+    let contraste = 1.0;
+    if (rango < 180) contraste = 1 + (180 - rango) / 300;
+    contraste = Math.min(contraste, 1.5);
+
+    // Saturación: subir ligeramente
+    const saturacion = 1.15;
+
+    // 3) Aplicar los ajustes
+    for (let i = 0; i < data.length; i += 4) {
+      let r = data[i];
+      let g = data[i+1];
+      let b = data[i+2];
+
+      // Brillo
+      r += brillo;
+      g += brillo;
+      b += brillo;
+
+      // Contraste (aplicado sobre el gris medio 128)
+      r = ((r - 128) * contraste) + 128;
+      g = ((g - 128) * contraste) + 128;
+      b = ((b - 128) * contraste) + 128;
+
+      // Saturación (mezclar con el gris)
+      const gris = 0.299 * r + 0.587 * g + 0.114 * b;
+      r = gris + (r - gris) * saturacion;
+      g = gris + (g - gris) * saturacion;
+      b = gris + (b - gris) * saturacion;
+
+      // Clamp
+      data[i] = Math.max(0, Math.min(255, r));
+      data[i+1] = Math.max(0, Math.min(255, g));
+      data[i+2] = Math.max(0, Math.min(255, b));
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return { brillo, contraste, saturacion };
+  }
+
+  // ─── Redimensionar y centrar en cuadrado 800x800 ───
+  function normalizarCuadrado(img, size = 800) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    // Fondo blanco
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+
+    // Calcular el rectángulo para ajustar la imagen
+    const ratio = img.width / img.height;
+    let newW, newH;
+    if (ratio > 1) {
+      newW = size;
+      newH = size / ratio;
+    } else {
+      newH = size;
+      newW = size * ratio;
+    }
+
+    const x = (size - newW) / 2;
+    const y = (size - newH) / 2;
+
+    ctx.drawImage(img, x, y, newW, newH);
+    return canvas;
+  }
+
+  // ─── Procesar foto: comprimir + auto-ajustes + cuadrado ───
+  window.comdiaz_procesarFoto = function(file, conAutoAjustes = true) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          // 1. Normalizar a cuadrado 800x800 con fondo blanco
+          const canvas = normalizarCuadrado(img, 800);
+
+          // 2. Aplicar auto-ajustes
+          if (conAutoAjustes) {
+            try {
+              aplicarAutoAjustes(canvas);
+              console.log('✅ Auto-ajustes aplicados');
+            } catch(err) {
+              console.warn('Error en auto-ajustes:', err);
+            }
+          }
+
+          // 3. Convertir a JPEG 85%
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  console.log('✅ Editor automático listo');
 })();
