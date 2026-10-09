@@ -115,6 +115,7 @@ function renderResults() {
   state.results.slice(0, 60).forEach(r => {
     const div = document.createElement('div');
     div.className = 'prod';
+    div.dataset.pid = r.id || '';
     div.innerHTML = `
       <img src="${r.image}" alt="" loading="lazy" onerror="this.style.opacity=.2">
       <div class="prod-body">
@@ -1547,4 +1548,192 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   setInterval(cargarActividad, 30000);
 
   console.log('✅ Seguridad frontend lista');
+})();
+
+
+// ═══════════════════════════════════════════════
+// COMDIAZ SHOP — Control desde Home (v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_shop_ui_v1(){
+  const $id = (id) => document.getElementById(id);
+
+  // ─── Actualizar contadores y estado ───
+  async function actualizarContadores() {
+    try {
+      if (!navigator.onLine) return;
+      const r = await fetch(API + '/api/state');
+      const s = await r.json();
+
+      const published = s.published || [];
+      const total = (s.results || []).length;
+
+      const cnt = $id('publishedCount');
+      if (cnt) cnt.textContent = published.length;
+      const pn = $id('publishedNum');
+      if (pn) pn.textContent = published.length;
+      const tn = $id('totalNum');
+      if (tn) tn.textContent = total;
+
+      const tog = $id('autoPublishToggle');
+      if (tog) tog.checked = !!s.shopConfig?.publicarAutomatico;
+
+      const dot = $id('shopStatusDot');
+      const txt = $id('shopStatusText');
+      if (dot && txt) {
+        if (published.length > 0) {
+          dot.className = 'on';
+          dot.textContent = '●';
+          txt.textContent = 'Catálogo activo · ' + published.length + ' productos visibles';
+        } else {
+          dot.className = 'off';
+          dot.textContent = '●';
+          txt.textContent = 'Catálogo vacío';
+        }
+      }
+    } catch(e) { console.warn('Error shop UI:', e); }
+  }
+
+  // ─── Marcar productos publicados en el grid ───
+  async function marcarPublicados() {
+    try {
+      if (!navigator.onLine) return;
+      const r = await fetch(API + '/api/published');
+      const data = await r.json();
+      const ids = new Set(data.ids || []);
+
+      document.querySelectorAll('.prod').forEach(card => {
+        const btn = card.querySelector('.prod-btn');
+        if (!btn) return;
+        const id = btn.dataset.pid;
+        if (ids.has(id)) {
+          btn.classList.add('published');
+          btn.textContent = '✓';
+          btn.title = 'Publicado · clic para ocultar';
+        } else {
+          btn.classList.remove('published');
+          btn.textContent = '📤';
+          btn.title = 'Publicar al catálogo';
+        }
+      });
+    } catch(e) { console.warn(e); }
+  }
+
+  // ─── Toggle de auto-publicar ───
+  document.addEventListener('change', async (e) => {
+    if (e.target.id === 'autoPublishToggle') {
+      const val = e.target.checked;
+      try {
+        await fetch(API + '/api/shop-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ publicarAutomatico: val }),
+        });
+        if (typeof toast === 'function') {
+          toast(val ? '✅ Auto-publicar activado' : '⏸ Auto-publicar desactivado');
+        }
+      } catch(_) {}
+    }
+  });
+
+  // ─── Botones principales ───
+  document.addEventListener('click', async (e) => {
+    const t = e.target;
+    const btn = t.closest ? t.closest('button, a') : null;
+    if (!btn) return;
+
+    // Publicar todos
+    if (btn.id === 'publishAllBtn') {
+      e.preventDefault();
+      if (!navigator.onLine) { toast('🔴 Sin conexión', 'err'); return; }
+      if (!confirm('¿Publicar TODOS los productos encontrados al catálogo?')) return;
+      toast('Publicando…');
+      try {
+        const r = await fetch(API + '/api/publish-all', { method:'POST' });
+        const d = await r.json();
+        toast('✅ ' + d.total + ' productos publicados', 'ok');
+        await actualizarContadores();
+        await marcarPublicados();
+      } catch(_) { toast('Error al publicar', 'err'); }
+      return;
+    }
+
+    // Vaciar catálogo
+    if (btn.id === 'unpublishAllBtn') {
+      e.preventDefault();
+      if (!confirm('¿Ocultar TODOS los productos del catálogo público?')) return;
+      toast('Vaciando…');
+      try {
+        await fetch(API + '/api/unpublish-all', { method: 'POST' });
+        toast('🗑 Catálogo vacío');
+        await actualizarContadores();
+        await marcarPublicados();
+      } catch(_) { toast('Error', 'err'); }
+      return;
+    }
+
+    // Publicar/despublicar producto individual
+    if (btn.classList && btn.classList.contains('prod-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pid = btn.dataset.pid;
+      if (!pid) return;
+      if (!navigator.onLine) { toast('🔴 Sin conexión', 'err'); return; }
+
+      const published = btn.classList.contains('published');
+      const endpoint = published ? '/api/unpublish/' : '/api/publish/';
+      try {
+        await fetch(API + endpoint + encodeURIComponent(pid), { method: 'POST' });
+        toast(published ? '🗑 Oculto del catálogo' : '✅ Publicado', 'ok');
+        await actualizarContadores();
+        await marcarPublicados();
+      } catch(_) { toast('Error', 'err'); }
+    }
+  }, true);
+
+  // ─── Agregar botones a los productos del grid ───
+  function inyectarBotonesProductos() {
+    document.querySelectorAll('.prod').forEach(card => {
+      if (card.querySelector('.prod-btn')) return;
+
+      const pid = card.dataset.pid;
+      if (!pid) return;
+
+      const actions = document.createElement('div');
+      actions.className = 'prod-actions';
+      const btn = document.createElement('button');
+      btn.className = 'prod-btn';
+      btn.dataset.pid = pid;
+      btn.textContent = '📤';
+      btn.title = 'Publicar al catálogo';
+      actions.appendChild(btn);
+      card.appendChild(actions);
+    });
+
+    marcarPublicados();
+  }
+
+  // Exponer globalmente
+  window.comdiaz_shop_actualizar = async function() {
+    await actualizarContadores();
+    inyectarBotonesProductos();
+  };
+
+  // Arrancar
+  setTimeout(actualizarContadores, 2000);
+  setTimeout(inyectarBotonesProductos, 2500);
+  setInterval(() => {
+    actualizarContadores();
+    inyectarBotonesProductos();
+  }, 30000);
+
+  // Enganchar con el refresh
+  const _prevRefresh = window.refresh;
+  if (typeof _prevRefresh === 'function') {
+    window.refresh = async function() {
+      await _prevRefresh.apply(this, arguments);
+      setTimeout(inyectarBotonesProductos, 500);
+    };
+  }
+
+  console.log('✅ comdiaz_shop_ui_v1 listo');
 })();

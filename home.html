@@ -184,6 +184,38 @@
       </div>
     </section>
   
+  
+    <section class="card collapsible" data-card="public" data-default="closed" id="publicCatalogCard">
+      <div class="card-head">
+        <h2>Catálogo público (Comdiaz Shop)</h2>
+        <span class="badge" id="publishedCount">0</span>
+      </div>
+      <div class="card-body">
+        <div class="shop-status-row">
+          <span class="shop-status">
+            <span id="shopStatusDot">●</span>
+            <span id="shopStatusText">Verificando…</span>
+          </span>
+        </div>
+
+        <label class="toggle-row">
+          <span>Auto-publicar cada búsqueda</span>
+          <input type="checkbox" id="autoPublishToggle">
+        </label>
+
+        <div class="shop-actions">
+          <button id="publishAllBtn" class="btn-ghost">📤 Publicar todos</button>
+          <button id="unpublishAllBtn" class="btn-ghost danger">🗑 Vaciar catálogo</button>
+          <a id="openShopBtn" class="btn-ghost primary" target="_blank" href="shop.html">🛍 Abrir Comdiaz Shop</a>
+        </div>
+
+        <div class="margin-hint">
+          Productos publicados: <b id="publishedNum">0</b> · 
+          Total encontrados: <b id="totalNum">0</b>
+        </div>
+      </div>
+    </section>
+  
   </main>
 
   <div id="toast" class="toast"></div>
