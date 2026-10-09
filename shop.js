@@ -118,7 +118,7 @@ function renderProductos() {
 
     card.innerHTML = `
       <div class="product-img-wrap">
-        <img class="product-img" src="${p.image || ''}" alt="" loading="lazy" onerror="this.style.opacity=.3">
+        <img class="product-img" src="${p.image || ''}" alt="" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f3f4f6%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 font-family=%22sans-serif%22 font-size=%2214%22 fill=%22%239ca3af%22 text-anchor=%22middle%22>Sin imagen</text></svg>'">
         <span class="product-source ${sourceClass}">${sourceLabel}</span>
       </div>
       <div class="product-body">
