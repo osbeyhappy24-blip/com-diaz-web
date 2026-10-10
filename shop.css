@@ -1127,3 +1127,44 @@ body{
   font-size: 12.5px;
   color: var(--muted);
 }
+
+/* ═══════════════════════════════════════
+   BANNER DE PROMOCIONES
+   ═══════════════════════════════════════ */
+.shop-banner {
+  padding: 14px 18px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(124,58,237,.25);
+  animation: bannerSlide .4s ease;
+}
+.shop-banner.gradient {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+}
+.shop-banner.green {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+.shop-banner.orange {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.shop-banner.red {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.shop-banner.blue {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+@keyframes bannerSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

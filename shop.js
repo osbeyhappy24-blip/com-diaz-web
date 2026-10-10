@@ -1219,3 +1219,43 @@ cargarCatalogo();
 
   console.log('✅ Notificación de pedidos activa');
 })();
+
+
+// ═══════════════════════════════════════════════
+// BANNER DE PROMOCIONES (comdiaz_banner_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_banner_v1(){
+  function renderBanner() {
+    const box = document.getElementById('shopBanner');
+    if (!box) return;
+
+    const cfg = state.config || {};
+    const activo = cfg.bannerActivo === true;
+    const texto = (cfg.bannerTexto || '').trim();
+    const color = cfg.bannerColor || 'gradient';
+
+    if (!activo || !texto) {
+      box.classList.add('hidden');
+      return;
+    }
+
+    box.className = 'shop-banner ' + color;
+    box.textContent = texto;
+    box.classList.remove('hidden');
+  }
+
+  // Enganchar al cargar catálogo
+  const _orig = window.cargarCatalogo;
+  if (typeof _orig === 'function') {
+    window.cargarCatalogo = async function() {
+      await _orig.apply(this, arguments);
+      setTimeout(renderBanner, 200);
+    };
+  }
+
+  // Arranque
+  setTimeout(renderBanner, 1500);
+  setInterval(renderBanner, 10000);
+
+  console.log('✅ Banner listo');
+})();
