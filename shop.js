@@ -57,6 +57,7 @@ async function cargarCatalogo() {
     if (!data.ok) throw new Error('Respuesta invalida');
 
     state.products = data.products || [];
+    state.featured = data.featured || [];
     state.categorias = data.categorias || [];
     state.config = data.config || {};
 
@@ -66,6 +67,7 @@ async function cargarCatalogo() {
 
     renderCategorias();
     aplicarFiltros();
+    if (window.__renderDestacados) window.__renderDestacados();
   } catch (e) {
     console.error('Error cargando catalogo:', e);
     $('loading').innerHTML = '<p>Error al cargar. Verifica tu conexion.</p>';
@@ -88,6 +90,7 @@ function renderCategorias() {
       state.currentCat = cat;
       renderCategorias();
       aplicarFiltros();
+    if (window.__renderDestacados) window.__renderDestacados();
     };
     bar.appendChild(chip);
   });
@@ -298,6 +301,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     state.currentTab = tab.dataset.tab;
     aplicarFiltros();
+    if (window.__renderDestacados) window.__renderDestacados();
   };
 });
 
@@ -308,6 +312,7 @@ $('searchInput').oninput = (e) => {
   searchTimer = setTimeout(() => {
     state.searchQuery = e.target.value.trim();
     aplicarFiltros();
+    if (window.__renderDestacados) window.__renderDestacados();
   }, 200);
 };
 
@@ -716,6 +721,7 @@ cargarCatalogo();
     // Re-aplicar filtros para que aparezcan
     state.currentCat = 'todas';
     aplicarFiltros();
+    if (window.__renderDestacados) window.__renderDestacados();
   }
 
   async function buscarEnEbay(q) {
@@ -1313,6 +1319,7 @@ cargarCatalogo();
 // PRODUCTOS DESTACADOS (comdiaz_featured_v1)
 // ═══════════════════════════════════════════════
 (function comdiaz_featured_v1(){
+  window.__renderDestacados = function(){ if(typeof renderDestacados === "function") renderDestacados(); };
   function renderDestacados() {
     const section = document.getElementById("featuredSection");
     const grid = document.getElementById("featuredProducts");
