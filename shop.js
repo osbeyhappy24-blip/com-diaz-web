@@ -1156,3 +1156,66 @@ cargarCatalogo();
 
   console.log('✅ Compartir producto listo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// NOTIFICAR PEDIDO AL BACKEND (comdiaz_order_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_order_v1(){
+  // Interceptar el envío del pedido
+  const _origSend = window.comdiaz_cart && window.comdiaz_cart.send;
+  if (typeof _origSend !== 'function') {
+    console.log('⚠️  No encontré comdiaz_cart.send');
+    return;
+  }
+
+  // Sobreescribir send
+  window.comdiaz_cart.send = async function() {
+    // Obtener datos del pedido ANTES de abrir WhatsApp
+    const items = Array.isArray(window.comdiaz_cart.items) ? window.comdiaz_cart.items : [];
+    // Nota: el carrito guarda internamente. Vamos a leer el localStorage
+    let cart = [];
+    try {
+      const raw = localStorage.getItem('comdiaz_cart');
+      if (raw) cart = JSON.parse(raw);
+    } catch(_) {}
+
+    const nombre = (document.getElementById('cartName')?.value || '').trim();
+    const notas = (document.getElementById('cartNotes')?.value || '').trim();
+
+    if (!nombre) {
+      // El original ya valida esto
+      return _origSend.apply(this, arguments);
+    }
+
+    if (cart.length === 0) {
+      return _origSend.apply(this, arguments);
+    }
+
+    const total = cart.reduce((acc, item) => acc + (Number(item.price) * (item.qty || 1)), 0);
+
+    // Enviar al backend (silencioso, no bloquea)
+    try {
+      fetch(API_BASE + '/api/track-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          notas,
+          items: cart.map(i => ({
+            title: i.title,
+            price: Number(i.price),
+            qty: Number(i.qty) || 1,
+          })),
+          total,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch(_) {}
+
+    // Y ahora sí, abrir WhatsApp como siempre
+    return _origSend.apply(this, arguments);
+  };
+
+  console.log('✅ Notificación de pedidos activa');
+})();
