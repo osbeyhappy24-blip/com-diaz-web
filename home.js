@@ -2337,3 +2337,102 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Panel de estadísticas listo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// DESTACAR DESDE EL HOME (comdiaz_featured_home_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_featured_home_v1(){
+  let destacados = [];
+
+  // Cargar IDs destacados
+  async function cargarDestacados() {
+    try {
+      if (!navigator.onLine) return;
+      const r = await fetch(API + "/api/featured");
+      const data = await r.json();
+      destacados = data.ids || [];
+      marcarEstrellas();
+    } catch(e) {}
+  }
+
+  // Marcar las estrellas según los IDs
+  function marcarEstrellas() {
+    document.querySelectorAll(".prod").forEach(card => {
+      const pid = card.dataset.pid;
+      const star = card.querySelector(".prod-star");
+      if (!star) return;
+      const activo = destacados.includes(pid);
+      star.classList.toggle("active", activo);
+      star.textContent = activo ? "⭐" : "☆";
+      star.title = activo ? "Quitar de destacados" : "Marcar como destacado";
+    });
+  }
+
+  // Agregar estrella a cada producto (después del render)
+  function agregarEstrellas() {
+    document.querySelectorAll(".prod").forEach(card => {
+      if (card.querySelector(".prod-star")) return;
+      const pid = card.dataset.pid;
+      if (!pid) return;
+      const actions = card.querySelector(".prod-actions");
+      if (!actions) return;
+      const star = document.createElement("button");
+      star.className = "prod-btn prod-star";
+      star.textContent = destacados.includes(pid) ? "⭐" : "☆";
+      star.title = "Marcar como destacado";
+      actions.appendChild(star);
+    });
+    marcarEstrellas();
+  }
+
+  // Click en estrella
+  document.addEventListener("click", async (e) => {
+    const star = e.target.closest && e.target.closest(".prod-star");
+    if (!star) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const card = star.closest(".prod");
+    const pid = card?.dataset.pid;
+    if (!pid) return;
+
+    try {
+      const r = await fetch(API + "/api/featured/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: pid }),
+      });
+      const data = await r.json();
+      if (data.ok) {
+        await cargarDestacados();
+        const activo = destacados.includes(pid);
+        if (typeof toast === "function") {
+          toast(activo ? "⭐ Marcado como destacado" : "☆ Quitado de destacados", "ok");
+        }
+      }
+    } catch(err) {
+      if (typeof toast === "function") toast("Error al destacar", "err");
+    }
+  }, true);
+
+  // Enganchar con refresh
+  const _origRefresh = window.refresh;
+  if (typeof _origRefresh === "function") {
+    window.refresh = async function() {
+      await _origRefresh.apply(this, arguments);
+      setTimeout(agregarEstrellas, 200);
+    };
+  }
+
+  // Arranque
+  setTimeout(() => {
+    cargarDestacados();
+    agregarEstrellas();
+  }, 2500);
+  setInterval(() => {
+    cargarDestacados();
+    agregarEstrellas();
+  }, 30000);
+
+  console.log("✅ Destacar desde Home activo");
+})();
