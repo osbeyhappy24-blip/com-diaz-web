@@ -253,6 +253,45 @@
       </div>
     </section>
 
+  
+    <section class="card collapsible" data-card="stats" data-default="closed" id="statsCard">
+      <div class="card-head">
+        <h2>Estadísticas de la tienda</h2>
+        <button id="refreshStats" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+        <div class="stats-today">
+          <div class="stat-box">
+            <div class="stat-num" id="sVisitsToday">0</div>
+            <div class="stat-lbl">Visitas hoy</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="sProductsToday">0</div>
+            <div class="stat-lbl">Productos vistos</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="sCartToday">0</div>
+            <div class="stat-lbl">Al carrito</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="sWaToday">0</div>
+            <div class="stat-lbl">WhatsApp</div>
+          </div>
+        </div>
+
+        <h3 class="stats-sub">Últimos 7 días</h3>
+        <div id="sWeek" class="stats-week"></div>
+
+        <h3 class="stats-sub">Top 10 productos más vistos</h3>
+        <div id="sTopProducts" class="stats-top"></div>
+
+        <div class="stats-total">
+          <span>Total histórico:</span>
+          <b id="sTotal">0</b>
+        </div>
+      </div>
+    </section>
+  
   </main>
 
   <div id="toast" class="toast"></div>

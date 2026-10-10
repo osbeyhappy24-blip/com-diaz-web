@@ -2240,3 +2240,91 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Editor automático listo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// PANEL DE ESTADÍSTICAS (comdiaz_stats_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_stats_v1(){
+  const $id = (id) => document.getElementById(id);
+
+  async function cargarStats() {
+    if (!navigator.onLine) return;
+    try {
+      const r = await fetch(API + '/api/stats');
+      const s = await r.json();
+      if (!s.ok) return;
+      renderStats(s);
+    } catch(e) { console.warn('Error stats:', e); }
+  }
+
+  function renderStats(s) {
+    // Hoy
+    const hoy = s.hoy || {};
+    if ($id('sVisitsToday')) $id('sVisitsToday').textContent = hoy.visitas || 0;
+    if ($id('sProductsToday')) $id('sProductsToday').textContent = hoy.productos || 0;
+    if ($id('sCartToday')) $id('sCartToday').textContent = hoy.carrito || 0;
+    if ($id('sWaToday')) $id('sWaToday').textContent = hoy.whatsapp || 0;
+
+    // Total
+    if ($id('sTotal')) $id('sTotal').textContent = s.total || 0;
+
+    // Barra semanal
+    const weekBox = $id('sWeek');
+    if (weekBox) {
+      const dias = s.ultimos7 || [];
+      const maxVisitas = Math.max(1, ...dias.map(d => d.visitas || 0));
+      weekBox.innerHTML = '';
+      dias.forEach(d => {
+        const wrap = document.createElement('div');
+        wrap.className = 'stats-bar-wrap';
+        const pct = ((d.visitas || 0) / maxVisitas) * 100;
+        const diaSem = new Date(d.fecha + 'T12:00:00').toLocaleDateString('es', { weekday: 'short' });
+        wrap.innerHTML = `
+          <div class="stats-bar" style="height: ${Math.max(4, pct)}%">
+            <span class="stats-bar-num">${d.visitas || 0}</span>
+          </div>
+          <span class="stats-bar-lbl">${diaSem}</span>
+        `;
+        weekBox.appendChild(wrap);
+      });
+    }
+
+    // Top productos
+    const topBox = $id('sTopProducts');
+    if (topBox) {
+      const top = s.topProductos || [];
+      if (!top.length) {
+        topBox.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:14px">Sin datos aún</div>';
+      } else {
+        topBox.innerHTML = '';
+        top.forEach((p, i) => {
+          const el = document.createElement('div');
+          el.className = 'top-item';
+          el.innerHTML = `
+            <span class="top-rank">${i + 1}</span>
+            <span class="top-title">${(p.title || 'Sin título').slice(0, 45)}</span>
+            <span class="top-count">${p.count}×</span>
+          `;
+          topBox.appendChild(el);
+        });
+      }
+    }
+  }
+
+  // Botón refrescar
+  document.addEventListener('click', (e) => {
+    if (e.target.id === 'refreshStats' || (e.target.closest && e.target.closest('#refreshStats'))) {
+      e.preventDefault();
+      if (typeof toast === 'function') toast('🔄 Actualizando...');
+      cargarStats();
+    }
+  });
+
+  // Cargar al arrancar
+  setTimeout(cargarStats, 2500);
+  // Y cada 60 segundos
+  setInterval(cargarStats, 60000);
+
+  console.log('✅ Panel de estadísticas listo');
+})();
