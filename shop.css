@@ -1168,3 +1168,20 @@ body{
     transform: translateY(0);
   }
 }
+
+
+/* ═══════════════════════════════════════
+   PRODUCTOS DESTACADOS
+   ═══════════════════════════════════════ */
+.featured-section {
+  margin-bottom: 30px;
+  padding-bottom: 24px;
+  border-bottom: 2px dashed var(--border);
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 14px;
+  letter-spacing: -.2px;
+}

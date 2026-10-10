@@ -1307,3 +1307,73 @@ cargarCatalogo();
 
   console.log("✅ Notificador de pedidos v2 activo");
 })();
+
+
+// ═══════════════════════════════════════════════
+// PRODUCTOS DESTACADOS (comdiaz_featured_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_featured_v1(){
+  function renderDestacados() {
+    const section = document.getElementById("featuredSection");
+    const grid = document.getElementById("featuredProducts");
+    if (!section || !grid) return;
+
+    const destacados = state.featured || [];
+    if (!destacados.length) {
+      section.classList.add("hidden");
+      return;
+    }
+
+    section.classList.remove("hidden");
+    grid.innerHTML = "";
+
+    destacados.slice(0, 6).forEach(p => {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      const sourceLabel = p.source === "manual" ? "Local" : "Importado";
+      const sourceClass = p.source === "manual" ? "local" : "";
+
+      card.innerHTML = `
+        <div class="product-img-wrap">
+          <img class="product-img" src="${p.image || ""}" alt="" loading="lazy" onerror="this.style.opacity=.3">
+          <span class="product-source ${sourceClass}">${sourceLabel}</span>
+          <span style="position:absolute;top:8px;left:8px;font-size:18px">⭐</span>
+        </div>
+        <div class="product-body">
+          <div class="product-category">${p.category || ""}</div>
+          <div class="product-title">${p.title || "Sin titulo"}</div>
+          <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
+          <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
+          <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
+        </div>
+      `;
+
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".product-buy")) return;
+        if (e.target.closest(".product-add")) return;
+        abrirModalProducto(p);
+      });
+
+      card.querySelector(".product-buy").addEventListener("click", (e) => {
+        e.stopPropagation();
+        pedirPorWhatsApp(p);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  // Enganchar al cargar catálogo
+  const _orig = window.cargarCatalogo;
+  if (typeof _orig === "function") {
+    window.cargarCatalogo = async function() {
+      await _orig.apply(this, arguments);
+      setTimeout(renderDestacados, 300);
+    };
+  }
+
+  setTimeout(renderDestacados, 1800);
+  setInterval(renderDestacados, 15000);
+
+  console.log("✅ Destacados v1 activo");
+})();
