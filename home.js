@@ -1582,6 +1582,12 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (mx) mx.value = cfg.maxProductos || 200;
       const hor = $id('shopHorario');
       if (hor) hor.value = cfg.horarioAtencion || 'Lun-Sab 9:00am - 9:00pm';
+      const bAct = $id('shopBannerActiv');
+      if (bAct) bAct.checked = !!cfg.bannerActivo;
+      const bTxt = $id('shopBannerTexto');
+      if (bTxt) bTxt.value = cfg.bannerTexto || '';
+      const bCol = $id('shopBannerColor');
+      if (bCol) bCol.value = cfg.bannerColor || 'gradient';
     } catch(e) { console.warn(e); }
   }
 
@@ -1592,6 +1598,9 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const whatsapp = ($id('shopWhatsapp')?.value || '').replace(/[^0-9]/g, '');
     const maxProductos = Number($id('shopMax')?.value) || 200;
     const horarioAtencion = ($id('shopHorario')?.value || '').trim() || 'Lun-Sab 9:00am - 9:00pm';
+    const bannerActivo = !!$id('shopBannerActiv')?.checked;
+    const bannerTexto = ($id('shopBannerTexto')?.value || '').trim();
+    const bannerColor = $id('shopBannerColor')?.value || 'gradient';
 
     if (!titulo) { toast('El nombre no puede estar vacío', 'err'); return; }
     if (!whatsapp || whatsapp.length < 8) { toast('WhatsApp inválido', 'err'); return; }
@@ -1601,7 +1610,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const r = await fetch(API + '/api/shop-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos, horarioAtencion }),
+        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos, horarioAtencion, bannerActivo, bannerTexto, bannerColor }),
       });
       const d = await r.json();
       if (d.ok) {
