@@ -1090,3 +1090,69 @@ cargarCatalogo();
 
   console.log('✅ Tracking de visitas activo');
 })();
+
+
+// ═══════════════════════════════════════════════
+// COMPARTIR PRODUCTO (comdiaz_share_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_share_v1(){
+  let productoActual = null;
+
+  // Guardar el producto cuando se abre el modal
+  const _origAbrir = window.abrirModalProducto;
+  if (typeof _origAbrir === 'function') {
+    window.abrirModalProducto = function(producto) {
+      productoActual = producto;
+      return _origAbrir.apply(this, arguments);
+    };
+  }
+
+  function generarMensaje(p) {
+    const titulo = p.title || 'Producto';
+    const precio = Number(p.salePrice || 0).toFixed(2);
+    const shopUrl = 'https://com-diaz-web.onrender.com/shop.html';
+    const wa = (state && state.config && state.config.whatsapp) || '5351425691';
+    const tienda = (state && state.config && state.config.titulo) || 'Comdiaz Shop';
+
+    return '🛍️ Mira este producto en *' + tienda + ':*\n\n' +
+           '*_' + titulo + '_*\n\n' +
+           '💰 Precio: $' + precio + '\n\n' +
+           '🔗 ' + shopUrl + '\n\n' +
+           '📲 Pedidos por WhatsApp:\n' +
+           'https://wa.me/' + wa;
+  }
+
+  async function compartir(p) {
+    if (!p) return;
+    const texto = generarMensaje(p);
+
+    // 1) Web Share API (nativo móvil)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: p.title, text: texto });
+        if (typeof toast === 'function') toast('✅ Compartido', 'ok');
+        return;
+      } catch(e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+
+    // 2) Copiar al portapapeles
+    try {
+      await navigator.clipboard.writeText(texto);
+      if (typeof toast === 'function') toast('📋 Copiado al portapapeles', 'ok');
+    } catch(e) {
+      prompt('Copia el texto:', texto);
+    }
+  }
+
+  document.addEventListener('click', async (e) => {
+    if (e.target.id === 'pmShareBtn' || (e.target.closest && e.target.closest('#pmShareBtn'))) {
+      e.preventDefault();
+      if (productoActual) await compartir(productoActual);
+      else if (typeof toast === 'function') toast('Producto no disponible', 'err');
+    }
+  });
+
+  console.log('✅ Compartir producto listo');
+})();
