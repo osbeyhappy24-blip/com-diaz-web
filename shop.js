@@ -1259,3 +1259,51 @@ cargarCatalogo();
 
   console.log('✅ Banner listo');
 })();
+
+
+// NOTIFICAR PEDIDO AL BACKEND (v2)
+(function comdiaz_order_v2(){
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest && e.target.closest("#cartSend");
+    if (!btn) return;
+
+    let cart = [];
+    try {
+      const raw = localStorage.getItem("comdiaz_cart");
+      if (raw) cart = JSON.parse(raw);
+    } catch(_) {}
+
+    if (!cart.length) return;
+
+    const nombre = (document.getElementById("cartName")?.value || "").trim();
+    const notas = (document.getElementById("cartNotes")?.value || "").trim();
+    if (!nombre) return;
+
+    const total = cart.reduce((acc, item) => acc + (Number(item.price) * (item.qty || 1)), 0);
+
+    console.log("[ORDER] Enviando pedido:", nombre, cart.length, total);
+
+    try {
+      const r = await fetch(API_BASE + "/api/track-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre,
+          notas,
+          items: cart.map(i => ({
+            title: i.title,
+            price: Number(i.price),
+            qty: Number(i.qty) || 1,
+          })),
+          total,
+        }),
+      });
+      const data = await r.json();
+      console.log("[ORDER] Respuesta:", data);
+    } catch(err) {
+      console.error("[ORDER] Error:", err.message);
+    }
+  }, true);
+
+  console.log("✅ Notificador de pedidos v2 activo");
+})();
