@@ -1008,3 +1008,85 @@ cargarCatalogo();
 
   console.log('✅ Controles listos');
 })();
+
+
+// ═══════════════════════════════════════════════
+// TRACKING DE VISITAS (comdiaz_tracking_v1)
+// ═══════════════════════════════════════════════
+(function comdiaz_tracking_v1(){
+  // ─── Enviar evento al backend ───
+  function track(tipo, extra) {
+    if (!navigator.onLine) return;
+    const data = Object.assign({ tipo }, extra || {});
+    try {
+      // Silent fetch (fire and forget)
+      fetch(API_BASE + '/api/track-visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        keepalive: true,
+      }).catch(() => {});
+    } catch(e) {}
+  }
+
+  // ─── 1) Visita de página (1 vez por sesión) ───
+  const SESSION_KEY = 'comdiaz_tracked_session';
+  const ultimaSesion = sessionStorage.getItem(SESSION_KEY);
+  if (!ultimaSesion) {
+    track('page');
+    sessionStorage.setItem(SESSION_KEY, String(Date.now()));
+  }
+
+  // ─── 2) Ver producto (desde el modal) ───
+  const _origAbrir = window.abrirModalProducto;
+  if (typeof _origAbrir === 'function') {
+    window.abrirModalProducto = function(producto) {
+      if (producto && producto.id) {
+        track('product', {
+          productId: producto.id,
+          productTitle: producto.title,
+        });
+      }
+      return _origAbrir.apply(this, arguments);
+    };
+  }
+
+  // ─── 3) Agregar al carrito ───
+  const _origAdd = window.comdiaz_cart?.add;
+  if (typeof _origAdd === 'function') {
+    // No podemos sobreescribir directamente, pero escuchamos el evento
+    // Al hacer click en .product-add, el carrito agrega. Lo detectamos abajo.
+  }
+
+  // ─── 4) WhatsApp click (delegación) ───
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+
+    // Agregar al carrito
+    if (t.classList && t.classList.contains('product-add')) {
+      const pid = t.dataset.pid;
+      if (pid) {
+        const prod = state.products?.find(p => p.id === pid);
+        track('cart', {
+          productId: pid,
+          productTitle: prod?.title || '',
+        });
+      }
+    }
+
+    // Clic en WhatsApp (cualquier botón de WhatsApp)
+    if (t.closest && (
+      t.closest('#headerWaBtn') ||
+      t.closest('#waInfoBtn') ||
+      t.closest('#footerWaBtn') ||
+      t.closest('#waFloat') ||
+      t.closest('.product-buy') ||
+      t.closest('#cartSend') ||
+      t.closest('#pmWaBtn')
+    )) {
+      track('whatsapp');
+    }
+  }, true);
+
+  console.log('✅ Tracking de visitas activo');
+})();
