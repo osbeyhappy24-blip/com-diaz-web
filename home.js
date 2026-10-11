@@ -3,14 +3,14 @@
 // 
 
 
-// ---- Enva la clave como ?k= (evita preflight CORS) ----
+// ---- Envia la clave en header X-Comdiaz-Key ----
 (function inyectarAuth(){
   const _fetch = window.fetch.bind(window);
   window.fetch = function(input, init) {
     const key = localStorage.getItem('comdiaz_api_key');
     if (key && typeof input === 'string' && input.includes(API)) {
-      const sep = input.includes('?') ? '&' : '?';
-      input = input + sep + 'k=' + encodeURIComponent(key);
+      init = init || {};
+      init.headers = Object.assign({}, init.headers || {}, { "X-Comdiaz-Key": key });
     }
     return _fetch(input, init);
   };
