@@ -1552,10 +1552,11 @@ cargarCatalogo();
           applicationServerKey: urlBase64ToUint8Array(key)
         });
       }
+      const whatsapp = (document.getElementById('cartWhatsapp')?.value || '').replace(/[^0-9]/g, '');
       const r = await fetch(API_BASE + '/api/public/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, subscription: sub.toJSON() })
+        body: JSON.stringify({ orderId, whatsapp, subscription: sub.toJSON() })
       });
       const data = await r.json();
       if (data.ok) {
