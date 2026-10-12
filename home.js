@@ -2599,14 +2599,28 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     }
   });
 
-  const closeBtn = $id('closePedidoModal');
-  if (closeBtn) closeBtn.addEventListener('click', () => $id('pedidoModal').classList.add('hidden'));
+  // Listeners con delegacion global (mas robusto)
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#closePedidoModal')) {
+      const m = $id('pedidoModal');
+      if (m) m.classList.add('hidden');
+      return;
+    }
+    if (e.target.closest('#guardarPedido')) {
+      guardarPedido();
+      return;
+    }
+    if (e.target.closest('#refreshPedidos')) {
+      cargarPedidos();
+      return;
+    }
+  });
 
-  const saveBtn = $id('guardarPedido');
-  if (saveBtn) saveBtn.addEventListener('click', guardarPedido);
-
-  const refreshBtn = $id('refreshPedidos');
-  if (refreshBtn) refreshBtn.addEventListener('click', cargarPedidos);
+  // Cerrar modal al tocar fuera
+  document.addEventListener('click', (e) => {
+    const m = $id('pedidoModal');
+    if (m && e.target === m) m.classList.add('hidden');
+  });
 
   // Arranque
   setTimeout(cargarPedidos, 2000);
