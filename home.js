@@ -2454,6 +2454,40 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   const $id = id => document.getElementById(id);
 
+  const MENSAJES_ESTADO = {
+    pendiente_pago: 'Hola {nombre} 👋\n\nRecibimos tu pedido *{id}* por ${total}. Cuando confirmes el pago, te avisamos para empezar a prepararlo.\n\nGracias por confiar en Comdiaz Shop 💙',
+    pagado: 'Hola {nombre} 🎉\n\n¡Confirmamos tu pago del pedido *{id}*!\n\nYa estamos preparando tus productos. Te avisamos cuando salgan hacia Cuba ✈️',
+    en_transito: 'Hola {nombre} ✈️\n\nTus productos del pedido *{id}* ya están en camino a Cuba.\n\n{tracking_info}En cuanto lleguen a la isla, te avisamos 🇨🇺',
+    en_cuba: 'Hola {nombre} 🇨🇺\n\n¡Tu pedido *{id}* ya llegó a Cuba!\n\nEstamos coordinando la entrega. Pronto te avisamos para que lo recojas 📦',
+    listo_recoger: 'Hola {nombre} 🎉\n\n¡Tu pedido *{id}* está LISTO PARA RECOGER!\n\nEscribenos para coordinar la entrega:\n📞 5351425691',
+    entregado: 'Hola {nombre} 💙\n\n¡Gracias por tu compra! Esperamos que disfrutes tu pedido *{id}*.\n\nSi necesitas algo más, aquí estamos 🛍️',
+    cancelado: 'Hola {nombre},\n\nTu pedido *{id}* fue cancelado. Si tienes dudas, escríbenos.'
+  };
+
+  const SIGUIENTE_ESTADO = {
+    pendiente_pago: 'pagado',
+    pagado: 'en_transito',
+    en_transito: 'en_cuba',
+    en_cuba: 'listo_recoger',
+    listo_recoger: 'entregado',
+    entregado: 'entregado',
+    cancelado: 'cancelado'
+  };
+
+  function armarMensaje(p, estado) {
+    const tpl = MENSAJES_ESTADO[estado] || MENSAJES_ESTADO.pendiente_pago;
+    const trackInfo = p.tracking
+      ? '📦 Tracking: ' + p.tracking + (p.agencia ? ' (' + p.agencia + ')' : '') + '\n\n'
+      : '';
+    return tpl
+      .replace(/{nombre}/g, p.nombre || 'cliente')
+      .replace(/{id}/g, p.id || '')
+      .replace(/{total}/g, Number(p.total || 0).toFixed(2))
+      .replace(/{tracking}/g, p.tracking || 'pendiente')
+      .replace(/{agencia}/g, p.agencia || '')
+      .replace(/{tracking_info}/g, trackInfo);
+  }
+
   const ESTADO_LABEL = {
     pendiente_pago: '⏳ Pendiente',
     pagado: '💵 Pagado',
@@ -2551,11 +2585,66 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       '<div class="pedido-productos"><div style="font-weight:700;margin-bottom:6px;color:#cbd5e1">Productos</div>' + productos + '</div>' +
       '<div class="pedido-historial"><div style="font-weight:700;margin-bottom:6px;color:#cbd5e1">Historial</div>' + historial + '</div>';
 
-    const wa = (p.whatsapp || '').replace(/[^0-9]/g, '');
-    const msg = encodeURIComponent('Hola ' + (p.nombre||'') + ', sobre tu pedido ' + p.id + ' en Comdiaz Shop:');
-    $id('notificarWA').href = wa ? ('https://wa.me/' + wa + '?text=' + msg) : '#';
+    actualizarWA(p);
 
     $id('pedidoModal').classList.remove('hidden');
+  }
+
+  function actualizarWA(p) {
+    if (!p) return;
+    const wa = (p.whatsapp || '').replace(/[^0-9]/g, '');
+    const estado = $id('pedidoEstado')?.value || p.estado || 'pendiente_pago';
+    // Leer tracking/agencia actuales del formulario (por si se cambió sin guardar)
+    const pTmp = Object.assign({}, p, {
+      tracking: ($id('pedidoTracking')?.value || '').trim() || p.tracking,
+      agencia: ($id('pedidoAgencia')?.value || '').trim() || p.agencia
+    });
+    const msg = encodeURIComponent(armarMensaje(pTmp, estado));
+    const link = $id('notificarWA');
+    if (link) link.href = wa ? ('https://wa.me/' + wa + '?text=' + msg) : '#';
+  }
+
+  async function avanzarNotificar() {
+    if (!pedidoActivo) return;
+    const actual = $id('pedidoEstado').value;
+    const siguiente = SIGUIENTE_ESTADO[actual] || actual;
+
+    // Actualizar el dropdown al nuevo estado
+    $id('pedidoEstado').value = siguiente;
+
+    // Guardar el cambio
+    const body = {
+      estado: siguiente,
+      agencia: $id('pedidoAgencia').value.trim(),
+      tracking: $id('pedidoTracking').value.trim(),
+      notasInternas: $id('pedidoNotasInt').value.trim(),
+      notaEstado: 'Avance automatico'
+    };
+
+    try {
+      const r = await api('/api/orders/' + pedidoActivo.id, {
+        method: 'PUT',
+        body: JSON.stringify(body)
+      });
+      if (r.ok) {
+        // Actualizar el pedido local
+        pedidoActivo = Object.assign(pedidoActivo, body, { historial: r.order?.historial || pedidoActivo.historial });
+        actualizarWA(pedidoActivo);
+        // Abrir WhatsApp automaticamente
+        const link = $id('notificarWA');
+        if (link && link.href && link.href !== '#') {
+          window.open(link.href, '_blank');
+        }
+        mostrarAviso('✅ Avanzado a: ' + (ESTADO_LABEL[siguiente] || siguiente), 'ok');
+        await cargarPedidos();
+        // Refrescar el modal
+        setTimeout(() => abrirPedido(pedidoActivo.id), 500);
+      } else {
+        mostrarAviso('Error: ' + (r.error || ''), 'err');
+      }
+    } catch(e) {
+      mostrarAviso('Error: ' + e.message, 'err');
+    }
   }
 
   async function guardarPedido() {
@@ -2613,6 +2702,12 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       guardarPedido();
       return;
     }
+    if (e.target.closest('#avanzarNotificar')) {
+      e.preventDefault();
+      e.stopPropagation();
+      avanzarNotificar();
+      return;
+    }
     if (e.target.closest('#refreshPedidos')) {
       e.preventDefault();
       e.stopPropagation();
@@ -2626,6 +2721,13 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const m = $id('pedidoModal');
     if (m && e.target === m) m.classList.add('hidden');
   }, true);
+
+  // Actualizar href de WhatsApp cuando cambie el estado en el dropdown
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'pedidoEstado' && pedidoActivo) {
+      actualizarWA(pedidoActivo);
+    }
+  });
 
   // Arranque
   setTimeout(cargarPedidos, 2000);
