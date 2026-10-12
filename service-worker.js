@@ -1,10 +1,11 @@
 // comdiaz/frontend/service-worker.js
-// Service Worker con caché offline inteligente
+// Service Worker con cache offline inteligente - Shop + Admin
 
-const CACHE_NAME = 'comdiaz-static-v1';
+const CACHE_NAME = 'comdiaz-static-v3';
+const API_CACHE = 'comdiaz-api-v1';
 
-// Archivos a cachear al instalar
 const STATIC_FILES = [
+  // Admin
   './index.html',
   './home.html',
   './welcome.js',
@@ -13,29 +14,41 @@ const STATIC_FILES = [
   './favicon.png',
   './icon-192.png',
   './icon-512.png',
-  './manifest.json'
+  './manifest.json',
+  // Shop
+  './shop.html',
+  './shop.css',
+  './shop.js',
+  './favicon-shop.png',
+  './icon-shop-192.png',
+  './icon-shop-512.png',
+  './icon-maskable-192.png',
+  './icon-maskable-512.png',
+  './manifest-shop-v2.json'
 ];
 
-// ─── Instalar: cachear archivos estáticos ───
+// ─── Instalar: cachear archivos estaticos ───
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] Cacheando archivos estáticos');
-      return cache.addAll(STATIC_FILES).catch(err => {
-        console.warn('[SW] Error cacheando:', err);
-      });
+      console.log('[SW] Cacheando archivos estaticos v3');
+      return Promise.all(
+        STATIC_FILES.map(url =>
+          cache.add(url).catch(err => console.warn('[SW] Skip:', url, err.message))
+        )
+      );
     })
   );
   self.skipWaiting();
 });
 
-// ─── Activar: limpiar cachés de versiones anteriores ───
+// ─── Activar: limpiar caches viejos ───
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => {
-          console.log('[SW] Eliminando caché viejo:', k);
+        keys.filter(k => k !== CACHE_NAME && k !== API_CACHE).map(k => {
+          console.log('[SW] Eliminando cache viejo:', k);
           return caches.delete(k);
         })
       )
@@ -43,23 +56,58 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// ─── Fetch: estrategia según tipo ───
+// ─── Fetch ───
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
 
-  // Solo GET
   if (req.method !== 'GET') return;
 
-  // APIs → siempre red, nunca caché
+  // API publica → network-first con fallback a cache
+  if (url.pathname.startsWith('/api/public/') || url.pathname === '/api/featured') {
+    e.respondWith(
+      fetch(req).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(API_CACHE).then(c => c.put(req, clone));
+        }
+        return res;
+      }).catch(() =>
+        caches.match(req).then(r => r || new Response(
+          JSON.stringify({ ok: false, offline: true, error: 'Sin conexion', products: [], featured: [] }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        ))
+      )
+    );
+    return;
+  }
+
+  // Otras APIs → dejar pasar (no cachear, son admin)
   if (url.pathname.startsWith('/api/')) return;
 
-  // Solo mismo origen
+  // Imagenes de eBay (proxy wsrv.nl) → stale-while-revalidate
+  if (url.hostname === 'wsrv.nl' || url.hostname === 'i.ebayimg.com') {
+    e.respondWith(
+      caches.match(req).then(cached => {
+        const fetchPromise = fetch(req).then(res => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(req, clone));
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // Solo mismo origen de aqui en adelante
   if (url.origin !== self.location.origin) return;
 
   const path = url.pathname;
 
-  // HTML → network-first (red primero, caché si falla)
+  // HTML → network-first
   if (path.endsWith('.html') || path === '/' || path.endsWith('/')) {
     e.respondWith(
       fetch(req).then(res => {
@@ -68,7 +116,9 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE_NAME).then(c => c.put(req, clone));
         }
         return res;
-      }).catch(() => caches.match(req).then(r => r || caches.match('./home.html')))
+      }).catch(() =>
+        caches.match(req).then(r => r || caches.match('./shop.html') || caches.match('./home.html'))
+      )
     );
     return;
   }
@@ -90,7 +140,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Imágenes y otros → cache-first
+  // Resto → cache-first
   e.respondWith(
     caches.match(req).then(cached => {
       if (cached) return cached;

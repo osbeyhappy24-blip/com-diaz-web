@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=4">
+<link rel="stylesheet" href="shop.css?v=5">
 <link rel="icon" type="image/png" href="favicon-shop.png">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -183,7 +183,7 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="shop.js?v=4"></script>
+<script src="shop.js?v=5"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -192,7 +192,20 @@
           .catch(e => console.warn('SW error:', e));
       });
     }
+    // Deteccion online/offline
+    function updateOfflineBanner(){
+      const b = document.getElementById('offlineBanner');
+      if (!b) return;
+      if (navigator.onLine) b.classList.add('hidden');
+      else b.classList.remove('hidden');
+    }
+    window.addEventListener('online', updateOfflineBanner);
+    window.addEventListener('offline', updateOfflineBanner);
+    document.addEventListener('DOMContentLoaded', updateOfflineBanner);
+    updateOfflineBanner();
   </script>
+
+<div id="offlineBanner" class="offline-banner hidden">📡 Sin conexion — mostrando catalogo guardado</div>
 
 <div id="cartModal" class="cart-modal hidden">
   <div class="cart-backdrop"></div>
