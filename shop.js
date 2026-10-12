@@ -1384,3 +1384,95 @@ cargarCatalogo();
 
   console.log("✅ Destacados v1 activo");
 })();
+
+/* ═══════════════════════════════════════════════
+   REDISEÑO PROFESIONAL — Capa 4: Modulos JS
+   ═══════════════════════════════════════════════ */
+
+// ─── 1) BARRA DE ENVIO GRATIS ───
+(function comdiaz_shipping_v1(){
+  function renderShipping() {
+    const bar = document.getElementById('shippingBar');
+    if (!bar) return;
+    const cfg = state.config || {};
+    const activo = cfg.envioGratisActivo === true;
+    const texto = (cfg.envioGratisTexto || '').trim();
+    const warning = cfg.envioGratisWarning === true;
+    if (!activo || !texto) { bar.classList.add('hidden'); return; }
+    bar.className = 'shipping-bar' + (warning ? ' warning' : '');
+    bar.textContent = texto;
+  }
+  const _orig = window.cargarCatalogo;
+  if (typeof _orig === 'function') {
+    window.cargarCatalogo = async function() {
+      await _orig.apply(this, arguments);
+      setTimeout(renderShipping, 200);
+    };
+  }
+})();
+
+// ─── 2) BADGES AUTOMATICOS EN CARDS ───
+(function comdiaz_badges_v1(){
+  function addBadges(){
+    const featured = (state.featured || []).map(p => String(p.id));
+    document.querySelectorAll('.product-card').forEach(card => {
+      if (card.querySelector('.product-badge')) return;
+      const wrap = card.querySelector('.product-img-wrap');
+      if (!wrap) return;
+      const pid = String(card.dataset.pid || (card.querySelector('[data-pid]')?.dataset.pid) || '');
+      if (!pid) return;
+      let badge = null;
+      if (featured.includes(pid)) {
+        badge = { text: '⭐ Destacado', cls: 'hot' };
+      }
+      if (badge) {
+        const el = document.createElement('span');
+        el.className = 'product-badge ' + badge.cls;
+        el.textContent = badge.text;
+        wrap.appendChild(el);
+      }
+    });
+  }
+  const _orig = window.cargarCatalogo;
+  if (typeof _orig === 'function') {
+    window.cargarCatalogo = async function() {
+      await _orig.apply(this, arguments);
+      setTimeout(addBadges, 400);
+    };
+  }
+  setTimeout(addBadges, 2500);
+  setInterval(addBadges, 5000);
+})();
+
+// ─── 3) TOAST PROFESIONAL REUTILIZABLE ───
+(function comdiaz_toast_v1(){
+  window.comdiazToast = function(msg, type){
+    let t = document.getElementById('comdiazToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'comdiazToast';
+      t.className = 'toast';
+      document.body.appendChild(t);
+    }
+    t.className = 'toast ' + (type || '');
+    t.textContent = msg;
+    requestAnimationFrame(() => t.classList.add('show'));
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  };
+})();
+
+// ─── 4) RIPPLE EFFECT EN BOTONES ───
+(function comdiaz_ripple_v1(){
+  document.addEventListener('touchstart', function(e){
+    const btn = e.target.closest('.product-add, .product-buy, .btn-primary');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const x = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+    const y = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
+    btn.style.setProperty('--x', x + '%');
+    btn.style.setProperty('--y', y + '%');
+  }, {passive: true});
+})();
+
+/* ═══ FIN CAPA 4 JS ═══ */

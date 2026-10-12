@@ -1741,3 +1741,137 @@ html{scroll-behavior:smooth}
 }
 
 /* ═══ FIN CAPA 3 ═══ */
+
+/* ═══════════════════════════════════════════════
+   REDISEÑO PROFESIONAL — Capa 4: Badges + Envio gratis + Micro-interacciones
+   ═══════════════════════════════════════════════ */
+
+/* ─── BARRA DE ENVÍO GRATIS (top) ─── */
+.shipping-bar{
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 300ms ease-out;
+}
+.shipping-bar::before{
+  content: '🚚';
+  margin-right: 8px;
+}
+.shipping-bar.hidden{display:none !important}
+.shipping-bar.warning{
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.shipping-bar.warning::before{content: '⚡'}
+
+/* ─── BADGES EN CARDS ─── */
+.product-badge{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-family: var(--font-sans);
+  color: #fff;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  animation: fadeInUp 300ms ease-out;
+}
+.product-badge.new{
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+.product-badge.sale{
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.product-badge.low{
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.product-badge.hot{
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+}
+
+/* Card con posición relativa para badges */
+.product-card{position: relative}
+
+/* ─── MICRO-INTERACCIONES: RIPPLE EN BOTONES ─── */
+.product-add, .product-buy, .btn-primary{
+  position: relative;
+  overflow: hidden;
+}
+.product-add::after, .product-buy::after, .btn-primary::after{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.3) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 400ms;
+  pointer-events: none;
+}
+.product-add:active::after, .product-buy:active::after, .btn-primary:active::after{
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+/* ─── TOAST PROFESIONAL ─── */
+.toast{
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text-strong);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  box-shadow: var(--shadow-xl);
+  opacity: 0;
+  transition: all var(--t-slow);
+  z-index: 9999;
+  pointer-events: none;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.success{background: linear-gradient(135deg, #10b981, #059669)}
+.toast.error{background: linear-gradient(135deg, #ef4444, #dc2626)}
+
+/* ─── CATEGORÍAS BAR MÁS LIMPIA ─── */
+.categories-bar{
+  scrollbar-width: none;
+}
+.categories-bar::-webkit-scrollbar{display: none}
+
+/* ─── EMPTY STATE MEJORADO ─── */
+.empty{
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty::before{
+  content: '🔍';
+  display: block;
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.empty p{
+  font-size: var(--fs-md);
+  font-weight: 500;
+}
+
+/* ═══ FIN CAPA 4 ═══ */
