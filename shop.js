@@ -1323,6 +1323,10 @@ cargarCatalogo();
       console.log("[ORDER] Respuesta:", data);
       if (data && data.ok && data.orderId) {
         localStorage.setItem('comdiaz_last_order_id', data.orderId);
+        // Mostrar boton de notificaciones inmediatamente
+        if (window.comdiaz_actualizarBotonNotif) {
+          setTimeout(window.comdiaz_actualizarBotonNotif, 100);
+        }
       }
     } catch(err) {
       console.error("[ORDER] Error:", err.message);
@@ -1582,15 +1586,28 @@ cargarCatalogo();
     }
   }, true);
 
-  // Mostrar boton cuando hay pedido guardado y sin notif activada
-  setInterval(() => {
+  // Mostrar/ocultar boton: solo cuando se abre el carrito (sin setInterval)
+  function actualizarBotonNotif() {
     const btn = document.getElementById('cartNotifBtn');
     if (!btn) return;
     const orderId = localStorage.getItem('comdiaz_last_order_id');
     const yaActivo = localStorage.getItem('comdiaz_push_order');
     if (orderId && !yaActivo) btn.classList.remove('hidden');
     else btn.classList.add('hidden');
-  }, 2000);
+  }
+  window.comdiaz_actualizarBotonNotif = actualizarBotonNotif;
+
+  // Detectar cuando se abre el carrito para actualizar el boton
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#cartBtn')) {
+      setTimeout(actualizarBotonNotif, 150);
+    }
+  }, true);
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#cartBtn')) {
+      setTimeout(actualizarBotonNotif, 500);
+    }
+  }, true);
 
   console.log('✅ Push frontend listo');
 })();
