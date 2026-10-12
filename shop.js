@@ -1321,6 +1321,9 @@ cargarCatalogo();
       });
       const data = await r.json();
       console.log("[ORDER] Respuesta:", data);
+      if (data && data.ok && data.orderId) {
+        localStorage.setItem('comdiaz_last_order_id', data.orderId);
+      }
     } catch(err) {
       console.error("[ORDER] Error:", err.message);
     }
@@ -1491,3 +1494,103 @@ cargarCatalogo();
 })();
 
 /* ═══ FIN CAPA 4 JS ═══ */
+
+
+// ═══════════════════════════════════════════════
+// WEB PUSH - Suscripcion del cliente
+// ═══════════════════════════════════════════════
+(function comdiaz_push_v1(){
+  let vapidPublicKey = null;
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  async function obtenerVapid() {
+    if (vapidPublicKey) return vapidPublicKey;
+    try {
+      const r = await fetch(API_BASE + '/api/public/vapid-key');
+      const d = await r.json();
+      if (d.ok && d.publicKey) {
+        vapidPublicKey = d.publicKey;
+        return vapidPublicKey;
+      }
+    } catch(_) {}
+    return null;
+  }
+
+  async function activarNotif(orderId) {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      if (typeof toast === 'function') toast('Tu navegador no soporta notificaciones', 'err');
+      return false;
+    }
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        if (typeof toast === 'function') toast('Permiso denegado', 'err');
+        return false;
+      }
+      const key = await obtenerVapid();
+      if (!key) {
+        if (typeof toast === 'function') toast('Error: servidor sin VAPID', 'err');
+        return false;
+      }
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(key)
+        });
+      }
+      const r = await fetch(API_BASE + '/api/public/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, subscription: sub.toJSON() })
+      });
+      const data = await r.json();
+      if (data.ok) {
+        if (typeof toast === 'function') toast('🔔 Notificaciones activadas', 'ok');
+        localStorage.setItem('comdiaz_push_order', orderId);
+        return true;
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error activando: ' + e.message, 'err');
+    }
+    return false;
+  }
+
+  window.comdiaz_push = { activar: activarNotif };
+
+  // Listener: activar notificaciones al tocar el boton
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#cartNotifBtn')) {
+      e.preventDefault();
+      const orderId = localStorage.getItem('comdiaz_last_order_id');
+      if (!orderId) {
+        if (typeof toast === 'function') toast('Envia un pedido primero', 'err');
+        return;
+      }
+      activarNotif(orderId);
+      const btn = e.target.closest('#cartNotifBtn');
+      if (btn) btn.classList.add('hidden');
+    }
+  }, true);
+
+  // Mostrar boton cuando hay pedido guardado y sin notif activada
+  setInterval(() => {
+    const btn = document.getElementById('cartNotifBtn');
+    if (!btn) return;
+    const orderId = localStorage.getItem('comdiaz_last_order_id');
+    const yaActivo = localStorage.getItem('comdiaz_push_order');
+    if (orderId && !yaActivo) btn.classList.remove('hidden');
+    else btn.classList.add('hidden');
+  }, 2000);
+
+  console.log('✅ Push frontend listo');
+})();

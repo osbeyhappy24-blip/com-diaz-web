@@ -154,3 +154,49 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+
+
+// ═══════════════════════════════════════════════
+// WEB PUSH - Recibir y mostrar notificaciones
+// ═══════════════════════════════════════════════
+
+self.addEventListener('push', (e) => {
+  let data = { title: 'Comdiaz Shop', body: 'Nueva actualizacion', icon: '/icon-shop-192.png' };
+  try {
+    if (e.data) data = Object.assign(data, e.data.json());
+  } catch(_) {
+    if (e.data) data.body = e.data.text();
+  }
+  const options = {
+    body: data.body,
+    icon: data.icon || '/icon-shop-192.png',
+    badge: data.badge || '/icon-shop-192.png',
+    tag: data.tag || 'comdiaz-notif',
+    renotify: true,
+    data: {
+      url: data.url || '/shop.html',
+      orderId: data.orderId || ''
+    },
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
+    silent: false
+  };
+  e.waitUntil(self.registration.showNotification(data.title || 'Comdiaz Shop', options));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const targetUrl = (e.notification.data && e.notification.data.url) || '/shop.html';
+  const orderId = (e.notification.data && e.notification.data.orderId) || '';
+  const fullUrl = orderId ? (targetUrl + '?order=' + orderId) : targetUrl;
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if (client.url.includes('com-diaz-web') && 'focus' in client) {
+          return client.focus().then(c => c.navigate ? c.navigate(fullUrl) : null);
+        }
+      }
+      if (clients.openWindow) return clients.openWindow(fullUrl);
+    })
+  );
+});
