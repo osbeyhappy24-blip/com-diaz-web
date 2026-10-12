@@ -549,10 +549,17 @@ cargarCatalogo();
 
     const nombre = ($id('cartName')?.value || '').trim();
     const notas = ($id('cartNotes')?.value || '').trim();
+    const whatsapp = ($id('cartWhatsapp')?.value || '').replace(/[^0-9]/g, '');
+    const direccion = ($id('cartDireccion')?.value || '').trim();
 
     if (!nombre) {
       if (typeof toast === 'function') toast('Escribe tu nombre para enviar el pedido', 'err');
       $id('cartName')?.focus();
+      return;
+    }
+    if (!whatsapp || whatsapp.length < 8) {
+      if (typeof toast === 'function') toast('Escribe tu WhatsApp (8 digitos minimo)', 'err');
+      $id('cartWhatsapp')?.focus();
       return;
     }
 
@@ -1188,6 +1195,8 @@ cargarCatalogo();
 
     const nombre = (document.getElementById('cartName')?.value || '').trim();
     const notas = (document.getElementById('cartNotes')?.value || '').trim();
+    const whatsapp = (document.getElementById('cartWhatsapp')?.value || '').replace(/[^0-9]/g, '');
+    const direccion = (document.getElementById('cartDireccion')?.value || '').trim();
 
     if (!nombre) {
       // El original ya valida esto
@@ -1207,6 +1216,8 @@ cargarCatalogo();
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre,
+          whatsapp,
+          direccion,
           notas,
           items: cart.map(i => ({
             title: i.title,
@@ -1283,6 +1294,8 @@ cargarCatalogo();
 
     const nombre = (document.getElementById("cartName")?.value || "").trim();
     const notas = (document.getElementById("cartNotes")?.value || "").trim();
+    const whatsapp = (document.getElementById("cartWhatsapp")?.value || "").replace(/[^0-9]/g, "");
+    const direccion = (document.getElementById("cartDireccion")?.value || "").trim();
     if (!nombre) return;
 
     const total = cart.reduce((acc, item) => acc + (Number(item.price) * (item.qty || 1)), 0);
@@ -1295,6 +1308,8 @@ cargarCatalogo();
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nombre,
+          whatsapp,
+          direccion,
           notas,
           items: cart.map(i => ({
             title: i.title,
