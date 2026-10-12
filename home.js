@@ -1588,6 +1588,12 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (bTxt) bTxt.value = cfg.bannerTexto || '';
       const bCol = $id('shopBannerColor');
       if (bCol) bCol.value = cfg.bannerColor || 'gradient';
+      const eAct = $id("shopEnvioActiv");
+      if (eAct) eAct.checked = !!cfg.envioGratisActivo;
+      const eTxt = $id("shopEnvioTexto");
+      if (eTxt) eTxt.value = cfg.envioGratisTexto || "";
+      const eWarn = $id("shopEnvioWarning");
+      if (eWarn) eWarn.checked = !!cfg.envioGratisWarning;
     } catch(e) { console.warn(e); }
   }
 
@@ -1610,7 +1616,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       const r = await fetch(API + '/api/shop-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos, horarioAtencion, bannerActivo, bannerTexto, bannerColor }),
+        body: JSON.stringify({ titulo, subtitulo, whatsapp, maxProductos, horarioAtencion, bannerActivo, bannerTexto, bannerColor, envioGratisActivo: !!$id('shopEnvioActiv')?.checked, envioGratisTexto: ($id('shopEnvioTexto')?.value || '').trim(), envioGratisWarning: !!$id('shopEnvioWarning')?.checked }),
       });
       const d = await r.json();
       if (d.ok) {

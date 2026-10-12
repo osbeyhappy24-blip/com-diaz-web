@@ -243,6 +243,21 @@
           </label>
           <label>
             <span>Máximo de productos</span>
+
+          <label style="flex-direction:row;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;margin-top:4px">
+            <input id="shopEnvioActiv" type="checkbox" style="width:auto;margin:0;accent-color:#10b981">
+            <span style="text-transform:none;letter-spacing:0">Activar barra de envio gratis</span>
+          </label>
+
+          <label>
+            <span>Texto de envio (aparece arriba de la Shop)</span>
+            <input id="shopEnvioTexto" type="text" maxlength="100" placeholder="Envio gratis en pedidos +$50">
+          </label>
+
+          <label style="flex-direction:row;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;margin-top:4px">
+            <input id="shopEnvioWarning" type="checkbox" style="width:auto;margin:0;accent-color:#f59e0b">
+            <span style="text-transform:none;letter-spacing:0">Modo advertencia (amarillo en vez de verde)</span>
+          </label>
             <input id="shopMax" type="number" min="10" max="500" step="10" placeholder="200">
           </label>
           <button id="saveShopConfigBtn" class="btn-ghost primary">💾 Guardar cambios</button>
