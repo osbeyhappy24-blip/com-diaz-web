@@ -2599,28 +2599,33 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     }
   });
 
-  // Listeners con delegacion global (mas robusto)
+  // Listeners en MODO CAPTURA (se ejecutan ANTES que cualquier otro listener)
   document.addEventListener('click', (e) => {
     if (e.target.closest('#closePedidoModal')) {
       const m = $id('pedidoModal');
       if (m) m.classList.add('hidden');
+      e.stopPropagation();
       return;
     }
     if (e.target.closest('#guardarPedido')) {
+      e.preventDefault();
+      e.stopPropagation();
       guardarPedido();
       return;
     }
     if (e.target.closest('#refreshPedidos')) {
+      e.preventDefault();
+      e.stopPropagation();
       cargarPedidos();
       return;
     }
-  });
+  }, true);
 
   // Cerrar modal al tocar fuera
   document.addEventListener('click', (e) => {
     const m = $id('pedidoModal');
     if (m && e.target === m) m.classList.add('hidden');
-  });
+  }, true);
 
   // Arranque
   setTimeout(cargarPedidos, 2000);
