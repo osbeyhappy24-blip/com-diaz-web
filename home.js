@@ -2442,3 +2442,175 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log("✅ Destacar desde Home activo");
 })();
+
+
+/* ═══════════════════════════════════════════════
+   PANEL PEDIDOS — Fase 2
+   ═══════════════════════════════════════════════ */
+(function comdiaz_orders_panel_v1(){
+  let pedidos = [];
+  let filtroEstado = 'all';
+  let pedidoActivo = null;
+
+  const $id = id => document.getElementById(id);
+
+  const ESTADO_LABEL = {
+    pendiente_pago: '⏳ Pendiente',
+    pagado: '💵 Pagado',
+    en_transito: '✈️ En tránsito',
+    en_cuba: '🇨🇺 En Cuba',
+    listo_recoger: '✅ Listo',
+    entregado: '🎉 Entregado',
+    cancelado: '❌ Cancelado'
+  };
+
+  async function api(path, opts) {
+    const headers = Object.assign({}, (opts && opts.headers) || {});
+    if (opts && opts.body && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  async function cargarPedidos() {
+    const list = $id('pedidosList');
+    if (!list) return;
+    try {
+      const r = await api('/api/orders');
+      pedidos = r.orders || [];
+      renderContador();
+      renderLista();
+    } catch(e) {
+      list.innerHTML = '<div class="act-empty">Error al cargar: ' + e.message + '</div>';
+    }
+  }
+
+  function renderContador() {
+    const c = $id('pedidosCount');
+    if (!c) return;
+    const pendientes = pedidos.filter(p => p.estado === 'pendiente_pago').length;
+    c.textContent = pendientes > 0 ? pendientes : pedidos.length;
+    if (pendientes > 0) c.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+  }
+
+  function renderLista() {
+    const list = $id('pedidosList');
+    if (!list) return;
+    let filtrados = pedidos;
+    if (filtroEstado !== 'all') filtrados = pedidos.filter(p => p.estado === filtroEstado);
+    if (!filtrados.length) {
+      list.innerHTML = '<div class="act-empty">No hay pedidos ' + (filtroEstado !== 'all' ? 'en este estado' : 'aún') + '</div>';
+      return;
+    }
+    list.innerHTML = filtrados.map(p => {
+      const fecha = new Date(p.createdAt || Date.now()).toLocaleDateString('es', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      const cant = (p.items || []).length;
+      return '<div class="pedido-item" data-id="' + p.id + '">' +
+        '<div class="pedido-item-left">' +
+          '<div class="pedido-item-id">' + p.id + '</div>' +
+          '<div class="pedido-item-nombre">' + (p.nombre || 'Sin nombre') + '</div>' +
+          '<div class="pedido-item-meta">' + cant + ' producto' + (cant!==1?'s':'') + ' · ' + fecha + '</div>' +
+          '<span class="pedido-estado-badge estado-' + (p.estado || 'pendiente_pago') + '">' + (ESTADO_LABEL[p.estado] || p.estado) + '</span>' +
+        '</div>' +
+        '<div class="pedido-item-total">$' + Number(p.total || 0).toFixed(2) + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function abrirPedido(id) {
+    const p = pedidos.find(x => String(x.id) === String(id));
+    if (!p) return;
+    pedidoActivo = p;
+
+    $id('pedidoModalTitle').textContent = '📦 ' + p.id;
+    $id('pedidoEstado').value = p.estado || 'pendiente_pago';
+    $id('pedidoAgencia').value = p.agencia || '';
+    $id('pedidoTracking').value = p.tracking || '';
+    $id('pedidoNota').value = '';
+    $id('pedidoNotasInt').value = p.notasInternas || '';
+
+    const productos = (p.items || []).map(it =>
+      '<div class="pedido-producto-row">' +
+        '<span class="pedido-producto-titulo">' + (it.title || 'Producto') + ' × ' + (it.qty || 1) + '</span>' +
+        '<span class="pedido-producto-precio">$' + (Number(it.price || 0) * (it.qty || 1)).toFixed(2) + '</span>' +
+      '</div>'
+    ).join('') || '<div class="pedido-producto-row">Sin items</div>';
+
+    const historial = (p.historial || []).map(h => {
+      const f = new Date(h.fecha).toLocaleString('es', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      return '<div class="pedido-hist-item"><b>' + (ESTADO_LABEL[h.estado] || h.estado) + '</b> · ' + f + (h.nota ? '<br>' + h.nota : '') + '</div>';
+    }).join('') || '<div class="pedido-hist-item">Sin historial</div>';
+
+    $id('pedidoModalBody').innerHTML =
+      '<div class="pedido-cliente-row"><span class="pedido-cliente-label">Cliente</span><span class="pedido-cliente-value">' + (p.nombre || '-') + '</span></div>' +
+      '<div class="pedido-cliente-row"><span class="pedido-cliente-label">WhatsApp</span><span class="pedido-cliente-value">' + (p.whatsapp || '-') + '</span></div>' +
+      '<div class="pedido-cliente-row"><span class="pedido-cliente-label">Dirección</span><span class="pedido-cliente-value">' + (p.direccion || '-') + '</span></div>' +
+      '<div class="pedido-cliente-row"><span class="pedido-cliente-label">Notas del cliente</span><span class="pedido-cliente-value">' + (p.notas || '-') + '</span></div>' +
+      '<div class="pedido-cliente-row"><span class="pedido-cliente-label">Total</span><span class="pedido-cliente-value" style="color:#10b981">$' + Number(p.total||0).toFixed(2) + '</span></div>' +
+      '<div class="pedido-productos"><div style="font-weight:700;margin-bottom:6px;color:#cbd5e1">Productos</div>' + productos + '</div>' +
+      '<div class="pedido-historial"><div style="font-weight:700;margin-bottom:6px;color:#cbd5e1">Historial</div>' + historial + '</div>';
+
+    const wa = (p.whatsapp || '').replace(/[^0-9]/g, '');
+    const msg = encodeURIComponent('Hola ' + (p.nombre||'') + ', sobre tu pedido ' + p.id + ' en Comdiaz Shop:');
+    $id('notificarWA').href = wa ? ('https://wa.me/' + wa + '?text=' + msg) : '#';
+
+    $id('pedidoModal').classList.remove('hidden');
+  }
+
+  async function guardarPedido() {
+    if (!pedidoActivo) return;
+    const body = {
+      estado: $id('pedidoEstado').value,
+      agencia: $id('pedidoAgencia').value.trim(),
+      tracking: $id('pedidoTracking').value.trim(),
+      notasInternas: $id('pedidoNotasInt').value.trim(),
+      notaEstado: $id('pedidoNota').value.trim()
+    };
+    try {
+      const r = await api('/api/orders/' + pedidoActivo.id, {
+        method: 'PUT',
+        body: JSON.stringify(body)
+      });
+      if (r.ok) {
+        if (typeof toast === 'function') toast('✅ Pedido actualizado', 'ok');
+        $id('pedidoModal').classList.add('hidden');
+        await cargarPedidos();
+      } else {
+        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  // Listeners
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.pedido-item');
+    if (item) { abrirPedido(item.dataset.id); return; }
+
+    const filtBtn = e.target.closest('#pedidosFilters .filter-btn');
+    if (filtBtn) {
+      document.querySelectorAll('#pedidosFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      filtBtn.classList.add('active');
+      filtroEstado = filtBtn.dataset.estado || 'all';
+      renderLista();
+      return;
+    }
+  });
+
+  const closeBtn = $id('closePedidoModal');
+  if (closeBtn) closeBtn.addEventListener('click', () => $id('pedidoModal').classList.add('hidden'));
+
+  const saveBtn = $id('guardarPedido');
+  if (saveBtn) saveBtn.addEventListener('click', guardarPedido);
+
+  const refreshBtn = $id('refreshPedidos');
+  if (refreshBtn) refreshBtn.addEventListener('click', cargarPedidos);
+
+  // Arranque
+  setTimeout(cargarPedidos, 2000);
+  setInterval(cargarPedidos, 30000);
+
+  console.log('✅ Panel de pedidos activo');
+})();

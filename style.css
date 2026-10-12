@@ -1251,3 +1251,150 @@ input[type=range]::-webkit-slider-thumb{
   color: #fbbf24;
   background: rgba(251,191,36,.25);
 }
+
+
+/* ═══════════════════════════════════════════════
+   PANEL PEDIDOS — Fase 2
+   ═══════════════════════════════════════════════ */
+.pedidos-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  color:#fff;
+  padding:2px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  margin-left:6px;
+  vertical-align:middle;
+}
+.pedidos-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:520px;
+  overflow-y:auto;
+  padding-right:4px;
+}
+.pedidos-list::-webkit-scrollbar{width:4px}
+.pedidos-list::-webkit-scrollbar-thumb{background:rgba(100,116,139,.3);border-radius:4px}
+
+.pedido-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.pedido-item:hover{
+  background:rgba(124,58,237,.06);
+  border-color:rgba(124,58,237,.3);
+  transform:translateX(2px);
+}
+.pedido-item-left{flex:1;min-width:0}
+.pedido-item-id{
+  font-family:monospace;
+  font-weight:800;
+  color:#a78bfa;
+  font-size:12px;
+  margin-bottom:2px;
+}
+.pedido-item-nombre{
+  font-weight:700;
+  color:#e5e7eb;
+  font-size:13.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pedido-item-meta{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:2px;
+}
+.pedido-item-total{
+  font-weight:800;
+  font-size:14px;
+  color:#10b981;
+  flex-shrink:0;
+}
+.pedido-estado-badge{
+  display:inline-block;
+  padding:3px 9px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-top:4px;
+}
+.estado-pendiente_pago{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.estado-pagado{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.estado-en_transito{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+.estado-en_cuba{background:rgba(236,72,153,.15);color:#f472b6;border:1px solid rgba(236,72,153,.3)}
+.estado-listo_recoger{background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.3)}
+.estado-entregado{background:rgba(16,185,129,.25);color:#10b981;border:1px solid rgba(16,185,129,.5)}
+.estado-cancelado{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+
+.pedido-modal{max-width:640px;width:92vw;max-height:90vh;overflow-y:auto}
+.pedido-modal-body{
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+  margin:12px 0;
+  font-size:13px;
+}
+.pedido-cliente-row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.pedido-cliente-row:last-child{border-bottom:none}
+.pedido-cliente-label{color:var(--muted);font-size:12px}
+.pedido-cliente-value{color:#e5e7eb;font-weight:600;text-align:right;max-width:60%;word-break:break-word}
+.pedido-productos{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.08)}
+.pedido-producto-row{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:6px 0;
+  font-size:12px;
+}
+.pedido-producto-titulo{color:#e5e7eb;flex:1}
+.pedido-producto-precio{color:#10b981;font-weight:700;flex-shrink:0}
+.pedido-historial{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.08)}
+.pedido-hist-item{
+  font-size:11.5px;
+  color:var(--muted);
+  padding:4px 0 4px 14px;
+  border-left:2px solid rgba(124,58,237,.3);
+  margin-left:4px;
+}
+.pedido-hist-item b{color:#a78bfa}
+.pedido-edit-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.pedido-edit-grid label{display:flex;flex-direction:column;gap:4px}
+.pedido-edit-grid label span{font-size:11.5px;color:var(--muted);font-weight:600}
+.pedido-input{
+  background:#0f1524;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:9px 11px;
+  border-radius:9px;
+  font-size:13px;
+  outline:none;
+  width:100%;
+  font-family:inherit;
+}
+.pedido-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.pedido-input[type=textarea],textarea.pedido-input{resize:vertical;min-height:44px}

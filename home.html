@@ -328,6 +328,27 @@
       </div>
     </section>
   
+
+    <section class="card collapsible" data-card="pedidos" data-default="closed" id="pedidosCard">
+      <div class="card-head">
+        <h2>📦 Pedidos <span id="pedidosCount" class="pedidos-badge">0</span></h2>
+        <button id="refreshPedidos" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+        <div class="act-filters" id="pedidosFilters">
+          <button class="filter-btn active" data-estado="all">Todos</button>
+          <button class="filter-btn" data-estado="pendiente_pago">⏳ Pendiente</button>
+          <button class="filter-btn" data-estado="pagado">💵 Pagado</button>
+          <button class="filter-btn" data-estado="en_transito">✈️ Tránsito</button>
+          <button class="filter-btn" data-estado="en_cuba">🇨🇺 Cuba</button>
+          <button class="filter-btn" data-estado="listo_recoger">✅ Listo</button>
+        </div>
+        <div id="pedidosList" class="pedidos-list">
+          <div class="act-empty">Cargando pedidos…</div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <div id="toast" class="toast"></div>
@@ -367,7 +388,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=3"></script>
+  <script src="home.js?v=4"></script>
 
   
 
@@ -449,6 +470,54 @@
 
       <button id="manualSave" class="btn-primary">💾 Guardar y publicar</button>
       <p id="manualMsg" class="manual-msg"></p>
+    </div>
+  </div>
+</div>
+
+
+<div id="pedidoModal" class="modal hidden">
+  <div class="modal-card pedido-modal">
+    <div class="modal-head">
+      <h3 id="pedidoModalTitle">📦 Pedido</h3>
+      <button id="closePedidoModal" class="btn-mini">✕</button>
+    </div>
+
+    <div id="pedidoModalBody" class="pedido-modal-body"></div>
+
+    <div class="pedido-edit-grid">
+      <label>
+        <span>Estado</span>
+        <select id="pedidoEstado" class="pedido-input">
+          <option value="pendiente_pago">⏳ Pendiente de pago</option>
+          <option value="pagado">💵 Pagado</option>
+          <option value="en_transito">✈️ En tránsito</option>
+          <option value="en_cuba">🇨🇺 En Cuba</option>
+          <option value="listo_recoger">✅ Listo para recoger</option>
+          <option value="entregado">🎉 Entregado</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </label>
+      <label>
+        <span>Agencia</span>
+        <input id="pedidoAgencia" type="text" class="pedido-input" placeholder="Crowley, Enviopaquetes...">
+      </label>
+      <label>
+        <span>Tracking</span>
+        <input id="pedidoTracking" type="text" class="pedido-input" placeholder="CU123456789">
+      </label>
+      <label>
+        <span>Nota del estado (opcional)</span>
+        <input id="pedidoNota" type="text" class="pedido-input" placeholder="Ej: Paquete recibido en Miami">
+      </label>
+      <label style="grid-column:1/-1">
+        <span>Notas internas (solo tú las ves)</span>
+        <textarea id="pedidoNotasInt" class="pedido-input" rows="2"></textarea>
+      </label>
+    </div>
+
+    <div class="modal-foot" style="grid-template-columns:1fr 1fr">
+      <button id="guardarPedido" class="btn-primary">💾 Guardar cambios</button>
+      <a id="notificarWA" class="btn-primary wa" target="_blank">💬 Notificar WhatsApp</a>
     </div>
   </div>
 </div>
