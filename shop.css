@@ -1185,3 +1185,360 @@ body{
   margin-bottom: 14px;
   letter-spacing: -.2px;
 }
+
+/* ═══════════════════════════════════════════════
+   REDISEÑO PROFESIONAL — Capa 1: Design Tokens
+   ═══════════════════════════════════════════════ */
+
+:root{
+  /* Colores extendidos */
+  --primary: #7c3aed;
+  --primary-600: #6d28d9;
+  --primary-700: #5b21b6;
+  --primary-soft: rgba(124, 58, 237, 0.08);
+  --primary-glow: rgba(124, 58, 237, 0.25);
+
+  --accent-pink: #ec4899;
+  --accent-pink-soft: rgba(236, 72, 153, 0.1);
+
+  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  --gradient-soft: linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(236,72,153,0.06) 100%);
+
+  --surface: #ffffff;
+  --surface-1: #f9fafb;
+  --surface-2: #f3f4f6;
+  --surface-3: #e5e7eb;
+
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.1);
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.1);
+
+  --text-strong: #0f172a;
+  --text-base: #1e293b;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+
+  /* Sombras profesionales */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.10), 0 4px 8px rgba(15, 23, 42, 0.05);
+  --shadow-xl: 0 20px 40px rgba(15, 23, 42, 0.12);
+  --shadow-primary: 0 8px 24px rgba(124, 58, 237, 0.30);
+  --shadow-primary-lg: 0 16px 40px rgba(124, 58, 237, 0.35);
+
+  /* Radios */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 999px;
+
+  /* Spacing */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+
+  /* Transiciones */
+  --t-fast: 120ms cubic-bezier(.4, 0, .2, 1);
+  --t-base: 200ms cubic-bezier(.4, 0, .2, 1);
+  --t-slow: 320ms cubic-bezier(.4, 0, .2, 1);
+  --t-spring: 400ms cubic-bezier(.34, 1.56, .64, 1);
+
+  /* Tipografía */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-base: 14px;
+  --fs-md: 15px;
+  --fs-lg: 17px;
+  --fs-xl: 20px;
+  --fs-2xl: 24px;
+  --fs-3xl: 30px;
+}
+
+/* Fuente moderna desde Google Fonts */
+
+/* Aplicar tipografía nueva */
+body{
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Títulos con fuente display */
+h1, h2, h3, .section-title, #shopTitle{
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Fondo con gradiente sutil */
+body{
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(124,58,237,0.05), transparent 50%),
+    radial-gradient(1200px 600px at 90% 110%, rgba(236,72,153,0.05), transparent 50%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* Scrollbar moderna */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(100,116,139,.25);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:rgba(100,116,139,.45)}
+
+/* Selección con color de marca */
+::selection{background:var(--primary-glow);color:var(--primary-700)}
+
+/* Focus ring global accesible */
+*:focus-visible{
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Smooth scroll */
+html{scroll-behavior:smooth}
+
+/* Animación fade-in base (se usará en cards) */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.6}
+}
+
+/* ═══ FIN CAPA 1 ═══ */
+
+/* ═══════════════════════════════════════════════
+   REDISEÑO PROFESIONAL — Capa 2: Botones + Cards
+   ═══════════════════════════════════════════════ */
+
+/* Botón principal con gradiente + sombra */
+.btn-primary{
+  background: var(--gradient-brand);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: var(--fs-base);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: transform var(--t-base), box-shadow var(--t-base), filter var(--t-base);
+  box-shadow: var(--shadow-primary);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary-lg);
+  filter: brightness(1.05);
+}
+.btn-primary:active{transform: translateY(0) scale(0.98)}
+
+/* Botón secundario */
+.btn-secondary{
+  background: var(--surface);
+  color: var(--text-base);
+  border: 1.5px solid var(--surface-3);
+  padding: 12px 22px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--fs-base);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all var(--t-base);
+}
+.btn-secondary:hover{
+  border-color: var(--primary);
+  color: var(--primary-700);
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Cards de producto — modernas con hover */
+.product-card{
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+  animation: fadeInUp var(--t-slow) ease-out both;
+}
+.product-card:hover{
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+.product-card .product-img{
+  transition: transform var(--t-slow) ease-out, filter var(--t-base);
+  will-change: transform;
+}
+.product-card:hover .product-img{
+  transform: scale(1.06);
+  filter: brightness(1.02);
+}
+
+.product-card .product-title{
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+  line-height: 1.35;
+}
+
+.product-card .product-price{
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: var(--fs-lg);
+}
+
+.product-add{
+  background: var(--gradient-brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-base), filter var(--t-base);
+  box-shadow: var(--shadow-primary);
+}
+.product-add:hover{
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary-lg);
+  filter: brightness(1.06);
+}
+.product-add.added{
+  background: linear-gradient(135deg, var(--success), #059669);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+}
+
+.product-buy{
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-base), filter var(--t-base);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+.product-buy:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+  filter: brightness(1.06);
+}
+
+/* Tabs pill modernos */
+.tab{
+  border-radius: var(--radius-full) !important;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  transition: all var(--t-base);
+  padding: 8px 18px !important;
+}
+.tab.active{
+  background: var(--gradient-brand) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: var(--shadow-primary);
+}
+.tab:hover:not(.active){
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: var(--primary-soft);
+}
+
+/* Search bar moderna */
+.search-bar input{
+  border-radius: var(--radius-lg) !important;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: all var(--t-base);
+}
+.search-bar input:focus{
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 4px var(--primary-glow), var(--shadow-md) !important;
+}
+
+/* Section title con acento */
+.section-title{
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-3);
+}
+
+/* Botón "Ver más" */
+.load-more-btn{
+  background: var(--surface);
+  border: 1.5px solid var(--surface-3);
+  color: var(--text-base);
+  border-radius: var(--radius-md);
+  padding: 12px 28px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all var(--t-base);
+}
+.load-more-btn:hover{
+  border-color: var(--primary);
+  color: var(--primary-700);
+  background: var(--primary-soft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Header cart/wa modernos */
+.header-cart, .header-wa{
+  border-radius: var(--radius-md) !important;
+  transition: all var(--t-base) !important;
+}
+.header-cart:hover{
+  background: var(--primary-soft) !important;
+  color: var(--primary) !important;
+}
+.header-wa{
+  background: linear-gradient(135deg, #25d366, #128c7e) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25) !important;
+}
+.header-wa:hover{
+  transform: translateY(-1px) scale(1.03) !important;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4) !important;
+}
+
+/* ═══ FIN CAPA 2 ═══ */
