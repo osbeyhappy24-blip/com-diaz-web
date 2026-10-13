@@ -362,15 +362,14 @@
             <span>Activar auto-import diario</span>
           </label>
 
-          <div class="import-global-row">
+          <div class="import-global-row" style="grid-template-columns:1fr">
             <label class="import-global-field">
               <span>Límite por categoría</span>
               <input id="importLimitPerCat" type="number" class="pedido-input" value="5" min="1" max="30">
             </label>
-            <label class="import-global-field">
-              <span>Margen (%)</span>
-              <input id="importGlobalMargin" type="number" class="pedido-input" value="40" min="0" max="300">
-            </label>
+          </div>
+          <div class="import-hint" style="font-size:11px;color:var(--muted);margin-bottom:10px;text-align:center">
+            💰 El margen se toma del panel principal (card "💰 Margen")
           </div>
 
           <div class="import-subtitle">Fuentes:</div>
