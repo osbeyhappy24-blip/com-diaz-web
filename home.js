@@ -3129,6 +3129,20 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       cambiarVista(btn.dataset.view);
       return;
     }
+    // Cuando se abre una card, scroll suave para que se vea completa
+    const cardHead = e.target.closest('.card-head');
+    if (cardHead) {
+      const card = cardHead.closest('section[data-view]');
+      if (card) {
+        setTimeout(() => {
+          const rect = card.getBoundingClientRect();
+          // Si la card empieza muy arriba o muy abajo, ajustar
+          if (rect.top < 60) {
+            window.scrollTo({ top: card.offsetTop - 70, behavior: 'smooth' });
+          }
+        }, 200);
+      }
+    }
   }, true);
 
   // Restaurar última vista al arrancar

@@ -1837,3 +1837,55 @@ main.container {
     font-size: 11px;
   }
 }
+
+
+/* ═══════════════════════════════════════════════
+   FIX: Bottom nav tapando contenido
+   ═══════════════════════════════════════════════ */
+
+/* Mas espacio abajo en el main para que el nav no tape nada */
+main.container {
+  padding-bottom: 130px !important;
+}
+
+/* Los modales NO deben ser tapados por el nav — subir z-index */
+.modal {
+  z-index: 1000 !important;
+}
+.modal-card {
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  padding-bottom: 20px !important;
+}
+
+/* El modal de pedido: contenido scrolleable + botones fijos abajo */
+.pedido-modal {
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.pedido-modal-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  max-height: none !important;
+}
+.pedido-edit-grid {
+  max-height: 40vh !important;
+  overflow-y: auto !important;
+}
+
+/* Cuando el nav se superpone a la ultima card, dejar espacio */
+main.container > section[data-view]:last-of-type {
+  margin-bottom: 40px;
+}
+
+/* Scroll suave en toda la app */
+html, body {
+  scroll-behavior: smooth;
+}
+
+/* El body no debe tener overflow hidden */
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
