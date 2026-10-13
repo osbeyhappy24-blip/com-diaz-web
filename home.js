@@ -3072,3 +3072,57 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   window.comdiaz_import = { buscar, guardarConfig, ejecutarAhora };
   console.log('✅ Import Hub listo');
 })();
+
+
+/* ═══════════════════════════════════════════════
+   NAVEGACIÓN POR VISTAS (Rediseño moderno)
+   ═══════════════════════════════════════════════ */
+(function comdiaz_navigation_v1(){
+  const VIEWS = ['home', 'productos', 'import', 'pedidos', 'analisis'];
+  const STORAGE_KEY = 'comdiaz_active_view';
+
+  function cambiarVista(view) {
+    if (!VIEWS.includes(view)) view = 'home';
+
+    // Actualizar el body
+    document.body.setAttribute('data-active-view', view);
+
+    // Actualizar botones del nav
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === view);
+    });
+
+    // Guardar en localStorage
+    try { localStorage.setItem(STORAGE_KEY, view); } catch(e) {}
+
+    // Scroll al top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Listener del nav
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-item');
+    if (btn) {
+      e.preventDefault();
+      cambiarVista(btn.dataset.view);
+      return;
+    }
+  }, true);
+
+  // Restaurar última vista al arrancar
+  function init() {
+    let viewInicial = 'home';
+    try {
+      const guardada = localStorage.getItem(STORAGE_KEY);
+      if (guardada && VIEWS.includes(guardada)) viewInicial = guardada;
+    } catch(e) {}
+    cambiarVista(viewInicial);
+    console.log('✅ Navegación por vistas lista (' + viewInicial + ')');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    setTimeout(init, 100);
+  }
+})();

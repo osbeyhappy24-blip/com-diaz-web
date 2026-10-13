@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -31,7 +31,7 @@
 
   <main class="container">
 
-    <section class="hero-card collapsible" data-card="hero" data-default="open">
+    <section class="hero-card collapsible" data-card="hero" data-view="home" data-default="open">
       <div class="play-row">
         <button id="toggleBtn" class="toggle-btn paused">
           <span class="icon" id="toggleIcon">▶</span>
@@ -57,7 +57,7 @@
       <button id="shareBtn" class="btn-ghost primary">📤 Compartir resumen</button>
     </section>
 
-    <section class="card collapsible" data-card="margin" data-default="closed">
+    <section class="card collapsible" data-card="margin" data-view="productos" data-default="closed">
       <h2>Margen de ganancia</h2>
       <div class="margin-row">
         <button id="lockMargin" class="lock-btn" title="Bloquear/Desbloquear margen">🔓</button>
@@ -67,7 +67,7 @@
       <div class="margin-hint" id="marginExample">—</div>
     </section>
 
-    <section class="card collapsible" data-card="cats" data-default="closed">
+    <section class="card collapsible" data-card="cats" data-view="productos" data-default="closed">
       <div class="card-head">
         <h2>Categorías</h2>
         <button id="toggleCats" class="btn-mini">Editar</button>
@@ -79,7 +79,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" data-card="results" data-default="closed">
+    <section class="card collapsible" data-card="results" data-view="productos" data-default="closed">
       <div class="card-head" id="resultsHead" style="cursor:pointer;user-select:none">
         <div style="display:flex;align-items:center;gap:10px"><span id="resultsChevron" class="chevron">▸</span><h2>Resultados</h2></div>
         <span class="badge" id="resultsBadge">0</span>
@@ -88,7 +88,7 @@
     </section>
 
   
-        <section class="card collapsible" data-card="sources" data-default="closed" id="sourcesCard">
+        <section class="card collapsible" data-card="sources" data-view="productos" data-default="closed" id="sourcesCard">
       <div class="card-head">
         <h2>Fuentes de productos</h2>
         <button id="toggleSources" class="btn-mini">Configurar</button>
@@ -97,7 +97,7 @@
       <div class="margin-hint">Activa las fuentes que quieras usar en las búsquedas.</div>
     </section>
 
-    <section class="card collapsible" data-card="hours" data-default="closed">
+    <section class="card collapsible" data-card="hours" data-view="analisis" data-default="closed">
       <div class="card-head">
         <h2>Horarios de publicación</h2>
         <button id="toggleHours" class="btn-mini">Editar</button>
@@ -111,7 +111,7 @@
     </section>
 
   
-    <section class="card collapsible" data-card="analysis" data-default="closed" id="analysisCard">
+    <section class="card collapsible" data-card="analysis" data-view="analisis" data-default="closed" id="analysisCard">
       <div class="card-head">
         <h2>Análisis y estadísticas</h2>
         <button id="resetStats" class="btn-mini">Reiniciar</button>
@@ -169,7 +169,7 @@
     </section>
 
   
-    <section class="card collapsible" data-card="activity" data-default="closed" id="activityCard">
+    <section class="card collapsible" data-card="activity" data-view="home" data-default="closed" id="activityCard">
       <div class="card-head">
         <h2>Actividad reciente</h2>
         <button id="clearActivity" class="btn-mini">Limpiar</button>
@@ -188,7 +188,7 @@
     </section>
   
   
-    <section class="card collapsible" data-card="public" data-default="closed" id="publicCatalogCard">
+    <section class="card collapsible" data-card="public" data-view="productos" data-default="closed" id="publicCatalogCard">
       <div class="card-head">
         <h2>Catálogo público (Comdiaz Shop)</h2>
         <span class="badge" id="publishedCount">0</span>
@@ -280,7 +280,7 @@
     </section>
   
   
-    <section class="card collapsible" data-card="manual" data-default="closed" id="manualCard">
+    <section class="card collapsible" data-card="manual" data-view="productos" data-default="closed" id="manualCard">
       <div class="card-head">
         <h2>Productos manuales (locales)</h2>
         <span class="badge" id="manualCount">0</span>
@@ -293,7 +293,7 @@
     </section>
 
   
-    <section class="card collapsible" data-card="stats" data-default="closed" id="statsCard">
+    <section class="card collapsible" data-card="stats" data-view="home" data-default="closed" id="statsCard">
       <div class="card-head">
         <h2>Estadísticas de la tienda</h2>
         <button id="refreshStats" class="btn-mini">🔄</button>
@@ -333,7 +333,7 @@
   
 
 
-    <section class="card collapsible" data-card="importhub" data-default="closed" id="importHubCard">
+    <section class="card collapsible" data-card="importhub" data-view="import" data-default="closed" id="importHubCard">
       <div class="card-head">
         <h2>🌐 Import Hub <span id="importHubStatus" class="pedidos-badge">Listo</span></h2>
         <button id="importHubRefresh" class="btn-mini">🔄</button>
@@ -407,7 +407,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" data-card="pedidos" data-default="closed" id="pedidosCard">
+    <section class="card collapsible" data-card="pedidos" data-view="pedidos" data-default="closed" id="pedidosCard">
       <div class="card-head">
         <h2>📦 Pedidos <span id="pedidosCount" class="pedidos-badge">0</span></h2>
         <button id="refreshPedidos" class="btn-mini">🔄</button>
@@ -466,7 +466,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=10"></script>
+  <script src="home.js?v=11"></script>
 
   
 
@@ -600,6 +600,30 @@
     </div>
   </div>
 </div>
+
+
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" data-view="home">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Inicio</span>
+  </button>
+  <button class="nav-item" data-view="productos">
+    <span class="nav-icon">📦</span>
+    <span class="nav-label">Productos</span>
+  </button>
+  <button class="nav-item" data-view="import">
+    <span class="nav-icon">🌐</span>
+    <span class="nav-label">Importar</span>
+  </button>
+  <button class="nav-item" data-view="pedidos">
+    <span class="nav-icon">🛒</span>
+    <span class="nav-label">Pedidos</span>
+  </button>
+  <button class="nav-item" data-view="analisis">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Análisis</span>
+  </button>
+</nav>
 
 </body>
 </html>
