@@ -2656,19 +2656,43 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       notasInternas: $id('pedidoNotasInt').value.trim(),
       notaEstado: $id('pedidoNota').value.trim()
     };
+
+    // ─── OPTIMISTA: actualizar en memoria + render INSTANTANEO ───
+    const idx = pedidos.findIndex(p => String(p.id) === String(pedidoActivo.id));
+    const backup = idx !== -1 ? { ...pedidos[idx] } : null;
+    if (idx !== -1) {
+      pedidos[idx] = { ...pedidos[idx], ...body, actualizado: new Date().toISOString() };
+      // Agregar al historial local
+      if (body.estado && body.estado !== backup.estado) {
+        pedidos[idx].historial = [...(pedidos[idx].historial || []), {
+          estado: body.estado,
+          fecha: new Date().toISOString(),
+          nota: body.notaEstado || ''
+        }];
+      }
+    }
+    $id('pedidoModal').classList.add('hidden');
+    renderContador();
+    renderLista();
+    if (typeof toast === 'function') toast('✅ Pedido actualizado', 'ok');
+
+    // ─── Servidor en background (no bloquea UI) ───
     try {
       const r = await api('/api/orders/' + pedidoActivo.id, {
         method: 'PUT',
         body: JSON.stringify(body)
       });
-      if (r.ok) {
-        if (typeof toast === 'function') toast('✅ Pedido actualizado', 'ok');
-        $id('pedidoModal').classList.add('hidden');
-        await cargarPedidos();
-      } else {
+      if (!r.ok) {
+        // Revertir si fallo
+        if (idx !== -1 && backup) pedidos[idx] = backup;
+        renderContador();
+        renderLista();
         if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
       }
     } catch(e) {
+      if (idx !== -1 && backup) pedidos[idx] = backup;
+      renderContador();
+      renderLista();
       if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
     }
   }
@@ -2713,18 +2737,33 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       e.stopPropagation();
       if (!pedidoActivo) return;
       if (!confirm('¿Eliminar el pedido ' + pedidoActivo.id + '? Esta acción no se puede deshacer.')) return;
+
+      // ─── OPTIMISTA: quitar del array local + render INSTANTANEO ───
+      const idEliminar = pedidoActivo.id;
+      const backup = pedidos.find(p => String(p.id) === String(idEliminar));
+      const backupIdx = pedidos.findIndex(p => String(p.id) === String(idEliminar));
+      pedidos = pedidos.filter(p => String(p.id) !== String(idEliminar));
+      $id('pedidoModal').classList.add('hidden');
+      pedidoActivo = null;
+      renderContador();
+      renderLista();
+      mostrarAviso('✅ Pedido eliminado', 'ok');
+
+      // ─── Servidor en background (no bloquea UI) ───
       (async () => {
         try {
-          const r = await api('/api/orders/' + pedidoActivo.id, { method: 'DELETE' });
-          if (r.ok) {
-            mostrarAviso('✅ Pedido eliminado', 'ok');
-            $id('pedidoModal').classList.add('hidden');
-            pedidoActivo = null;
-            await cargarPedidos();
-          } else {
+          const r = await api('/api/orders/' + idEliminar, { method: 'DELETE' });
+          if (!r.ok) {
+            // Revertir si fallo
+            if (backup) pedidos.splice(backupIdx, 0, backup);
+            renderContador();
+            renderLista();
             mostrarAviso('Error: ' + (r.error || ''), 'err');
           }
         } catch(err) {
+          if (backup) pedidos.splice(backupIdx, 0, backup);
+          renderContador();
+          renderLista();
           mostrarAviso('Error: ' + err.message, 'err');
         }
       })();
