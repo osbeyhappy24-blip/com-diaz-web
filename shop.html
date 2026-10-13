@@ -128,6 +128,7 @@
       <p class="live-search-hint">Busca en eBay directamente con miles de productos</p>
     </div>
     <button id="liveSearchBtn" class="live-search-btn">🔍 Buscar <b id="liveQuery"></b> en eBay</button>
+    <button id="liveSearchAllBtn" class="live-search-btn live-search-btn-all" style="display:none;background:linear-gradient(135deg,#7c3aed,#ec4899)">🌐 Buscar también en Temu, Amazon, Walmart</button>
   </div>
 
   <div id="empty" class="empty hidden">
@@ -189,7 +190,7 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="shop.js?v=7"></script>
+<script src="shop.js?v=8"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

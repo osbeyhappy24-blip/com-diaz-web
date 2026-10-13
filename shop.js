@@ -752,6 +752,39 @@ cargarCatalogo();
     if (window.__renderDestacados) window.__renderDestacados();
   }
 
+  async function buscarEnTodas(q) {
+    if (buscandoLive) return;
+    if (!q || q.length < 2) return;
+    buscandoLive = true;
+
+    const btn = $id('liveSearchAllBtn');
+    const btnEbay = $id('liveSearchBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Buscando en Temu, Amazon, Walmart… (puede tardar 30s)'; }
+    if (btnEbay) btnEbay.disabled = true;
+
+    try {
+      const r = await fetch(API_BASE + '/api/public/live-search-all?q=' + encodeURIComponent(q));
+      const data = await r.json();
+      if (!data.ok) {
+        if (typeof toast === 'function') toast('Error: ' + (data.error || 'no encontrado'), 'err');
+      } else if (!data.products || !data.products.length) {
+        if (typeof toast === 'function') toast('Sin resultados en otras tiendas', 'err');
+      } else {
+        addProductosLive(data.products);
+        const porFuente = {};
+        data.products.forEach(p => { porFuente[p.source] = (porFuente[p.source] || 0) + 1; });
+        const resumen = Object.entries(porFuente).map(([k,v]) => k + ': ' + v).join(' · ');
+        if (typeof toast === 'function') toast('✅ ' + data.products.length + ' productos (' + resumen + ')', 'ok');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error al buscar: ' + e.message, 'err');
+    } finally {
+      buscandoLive = false;
+      if (btn) { btn.disabled = false; btn.innerHTML = '🌐 Buscar también en Temu, Amazon, Walmart'; }
+      if (btnEbay) btnEbay.disabled = false;
+    }
+  }
+
   async function buscarEnEbay(q) {
     if (buscandoLive) return;
     if (!q || q.length < 2) return;
@@ -797,8 +830,12 @@ cargarCatalogo();
       const lq = $id('liveQuery');
       if (lq) lq.textContent = '"' + q + '"';
       ultimaQuery = q;
+      const allBtn = $id('liveSearchAllBtn');
+      if (allBtn) allBtn.style.display = '';
     } else {
       mostrarBotonLive(false);
+      const allBtn = $id('liveSearchAllBtn');
+      if (allBtn) allBtn.style.display = 'none';
     }
   }
 
@@ -818,6 +855,12 @@ cargarCatalogo();
       e.preventDefault();
       const q = (state.searchQuery || '').trim();
       if (q) buscarEnEbay(q);
+      return;
+    }
+    if (t.id === 'liveSearchAllBtn' || (t.closest && t.closest('#liveSearchAllBtn'))) {
+      e.preventDefault();
+      const q = (state.searchQuery || '').trim();
+      if (q) buscarEnTodas(q);
       return;
     }
   });
