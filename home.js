@@ -2735,3 +2735,227 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Panel de pedidos activo');
 })();
+
+
+/* ═══════════════════════════════════════════════
+   IMPORT HUB — Panel multi-fuente
+   ═══════════════════════════════════════════════ */
+(function comdiaz_import_hub_v1(){
+  const $id = id => document.getElementById(id);
+  let currentSource = 'temu';
+  let currentResults = [];
+
+  async function apiCall(path, opts) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, (opts && opts.headers) || {});
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  async function buscar() {
+    const keyword = ($id('importKeyword')?.value || '').trim();
+    const limit = Number($id('importLimit')?.value) || 20;
+    if (!keyword) {
+      if (typeof toast === 'function') toast('Escribe que buscar', 'err');
+      return;
+    }
+    const box = $id('importResults');
+    const btn = $id('importSearchBtn');
+    if (btn) btn.disabled = true;
+    if (btn) btn.textContent = '⏳ Buscando...';
+    if (box) box.innerHTML = '<div class="act-empty">Buscando en ' + currentSource + '… (60-90 seg)</div>';
+
+    try {
+      const r = await apiCall('/api/import/search', {
+        method: 'POST',
+        body: JSON.stringify({ source: currentSource, keyword, maxResults: limit })
+      });
+      if (r.ok) {
+        currentResults = r.products || [];
+        renderResults();
+        if (typeof toast === 'function') toast('✅ ' + r.total + ' productos', 'ok');
+      } else {
+        if (box) box.innerHTML = '<div class="act-empty">Error: ' + (r.error || '') + '</div>';
+      }
+    } catch(e) {
+      if (box) box.innerHTML = '<div class="act-empty">Error: ' + e.message + '</div>';
+    }
+    if (btn) btn.disabled = false;
+    if (btn) btn.textContent = '🔍 Buscar';
+  }
+
+  function renderResults() {
+    const box = $id('importResults');
+    if (!box) return;
+    if (!currentResults.length) {
+      box.innerHTML = '<div class="act-empty">Sin resultados</div>';
+      return;
+    }
+    box.innerHTML = currentResults.map((p, i) => `
+      <div class="import-product">
+        <img class="import-product-img" src="${p.image || ''}" loading="lazy" onerror="this.style.opacity=.3">
+        <div class="import-product-info">
+          <div class="import-product-title">${(p.title || 'Producto').replace(/</g,'&lt;')}</div>
+          <div class="import-product-price">$${Number(p.priceBase || 0).toFixed(2)}</div>
+        </div>
+        <div class="import-product-actions">
+          <button class="import-add-btn" data-index="${i}">➕ Importar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function importarProducto(index) {
+    const p = currentResults[index];
+    if (!p) return;
+    const margin = Number($id('importMargin-' + currentSource)?.value) || 40;
+    const btn = document.querySelector(`.import-add-btn[data-index="${index}"]`);
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+
+    try {
+      const r = await apiCall('/api/manual/products', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: p.title,
+          image: p.image,
+          images: p.images || [p.image],
+          category: p.category || 'Importado',
+          priceBase: p.priceBase,
+          margenPct: margin,
+          cantidad: 1,
+          publicado: true,
+          source: p.source,
+          sourceUrl: p.url
+        })
+      });
+      if (r.ok) {
+        if (typeof toast === 'function') toast('✅ Importado: $' + (r.product?.salePrice || 0), 'ok');
+        if (btn) { btn.textContent = '✔️'; }
+      } else {
+        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
+        if (btn) { btn.disabled = false; btn.textContent = '➕ Importar'; }
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+      if (btn) { btn.disabled = false; btn.textContent = '➕ Importar'; }
+    }
+  }
+
+  async function cargarConfig() {
+    try {
+      const r = await apiCall('/api/import/config');
+      const cfg = r.config?.autoImport || {};
+      const enabled = $id('importAutoEnabled');
+      if (enabled) enabled.checked = !!cfg.enabled;
+      ['temu','amazon','walmart'].forEach(src => {
+        const srcCfg = (cfg.sources || {})[src] || {};
+        const chk = $id('importSrc-' + src);
+        if (chk) chk.checked = !!srcCfg.enabled;
+        const kw = $id('importKw-' + src);
+        if (kw) kw.value = (srcCfg.keywords || []).join(', ');
+        const lim = $id('importLimit-' + src);
+        if (lim) lim.value = srcCfg.limit || 20;
+        const mar = $id('importMargin-' + src);
+        if (mar) mar.value = srcCfg.margin || 40;
+      });
+    } catch(e) {}
+  }
+
+  async function guardarConfig() {
+    const autoImport = {
+      enabled: !!$id('importAutoEnabled')?.checked,
+      sources: {}
+    };
+    ['temu','amazon','walmart'].forEach(src => {
+      autoImport.sources[src] = {
+        enabled: !!$id('importSrc-' + src)?.checked,
+        keywords: ($id('importKw-' + src)?.value || '').split(',').map(s => s.trim()).filter(Boolean),
+        limit: Number($id('importLimit-' + src)?.value) || 20,
+        margin: Number($id('importMargin-' + src)?.value) || 40
+      };
+    });
+    try {
+      const r = await apiCall('/api/import/config', { method: 'POST', body: JSON.stringify({ autoImport }) });
+      if (r.ok) {
+        if (typeof toast === 'function') toast('✅ Config guardada', 'ok');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  async function ejecutarAhora() {
+    const src = currentSource;
+    const keywords = ($id('importKw-' + src)?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (!keywords.length) {
+      if (typeof toast === 'function') toast('Configura keywords en ' + src, 'err');
+      return;
+    }
+    const limit = Number($id('importLimit-' + src)?.value) || 20;
+    const margin = Number($id('importMargin-' + src)?.value) || 40;
+    if (typeof toast === 'function') toast('⏳ Importando ' + keywords.length + ' keywords…', 'ok');
+    try {
+      const r = await apiCall('/api/import/run-now', {
+        method: 'POST',
+        body: JSON.stringify({ source: src, keywords, limit, margin })
+      });
+      if (r.ok) {
+        if (typeof toast === 'function') toast('✅ Importados: ' + r.imported, 'ok');
+      } else {
+        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  // Listeners
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('#importTabs .filter-btn');
+    if (tab) {
+      document.querySelectorAll('#importTabs .filter-btn').forEach(b => b.classList.remove('active'));
+      tab.classList.add('active');
+      currentSource = tab.dataset.source || 'temu';
+      currentResults = [];
+      const box = $id('importResults');
+      if (box) box.innerHTML = '<div class="act-empty">Busca productos en ' + currentSource + '</div>';
+      return;
+    }
+
+    if (e.target.closest('#importSearchBtn')) {
+      e.preventDefault();
+      buscar();
+      return;
+    }
+
+    if (e.target.closest('#importHubRefresh')) {
+      e.preventDefault();
+      cargarConfig();
+      return;
+    }
+
+    if (e.target.closest('#importSaveConfig')) {
+      e.preventDefault();
+      guardarConfig();
+      return;
+    }
+
+    if (e.target.closest('#importRunNow')) {
+      e.preventDefault();
+      ejecutarAhora();
+      return;
+    }
+
+    const addBtn = e.target.closest('.import-add-btn');
+    if (addBtn) {
+      e.preventDefault();
+      importarProducto(Number(addBtn.dataset.index));
+      return;
+    }
+  }, true);
+
+  // Cargar config al arrancar
+  setTimeout(cargarConfig, 2000);
+
+  window.comdiaz_import = { buscar, guardarConfig, ejecutarAhora };
+  console.log('✅ Import Hub listo');
+})();

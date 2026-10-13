@@ -332,6 +332,74 @@
     </section>
   
 
+
+    <section class="card collapsible" data-card="importhub" data-default="closed" id="importHubCard">
+      <div class="card-head">
+        <h2>🌐 Import Hub <span id="importHubStatus" class="pedidos-badge">Listo</span></h2>
+        <button id="importHubRefresh" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+        <div class="import-tabs" id="importTabs">
+          <button class="filter-btn active" data-source="temu">🛍️ Temu</button>
+          <button class="filter-btn" data-source="amazon">📦 Amazon</button>
+          <button class="filter-btn" data-source="walmart">🏪 Walmart</button>
+        </div>
+
+        <div class="import-search-row">
+          <input id="importKeyword" type="text" class="pedido-input" placeholder="Buscar productos (ej: smart watch)">
+          <input id="importLimit" type="number" class="pedido-input import-limit" value="20" min="1" max="100">
+          <button id="importSearchBtn" class="btn-primary">🔍 Buscar</button>
+        </div>
+
+        <div id="importResults" class="import-results">
+          <div class="act-empty">Elige una fuente y busca productos</div>
+        </div>
+
+        <div class="import-auto-config">
+          <h3 class="import-config-title">⚙️ Auto-import (10:30 AM)</h3>
+          <label class="import-toggle">
+            <input id="importAutoEnabled" type="checkbox" style="width:auto;margin:0;accent-color:#7c3aed">
+            <span>Activar auto-import diario</span>
+          </label>
+
+          <div class="import-source-config" id="importSourceConfig">
+            <div class="import-source-row" data-source="temu">
+              <label class="import-src-check">
+                <input type="checkbox" id="importSrc-temu" style="width:auto;margin:0;accent-color:#7c3aed">
+                <span>🛍️ Temu</span>
+              </label>
+              <input type="text" id="importKw-temu" class="pedido-input import-kw" placeholder="keywords, separadas por coma">
+              <input type="number" id="importLimit-temu" class="pedido-input import-limit-small" value="20" min="1" max="100" title="Cantidad">
+              <input type="number" id="importMargin-temu" class="pedido-input import-margin-small" value="40" min="0" max="300" title="Margen %">
+            </div>
+            <div class="import-source-row" data-source="amazon">
+              <label class="import-src-check">
+                <input type="checkbox" id="importSrc-amazon" style="width:auto;margin:0;accent-color:#7c3aed">
+                <span>📦 Amazon</span>
+              </label>
+              <input type="text" id="importKw-amazon" class="pedido-input import-kw" placeholder="keywords, separadas por coma">
+              <input type="number" id="importLimit-amazon" class="pedido-input import-limit-small" value="20" min="1" max="100" title="Cantidad">
+              <input type="number" id="importMargin-amazon" class="pedido-input import-margin-small" value="40" min="0" max="300" title="Margen %">
+            </div>
+            <div class="import-source-row" data-source="walmart">
+              <label class="import-src-check">
+                <input type="checkbox" id="importSrc-walmart" style="width:auto;margin:0;accent-color:#7c3aed">
+                <span>🏪 Walmart</span>
+              </label>
+              <input type="text" id="importKw-walmart" class="pedido-input import-kw" placeholder="keywords, separadas por coma">
+              <input type="number" id="importLimit-walmart" class="pedido-input import-limit-small" value="20" min="1" max="100" title="Cantidad">
+              <input type="number" id="importMargin-walmart" class="pedido-input import-margin-small" value="40" min="0" max="300" title="Margen %">
+            </div>
+          </div>
+
+          <div class="import-auto-actions">
+            <button id="importSaveConfig" class="btn-primary">💾 Guardar config</button>
+            <button id="importRunNow" class="btn-secondary">⚡ Ejecutar ahora</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="card collapsible" data-card="pedidos" data-default="closed" id="pedidosCard">
       <div class="card-head">
         <h2>📦 Pedidos <span id="pedidosCount" class="pedidos-badge">0</span></h2>
@@ -391,7 +459,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=7"></script>
+  <script src="home.js?v=8"></script>
 
   
 

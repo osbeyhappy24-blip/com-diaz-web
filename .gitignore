@@ -1,7 +1,4 @@
+*.bak
+*.bak-*
 node_modules/
 .DS_Store
-*.log
-*.bak
-server.cjs
--H
-main
