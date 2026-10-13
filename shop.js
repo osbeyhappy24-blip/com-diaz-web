@@ -47,6 +47,17 @@ let state = {
   lightboxIndex: 0,
 };
 
+// Helper: etiqueta y clase de badge segun source
+function getSourceBadge(p) {
+  const src = String((p && p.source) || '').toLowerCase();
+  if (src === 'manual' || src === 'local') return { label: 'Local', cls: 'local' };
+  if (src === 'temu') return { label: 'Temu', cls: 'temu' };
+  if (src === 'amazon') return { label: 'Amazon', cls: 'amazon' };
+  if (src === 'walmart') return { label: 'Walmart', cls: 'walmart' };
+  if (src === 'ebay' || src === 'ebay-v1') return { label: 'eBay', cls: 'ebay' };
+  return { label: 'Importado', cls: '' };
+}
+
 const $ = id => document.getElementById(id);
 
 // ─── Cargar catalogo ───
@@ -101,10 +112,19 @@ function aplicarFiltros() {
   let filtered = [...state.products];
 
   // Tab
-  if (state.currentTab === 'imported') {
-    filtered = filtered.filter(p => p.source === 'ebay');
-  } else if (state.currentTab === 'local') {
-    filtered = filtered.filter(p => p.source === 'manual');
+  const tab = state.currentTab;
+  if (tab === 'imported') {
+    filtered = filtered.filter(p => p.source && p.source !== 'manual' && p.source !== 'local');
+  } else if (tab === 'local') {
+    filtered = filtered.filter(p => p.source === 'manual' || p.source === 'local');
+  } else if (tab === 'ebay') {
+    filtered = filtered.filter(p => !p.source || p.source === 'ebay' || String(p.source).startsWith('ebay-'));
+  } else if (tab === 'temu') {
+    filtered = filtered.filter(p => p.source === 'temu');
+  } else if (tab === 'amazon') {
+    filtered = filtered.filter(p => p.source === 'amazon');
+  } else if (tab === 'walmart') {
+    filtered = filtered.filter(p => p.source === 'walmart');
   }
 
   // Categoria
@@ -147,8 +167,9 @@ function renderProductos() {
     const card = document.createElement('div');
     card.className = 'product-card';
 
-    const sourceLabel = p.source === 'manual' ? 'Local' : 'Importado';
-    const sourceClass = p.source === 'manual' ? 'local' : '';
+    const sb = getSourceBadge(p);
+    const sourceLabel = sb.label;
+    const sourceClass = sb.cls;
 
     card.innerHTML = `
       <div class="product-img-wrap">
@@ -879,8 +900,9 @@ cargarCatalogo();
     visibles.forEach(p => {
       const card = document.createElement('div');
       card.className = 'product-card';
-      const sourceLabel = p.source === 'manual' ? 'Local' : 'Importado';
-      const sourceClass = p.source === 'manual' ? 'local' : '';
+      const sb = getSourceBadge(p);
+      const sourceLabel = sb.label;
+      const sourceClass = sb.cls;
 
       card.innerHTML = `
         <div class="product-img-wrap">
@@ -1359,8 +1381,9 @@ cargarCatalogo();
     destacados.slice(0, 6).forEach(p => {
       const card = document.createElement("div");
       card.className = "product-card";
-      const sourceLabel = p.source === "manual" ? "Local" : "Importado";
-      const sourceClass = p.source === "manual" ? "local" : "";
+      const sb = getSourceBadge(p);
+      const sourceLabel = sb.label;
+      const sourceClass = sb.cls;
 
       card.innerHTML = `
         <div class="product-img-wrap">

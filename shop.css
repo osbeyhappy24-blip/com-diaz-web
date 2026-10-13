@@ -1902,3 +1902,28 @@ html{scroll-behavior:smooth}
   from{transform:translateY(-100%)}
   to{transform:translateY(0)}
 }
+
+
+/* ═══════════════════════════════════════════════
+   BADGES POR FUENTE
+   ═══════════════════════════════════════════════ */
+.product-source.local {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+}
+.product-source.temu {
+  background: linear-gradient(135deg, #ff6900, #e65c00);
+  color: #fff;
+}
+.product-source.amazon {
+  background: linear-gradient(135deg, #ff9900, #e88b00);
+  color: #111;
+}
+.product-source.walmart {
+  background: linear-gradient(135deg, #0071dc, #0057a3);
+  color: #fff;
+}
+.product-source.ebay {
+  background: linear-gradient(135deg, #e53238, #c92a2f);
+  color: #fff;
+}
