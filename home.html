@@ -362,35 +362,43 @@
             <span>Activar auto-import diario</span>
           </label>
 
-          <div class="import-source-config" id="importSourceConfig">
-            <div class="import-source-row" data-source="temu">
-              <label class="import-src-check">
-                <input type="checkbox" id="importSrc-temu" style="width:auto;margin:0;accent-color:#7c3aed">
-                <span>🛍️ Temu</span>
-              </label>
-              <input type="text" id="importKw-temu" class="pedido-input import-kw" placeholder="keywords, separadas por coma">
-              <input type="number" id="importLimit-temu" class="pedido-input import-limit-small" value="20" min="1" max="100" title="Cantidad">
-              <input type="number" id="importMargin-temu" class="pedido-input import-margin-small" value="40" min="0" max="300" title="Margen %">
-            </div>
-            <div class="import-source-row" data-source="amazon">
-              <label class="import-src-check">
-                <input type="checkbox" id="importSrc-amazon" style="width:auto;margin:0;accent-color:#7c3aed">
-                <span>📦 Amazon</span>
-              </label>
-              <input type="text" id="importKw-amazon" class="pedido-input import-kw" placeholder="keywords, separadas por coma">
-              <input type="number" id="importLimit-amazon" class="pedido-input import-limit-small" value="20" min="1" max="100" title="Cantidad">
-              <input type="number" id="importMargin-amazon" class="pedido-input import-margin-small" value="40" min="0" max="300" title="Margen %">
-            </div>
-            <div class="import-source-row" data-source="walmart">
-              <label class="import-src-check">
-                <input type="checkbox" id="importSrc-walmart" style="width:auto;margin:0;accent-color:#7c3aed">
-                <span>🏪 Walmart</span>
-              </label>
-              <input type="text" id="importKw-walmart" class="pedido-input import-kw" placeholder="keywords, separadas por coma">
-              <input type="number" id="importLimit-walmart" class="pedido-input import-limit-small" value="20" min="1" max="100" title="Cantidad">
-              <input type="number" id="importMargin-walmart" class="pedido-input import-margin-small" value="40" min="0" max="300" title="Margen %">
-            </div>
+          <div class="import-global-row">
+            <label class="import-global-field">
+              <span>Límite por categoría</span>
+              <input id="importLimitPerCat" type="number" class="pedido-input" value="5" min="1" max="30">
+            </label>
+            <label class="import-global-field">
+              <span>Margen (%)</span>
+              <input id="importGlobalMargin" type="number" class="pedido-input" value="40" min="0" max="300">
+            </label>
           </div>
+
+          <div class="import-subtitle">Fuentes:</div>
+          <div class="import-sources-row">
+            <label class="import-toggle-small">
+              <input type="checkbox" id="importSrc-temu" style="width:auto;margin:0;accent-color:#7c3aed" checked>
+              <span>🛍️ Temu</span>
+            </label>
+            <label class="import-toggle-small">
+              <input type="checkbox" id="importSrc-amazon" style="width:auto;margin:0;accent-color:#7c3aed" checked>
+              <span>📦 Amazon</span>
+            </label>
+            <label class="import-toggle-small">
+              <input type="checkbox" id="importSrc-walmart" style="width:auto;margin:0;accent-color:#7c3aed">
+              <span>🏪 Walmart</span>
+            </label>
+          </div>
+
+          <div class="import-subtitle">
+            Categorías a importar:
+            <button id="importSelectAll" class="btn-mini" style="margin-left:6px;font-size:10px">Todas</button>
+            <button id="importSelectNone" class="btn-mini" style="font-size:10px">Ninguna</button>
+          </div>
+          <div class="import-categories-list" id="importCategoryList">
+            <div class="act-empty">Cargando categorías…</div>
+          </div>
+
+          <div class="import-preview" id="importPreview">— productos estimados</div>
 
           <div class="import-auto-actions">
             <button id="importSaveConfig" class="btn-primary">💾 Guardar config</button>
@@ -459,7 +467,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=8"></script>
+  <script src="home.js?v=9"></script>
 
   
 

@@ -2840,38 +2840,93 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     }
   }
 
+  let todasLasCategorias = [];
+
+  async function cargarCategorias() {
+    try {
+      const r = await apiCall('/api/state');
+      todasLasCategorias = (r.categories || []).map(c => ({
+        label: c.label,
+        queries: c.dummyjson || []
+      }));
+      renderCategorias();
+    } catch(e) {
+      const box = $id('importCategoryList');
+      if (box) box.innerHTML = '<div class="act-empty">Error cargando categorías</div>';
+    }
+  }
+
+  function renderCategorias(seleccionadas) {
+    const box = $id('importCategoryList');
+    if (!box) return;
+    const sel = seleccionadas || [];
+    box.innerHTML = todasLasCategorias.map((c, i) => {
+      const marcada = sel.length === 0 ? (c.queries.length > 0) : sel.includes(c.label);
+      const sinQueries = c.queries.length === 0;
+      return '<label class="import-cat-item' + (marcada ? ' checked' : '') + (sinQueries ? ' no-queries' : '') + '">' +
+        '<input type="checkbox" data-cat="' + c.label.replace(/"/g, '&quot;') + '"' + (marcada ? ' checked' : '') + (sinQueries ? ' disabled' : '') + '>' +
+        '<span>' + c.label + (sinQueries ? ' (sin queries)' : '') + '</span>' +
+      '</label>';
+    }).join('');
+    actualizarPreview();
+  }
+
+  function getCategoriasSeleccionadas() {
+    const boxes = document.querySelectorAll('#importCategoryList input[type=checkbox]:checked');
+    return Array.from(boxes).map(b => b.dataset.cat);
+  }
+
+  function getFuentesActivas() {
+    return ['temu','amazon','walmart'].filter(s => $id('importSrc-' + s)?.checked);
+  }
+
+  function actualizarPreview() {
+    const cats = getCategoriasSeleccionadas();
+    const fuentes = getFuentesActivas();
+    const limit = Number($id('importLimitPerCat')?.value) || 5;
+    // Contar queries
+    let totalQueries = 0;
+    cats.forEach(cat => {
+      const c = todasLasCategorias.find(x => x.label === cat);
+      if (c) totalQueries += c.queries.length;
+    });
+    const total = totalQueries * fuentes.length * limit;
+    const p = $id('importPreview');
+    if (p) {
+      p.textContent = cats.length + ' categorías × ' + fuentes.length + ' fuentes × ' + limit + ' = ~' + total + ' productos';
+    }
+  }
+
   async function cargarConfig() {
     try {
+      await cargarCategorias();
       const r = await apiCall('/api/import/config');
       const cfg = r.config?.autoImport || {};
       const enabled = $id('importAutoEnabled');
       if (enabled) enabled.checked = !!cfg.enabled;
+      const lim = $id('importLimitPerCat');
+      if (lim) lim.value = cfg.limitPerCategory || 5;
+      const mar = $id('importGlobalMargin');
+      if (mar) mar.value = cfg.margin || 40;
       ['temu','amazon','walmart'].forEach(src => {
         const srcCfg = (cfg.sources || {})[src] || {};
         const chk = $id('importSrc-' + src);
         if (chk) chk.checked = !!srcCfg.enabled;
-        const kw = $id('importKw-' + src);
-        if (kw) kw.value = (srcCfg.keywords || []).join(', ');
-        const lim = $id('importLimit-' + src);
-        if (lim) lim.value = srcCfg.limit || 20;
-        const mar = $id('importMargin-' + src);
-        if (mar) mar.value = srcCfg.margin || 40;
       });
+      renderCategorias(cfg.categories || []);
     } catch(e) {}
   }
 
   async function guardarConfig() {
     const autoImport = {
       enabled: !!$id('importAutoEnabled')?.checked,
+      limitPerCategory: Number($id('importLimitPerCat')?.value) || 5,
+      margin: Number($id('importGlobalMargin')?.value) || 40,
+      categories: getCategoriasSeleccionadas(),
       sources: {}
     };
     ['temu','amazon','walmart'].forEach(src => {
-      autoImport.sources[src] = {
-        enabled: !!$id('importSrc-' + src)?.checked,
-        keywords: ($id('importKw-' + src)?.value || '').split(',').map(s => s.trim()).filter(Boolean),
-        limit: Number($id('importLimit-' + src)?.value) || 20,
-        margin: Number($id('importMargin-' + src)?.value) || 40
-      };
+      autoImport.sources[src] = { enabled: !!$id('importSrc-' + src)?.checked };
     });
     try {
       const r = await apiCall('/api/import/config', { method: 'POST', body: JSON.stringify({ autoImport }) });
@@ -2884,28 +2939,52 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   }
 
   async function ejecutarAhora() {
-    const src = currentSource;
-    const keywords = ($id('importKw-' + src)?.value || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (!keywords.length) {
-      if (typeof toast === 'function') toast('Configura keywords en ' + src, 'err');
+    // Ejecuta import de las categorías seleccionadas
+    const categorias = getCategoriasSeleccionadas();
+    const fuentes = getFuentesActivas();
+    const limit = Number($id('importLimitPerCat')?.value) || 5;
+    const margin = Number($id('importGlobalMargin')?.value) || 40;
+
+    if (!categorias.length) {
+      if (typeof toast === 'function') toast('Selecciona al menos una categoría', 'err');
       return;
     }
-    const limit = Number($id('importLimit-' + src)?.value) || 20;
-    const margin = Number($id('importMargin-' + src)?.value) || 40;
-    if (typeof toast === 'function') toast('⏳ Importando ' + keywords.length + ' keywords…', 'ok');
-    try {
-      const r = await apiCall('/api/import/run-now', {
-        method: 'POST',
-        body: JSON.stringify({ source: src, keywords, limit, margin })
-      });
-      if (r.ok) {
-        if (typeof toast === 'function') toast('✅ Importados: ' + r.imported, 'ok');
-      } else {
-        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
-      }
-    } catch(e) {
-      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    if (!fuentes.length) {
+      if (typeof toast === 'function') toast('Selecciona al menos una fuente', 'err');
+      return;
     }
+
+    // Construir keywords desde las categorías seleccionadas
+    const keywordsSet = new Set();
+    categorias.forEach(cat => {
+      const c = todasLasCategorias.find(x => x.label === cat);
+      if (c) c.queries.forEach(q => keywordsSet.add(q));
+    });
+    const keywords = Array.from(keywordsSet);
+
+    if (!keywords.length) {
+      if (typeof toast === 'function') toast('Las categorías no tienen queries', 'err');
+      return;
+    }
+
+    const total = keywords.length * fuentes.length * limit;
+    if (typeof toast === 'function') toast('⏳ Importando ~' + total + ' productos...', 'ok');
+
+    // Ejecutar por fuente (en serie para no saturar Apify)
+    let totalImportados = 0;
+    for (const src of fuentes) {
+      try {
+        const r = await apiCall('/api/import/run-now', {
+          method: 'POST',
+          body: JSON.stringify({ source: src, keywords, limit, margin })
+        });
+        if (r.ok) totalImportados += (r.imported || 0);
+      } catch(e) {
+        console.error('[IMPORT] Error en ' + src + ':', e.message);
+      }
+    }
+
+    if (typeof toast === 'function') toast('✅ Importados: ' + totalImportados, 'ok');
   }
 
   // Listeners
@@ -2933,6 +3012,34 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       return;
     }
 
+    if (e.target.closest('#importSelectAll')) {
+      e.preventDefault();
+      document.querySelectorAll('#importCategoryList input[type=checkbox]:not(:disabled)').forEach(b => {
+        b.checked = true;
+        b.closest('.import-cat-item')?.classList.add('checked');
+      });
+      actualizarPreview();
+      return;
+    }
+
+    if (e.target.closest('#importSelectNone')) {
+      e.preventDefault();
+      document.querySelectorAll('#importCategoryList input[type=checkbox]').forEach(b => {
+        b.checked = false;
+        b.closest('.import-cat-item')?.classList.remove('checked');
+      });
+      actualizarPreview();
+      return;
+    }
+
+    const catBox = e.target.closest('#importCategoryList input[type=checkbox]');
+    if (catBox) {
+      setTimeout(() => {
+        catBox.closest('.import-cat-item')?.classList.toggle('checked', catBox.checked);
+        actualizarPreview();
+      }, 0);
+    }
+
     if (e.target.closest('#importSaveConfig')) {
       e.preventDefault();
       guardarConfig();
@@ -2952,6 +3059,12 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       return;
     }
   }, true);
+
+  // Actualizar preview al cambiar inputs
+  ['importLimitPerCat','importSrc-temu','importSrc-amazon','importSrc-walmart'].forEach(id => {
+    const el = $id(id);
+    if (el) el.addEventListener('change', actualizarPreview);
+  });
 
   // Cargar config al arrancar
   setTimeout(cargarConfig, 2000);
