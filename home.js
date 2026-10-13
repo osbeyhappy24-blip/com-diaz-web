@@ -2708,6 +2708,28 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       avanzarNotificar();
       return;
     }
+    if (e.target.closest('#eliminarPedido')) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!pedidoActivo) return;
+      if (!confirm('¿Eliminar el pedido ' + pedidoActivo.id + '? Esta acción no se puede deshacer.')) return;
+      (async () => {
+        try {
+          const r = await api('/api/orders/' + pedidoActivo.id, { method: 'DELETE' });
+          if (r.ok) {
+            mostrarAviso('✅ Pedido eliminado', 'ok');
+            $id('pedidoModal').classList.add('hidden');
+            pedidoActivo = null;
+            await cargarPedidos();
+          } else {
+            mostrarAviso('Error: ' + (r.error || ''), 'err');
+          }
+        } catch(err) {
+          mostrarAviso('Error: ' + err.message, 'err');
+        }
+      })();
+      return;
+    }
     if (e.target.closest('#refreshPedidos')) {
       e.preventDefault();
       e.stopPropagation();
