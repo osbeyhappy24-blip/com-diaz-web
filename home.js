@@ -3742,11 +3742,26 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     }
   }
 
-  function abrirWhatsApp() {
+  async function abrirWhatsApp() {
     const t = $id('postsTexto');
     if (!t || !t.value) return;
-    const texto = encodeURIComponent(t.value);
-    window.open('https://wa.me/5351425691?text=' + texto, '_blank');
+    const texto = t.value;
+    // Selector nativo de Android (permite elegir grupo o contacto)
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: texto });
+        return;
+      } catch(e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    // Fallback: copiar al portapapeles
+    try {
+      await navigator.clipboard.writeText(texto);
+      if (typeof toast === 'function') toast('📋 Texto copiado. Pegalo donde quieras.', 'ok');
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error al compartir', 'err');
+    }
   }
 
   function abrirFacebook() {
