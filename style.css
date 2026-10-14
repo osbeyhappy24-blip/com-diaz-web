@@ -2227,3 +2227,108 @@ body {
   flex-shrink: 0;
   font-size: 11px;
 }
+
+
+/* ═══════════════════════════════════════════════
+   PUBLICACIONES RAPIDAS
+   ═══════════════════════════════════════════════ */
+.posts-ref {
+  background: rgba(251,191,36,.06);
+  border: 1px solid rgba(251,191,36,.25);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.posts-ref input {
+  background: #0f1524;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+}
+.posts-ref input:focus { border-color: #fbbf24; }
+
+.posts-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.post-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: rgba(124,58,237,.08);
+  border: 1px solid rgba(124,58,237,.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+  color: #e5e7eb;
+}
+.post-btn:hover {
+  background: rgba(124,58,237,.18);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(124,58,237,.3);
+}
+.post-btn:active { transform: translateY(0) scale(.98); }
+.post-icon { font-size: 24px; }
+.post-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: #cbd5e1;
+}
+
+.posts-preview {
+  background: rgba(16,185,129,.05);
+  border: 1px solid rgba(16,185,129,.25);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.posts-preview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 800;
+  color: #10b981;
+  font-size: 13px;
+}
+.posts-texto {
+  width: 100%;
+  background: #0f1524;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-family: monospace;
+  outline: none;
+  resize: vertical;
+  min-height: 180px;
+  line-height: 1.5;
+}
+.posts-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+.posts-actions button, .posts-actions a {
+  font-size: 12px;
+  padding: 10px 6px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}

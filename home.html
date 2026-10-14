@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -494,6 +494,59 @@
       </div>
     </section>
 
+
+    <section class="card collapsible" data-card="posts" data-view="analisis" data-default="closed" id="postsCard">
+      <div class="card-head">
+        <h2>📢 Publicaciones rápidas</h2>
+        <button id="refreshPosts" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+
+        <div class="posts-ref">
+          <label style="display:block;margin-bottom:8px">
+            <span style="font-size:12px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">🏷️ Etiqueta de origen (para trackear)</span>
+            <input id="postsRef" type="text" class="pedido-input" placeholder="grupo1, facebook1, cliente-juan..." maxlength="40">
+          </label>
+          <p style="font-size:11px;color:var(--muted);margin:0 0 10px">
+            La etiqueta se añade al link (?ref=). Así sabes de dónde viene cada venta.
+          </p>
+        </div>
+
+        <div class="posts-botones">
+          <button class="post-btn" data-tipo="oferta">
+            <span class="post-icon">🔥</span>
+            <span class="post-label">Oferta del día</span>
+          </button>
+          <button class="post-btn" data-tipo="novedades">
+            <span class="post-icon">✨</span>
+            <span class="post-label">Novedades</span>
+          </button>
+          <button class="post-btn" data-tipo="destacados">
+            <span class="post-icon">⭐</span>
+            <span class="post-label">Destacados</span>
+          </button>
+          <button class="post-btn" data-tipo="promocion">
+            <span class="post-icon">🎁</span>
+            <span class="post-label">Promoción</span>
+          </button>
+        </div>
+
+        <div id="postsPreview" class="posts-preview hidden">
+          <div class="posts-preview-head">
+            <span id="postsPreviewTipo">—</span>
+            <button id="postsClosePreview" class="btn-mini">✕</button>
+          </div>
+          <textarea id="postsTexto" class="posts-texto" rows="12"></textarea>
+          <div class="posts-actions">
+            <button id="postsCopiar" class="btn-secondary">📋 Copiar</button>
+            <button id="postsWhatsapp" class="btn-primary wa">💬 WhatsApp</button>
+            <button id="postsFacebook" class="btn-primary fb" style="background:#1877f2">📘 Facebook</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <section class="card collapsible" data-card="tesoreria" data-view="analisis" data-default="open" id="tesoreriaCard">
       <div class="card-head">
         <h2>💰 Tesorería <span id="tesoreriaBalanceBadge" class="pedidos-badge">$0.00</span></h2>
@@ -603,7 +656,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=18"></script>
+  <script src="home.js?v=19"></script>
 
   
 

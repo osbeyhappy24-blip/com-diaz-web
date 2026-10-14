@@ -3685,3 +3685,111 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   setInterval(cargar, 60000); // cada minuto
   console.log('✅ Dashboard listo');
 })();
+
+
+/* ═══════════════════════════════════════════════
+   GENERADOR DE PUBLICACIONES
+   ═══════════════════════════════════════════════ */
+(function comdiaz_posts_v1(){
+  const $id = id => document.getElementById(id);
+  let ultimoTexto = '';
+
+  async function apiCall(path, opts) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, (opts && opts.headers) || {});
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  async function generar(tipo) {
+    const ref = ($id('postsRef')?.value || '').trim() || 'directo';
+    const preview = $id('postsPreview');
+    const texto = $id('postsTexto');
+    const tipoLbl = $id('postsPreviewTipo');
+    if (!preview || !texto) return;
+
+    preview.classList.remove('hidden');
+    texto.value = '⏳ Generando...';
+
+    try {
+      const r = await apiCall('/api/posts/generate', {
+        method: 'POST',
+        body: JSON.stringify({ tipo, ref })
+      });
+      if (r.ok) {
+        ultimoTexto = r.texto || '';
+        texto.value = ultimoTexto;
+        if (tipoLbl) tipoLbl.textContent = '✅ ' + (r.titulo || tipo) + ' · ref: ' + ref;
+        if (typeof toast === 'function') toast('✅ Publicación generada', 'ok');
+      } else {
+        texto.value = 'Error: ' + (r.error || 'desconocido');
+      }
+    } catch(e) {
+      texto.value = 'Error: ' + e.message;
+    }
+  }
+
+  async function copiarTexto() {
+    const t = $id('postsTexto');
+    if (!t || !t.value) return;
+    try {
+      await navigator.clipboard.writeText(t.value);
+      if (typeof toast === 'function') toast('✅ Copiado al portapapeles', 'ok');
+    } catch(e) {
+      // Fallback: seleccionar
+      t.select();
+      document.execCommand('copy');
+      if (typeof toast === 'function') toast('✅ Copiado', 'ok');
+    }
+  }
+
+  function abrirWhatsApp() {
+    const t = $id('postsTexto');
+    if (!t || !t.value) return;
+    const texto = encodeURIComponent(t.value);
+    window.open('https://wa.me/?text=' + texto, '_blank');
+  }
+
+  function abrirFacebook() {
+    const t = $id('postsTexto');
+    if (!t || !t.value) return;
+    const texto = encodeURIComponent(t.value);
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-web.onrender.com/shop.html') + '&quote=' + texto, '_blank');
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.post-btn');
+    if (btn) {
+      e.preventDefault();
+      generar(btn.dataset.tipo);
+      return;
+    }
+
+    if (e.target.closest('#postsCopiar')) {
+      e.preventDefault();
+      copiarTexto();
+      return;
+    }
+    if (e.target.closest('#postsWhatsapp')) {
+      e.preventDefault();
+      abrirWhatsApp();
+      return;
+    }
+    if (e.target.closest('#postsFacebook')) {
+      e.preventDefault();
+      abrirFacebook();
+      return;
+    }
+    if (e.target.closest('#postsClosePreview')) {
+      e.preventDefault();
+      $id('postsPreview').classList.add('hidden');
+      return;
+    }
+    if (e.target.closest('#refreshPosts')) {
+      e.preventDefault();
+      $id('postsPreview')?.classList.add('hidden');
+      return;
+    }
+  }, true);
+
+  console.log('✅ Generador de publicaciones listo');
+})();
