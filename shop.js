@@ -1307,11 +1307,50 @@ cargarCatalogo();
 // BANNER DE PROMOCIONES (comdiaz_banner_v1)
 // ═══════════════════════════════════════════════
 (function comdiaz_banner_v1(){
+  let promos = [];
+  let promoIndex = 0;
+  let rotTimer = null;
+
+  const EMOJIS = {
+    truck: '\u{1F69A}',
+    gift: '\u{1F381}',
+    star: '\u{2B50}',
+    fire: '\u{1F525}',
+    money: '\u{1F4B0}',
+    cart: '\u{1F6D2}',
+    bell: '\u{1F514}',
+    sparkles: '\u{2728}',
+    whatsapp: '\u{1F4AC}',
+    clock: '\u{23F0}',
+    rocket: '\u{1F680}'
+  };
+
   function renderBanner() {
     const box = document.getElementById('shopBanner');
     if (!box) return;
 
     const cfg = state.config || {};
+
+    promos = Array.isArray(cfg.promociones)
+      ? cfg.promociones.filter(p => p && p.activo !== false && p.texto)
+      : [];
+
+    if (promos.length > 0) {
+      box.classList.remove('hidden');
+      if (rotTimer) { clearInterval(rotTimer); rotTimer = null; }
+      promoIndex = 0;
+      mostrarPromo(0);
+      const seg = Number(cfg.rotacionSeg) || 5;
+      if (promos.length > 1) {
+        rotTimer = setInterval(() => {
+          promoIndex = (promoIndex + 1) % promos.length;
+          mostrarPromo(promoIndex);
+        }, seg * 1000);
+      }
+      return;
+    }
+
+    // Compatibilidad con el banner viejo
     const activo = cfg.bannerActivo === true;
     const texto = (cfg.bannerTexto || '').trim();
     const color = cfg.bannerColor || 'gradient';
@@ -1324,6 +1363,32 @@ cargarCatalogo();
     box.className = 'shop-banner ' + color;
     box.textContent = texto;
     box.classList.remove('hidden');
+  }
+
+  function mostrarPromo(i) {
+    const box = document.getElementById('shopBanner');
+    if (!box || !promos.length) return;
+    const p = promos[i];
+    if (!p) return;
+
+    box.style.transition = 'opacity 300ms ease, transform 300ms ease';
+    box.style.opacity = '0';
+    box.style.transform = 'translateY(-6px)';
+
+    setTimeout(() => {
+      box.className = 'shop-banner promo-' + (p.color || 'gradient');
+      const emojiKey = p.emoji || '';
+      const emojiChar = EMOJIS[emojiKey] || (emojiKey.length <= 4 ? emojiKey : '');
+      const emojiHtml = emojiChar ? '<span class="promo-emoji">' + emojiChar + '</span> ' : '';
+      const dots = promos.length > 1
+        ? '<span class="promo-dots">' + promos.map((_, idx) => idx === i ? '\u25CF' : '\u25CB').join(' ') + '</span>'
+        : '';
+      const texto = String(p.texto || '').replace(/</g, '&lt;');
+      box.innerHTML = emojiHtml + '<span class="promo-texto">' + texto + '</span>' + dots;
+      box.classList.remove('hidden');
+      box.style.opacity = '1';
+      box.style.transform = 'translateY(0)';
+    }, 300);
   }
 
   // Enganchar al cargar catálogo
