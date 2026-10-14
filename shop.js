@@ -1873,29 +1873,39 @@ cargarCatalogo();
     if (modal) modal.classList.add('hidden');
   }
 
-  async function buscar(waParam) {
+  async function buscar(waParam, idParam) {
     const wa = String(waParam || $id('pedidosWa')?.value || '').replace(/[^0-9]/g, '');
+    const pedidoId = String(idParam || $id('pedidosId')?.value || '').trim();
     if (!wa || wa.length < 8) {
       if (typeof toast === 'function') toast('Ingresa un WhatsApp valido', 'err');
       return;
     }
-    localStorage.setItem(STORAGE_KEY, wa);
+    if (!pedidoId) {
+      if (typeof toast === 'function') toast('Ingresa el ID de uno de tus pedidos', 'err');
+      return;
+    }
 
     const login = $id('pedidosLogin');
     const lista = $id('pedidosLista');
     if (login) login.classList.add('hidden');
     if (lista) {
       lista.classList.remove('hidden');
-      lista.innerHTML = '<div class="act-empty">⏳ Buscando tus pedidos…</div>';
+      lista.innerHTML = '<div class="act-empty">⏳ Verificando…</div>';
     }
 
     try {
-      const r = await fetch(API_BASE + '/api/public/orders/whatsapp/' + wa);
+      const r = await fetch(API_BASE + '/api/public/orders/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ whatsapp: wa, pedidoId: pedidoId })
+      });
       const data = await r.json();
       if (!data.ok) {
-        if (lista) lista.innerHTML = '<div class="act-empty">Error: ' + (data.error || '') + '</div>';
+        if (lista) lista.innerHTML = '<div class="act-empty" style="padding:30px 20px;text-align:center">❌ ' + (data.error || 'No autorizado') + '<br><button id="pedidosReset" class="btn-secondary" style="margin-top:14px">Intentar de nuevo</button></div>';
         return;
       }
+      // Si la verificacion paso, guardar el WA para no pedirlo cada vez
+      localStorage.setItem(STORAGE_KEY, wa);
       if (!data.pedidos.length) {
         if (lista) lista.innerHTML = '<div class="act-empty" style="padding:30px 20px;text-align:center">📭 No encontramos pedidos con este WhatsApp<br><span style="font-size:12px;color:#94a3b8">Verifica el numero o haz tu primer pedido</span><br><button id="pedidosReset" class="btn-secondary" style="margin-top:14px">Cambiar WhatsApp</button></div>';
         return;
