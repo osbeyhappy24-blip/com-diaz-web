@@ -45,6 +45,12 @@ let state = {
   searchQuery: '',
   lightboxImages: [],
   lightboxIndex: 0,
+  // Paginacion
+  paginaActual: 1,
+  totalProductos: 0,
+  hasMore: false,
+  perPage: 100,
+  cargandoPagina: false,
 };
 
 // Helper: etiqueta y clase de badge segun source
@@ -63,11 +69,15 @@ const $ = id => document.getElementById(id);
 // ─── Cargar catalogo ───
 async function cargarCatalogo() {
   try {
-    const r = await fetch(API_BASE + '/api/public/catalog?limit=3000');
+    const r = await fetch(API_BASE + '/api/public/catalog?page=1&perPage=100');
     const data = await r.json();
     if (!data.ok) throw new Error('Respuesta invalida');
 
     state.products = data.products || [];
+    state.paginaActual = 1;
+    state.totalProductos = data.total || 0;
+    state.hasMore = data.hasMore === true;
+    state.perPage = data.perPage || 100;
     state.featured = data.featured || [];
     state.categorias = data.categorias || [];
     state.config = data.config || {};
@@ -82,6 +92,31 @@ async function cargarCatalogo() {
   } catch (e) {
     console.error('Error cargando catalogo:', e);
     $('loading').innerHTML = '<p>Error al cargar. Verifica tu conexion.</p>';
+  }
+}
+
+// ─── Cargar siguiente página desde el backend ───
+async function cargarMasProductos() {
+  if (!state.hasMore) return false;
+  if (state.cargandoPagina) return false;
+  state.cargandoPagina = true;
+  try {
+    const nextPage = (state.paginaActual || 1) + 1;
+    const r = await fetch(API_BASE + '/api/public/catalog?page=' + nextPage + '&perPage=' + (state.perPage || 100));
+    const data = await r.json();
+    if (!data.ok) return false;
+    const nuevos = data.products || [];
+    const existentes = new Set(state.products.map(p => p.id));
+    const sinDup = nuevos.filter(p => !existentes.has(p.id));
+    state.products = state.products.concat(sinDup);
+    state.paginaActual = nextPage;
+    state.totalProductos = data.total || state.totalProductos;
+    state.hasMore = data.hasMore === true;
+    return true;
+  } catch(e) {
+    return false;
+  } finally {
+    state.cargandoPagina = false;
   }
 }
 
@@ -1069,8 +1104,27 @@ cargarCatalogo();
 
     // Ver más
     if (t.id === 'loadMoreBtn' || (t.closest && t.closest('#loadMoreBtn'))) {
-      productosMostrados += INCREMENTO;
-      renderPaginado();
+      e.preventDefault();
+      const btn = $id('loadMoreBtn');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando...'; }
+      (async () => {
+        // Si hay más en la página local, mostrar
+        if (productosMostrados < (state.filtered ? state.filtered.length : 0)) {
+          productosMostrados += INCREMENTO;
+          renderPaginado();
+        } else if (state.hasMore) {
+          // Si no, pedir siguiente página al servidor
+          const ok = await cargarMasProductos();
+          if (ok) {
+            // Re-renderizar todo
+            if (typeof aplicarFiltros === 'function') aplicarFiltros();
+            productosMostrados += INCREMENTO;
+            renderPaginado();
+          }
+        }
+        const b = $id('loadMoreBtn');
+        if (b) { b.disabled = false; b.textContent = 'Ver más productos'; }
+      })();
       return;
     }
   });
