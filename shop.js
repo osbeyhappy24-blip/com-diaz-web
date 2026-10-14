@@ -63,7 +63,7 @@ const $ = id => document.getElementById(id);
 // ─── Cargar catalogo ───
 async function cargarCatalogo() {
   try {
-    const r = await fetch(API_BASE + '/api/public/catalog');
+    const r = await fetch(API_BASE + '/api/public/catalog?limit=3000');
     const data = await r.json();
     if (!data.ok) throw new Error('Respuesta invalida');
 
@@ -883,8 +883,8 @@ cargarCatalogo();
   let ordenActual = 'default';
   let precioMin = 0;
   let precioMax = 999999;
-  let productosMostrados = 20;
-  const INCREMENTO = 20;
+  let productosMostrados = 40;
+  const INCREMENTO = 60;
 
   // ─── Aplicar orden y filtros a la lista filtrada ───
   function aplicarOrdenYFiltros() {
@@ -911,7 +911,7 @@ cargarCatalogo();
     }
 
     state.filteredOrdenados = lista;
-    productosMostrados = 20;
+    productosMostrados = 40;
     renderPaginado();
     actualizarContadores();
   }
