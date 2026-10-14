@@ -3201,3 +3201,247 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     setTimeout(init, 100);
   }
 })();
+
+
+/* ═══════════════════════════════════════════════
+   TESORERIA — Panel admin
+   ═══════════════════════════════════════════════ */
+(function comdiaz_tesoreria_v1(){
+  const $id = id => document.getElementById(id);
+  let periodoActual = 'hoy';
+  let movimientos = [];
+
+  async function apiCall(path, opts) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, (opts && opts.headers) || {});
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  async function cargarStats() {
+    try {
+      const r = await apiCall('/api/tesoreria/stats');
+      if (!r.ok) return;
+      const p = r[periodoActual] || r.hoy;
+      const ing = $id('tesIngresos');
+      const egr = $id('tesEgresos');
+      const gan = $id('tesGanancia');
+      const movs = $id('tesTotalMovs');
+      const badge = $id('tesoreriaBalanceBadge');
+      if (ing) ing.textContent = '$' + Number(p.ingresos || 0).toFixed(2);
+      if (egr) egr.textContent = '$' + Number(p.egresos || 0).toFixed(2);
+      if (gan) gan.textContent = '$' + Number(p.ganancia || 0).toFixed(2);
+      if (movs) movs.textContent = p.movimientos || 0;
+      if (badge) {
+        badge.textContent = '$' + Number(r.balance || 0).toFixed(2);
+        if (r.balance > 0) badge.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        else if (r.balance < 0) badge.style.background = 'linear-gradient(135deg,#ef4444,#dc2626)';
+        else badge.style.background = 'linear-gradient(135deg,#64748b,#475569)';
+      }
+    } catch(e) {}
+  }
+
+  async function cargarMovimientos() {
+    const box = $id('tesoreriaLista');
+    if (!box) return;
+    try {
+      const r = await apiCall('/api/tesoreria/movimientos');
+      movimientos = r.movimientos || [];
+      renderMovimientos();
+    } catch(e) {
+      box.innerHTML = '<div class="act-empty">Error: ' + e.message + '</div>';
+    }
+  }
+
+  function renderMovimientos() {
+    const box = $id('tesoreriaLista');
+    if (!box) return;
+    if (!movimientos.length) {
+      box.innerHTML = '<div class="act-empty">Sin movimientos</div>';
+      return;
+    }
+    box.innerHTML = movimientos.slice(0, 50).map(m => {
+      const esIng = m.tipo === 'ingreso';
+      const fecha = new Date(m.fecha || m.createdAt).toLocaleDateString('es', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      const icon = esIng ? '+' : '−';
+      const desc = (m.descripcion || '').replace(/</g,'&lt;').slice(0, 60) || (m.categoria || 'Movimiento');
+      return '<div class="mov-item mov-' + m.tipo + '" data-id="' + m.id + '">' +
+        '<div class="mov-icon">' + icon + '</div>' +
+        '<div class="mov-info">' +
+          '<div class="mov-desc">' + desc + '</div>' +
+          '<div class="mov-fecha">' + fecha + ' · ' + (m.categoria || 'otro') + '</div>' +
+        '</div>' +
+        '<div class="mov-monto">' + (esIng ? '+' : '−') + '$' + Number(m.monto || 0).toFixed(2) + '</div>' +
+        '<button class="mov-del" data-del="' + m.id + '" title="Eliminar">✕</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function crearMovimiento() {
+    const tipo = $id('tesTipo')?.value;
+    const categoria = $id('tesCategoria')?.value;
+    const monto = Number($id('tesMonto')?.value);
+    const descripcion = ($id('tesDescripcion')?.value || '').trim();
+    const fechaInput = $id('tesFecha')?.value;
+
+    if (!monto || monto <= 0) {
+      if (typeof toast === 'function') toast('Ingresa un monto válido', 'err');
+      return;
+    }
+
+    const body = { tipo, categoria, monto, descripcion };
+    if (fechaInput) body.fecha = new Date(fechaInput + 'T12:00:00').toISOString();
+
+    try {
+      const r = await apiCall('/api/tesoreria/movimientos', {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      if (r.ok) {
+        if (typeof toast === 'function') toast('✅ Movimiento guardado', 'ok');
+        $id('tesoreriaModal').classList.add('hidden');
+        await cargarStats();
+        await cargarMovimientos();
+      } else {
+        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  async function eliminarMovimiento(id) {
+    if (!confirm('¿Eliminar el movimiento ' + id + '?')) return;
+    const idx = movimientos.findIndex(m => m.id === id);
+    const backup = idx !== -1 ? movimientos[idx] : null;
+    if (idx !== -1) movimientos.splice(idx, 1);
+    renderMovimientos();
+    try {
+      const r = await apiCall('/api/tesoreria/movimientos/' + id, { method: 'DELETE' });
+      if (!r.ok && backup) {
+        movimientos.splice(idx, 0, backup);
+        renderMovimientos();
+        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
+      } else {
+        if (typeof toast === 'function') toast('✅ Movimiento eliminado', 'ok');
+        await cargarStats();
+      }
+    } catch(e) {
+      if (backup) {
+        movimientos.splice(idx, 0, backup);
+        renderMovimientos();
+      }
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  async function descargarPDF() {
+    if (typeof toast === 'function') toast('⏳ Generando PDF…', 'ok');
+    try {
+      const r = await apiCall('/api/tesoreria/stats');
+      if (!r.ok) throw new Error('Error stats');
+      const movs = await apiCall('/api/tesoreria/movimientos');
+      generarPDFLocal(r, movs.movimientos || []);
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  function generarPDFLocal(stats, movs) {
+    // Generar un HTML simple y abrirlo en nueva ventana para imprimir
+    const hoy = new Date().toLocaleDateString('es');
+    const filas = movs.slice(0, 200).map(m => {
+      const fecha = new Date(m.fecha || m.createdAt).toLocaleDateString('es');
+      return '<tr>' +
+        '<td>' + fecha + '</td>' +
+        '<td>' + (m.tipo === 'ingreso' ? 'Ingreso' : 'Egreso') + '</td>' +
+        '<td>' + (m.categoria || '') + '</td>' +
+        '<td>' + (m.descripcion || '').replace(/</g,'&lt;').slice(0,80) + '</td>' +
+        '<td style="text-align:right">' + (m.tipo === 'ingreso' ? '+' : '−') + '$' + Number(m.monto || 0).toFixed(2) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    const html = '<!doctype html><html><head><meta charset="utf-8"><title>Tesorería Comdiaz - ' + hoy + '</title>' +
+      '<style>body{font-family:Arial,sans-serif;padding:20px;color:#333}h1{color:#7c3aed}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{padding:8px;border-bottom:1px solid #ddd;font-size:12px}th{background:#7c3aed;color:#fff;text-align:left}.stats{display:flex;gap:20px;margin:20px 0}.stat{background:#f5f5f5;padding:15px;border-radius:8px;flex:1}.stat-label{color:#666;font-size:11px;text-transform:uppercase}.stat-value{font-size:22px;font-weight:800;color:#7c3aed;margin-top:5px}.total-row{background:#f0f0f0;font-weight:800}</style></head><body>' +
+      '<h1>Comdiaz Shop - Tesorería</h1>' +
+      '<p>Generado: ' + hoy + '</p>' +
+      '<div class="stats">' +
+        '<div class="stat"><div class="stat-label">Balance Total</div><div class="stat-value">$' + stats.balance.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="stat-label">Ingresos (Total)</div><div class="stat-value" style="color:#10b981">$' + stats.total.ingresos.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="stat-label">Egresos (Total)</div><div class="stat-value" style="color:#ef4444">$' + stats.total.egresos.toFixed(2) + '</div></div>' +
+        '<div class="stat"><div class="stat-label">Ganancia</div><div class="stat-value" style="color:#7c3aed">$' + stats.total.ganancia.toFixed(2) + '</div></div>' +
+      '</div>' +
+      '<table><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th style="text-align:right">Monto</th></tr></thead><tbody>' +
+      filas + '</tbody></table>' +
+      '</body></html>';
+
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.write(html);
+      w.document.close();
+      setTimeout(() => w.print(), 500);
+    } else {
+      if (typeof toast === 'function') toast('Permite ventanas emergentes para el PDF', 'err');
+    }
+  }
+
+  // Listeners
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#refreshTesoreria')) {
+      e.preventDefault();
+      cargarStats();
+      cargarMovimientos();
+      return;
+    }
+
+    const filtro = e.target.closest('#tesoreriaPeriodos .filter-btn');
+    if (filtro) {
+      document.querySelectorAll('#tesoreriaPeriodos .filter-btn').forEach(b => b.classList.remove('active'));
+      filtro.classList.add('active');
+      periodoActual = filtro.dataset.periodo || 'hoy';
+      cargarStats();
+      return;
+    }
+
+    if (e.target.closest('#nuevoMovimientoBtn')) {
+      e.preventDefault();
+      const f = $id('tesFecha');
+      if (f) f.value = new Date().toISOString().slice(0, 10);
+      $id('tesMonto').value = '';
+      $id('tesDescripcion').value = '';
+      $id('tesoreriaModal').classList.remove('hidden');
+      return;
+    }
+
+    if (e.target.closest('#closeTesoreriaModal')) {
+      $id('tesoreriaModal').classList.add('hidden');
+      return;
+    }
+
+    if (e.target.closest('#guardarMovimiento')) {
+      e.preventDefault();
+      crearMovimiento();
+      return;
+    }
+
+    if (e.target.closest('#descargarPDFBtn')) {
+      e.preventDefault();
+      descargarPDF();
+      return;
+    }
+
+    const del = e.target.closest('[data-del]');
+    if (del) {
+      e.preventDefault();
+      eliminarMovimiento(del.dataset.del);
+      return;
+    }
+  }, true);
+
+  // Arranque
+  setTimeout(() => {
+    cargarStats();
+    cargarMovimientos();
+  }, 2500);
+
+  console.log('✅ Tesorería lista');
+})();

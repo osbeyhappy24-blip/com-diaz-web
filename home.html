@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -407,6 +407,57 @@
       </div>
     </section>
 
+
+    <section class="card collapsible" data-card="tesoreria" data-view="analisis" data-default="open" id="tesoreriaCard">
+      <div class="card-head">
+        <h2>💰 Tesorería <span id="tesoreriaBalanceBadge" class="pedidos-badge">$0.00</span></h2>
+        <button id="refreshTesoreria" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+        <div class="tesoreria-stats" id="tesoreriaStats">
+          <div class="tes-stat tes-ingreso">
+            <div class="tes-icon">💵</div>
+            <div class="tes-label">Ingresos</div>
+            <div class="tes-value" id="tesIngresos">$0.00</div>
+          </div>
+          <div class="tes-stat tes-egreso">
+            <div class="tes-icon">💸</div>
+            <div class="tes-label">Egresos</div>
+            <div class="tes-value" id="tesEgresos">$0.00</div>
+          </div>
+          <div class="tes-stat tes-ganancia">
+            <div class="tes-icon">📈</div>
+            <div class="tes-label">Ganancia</div>
+            <div class="tes-value" id="tesGanancia">$0.00</div>
+          </div>
+          <div class="tes-stat tes-movimientos">
+            <div class="tes-icon">🔢</div>
+            <div class="tes-label">Movimientos</div>
+            <div class="tes-value" id="tesTotalMovs">0</div>
+          </div>
+        </div>
+
+        <div class="act-filters" id="tesoreriaPeriodos">
+          <button class="filter-btn active" data-periodo="hoy">Hoy</button>
+          <button class="filter-btn" data-periodo="semana">Semana</button>
+          <button class="filter-btn" data-periodo="quincena">Quincena</button>
+          <button class="filter-btn" data-periodo="mes">Mes</button>
+          <button class="filter-btn" data-periodo="ano">Año</button>
+          <button class="filter-btn" data-periodo="total">Todo</button>
+        </div>
+
+        <div class="tesoreria-acciones">
+          <button id="nuevoMovimientoBtn" class="btn-primary">➕ Nuevo movimiento</button>
+          <button id="descargarPDFBtn" class="btn-secondary">📄 Exportar PDF</button>
+        </div>
+
+        <div class="import-subtitle">Últimos movimientos:</div>
+        <div id="tesoreriaLista" class="tesoreria-lista">
+          <div class="act-empty">Cargando movimientos…</div>
+        </div>
+      </div>
+    </section>
+
     <section class="card collapsible" data-card="pedidos" data-view="pedidos" data-default="closed" id="pedidosCard">
       <div class="card-head">
         <h2>📦 Pedidos <span id="pedidosCount" class="pedidos-badge">0</span></h2>
@@ -466,7 +517,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=14"></script>
+  <script src="home.js?v=15"></script>
 
   
 
@@ -625,6 +676,52 @@
     <span class="nav-label">Análisis</span>
   </button>
 </nav>
+
+
+<div id="tesoreriaModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>➕ Nuevo movimiento</h3>
+      <button id="closeTesoreriaModal" class="btn-mini">✕</button>
+    </div>
+
+    <div class="pedido-edit-grid">
+      <label>
+        <span>Tipo</span>
+        <select id="tesTipo" class="pedido-input">
+          <option value="ingreso">💵 Ingreso</option>
+          <option value="egreso">💸 Egreso</option>
+        </select>
+      </label>
+      <label>
+        <span>Categoría</span>
+        <select id="tesCategoria" class="pedido-input">
+          <option value="venta">Venta</option>
+          <option value="compra">Compra a proveedor</option>
+          <option value="envio">Envío / Logística</option>
+          <option value="cancelacion">Cancelación / Reembolso</option>
+          <option value="otro">Otro</option>
+        </select>
+      </label>
+      <label>
+        <span>Monto (USD)</span>
+        <input id="tesMonto" type="number" class="pedido-input" placeholder="0.00" step="0.01" min="0">
+      </label>
+      <label>
+        <span>Fecha</span>
+        <input id="tesFecha" type="date" class="pedido-input">
+      </label>
+      <label style="grid-column:1/-1">
+        <span>Descripción (opcional)</span>
+        <input id="tesDescripcion" type="text" class="pedido-input" placeholder="Ej: Compra iPhone para pedido CD-2026-0045" maxlength="200">
+      </label>
+    </div>
+
+    <div class="modal-foot" style="grid-template-columns:1fr">
+      <button id="guardarMovimiento" class="btn-primary">💾 Guardar movimiento</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

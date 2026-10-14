@@ -1889,3 +1889,131 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+
+/* ═══════════════════════════════════════════════
+   TESORERIA
+   ═══════════════════════════════════════════════ */
+.tesoreria-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.tes-stat {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  transition: all .2s;
+}
+.tes-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+.tes-icon { font-size: 22px; margin-bottom: 4px; }
+.tes-label {
+  font-size: 10.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tes-value {
+  font-size: 17px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: -.02em;
+}
+.tes-ingreso { border-color: rgba(16,185,129,.3); }
+.tes-ingreso .tes-value { color: #34d399; }
+.tes-egreso { border-color: rgba(239,68,68,.3); }
+.tes-egreso .tes-value { color: #f87171; }
+.tes-ganancia { border-color: rgba(124,58,237,.3); }
+.tes-ganancia .tes-value { color: #a78bfa; }
+.tes-movimientos { border-color: rgba(100,116,139,.3); }
+.tes-movimientos .tes-value { color: #cbd5e1; }
+
+.tesoreria-acciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+.tesoreria-acciones button { font-size: 12.5px; padding: 10px; }
+
+.tesoreria-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.tesoreria-lista::-webkit-scrollbar{width:4px}
+.tesoreria-lista::-webkit-scrollbar-thumb{background:rgba(100,116,139,.3);border-radius:4px}
+
+.mov-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all .15s;
+}
+.mov-item:hover {
+  background: rgba(255,255,255,.05);
+}
+.mov-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.mov-ingreso .mov-icon { background: rgba(16,185,129,.15); color: #34d399; }
+.mov-egreso .mov-icon { background: rgba(239,68,68,.15); color: #f87171; }
+.mov-info { flex: 1; min-width: 0; }
+.mov-desc {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.mov-fecha {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.mov-monto {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: monospace;
+  flex-shrink: 0;
+}
+.mov-ingreso .mov-monto { color: #34d399; }
+.mov-egreso .mov-monto { color: #f87171; }
+.mov-del {
+  background: transparent;
+  border: none;
+  color: rgba(239,68,68,.6);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: all .15s;
+}
+.mov-del:hover {
+  background: rgba(239,68,68,.15);
+  color: #ef4444;
+}
