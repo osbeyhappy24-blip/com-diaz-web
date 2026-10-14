@@ -2752,7 +2752,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       // ─── Servidor en background (no bloquea UI) ───
       (async () => {
         try {
-          const r = await api('/api/orders/' + idEliminar, { method: 'DELETE' });
+          const r = await api('/api/orders/' + idEliminar + '/delete', { method: 'POST' });
           if (!r.ok) {
             // Revertir si fallo
             if (backup) pedidos.splice(backupIdx, 0, backup);
