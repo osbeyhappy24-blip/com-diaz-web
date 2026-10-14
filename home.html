@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -244,6 +244,18 @@
               <option value="blue">Azul</option>
             </select>
           </label>
+
+          <div style="padding:10px 12px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:10px;margin-top:12px">
+            <div style="font-weight:800;color:#a78bfa;margin-bottom:8px">🌐 Promociones rotativas (nuevo)</div>
+            <div id="promocionesList" class="promociones-list">
+              <div class="act-empty">Cargando promociones…</div>
+            </div>
+            <button id="addPromoBtn" class="btn-secondary" style="width:100%;margin-top:8px;background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.4)">➕ Añadir promoción</button>
+            <label style="margin-top:8px;display:block">
+              <span style="display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:4px">Rotación cada (segundos)</span>
+              <input id="shopRotacionSeg" type="number" min="2" max="30" value="5" class="pedido-input">
+            </label>
+          </div>
           <label>
             <span>Máximo de productos</span>
 

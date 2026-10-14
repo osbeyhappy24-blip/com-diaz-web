@@ -2037,3 +2037,69 @@ body {
   border-color: transparent !important;
   box-shadow: 0 4px 12px rgba(124,58,237,.3) !important;
 }
+
+
+/* ═══════════════════════════════════════════════
+   PROMOCIONES ROTATIVAS - Panel admin
+   ═══════════════════════════════════════════════ */
+.promociones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.promo-item {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 30px 30px;
+  gap: 6px;
+  align-items: center;
+  padding: 8px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.promo-item.inactivo {
+  opacity: .5;
+}
+.promo-emoji-sel {
+  font-size: 18px;
+  text-align: center;
+  background: #0f1524;
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 6px 4px;
+  border-radius: 8px;
+  width: 100%;
+}
+.promo-texto-inp {
+  font-size: 12px !important;
+  padding: 6px 8px !important;
+}
+.promo-color-sel {
+  font-size: 11px;
+  padding: 6px !important;
+  background: #0f1524;
+  border: 1px solid var(--border);
+  color: #fff;
+  border-radius: 8px;
+}
+.promo-check {
+  width: auto;
+  margin: 0;
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+.promo-del {
+  background: rgba(239,68,68,.15);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.promo-del:hover {
+  background: rgba(239,68,68,.25);
+}

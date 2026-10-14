@@ -3452,3 +3452,145 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Tesorería lista');
 })();
+
+
+/* ═══════════════════════════════════════════════
+   PROMOCIONES ROTATIVAS - Panel admin
+   ═══════════════════════════════════════════════ */
+(function comdiaz_promos_panel_v1(){
+  const $id = id => document.getElementById(id);
+
+  const EMOJIS = [
+    { k: 'truck', v: '🚚' },
+    { k: 'gift', v: '🎁' },
+    { k: 'star', v: '⭐' },
+    { k: 'fire', v: '🔥' },
+    { k: 'money', v: '💰' },
+    { k: 'cart', v: '🛒' },
+    { k: 'bell', v: '🔔' },
+    { k: 'sparkles', v: '✨' },
+    { k: 'whatsapp', v: '💬' },
+    { k: 'clock', v: '⏰' },
+    { k: 'rocket', v: '🚀' }
+  ];
+
+  const COLORES = ['gradient', 'green', 'orange', 'red', 'blue', 'dark'];
+
+  let promos = [];
+
+  async function apiCall(path, opts) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, (opts && opts.headers) || {});
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  function render() {
+    const box = $id('promocionesList');
+    if (!box) return;
+    if (!promos.length) {
+      box.innerHTML = '<div class="act-empty">Sin promociones. Añade una.</div>';
+      return;
+    }
+    box.innerHTML = promos.map((p, i) => {
+      const emojiOpts = EMOJIS.map(e =>
+        '<option value="' + e.k + '"' + (p.emoji === e.k ? ' selected' : '') + '>' + e.v + '</option>'
+      ).join('');
+      const colorOpts = COLORES.map(c =>
+        '<option value="' + c + '"' + ((p.color || 'gradient') === c ? ' selected' : '') + '>' + c + '</option>'
+      ).join('');
+      return '<div class="promo-item' + (p.activo === false ? ' inactivo' : '') + '" data-i="' + i + '">' +
+        '<select class="promo-emoji-sel" data-emoji="' + i + '">' + emojiOpts + '</select>' +
+        '<input type="text" class="pedido-input promo-texto-inp" data-texto="' + i + '" value="' + String(p.texto || '').replace(/"/g, '&quot;') + '" maxlength="80">' +
+        '<select class="promo-color-sel" data-color="' + i + '">' + colorOpts + '</select>' +
+        '<input type="checkbox" class="promo-check" data-activo="' + i + '"' + (p.activo !== false ? ' checked' : '') + ' title="Activo">' +
+        '<button class="promo-del" data-del="' + i + '" title="Eliminar">🗑️</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function cargar() {
+    try {
+      const r = await apiCall('/api/import/config');
+      // Cargar desde state (shopConfig)
+      const s = await apiCall('/api/state');
+      const cfg = s.shopConfig || {};
+      promos = Array.isArray(cfg.promociones) ? JSON.parse(JSON.stringify(cfg.promociones)) : [];
+      const rot = $id('shopRotacionSeg');
+      if (rot) rot.value = cfg.rotacionSeg || 5;
+      render();
+    } catch(e) {}
+  }
+
+  async function guardar() {
+    // Recolectar del DOM (por si el usuario editó sin eventos)
+    const items = document.querySelectorAll('.promo-item');
+    const nuevas = [];
+    items.forEach((it, i) => {
+      const emoji = it.querySelector('[data-emoji]')?.value || 'star';
+      const texto = it.querySelector('[data-texto]')?.value?.trim() || '';
+      const color = it.querySelector('[data-color]')?.value || 'gradient';
+      const activo = it.querySelector('[data-activo]')?.checked !== false;
+      if (texto) nuevas.push({ id: 'p' + (i+1) + '-' + Date.now(), emoji, texto, color, activo });
+    });
+    const rotacionSeg = Number($id('shopRotacionSeg')?.value) || 5;
+
+    try {
+      const r = await apiCall('/api/shop-config', {
+        method: 'POST',
+        body: JSON.stringify({ promociones: nuevas, rotacionSeg })
+      });
+      if (r.ok) {
+        promos = nuevas;
+        if (typeof toast === 'function') toast('✅ Promociones guardadas', 'ok');
+      } else {
+        if (typeof toast === 'function') toast('Error: ' + (r.error || ''), 'err');
+      }
+    } catch(e) {
+      if (typeof toast === 'function') toast('Error: ' + e.message, 'err');
+    }
+  }
+
+  function addPromo() {
+    promos.push({ id: 'p' + Date.now(), emoji: 'star', texto: 'Nueva promoción', color: 'gradient', activo: true });
+    render();
+  }
+
+  function delPromo(i) {
+    promos.splice(i, 1);
+    render();
+  }
+
+  // Listeners
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#addPromoBtn')) {
+      e.preventDefault();
+      addPromo();
+      return;
+    }
+    const del = e.target.closest('[data-del]');
+    if (del) {
+      e.preventDefault();
+      delPromo(Number(del.dataset.del));
+      return;
+    }
+    // Guardar (reutilizar el botón existente de guardar config)
+    if (e.target.closest('#guardarConfigShop')) {
+      // El handler original corre, pero forzamos también guardar promos
+      setTimeout(guardar, 100);
+      return;
+    }
+  }, true);
+
+  // Inputs: cambios en emoji/texto/color/activo se guardan al tocar Guardar
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.matches('[data-activo]')) {
+      const i = Number(t.dataset.activo);
+      if (promos[i]) promos[i].activo = t.checked;
+      render();
+    }
+  }, true);
+
+  setTimeout(cargar, 2500);
+  console.log('✅ Panel de promociones listo');
+})();
