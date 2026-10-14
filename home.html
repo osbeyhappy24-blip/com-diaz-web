@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -420,6 +420,80 @@
     </section>
 
 
+
+    <section class="card collapsible" data-card="dashboard" data-view="analisis" data-default="open" id="dashboardCard">
+      <div class="card-head">
+        <h2>📊 Estadísticas Shop <span id="dashboardBadge" class="pedidos-badge">—</span></h2>
+        <button id="refreshDashboard" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+
+        <div class="dash-grid">
+          <div class="dash-stat">
+            <div class="dash-icon">📱</div>
+            <div class="dash-value" id="dashApps">0</div>
+            <div class="dash-label">Apps instaladas</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-icon">👥</div>
+            <div class="dash-value" id="dashActivos7d">0</div>
+            <div class="dash-label">Activos 7 días</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-icon">🌐</div>
+            <div class="dash-value" id="dashWeb">0</div>
+            <div class="dash-label">Solo web</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-icon">🛒</div>
+            <div class="dash-value" id="dashPedidos">0</div>
+            <div class="dash-label">Pedidos</div>
+          </div>
+        </div>
+
+        <div class="dash-conversion">
+          <div class="dash-conv-row">
+            <span>📈 Tasa de conversión</span>
+            <strong id="dashConversion">0%</strong>
+          </div>
+          <div class="dash-conv-bar">
+            <div class="dash-conv-fill" id="dashConvBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="import-subtitle">👁️ Visitas</div>
+        <div class="dash-visits">
+          <div class="dash-visita-item">
+            <span class="dash-visita-lbl">Hoy</span>
+            <span class="dash-visita-val" id="dashVisitasHoy">0</span>
+          </div>
+          <div class="dash-visita-item">
+            <span class="dash-visita-lbl">7 días</span>
+            <span class="dash-visita-val" id="dashVisitas7d">0</span>
+          </div>
+          <div class="dash-visita-item">
+            <span class="dash-visita-lbl">30 días</span>
+            <span class="dash-visita-val" id="dashVisitas30d">0</span>
+          </div>
+          <div class="dash-visita-item">
+            <span class="dash-visita-lbl">Total</span>
+            <span class="dash-visita-val" id="dashVisitasTotal">0</span>
+          </div>
+        </div>
+
+        <div class="import-subtitle">🔥 Top 5 productos más vistos</div>
+        <div id="dashTopProductos" class="dash-lista">
+          <div class="act-empty">Cargando…</div>
+        </div>
+
+        <div class="import-subtitle">🔗 Fuentes de tráfico (referidos)</div>
+        <div id="dashReferidos" class="dash-lista">
+          <div class="act-empty">Sin datos. Usa links con ?ref=grupo1</div>
+        </div>
+
+      </div>
+    </section>
+
     <section class="card collapsible" data-card="tesoreria" data-view="analisis" data-default="open" id="tesoreriaCard">
       <div class="card-head">
         <h2>💰 Tesorería <span id="tesoreriaBalanceBadge" class="pedidos-badge">$0.00</span></h2>
@@ -529,7 +603,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=17"></script>
+  <script src="home.js?v=18"></script>
 
   
 

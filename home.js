@@ -3594,3 +3594,94 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   setTimeout(cargar, 2500);
   console.log('✅ Panel de promociones listo');
 })();
+
+
+/* ═══════════════════════════════════════════════
+   DASHBOARD ESTADISTICAS SHOP
+   ═══════════════════════════════════════════════ */
+(function comdiaz_dashboard_v1(){
+  const $id = id => document.getElementById(id);
+
+  async function apiCall(path, opts) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, (opts && opts.headers) || {});
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  async function cargar() {
+    try {
+      const d = await apiCall('/api/stats/dashboard');
+      if (!d.ok) return;
+
+      // Dispositivos
+      $id('dashApps').textContent = d.dispositivos.appsInstaladas || 0;
+      $id('dashActivos7d').textContent = d.dispositivos.activos7d || 0;
+      $id('dashWeb').textContent = d.dispositivos.web || 0;
+      $id('dashPedidos').textContent = d.pedidos.total || 0;
+
+      const badge = $id('dashboardBadge');
+      if (badge) {
+        badge.textContent = (d.dispositivos.total || 0) + ' disp · ' + (d.pedidos.total || 0) + ' ped';
+      }
+
+      // Conversión
+      const conv = Number(d.pedidos.tasaConversion) || 0;
+      $id('dashConversion').textContent = conv.toFixed(2) + '%';
+      const bar = $id('dashConvBar');
+      if (bar) bar.style.width = Math.min(conv * 5, 100) + '%';
+
+      // Visitas
+      $id('dashVisitasHoy').textContent = d.visitas.hoy || 0;
+      $id('dashVisitas7d').textContent = d.visitas.ultimos7d || 0;
+      $id('dashVisitas30d').textContent = d.visitas.ultimos30d || 0;
+      $id('dashVisitasTotal').textContent = d.visitas.total || 0;
+
+      // Top productos
+      const topBox = $id('dashTopProductos');
+      if (topBox) {
+        if (!d.topProductos.length) {
+          topBox.innerHTML = '<div class="act-empty">Sin datos aún</div>';
+        } else {
+          topBox.innerHTML = d.topProductos.map((p, i) => 
+            '<div class="dash-item">' +
+              '<span style="color:#a78bfa;font-weight:800">#' + (i+1) + '</span>' +
+              '<span class="dash-item-titulo">' + (p.title || p.id).replace(/</g, '&lt;').slice(0, 50) + '</span>' +
+              '<span class="dash-item-count">' + p.count + '</span>' +
+            '</div>'
+          ).join('');
+        }
+      }
+
+      // Referidos
+      const refBox = $id('dashReferidos');
+      if (refBox) {
+        if (!d.referidos.length) {
+          refBox.innerHTML = '<div class="act-empty">Sin datos. Comparte links con ?ref=grupo1</div>';
+        } else {
+          refBox.innerHTML = d.referidos.map(r =>
+            '<div class="dash-item">' +
+              '<span class="dash-item-ref">' + r.ref + '</span>' +
+              '<span class="dash-item-titulo">' + (r.pedidos || 0) + ' pedidos</span>' +
+              '<span class="dash-item-count">' + r.visitas + ' visitas</span>' +
+            '</div>'
+          ).join('');
+        }
+      }
+
+    } catch(e) {
+      console.error('Error dashboard:', e);
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#refreshDashboard')) {
+      e.preventDefault();
+      cargar();
+      return;
+    }
+  }, true);
+
+  setTimeout(cargar, 2500);
+  setInterval(cargar, 60000); // cada minuto
+  console.log('✅ Dashboard listo');
+})();
