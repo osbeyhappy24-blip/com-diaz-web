@@ -1836,3 +1836,152 @@ cargarCatalogo();
 
   console.log('✅ Push frontend listo');
 })();
+
+/* ═══════════════════════════════════════════════
+   MIS PEDIDOS - Historial para clientes
+   ═══════════════════════════════════════════════ */
+(function comdiaz_mis_pedidos_v1(){
+  const $id = id => document.getElementById(id);
+  const STORAGE_KEY = 'comdiaz_my_wa';
+
+  const ESTADOS = {
+    pendiente_pago: { lbl: '⏳ Pendiente de pago', color: '#f59e0b', bg: 'rgba(245,158,11,.15)' },
+    pagado: { lbl: '💵 Pago confirmado', color: '#10b981', bg: 'rgba(16,185,129,.15)' },
+    en_transito: { lbl: '✈️ En camino a Cuba', color: '#3b82f6', bg: 'rgba(59,130,246,.15)' },
+    en_cuba: { lbl: '🇨🇺 En Cuba', color: '#ec4899', bg: 'rgba(236,72,153,.15)' },
+    listo_recoger: { lbl: '✅ Listo para recoger', color: '#7c3aed', bg: 'rgba(124,58,237,.15)' },
+    entregado: { lbl: '🎉 Entregado', color: '#059669', bg: 'rgba(16,185,129,.25)' },
+    cancelado: { lbl: '❌ Cancelado', color: '#ef4444', bg: 'rgba(239,68,68,.15)' }
+  };
+
+  function abrirModal() {
+    const modal = $id('pedidosModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    const waGuardado = localStorage.getItem(STORAGE_KEY);
+    if (waGuardado) {
+      $id('pedidosWa').value = waGuardado;
+      buscar(waGuardado);
+    } else {
+      $id('pedidosLogin').classList.remove('hidden');
+      $id('pedidosLista').classList.add('hidden');
+    }
+  }
+
+  function cerrarModal() {
+    const modal = $id('pedidosModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async function buscar(waParam) {
+    const wa = String(waParam || $id('pedidosWa')?.value || '').replace(/[^0-9]/g, '');
+    if (!wa || wa.length < 8) {
+      if (typeof toast === 'function') toast('Ingresa un WhatsApp valido', 'err');
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, wa);
+
+    const login = $id('pedidosLogin');
+    const lista = $id('pedidosLista');
+    if (login) login.classList.add('hidden');
+    if (lista) {
+      lista.classList.remove('hidden');
+      lista.innerHTML = '<div class="act-empty">⏳ Buscando tus pedidos…</div>';
+    }
+
+    try {
+      const r = await fetch(API_BASE + '/api/public/orders/whatsapp/' + wa);
+      const data = await r.json();
+      if (!data.ok) {
+        if (lista) lista.innerHTML = '<div class="act-empty">Error: ' + (data.error || '') + '</div>';
+        return;
+      }
+      if (!data.pedidos.length) {
+        if (lista) lista.innerHTML = '<div class="act-empty" style="padding:30px 20px;text-align:center">📭 No encontramos pedidos con este WhatsApp<br><span style="font-size:12px;color:#94a3b8">Verifica el numero o haz tu primer pedido</span><br><button id="pedidosReset" class="btn-secondary" style="margin-top:14px">Cambiar WhatsApp</button></div>';
+        return;
+      }
+
+      const waMostrado = data.whatsapp || wa;
+      let html = '<div style="font-size:12px;color:#6b7280;margin-bottom:12px;text-align:center">Mostrando pedidos de <b style="color:#7c3aed">' + waMostrado + '</b> · ' + data.pedidos.length + ' pedido' + (data.pedidos.length !== 1 ? 's' : '') + '</div>';
+
+      data.pedidos.forEach(p => {
+        const est = ESTADOS[p.estado] || { lbl: p.estado, color: '#64748b', bg: 'rgba(100,116,139,.15)' };
+        const fecha = new Date(p.createdAt || Date.now()).toLocaleDateString('es', { day:'2-digit', month:'short', year:'numeric' });
+
+        let itemsHtml = '';
+        if (p.items && p.items.length) {
+          itemsHtml = '<div class="pedido-card-items">' +
+            p.items.slice(0, 5).map(it =>
+              '• <strong>' + (it.title || '').slice(0, 50) + '</strong>' + (it.qty > 1 ? ' ×' + it.qty : '')
+            ).join('<br>') +
+            (p.items.length > 5 ? '<br><em>y ' + (p.items.length - 5) + ' más</em>' : '') +
+          '</div>';
+        }
+
+        let trackHtml = '';
+        if (p.tracking) {
+          trackHtml = '<div class="pedido-card-track">📦 Tracking: <b>' + p.tracking + '</b>' + (p.agencia ? ' · ' + p.agencia : '') + '</div>';
+        } else if (p.agencia) {
+          trackHtml = '<div class="pedido-card-track">🚚 Agencia: <b>' + p.agencia + '</b></div>';
+        }
+
+        html += '<div class="pedido-card">' +
+          '<div class="pedido-card-head">' +
+            '<div>' +
+              '<div class="pedido-card-id">' + p.id + '</div>' +
+              '<div style="font-size:11px;color:#94a3b8;margin-top:2px">' + fecha + '</div>' +
+            '</div>' +
+            '<div class="pedido-card-total">$' + Number(p.total || 0).toFixed(2) + '</div>' +
+          '</div>' +
+          '<div class="pedido-card-estado" style="background:' + est.bg + ';color:' + est.color + '">' + est.lbl + '</div>' +
+          itemsHtml +
+          trackHtml +
+        '</div>';
+      });
+
+      html += '<button id="pedidosReset" class="btn-secondary" style="margin-top:8px;width:100%">🔄 Cambiar WhatsApp</button>';
+      if (lista) lista.innerHTML = html;
+
+    } catch(e) {
+      if (lista) lista.innerHTML = '<div class="act-empty">Error: ' + e.message + '</div>';
+    }
+  }
+
+  function resetWa() {
+    localStorage.removeItem(STORAGE_KEY);
+    $id('pedidosWa').value = '';
+    $id('pedidosLogin').classList.remove('hidden');
+    $id('pedidosLista').classList.add('hidden');
+  }
+
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+
+    if (t.closest('#misPedidosBtn')) {
+      e.preventDefault();
+      abrirModal();
+      return;
+    }
+    if (t.closest('#pedidosClose')) {
+      e.preventDefault();
+      cerrarModal();
+      return;
+    }
+    if (t.closest('.pedidos-backdrop')) {
+      cerrarModal();
+      return;
+    }
+    if (t.closest('#pedidosBuscar')) {
+      e.preventDefault();
+      buscar();
+      return;
+    }
+    if (t.closest('#pedidosReset')) {
+      e.preventDefault();
+      resetWa();
+      return;
+    }
+  }, true);
+
+  console.log('✅ Historial de pedidos listo');
+})();
