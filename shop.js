@@ -1147,9 +1147,44 @@ cargarCatalogo();
 // ═══════════════════════════════════════════════
 (function comdiaz_tracking_v1(){
   // ─── Enviar evento al backend ───
+  // Generar/obtener deviceId unico
+  function getDeviceId() {
+    let id = localStorage.getItem('comdiaz_device_id');
+    if (!id) {
+      id = 'd-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('comdiaz_device_id', id);
+    }
+    return id;
+  }
+
+  // Leer ?ref=grupo1 de la URL
+  function getRef() {
+    try {
+      const url = new URL(window.location.href);
+      const r = url.searchParams.get('ref');
+      if (r) {
+        sessionStorage.setItem('comdiaz_ref', r);
+        return r;
+      }
+      return sessionStorage.getItem('comdiaz_ref') || null;
+    } catch(_) { return null; }
+  }
+
+  // Detectar si esta corriendo como APK (TWA)
+  function isTWA() {
+    return document.referrer.startsWith('android-app://') ||
+           navigator.standalone === true ||
+           window.matchMedia('(display-mode: standalone)').matches;
+  }
+
   function track(tipo, extra) {
     if (!navigator.onLine) return;
-    const data = Object.assign({ tipo }, extra || {});
+    const data = Object.assign({
+      tipo,
+      deviceId: getDeviceId(),
+      ref: getRef(),
+      isApp: isTWA()
+    }, extra || {});
     try {
       // Silent fetch (fire and forget)
       fetch(API_BASE + '/api/track-visit', {
@@ -1338,6 +1373,8 @@ cargarCatalogo();
           whatsapp,
           direccion,
           notas,
+          deviceId: getDeviceId(),
+          ref: getRef(),
           items: cart.map(i => ({
             title: i.title,
             price: Number(i.price),
@@ -1495,6 +1532,8 @@ cargarCatalogo();
           whatsapp,
           direccion,
           notas,
+          deviceId: getDeviceId(),
+          ref: getRef(),
           items: cart.map(i => ({
             title: i.title,
             price: Number(i.price),
