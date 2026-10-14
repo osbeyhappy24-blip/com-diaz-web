@@ -2017,3 +2017,23 @@ body {
   background: rgba(239,68,68,.15);
   color: #ef4444;
 }
+
+
+/* Fix: filtros de tesoreria - solo uno activo */
+#tesoreriaPeriodos .filter-btn:not(.active) {
+  background: transparent !important;
+  color: var(--muted) !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+#tesoreriaPeriodos .filter-btn:focus,
+#tesoreriaPeriodos .filter-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+#tesoreriaPeriodos .filter-btn.active {
+  background: linear-gradient(135deg, #7c3aed, #ec4899) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(124,58,237,.3) !important;
+}

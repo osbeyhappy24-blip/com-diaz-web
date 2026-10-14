@@ -3395,7 +3395,14 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
     const filtro = e.target.closest('#tesoreriaPeriodos .filter-btn');
     if (filtro) {
-      document.querySelectorAll('#tesoreriaPeriodos .filter-btn').forEach(b => b.classList.remove('active'));
+      e.preventDefault();
+      e.stopPropagation();
+      // Quitar active + blur de todos
+      document.querySelectorAll('#tesoreriaPeriodos .filter-btn').forEach(b => {
+        b.classList.remove('active');
+        b.blur();
+      });
+      // Poner active solo al clickado
       filtro.classList.add('active');
       periodoActual = filtro.dataset.periodo || 'hoy';
       cargarStats();
