@@ -283,8 +283,8 @@ async function generarShare() {
   });
   $('shareText').value = r.text;
   const enc = encodeURIComponent(r.text);
-  $('waBtn').href = 'https://wa.me/?text=' + enc;
-  $('fbBtn').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://comdiaz.app');
+  $('waBtn').href = 'https://wa.me/5351425691?text=' + enc;
+  $('fbBtn').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-web.onrender.com/shop.html');
 }
 
 $('shareBtn').onclick = async () => {
@@ -3746,7 +3746,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const t = $id('postsTexto');
     if (!t || !t.value) return;
     const texto = encodeURIComponent(t.value);
-    window.open('https://wa.me/?text=' + texto, '_blank');
+    window.open('https://wa.me/5351425691?text=' + texto, '_blank');
   }
 
   function abrirFacebook() {
