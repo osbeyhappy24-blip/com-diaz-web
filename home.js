@@ -3711,17 +3711,51 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     texto.value = '⏳ Generando...';
 
     try {
-      const r = await apiCall('/api/posts/generate', {
-        method: 'POST',
-        body: JSON.stringify({ tipo, ref })
-      });
-      if (r.ok) {
+      // Intentar con IA primero, fallback a plantillas
+      let r = null;
+      let usóIA = false;
+
+      try {
+        texto.value = '⏳ Generando con IA...';
+        if (tipoLbl) tipoLbl.textContent = '🧠 Gemini trabajando...';
+        r = await apiCall('/api/posts/generate-ai', {
+          method: 'POST',
+          body: JSON.stringify({ tipo, ref })
+        });
+        if (r.ok) usóIA = true;
+      } catch(_) {
+        r = null;
+      }
+
+      // Fallback a plantillas si IA falló
+      if (!r || !r.ok) {
+        if (typeof toast === 'function') toast('⚠️ IA no disponible, usando plantilla', 'ok');
+        texto.value = '⏳ Generando plantilla...';
+        if (tipoLbl) tipoLbl.textContent = '📝 Generando (sin IA)...';
+        try {
+          r = await apiCall('/api/posts/generate', {
+            method: 'POST',
+            body: JSON.stringify({ tipo, ref })
+          });
+        } catch(e) {
+          r = null;
+        }
+      }
+
+      if (r && r.ok) {
         ultimoTexto = r.texto || '';
         texto.value = ultimoTexto;
-        if (tipoLbl) tipoLbl.textContent = '✅ ' + (r.titulo || tipo) + ' · ref: ' + ref;
-        if (typeof toast === 'function') toast('✅ Publicación generada', 'ok');
+        const prefix = usóIA ? '🧠 IA · ' : '📝 Plantilla · ';
+        if (tipoLbl) {
+          tipoLbl.textContent = '✅ ' + prefix + (r.titulo || tipo) + ' · ref: ' + ref;
+          tipoLbl.style.color = usóIA ? '#10b981' : '#fbbf24';
+        }
+        if (typeof toast === 'function') {
+          toast(usóIA ? '✅ Publicación con IA generada' : '✅ Publicación con plantilla', 'ok');
+        }
       } else {
-        texto.value = 'Error: ' + (r.error || 'desconocido');
+        texto.value = 'Error: ' + ((r && r.error) || 'IA y plantilla fallaron');
+        if (tipoLbl) tipoLbl.textContent = '❌ Error';
       }
     } catch(e) {
       texto.value = 'Error: ' + e.message;
