@@ -1017,10 +1017,10 @@ cargarCatalogo();
 
     // Mostrar/ocultar botón "Ver más"
     if (loadMoreWrap) {
-      if (visibles.length < lista.length) {
+      if (visibles.length < lista.length || state.hasMore) {
         loadMoreWrap.classList.remove('hidden');
         const info = $id('loadMoreInfo');
-        if (info) info.textContent = 'Mostrando ' + visibles.length + ' de ' + lista.length;
+        if (info) info.textContent = 'Mostrando ' + visibles.length + ' de ' + (state.hasMore ? (state.totalProductos || lista.length) : lista.length);
       } else {
         loadMoreWrap.classList.add('hidden');
       }
