@@ -3808,3 +3808,103 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Generador de publicaciones listo');
 })();
+
+
+/* ═══════════════════════════════════════════════
+   MONITOREO IA
+   ═══════════════════════════════════════════════ */
+(function comdiaz_ia_monitor_v1(){
+  const $id = id => document.getElementById(id);
+
+  async function apiCall(path, opts) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, (opts && opts.headers) || {});
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    return r.json();
+  }
+
+  function tiempoRelativo(iso) {
+    if (!iso) return '';
+    const ms = Date.now() - new Date(iso).getTime();
+    const seg = Math.floor(ms / 1000);
+    if (seg < 60) return 'hace ' + seg + 's';
+    const min = Math.floor(seg / 60);
+    if (min < 60) return 'hace ' + min + 'm';
+    const h = Math.floor(min / 60);
+    if (h < 24) return 'hace ' + h + 'h';
+    return 'hace ' + Math.floor(h / 24) + 'd';
+  }
+
+  async function cargar() {
+    try {
+      const d = await apiCall('/api/ai/status');
+      if (!d.ok) return;
+
+      // Progreso
+      $id('iaConIA').textContent = d.conIA + '/' + d.total;
+      const fill = $id('iaProgresoFill');
+      if (fill) fill.style.width = d.progreso + '%';
+      const badge = $id('iaProgresoBadge');
+      if (badge) {
+        badge.textContent = d.progreso + '%';
+        if (d.progreso >= 100) badge.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        else if (d.progreso >= 50) badge.style.background = 'linear-gradient(135deg,#7c3aed,#ec4899)';
+      }
+
+      // Stats
+      $id('iaConIACount').textContent = d.conIA || 0;
+      $id('iaSinIACount').textContent = d.sinIA || 0;
+      $id('iaUltimaHora').textContent = d.ultimaHora || 0;
+      $id('iaTotal').textContent = d.total || 0;
+
+      // Keys
+      const keysBox = $id('iaKeys');
+      if (keysBox) {
+        if (!d.keys || !d.keys.length) {
+          keysBox.innerHTML = '<div class="act-empty">Sin keys configuradas</div>';
+        } else {
+          keysBox.innerHTML = d.keys.map(k =>
+            '<div class="ia-key-item' + (k.bloqueadaHasta ? ' bloqueada' : '') + '">' +
+              '<span class="ia-key-suffix">' + k.sufijo + '</span>' +
+              '<span class="ia-key-estado">' + (k.bloqueadaHasta ? '🔒 bloqueada' : '✅ activa') + '</span>' +
+            '</div>'
+          ).join('');
+        }
+      }
+
+      // Modelo
+      const mod = $id('iaModelo');
+      if (mod) mod.textContent = d.modelo || '—';
+
+      // Ultimas
+      const ult = $id('iaUltimas');
+      if (ult) {
+        if (!d.ultimos || !d.ultimos.length) {
+          ult.innerHTML = '<div class="act-empty">Sin generaciones aún</div>';
+        } else {
+          ult.innerHTML = d.ultimos.map(p =>
+            '<div class="ia-item">' +
+              '<div class="ia-item-titulo">✨ ' + (p.tituloIA || '').replace(/</g, '&lt;') + '</div>' +
+              '<div class="ia-item-original">Original: ' + (p.tituloOriginal || '').replace(/</g, '&lt;') + '</div>' +
+              '<div class="ia-item-fecha">' + tiempoRelativo(p.generadoEn) + '</div>' +
+            '</div>'
+          ).join('');
+        }
+      }
+    } catch(e) {
+      console.error('Error IA monitor:', e);
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#refreshIA')) {
+      e.preventDefault();
+      cargar();
+      return;
+    }
+  }, true);
+
+  setTimeout(cargar, 3000);
+  setInterval(cargar, 30000);
+
+  console.log('✅ Monitor IA listo');
+})();

@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -494,6 +494,63 @@
       </div>
     </section>
 
+
+
+    <section class="card collapsible" data-card="ia" data-view="analisis" data-default="closed" id="iaCard">
+      <div class="card-head">
+        <h2>🧠 Monitoreo IA <span id="iaProgresoBadge" class="pedidos-badge">0%</span></h2>
+        <button id="refreshIA" class="btn-mini">🔄</button>
+      </div>
+      <div class="card-body">
+
+        <div class="ia-progreso-wrap">
+          <div class="ia-progreso-top">
+            <span>Productos con IA</span>
+            <strong id="iaConIA">0/0</strong>
+          </div>
+          <div class="ia-progreso-bar">
+            <div class="ia-progreso-fill" id="iaProgresoFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="ia-stats-grid">
+          <div class="ia-stat">
+            <div class="ia-stat-icon">✅</div>
+            <div class="ia-stat-value" id="iaConIACount">0</div>
+            <div class="ia-stat-label">Con IA</div>
+          </div>
+          <div class="ia-stat">
+            <div class="ia-stat-icon">⏳</div>
+            <div class="ia-stat-value" id="iaSinIACount">0</div>
+            <div class="ia-stat-label">Sin IA</div>
+          </div>
+          <div class="ia-stat">
+            <div class="ia-stat-icon">⚡</div>
+            <div class="ia-stat-value" id="iaUltimaHora">0</div>
+            <div class="ia-stat-label">Última hora</div>
+          </div>
+          <div class="ia-stat">
+            <div class="ia-stat-icon">📊</div>
+            <div class="ia-stat-value" id="iaTotal">0</div>
+            <div class="ia-stat-label">Total</div>
+          </div>
+        </div>
+
+        <div class="import-subtitle">🔑 Estado de las keys</div>
+        <div id="iaKeys" class="ia-keys">
+          <div class="act-empty">Cargando…</div>
+        </div>
+
+        <div class="import-subtitle">🧠 Modelo en uso</div>
+        <div class="ia-modelo" id="iaModelo">—</div>
+
+        <div class="import-subtitle">🕐 Últimas 10 generadas</div>
+        <div id="iaUltimas" class="ia-ultimas">
+          <div class="act-empty">Cargando…</div>
+        </div>
+
+      </div>
+    </section>
 
     <section class="card collapsible" data-card="posts" data-view="analisis" data-default="closed" id="postsCard">
       <div class="card-head">
