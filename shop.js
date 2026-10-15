@@ -213,7 +213,7 @@ function renderProductos() {
       </div>
       <div class="product-body">
         <div class="product-category">${p.category || ''}</div>
-        <div class="product-title">${p.title || 'Sin titulo'}</div>
+        <div class="product-title">${p.aiTitulo || p.title || 'Sin titulo'}</div>
         <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
         <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
         <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
@@ -270,8 +270,8 @@ function abrirModalProducto(p) {
   const modal = $('productModal');
   $('pmImage').src = p.image || '';
   $('pmCategory').textContent = p.category || '';
-  $('pmTitle').textContent = p.title || '';
-  $('pmDescription').textContent = p.description || '';
+  $('pmTitle').textContent = p.aiTitulo || p.title || '';
+  $('pmDescription').textContent = p.aiDescripcion || p.description || '';
   $('pmPrice').textContent = Number(p.salePrice || 0).toFixed(2);
 
   const waBtn = $('pmWaBtn');
