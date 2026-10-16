@@ -1497,7 +1497,7 @@ cargarCatalogo();
 
   // Arranque
   setTimeout(renderBanner, 1500);
-  setInterval(renderBanner, 10000);
+  // setInterval(renderBanner, 10000);  // DESACTIVADO: reseteaba la rotación
 
   console.log('✅ Banner listo');
 })();
