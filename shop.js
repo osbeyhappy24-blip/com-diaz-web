@@ -1422,9 +1422,13 @@ cargarCatalogo();
 
     const cfg = state.config || {};
 
-    promos = Array.isArray(cfg.promociones)
+    const promosBase = Array.isArray(cfg.promociones)
       ? cfg.promociones.filter(p => p && p.activo !== false && p.texto)
       : [];
+    const aiBannersArr = Array.isArray(cfg.aiBanners)
+      ? cfg.aiBanners.filter(p => p && p.activo !== false && p.texto)
+      : [];
+    promos = [...promosBase, ...aiBannersArr];
 
     if (promos.length > 0) {
       box.classList.remove('hidden');
