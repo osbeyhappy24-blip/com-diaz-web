@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -748,8 +748,8 @@
   </div>
 </div>
 
-  <script src="home.js?v=22"></script>
-<script src="bulk.js?v=1"></script>
+  <script src="home.js?v=23"></script>
+<script src="bulk.js?v=2"></script>
 
   
 
@@ -1154,7 +1154,10 @@
         <div class="local-form-grid">
           <label class="local-form-label">
             <span>Provincia *</span>
-            <select id="bulkProvincia" class="input-filter"></select>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select id="bulkProvincia" class="input-filter" style="flex:1"></select>
+              <button type="button" id="bulkReloadProv" class="btn-ghost" style="padding:8px 10px;font-size:14px" title="Recargar provincias">🔄</button>
+            </div>
           </label>
           <label class="local-form-label">
             <span>Municipio</span>

@@ -444,13 +444,51 @@
 
   // ─── Provincias / municipios ───
   async function cargarProvincias() {
-    if (provinciasCache) return provinciasCache;
+    if (provinciasCache && Object.keys(provinciasCache).length > 0) return provinciasCache;
+
+    // 1) Intentar desde localStorage (caché de sesión anterior)
     try {
-      const r = await fetch('https://com-diaz.onrender.com/api/public/provincias');
-      const d = await r.json();
-      provinciasCache = d.provincias || {};
-      return provinciasCache;
-    } catch(_) { return {}; }
+      const cached = localStorage.getItem('comdiaz_provincias_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && Object.keys(parsed).length > 0) {
+          provinciasCache = parsed;
+          console.log('[BULK] Provincias desde caché:', Object.keys(parsed).length);
+          return provinciasCache;
+        }
+      }
+    } catch(_) {}
+
+    // 2) Fetch al backend con retry
+    const urls = [
+      'https://com-diaz.onrender.com/api/public/provincias',
+      API + '/api/public/provincias'
+    ];
+    for (const url of urls) {
+      for (let intento = 1; intento <= 2; intento++) {
+        try {
+          console.log('[BULK] Cargando provincias desde', url, 'intento', intento);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+          const r = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeout);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const d = await r.json();
+          if (d && d.provincias && Object.keys(d.provincias).length > 0) {
+            provinciasCache = d.provincias;
+            try { localStorage.setItem('comdiaz_provincias_cache', JSON.stringify(d.provincias)); } catch(_) {}
+            console.log('[BULK] Provincias cargadas:', Object.keys(d.provincias).length);
+            return provinciasCache;
+          }
+        } catch(e) {
+          console.warn('[BULK] Falló ' + url + ' intento ' + intento + ':', e.message);
+          if (intento < 2) await new Promise(rs => setTimeout(rs, 1000));
+        }
+      }
+    }
+
+    console.error('[BULK] No se pudieron cargar provincias');
+    return {};
   }
 
   async function poblarSelects() {
@@ -488,17 +526,31 @@
     });
   }
 
-  function abrirModal() {
+  async function abrirModal() {
     const modal = $B('bulkModal');
     if (!modal) return;
     modal.classList.remove('hidden');
-    poblarSelects().then(() => {
+
+    const selProv = $B('bulkProvincia');
+    if (selProv) selProv.innerHTML = '<option value="">Cargando provincias...</option>';
+
+    try {
+      await poblarSelects();
       poblarMunicipios();
       actualizarCuotaUI();
       renderPreview();
       if (st.fotos.length) irPaso(st.paso);
       else irPaso(1);
-    });
+
+      // Verificar si realmente se cargaron provincias
+      if (selProv && selProv.options.length <= 1) {
+        selProv.innerHTML = '<option value="">⚠️ Error cargando provincias</option>';
+        alert('⚠️ No se pudieron cargar las provincias.\n\nVerifica tu conexión a internet e intenta de nuevo.\n\nSi el problema persiste, cierra y vuelve a abrir la app.');
+      }
+    } catch(e) {
+      console.error('[BULK] Error abriendo modal:', e);
+      if (selProv) selProv.innerHTML = '<option value="">⚠️ Error: ' + e.message + '</option>';
+    }
   }
 
   function cerrarModal() {
@@ -563,6 +615,19 @@
     $B('bulkDeselectAll')?.addEventListener('click', () => {
       st.fotos.forEach(f => { f.descartada = true; });
       guardar(); renderReview();
+    });
+
+    // Botón recargar provincias
+    $B('bulkReloadProv')?.addEventListener('click', async () => {
+      provinciasCache = null;
+      try { localStorage.removeItem('comdiaz_provincias_cache'); } catch(_) {}
+      const selProv = $B('bulkProvincia');
+      if (selProv) selProv.innerHTML = '<option value="">Cargando...</option>';
+      await poblarSelects();
+      poblarMunicipios();
+      if (selProv && selProv.options.length <= 1) {
+        alert('❌ Aún no se pudieron cargar. Verifica tu internet.');
+      }
     });
 
     window.addEventListener('comdiaz:open-bulk', abrirModal);
