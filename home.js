@@ -3139,7 +3139,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
    NAVEGACIÓN POR VISTAS (Rediseño moderno)
    ═══════════════════════════════════════════════ */
 (function comdiaz_navigation_v1(){
-  const VIEWS = ['home', 'productos', 'import', 'pedidos', 'analisis'];
+  const VIEWS = ['home', 'productos', 'locales', 'import', 'pedidos', 'analisis'];
   const STORAGE_KEY = 'comdiaz_active_view';
 
   function cambiarVista(view) {
