@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -748,7 +748,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=15"></script>
+  <script src="home.js?v=16"></script>
 
   
 
@@ -954,6 +954,104 @@
 
     <div class="modal-foot" style="grid-template-columns:1fr">
       <button id="guardarMovimiento" class="btn-primary">💾 Guardar movimiento</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="localModal" class="modal hidden">
+  <div class="modal-card" style="max-width:560px">
+    <div class="modal-head">
+      <h3 id="localModalTitle">➕ Nuevo producto local</h3>
+      <button id="localModalClose" class="btn-mini">✕</button>
+    </div>
+
+    <div style="padding:16px 20px;max-height:70vh;overflow-y:auto">
+
+      <!-- Imágenes -->
+      <div class="local-form-row">
+        <label class="local-form-label">
+          <span>Fotos (máximo 8)</span>
+        </label>
+        <div id="localImgsPreview" class="imgs-preview"></div>
+        <input id="localImgInput" type="file" accept="image/*" multiple style="display:none">
+        <button type="button" id="localAddImgBtn" class="btn-ghost" style="margin-top:8px;width:100%">📷 Añadir fotos</button>
+      </div>
+
+      <div class="local-form-row">
+        <label class="local-form-label">
+          <span>Título *</span>
+          <input id="localTitle" type="text" class="input-filter" placeholder="Ej: Bicicleta rodado 26" maxlength="200">
+        </label>
+      </div>
+
+      <div class="local-form-row">
+        <label class="local-form-label">
+          <span>Descripción</span>
+          <textarea id="localDesc" class="input-filter" placeholder="Describe el producto..." rows="3" maxlength="2000"></textarea>
+        </label>
+      </div>
+
+      <div class="local-form-grid">
+        <label class="local-form-label">
+          <span>Categoría</span>
+          <select id="localCategory" class="input-filter"></select>
+        </label>
+        <label class="local-form-label">
+          <span>Estado</span>
+          <select id="localEstado" class="input-filter">
+            <option value="nuevo">Nuevo</option>
+            <option value="usado">Usado</option>
+            <option value="reacondicionado">Reacondicionado</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="local-form-grid">
+        <label class="local-form-label">
+          <span>Provincia *</span>
+          <select id="localProvincia" class="input-filter"></select>
+        </label>
+        <label class="local-form-label">
+          <span>Municipio</span>
+          <select id="localMunicipio" class="input-filter" disabled>
+            <option value="">Primero elige provincia</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="local-form-grid">
+        <label class="local-form-label">
+          <span>Precio USD *</span>
+          <input id="localPrecioUSD" type="number" class="input-filter" placeholder="0.00" step="0.01" min="0">
+        </label>
+        <label class="local-form-label">
+          <span>Precio CUP (opcional)</span>
+          <input id="localPrecioCUP" type="number" class="input-filter" placeholder="0" step="1" min="0">
+        </label>
+      </div>
+
+      <div class="local-form-grid">
+        <label class="local-form-label">
+          <span>Cantidad</span>
+          <input id="localCantidad" type="number" class="input-filter" value="1" min="1" step="1">
+        </label>
+        <label class="local-form-label">
+          <span>Notas privadas</span>
+          <input id="localNotas" type="text" class="input-filter" placeholder="Ej: Cliente puede verla" maxlength="500">
+        </label>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:8px;margin-top:14px;cursor:pointer">
+        <input id="localPublicado" type="checkbox" checked style="width:auto">
+        <span style="font-size:13px;color:var(--text)">Publicar en la tienda</span>
+      </label>
+
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <button id="localCancelBtn" class="btn-ghost" style="flex:1">Cancelar</button>
+        <button id="localSaveBtn" class="btn-primary" style="flex:2">💾 Guardar</button>
+      </div>
+
     </div>
   </div>
 </div>

@@ -3942,3 +3942,463 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   console.log('✅ Monitor IA listo');
 })();
+
+
+// ═══════════════════════════════════════════════════════
+// MÓDULO: PRODUCTOS LOCALES (vista Locales)
+// ═══════════════════════════════════════════════════════
+(function comdiaz_locales_v1(){
+  let provinciasCache = null;
+  let localesCache = [];
+  let editingId = null;
+  let imagenesActuales = [];
+  let inicializado = false;
+
+  function $L(id) { return document.getElementById(id); }
+
+  // ─── Cargar provincias (una sola vez) ───
+  async function cargarProvincias() {
+    if (provinciasCache) return provinciasCache;
+    try {
+      const r = await fetch('https://com-diaz.onrender.com/api/public/provincias');
+      const d = await r.json();
+      provinciasCache = d.provincias || {};
+      return provinciasCache;
+    } catch(e) {
+      console.warn('[LOCALES] Error cargando provincias:', e);
+      return {};
+    }
+  }
+
+  // ─── Popula select de provincias ───
+  function poblarProvincias(provincias) {
+    const selFiltro = $L('localFilterProvincia');
+    const selForm = $L('localProvincia');
+    if (selFiltro) {
+      selFiltro.innerHTML = '<option value="">Todas las provincias</option>';
+      Object.keys(provincias).sort().forEach(p => {
+        selFiltro.innerHTML += `<option value="${p}">${p}</option>`;
+      });
+    }
+    if (selForm) {
+      selForm.innerHTML = '<option value="">Elige provincia...</option>';
+      Object.keys(provincias).sort().forEach(p => {
+        selForm.innerHTML += `<option value="${p}">${p}</option>`;
+      });
+    }
+  }
+
+  // ─── Popula municipios de una provincia ───
+  function poblarMunicipios(provincia, targetId) {
+    const provincias = provinciasCache || {};
+    const municipios = provincias[provincia] || [];
+    const sel = $L(targetId);
+    if (!sel) return;
+    if (!municipios.length) {
+      sel.innerHTML = '<option value="">Sin municipios</option>';
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+    sel.innerHTML = '<option value="">Todos los municipios</option>';
+    municipios.sort().forEach(m => {
+      sel.innerHTML += `<option value="${m}">${m}</option>`;
+    });
+  }
+
+  // ─── Cargar categorías del state global ───
+  function cargarCategorias() {
+    const sel = $L('localCategory');
+    if (!sel) return;
+    let cats = [];
+    try {
+      const st = typeof state !== 'undefined' ? state : null;
+      if (st && Array.isArray(st.categories)) {
+        cats = st.categories.map(c => c.label || c);
+      }
+    } catch(e) {}
+    if (!cats.length) {
+      cats = ['📱 Celulares','💻 Computación','👕 Ropa de Hombre','👗 Ropa de Mujer',
+              '🏍️ Motos y Bicicletas','🔧 Herramientas','🏠 Hogar','🍳 Cocina',
+              '🧸 Niños y Juguetes','📚 Escolar','🏋️ Deportes','🐕 Mascotas','Local'];
+    }
+    sel.innerHTML = '';
+    cats.forEach(c => {
+      sel.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  }
+
+  // ─── Cargar lista de locales desde el backend ───
+  async function cargarLocales() {
+    const box = $L('localesList');
+    if (!box) return;
+    try {
+      const r = await api('/api/manual/products?tipo=local');
+      const d = r || {};
+      localesCache = (d.products || []).filter(p => p.tipo === 'local');
+      renderLocales();
+      const cnt = $L('localesCount');
+      if (cnt) cnt.textContent = localesCache.length;
+    } catch(e) {
+      console.error('[LOCALES] Error cargando:', e);
+      box.innerHTML = '<div class="act-empty">Error cargando productos: ' + (e.message || e) + '</div>';
+    }
+  }
+
+  // ─── Render de la lista ───
+  function renderLocales() {
+    const box = $L('localesList');
+    if (!box) return;
+
+    if (!localesCache.length) {
+      box.innerHTML = '<div class="act-empty">No hay productos locales aún. Toca <b>➕ Nuevo producto</b> para añadir el primero.</div>';
+      return;
+    }
+
+    box.innerHTML = '';
+    localesCache.forEach(p => {
+      const precio = p.salePrice ? '$' + Number(p.salePrice).toFixed(2) : '—';
+      const cup = p.precioCUP ? ' · ' + Number(p.precioCUP).toLocaleString() + ' CUP' : '';
+      const ubic = [p.provincia, p.municipio].filter(Boolean).join(' / ') || 'Sin ubicación';
+      const estado = p.estado || 'nuevo';
+      const pubBadge = p.publicado ? '<span class="local-item-badge publicado">Publicado</span>' : '<span class="local-item-badge oculto">Oculto</span>';
+
+      const el = document.createElement('div');
+      el.className = 'local-item';
+      el.innerHTML = `
+        <img class="local-item-img" src="${p.image || ''}" alt="" onerror="this.style.opacity=.3">
+        <div class="local-item-body">
+          <div class="local-item-title">${(p.title || '(sin título)').replace(/</g,'&lt;')}</div>
+          <div class="local-item-meta">📍 ${ubic}</div>
+          <div class="local-item-meta">
+            <span class="local-item-price">${precio}${cup}</span>
+            <span class="local-item-badge estado-${estado}">${estado}</span>
+            ${pubBadge}
+          </div>
+          <div class="local-item-meta">🏷️ ${p.category || 'Local'} · Stock: ${p.cantidad || 1}</div>
+          <div class="local-item-actions">
+            <button class="btn-edit" data-action="edit" data-id="${p.id}">✏️ Editar</button>
+            <button class="btn-pub" data-action="toggle" data-id="${p.id}">${p.publicado ? '👁️ Ocultar' : '📤 Publicar'}</button>
+            <button class="btn-del" data-action="del" data-id="${p.id}">🗑️ Eliminar</button>
+          </div>
+        </div>
+      `;
+      box.appendChild(el);
+    });
+  }
+
+  // ─── Aplicar filtros ───
+  function aplicarFiltros() {
+    const prov = ($L('localFilterProvincia')?.value || '').trim();
+    const muni = ($L('localFilterMunicipio')?.value || '').trim();
+    const est = ($L('localFilterEstado')?.value || '').trim();
+    const busq = ($L('localSearch')?.value || '').toLowerCase().trim();
+
+    const filtrados = localesCache.filter(p => {
+      if (prov && p.provincia !== prov) return false;
+      if (muni && p.municipio !== muni) return false;
+      if (est && (p.estado || 'nuevo') !== est) return false;
+      if (busq) {
+        const txt = ((p.title || '') + ' ' + (p.description || '') + ' ' + (p.category || '')).toLowerCase();
+        if (!txt.includes(busq)) return false;
+      }
+      return true;
+    });
+
+    // Guardar copia temporal para render
+    const backup = localesCache;
+    localesCache = filtrados;
+    renderLocales();
+    localesCache = backup;
+  }
+
+  // ─── Abrir modal nuevo ───
+  function abrirNuevoLocal() {
+    editingId = null;
+    imagenesActuales = [];
+    $L('localModalTitle').textContent = '➕ Nuevo producto local';
+    $L('localTitle').value = '';
+    $L('localDesc').value = '';
+    $L('localPrecioUSD').value = '';
+    $L('localPrecioCUP').value = '';
+    $L('localCantidad').value = '1';
+    $L('localNotas').value = '';
+    $L('localPublicado').checked = true;
+    $L('localEstado').value = 'nuevo';
+    $L('localProvincia').value = '';
+    $L('localMunicipio').innerHTML = '<option value="">Primero elige provincia</option>';
+    $L('localMunicipio').disabled = true;
+    renderImgsPreview();
+    $L('localModal').classList.remove('hidden');
+  }
+
+  // ─── Abrir modal editar ───
+  async function abrirEditarLocal(id) {
+    const p = localesCache.find(x => x.id === id);
+    if (!p) return;
+    editingId = id;
+    imagenesActuales = Array.isArray(p.images) ? [...p.images] : (p.image ? [p.image] : []);
+    $L('localModalTitle').textContent = '✏️ Editar producto';
+    $L('localTitle').value = p.title || '';
+    $L('localDesc').value = p.description || '';
+    $L('localPrecioUSD').value = p.precioUSD || p.salePrice || '';
+    $L('localPrecioCUP').value = p.precioCUP || '';
+    $L('localCantidad').value = p.cantidad || 1;
+    $L('localNotas').value = p.notas || '';
+    $L('localPublicado').checked = p.publicado !== false;
+    $L('localEstado').value = p.estado || 'nuevo';
+    $L('localCategory').value = p.category || 'Local';
+    if (p.provincia) {
+      $L('localProvincia').value = p.provincia;
+      poblarMunicipios(p.provincia, 'localMunicipio');
+      if (p.municipio) $L('localMunicipio').value = p.municipio;
+    }
+    renderImgsPreview();
+    $L('localModal').classList.remove('hidden');
+  }
+
+  // ─── Render de preview de imágenes ───
+  function renderImgsPreview() {
+    const box = $L('localImgsPreview');
+    if (!box) return;
+    box.innerHTML = '';
+    imagenesActuales.forEach((url, i) => {
+      const div = document.createElement('div');
+      div.className = 'img-thumb';
+      div.innerHTML = `
+        <img src="${url}" alt="">
+        <button type="button" data-idx="${i}" title="Quitar">✕</button>
+      `;
+      div.querySelector('button').onclick = () => {
+        imagenesActuales.splice(i, 1);
+        renderImgsPreview();
+      };
+      box.appendChild(div);
+    });
+  }
+
+  // ─── Subir imagen(es) ───
+  async function subirImagenes(files) {
+    const box = $L('localImgsPreview');
+    for (const file of files) {
+      if (imagenesActuales.length >= 8) {
+        alert('Máximo 8 imágenes por producto');
+        break;
+      }
+      // Preview loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'img-thumb loading';
+      loadingDiv.textContent = '⏳';
+      box.appendChild(loadingDiv);
+
+      try {
+        // Comprimir si existe la función
+        let base64;
+        if (typeof comprimirImagen === 'function') {
+          base64 = await comprimirImagen(file, 800, 0.8);
+        } else {
+          base64 = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.onerror = rej;
+            r.readAsDataURL(file);
+          });
+        }
+
+        const resp = await api('/api/upload-image', {
+          method: 'POST',
+          body: JSON.stringify({ image: base64, nombre: 'local_' + Date.now() })
+        });
+
+        if (resp && resp.ok && resp.url) {
+          imagenesActuales.push(resp.url);
+        } else {
+          alert('Error subiendo imagen: ' + (resp?.error || 'desconocido'));
+        }
+      } catch(e) {
+        alert('Error subiendo: ' + (e.message || e));
+      } finally {
+        loadingDiv.remove();
+      }
+    }
+    renderImgsPreview();
+  }
+
+  // ─── Guardar (POST o PUT) ───
+  async function guardarLocal() {
+    const title = ($L('localTitle').value || '').trim();
+    const precio = Number($L('localPrecioUSD').value) || 0;
+    const provincia = $L('localProvincia').value;
+
+    if (!title) { alert('El título es obligatorio'); return; }
+    if (precio <= 0) { alert('El precio USD es obligatorio'); return; }
+    if (!imagenesActuales.length) { alert('Añade al menos 1 foto'); return; }
+    if (!provincia) { alert('La provincia es obligatoria'); return; }
+
+    const body = {
+      tipo: 'local',
+      title: title,
+      description: $L('localDesc').value || '',
+      images: imagenesActuales,
+      image: imagenesActuales[0],
+      category: $L('localCategory').value || 'Local',
+      estado: $L('localEstado').value || 'nuevo',
+      provincia: provincia,
+      municipio: $L('localMunicipio').value || null,
+      precioUSD: precio,
+      precioCUP: Number($L('localPrecioCUP').value) || null,
+      cantidad: Number($L('localCantidad').value) || 1,
+      notas: $L('localNotas').value || null,
+      publicado: $L('localPublicado').checked
+    };
+
+    const btn = $L('localSaveBtn');
+    const prevTxt = btn.textContent;
+    btn.textContent = '⏳ Guardando...';
+    btn.disabled = true;
+
+    try {
+      let resp;
+      if (editingId) {
+        resp = await api('/api/manual/products/' + editingId, {
+          method: 'PUT',
+          body: JSON.stringify(body)
+        });
+      } else {
+        resp = await api('/api/manual/products', {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+      }
+
+      if (resp && resp.ok) {
+        $L('localModal').classList.add('hidden');
+        await cargarLocales();
+      } else {
+        alert('Error: ' + (resp?.error || 'desconocido'));
+      }
+    } catch(e) {
+      alert('Error guardando: ' + (e.message || e));
+    } finally {
+      btn.textContent = prevTxt;
+      btn.disabled = false;
+    }
+  }
+
+  // ─── Eliminar ───
+  async function eliminarLocal(id) {
+    if (!confirm('¿Eliminar este producto? No se puede deshacer.')) return;
+    try {
+      await api('/api/manual/products/' + id, { method: 'DELETE' });
+      await cargarLocales();
+    } catch(e) {
+      alert('Error eliminando: ' + (e.message || e));
+    }
+  }
+
+  // ─── Toggle publicado ───
+  async function togglePublicado(id) {
+    const p = localesCache.find(x => x.id === id);
+    if (!p) return;
+    try {
+      await api('/api/manual/products/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ publicado: !p.publicado })
+      });
+      await cargarLocales();
+    } catch(e) {
+      alert('Error: ' + (e.message || e));
+    }
+  }
+
+  // ─── Click en botones de la lista ───
+  function bindLista() {
+    const box = $L('localesList');
+    if (!box) return;
+    box.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      if (action === 'edit') abrirEditarLocal(id);
+      else if (action === 'del') eliminarLocal(id);
+      else if (action === 'toggle') togglePublicado(id);
+    });
+  }
+
+  // ─── Init ───
+  async function init() {
+    if (inicializado) return;
+    if (!$L('localesList')) return; // No estamos en la vista correcta aún
+    inicializado = true;
+
+    const provincias = await cargarProvincias();
+    poblarProvincias(provincias);
+    cargarCategorias();
+
+    await cargarLocales();
+    bindLista();
+
+    // Botón nuevo
+    $L('localNewBtn')?.addEventListener('click', abrirNuevoLocal);
+
+    // Botones del modal
+    $L('localModalClose')?.addEventListener('click', () => $L('localModal').classList.add('hidden'));
+    $L('localCancelBtn')?.addEventListener('click', () => $L('localModal').classList.add('hidden'));
+    $L('localSaveBtn')?.addEventListener('click', guardarLocal);
+
+    // Add image btn
+    $L('localAddImgBtn')?.addEventListener('click', () => $L('localImgInput').click());
+    $L('localImgInput')?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length) {
+        subirImagenes(Array.from(e.target.files));
+        e.target.value = '';
+      }
+    });
+
+    // Provincia → municipio (formulario)
+    $L('localProvincia')?.addEventListener('change', (e) => {
+      poblarMunicipios(e.target.value, 'localMunicipio');
+    });
+
+    // Provincia → municipio (filtros)
+    $L('localFilterProvincia')?.addEventListener('change', (e) => {
+      if (e.target.value) {
+        poblarMunicipios(e.target.value, 'localFilterMunicipio');
+      } else {
+        const sel = $L('localFilterMunicipio');
+        sel.innerHTML = '<option value="">Todos los municipios</option>';
+        sel.disabled = true;
+      }
+      aplicarFiltros();
+    });
+
+    // Filtros
+    $L('localFilterMunicipio')?.addEventListener('change', aplicarFiltros);
+    $L('localFilterEstado')?.addEventListener('change', aplicarFiltros);
+    $L('localSearch')?.addEventListener('input', aplicarFiltros);
+
+    // Carga masiva (placeholder - después)
+    $L('localBulkBtn')?.addEventListener('click', () => {
+      alert('🚧 Carga masiva con IA: próximamente');
+    });
+
+    console.log('✅ Panel Locales listo');
+  }
+
+  // Ejecutar init al cargar, y cuando se navega a la vista locales
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 500));
+  } else {
+    setTimeout(init, 500);
+  }
+
+  // Re-init cuando cambia la vista (por si acaso)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-item');
+    if (btn && btn.dataset.view === 'locales') {
+      setTimeout(init, 100);
+    }
+  });
+
+})();
