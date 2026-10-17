@@ -290,6 +290,12 @@ function generarLinkWhatsApp(producto) {
 }
 
 function pedirPorWhatsApp(producto) {
+  // Pedir datos del cliente antes de abrir WhatsApp
+  const nombre = prompt("Tu nombre (para que te identifiquemos):", "");
+  if (nombre === null) return; // canceló
+  const waCliente = prompt("Tu número de WhatsApp (con código de país):", "");
+  if (waCliente === null) return;
+
   const wa = state.config?.whatsapp || "5351425691";
   const titulo = producto.title || "producto";
   const precio = Number(producto.salePrice || 0).toFixed(2);
@@ -298,6 +304,9 @@ function pedirPorWhatsApp(producto) {
   mensaje += "*" + titulo + "*\n";
   mensaje += "Precio: $" + precio + "\n";
   if (url) mensaje += url + "\n";
+  mensaje += "\n";
+  if (nombre.trim()) mensaje += "Mi nombre: " + nombre.trim() + "\n";
+  if (waCliente.trim()) mensaje += "Mi WhatsApp: " + waCliente.trim() + "\n";
   mensaje += "\n¿Esta disponible?";
   abrirWhatsApp(wa, mensaje);
 }
