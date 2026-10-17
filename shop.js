@@ -38,6 +38,8 @@ function abrirWhatsApp(numero, mensaje) {
 let state = {
   products: [],
   filtered: [],
+  locales: [],
+  localesCargados: false,
   config: {},
   categorias: [],
   currentTab: 'all',
@@ -95,6 +97,38 @@ async function cargarCatalogo() {
   }
 }
 
+// ─── Cargar productos locales (una vez) ───
+async function cargarLocales() {
+  if (state.localesCargados) return;
+  try {
+    const r = await fetch(API_BASE + '/api/public/local');
+    const data = await r.json();
+    if (!data.ok) throw new Error('Respuesta invalida');
+    // Mapear al formato del grid (mismo que eBay)
+    state.locales = (data.productos || []).map(p => ({
+      id: p.id,
+      title: p.title,
+      aiTitulo: p.title,
+      aiDescripcion: p.description || '',
+      image: p.image,
+      images: p.images || [p.image],
+      salePrice: p.salePrice,
+      precioCUP: p.precioCUP,
+      category: p.category,
+      source: 'local',
+      provincia: p.provincia,
+      municipio: p.municipio,
+      estado: p.estado || 'nuevo',
+      _isLocal: true,
+    }));
+    state.localesCargados = true;
+    console.log('[SHOP] Locales cargados:', state.locales.length);
+  } catch (e) {
+    console.error('[SHOP] Error cargando locales:', e);
+    state.locales = [];
+  }
+}
+
 // ─── Cargar siguiente página desde el backend ───
 async function cargarMasProductos() {
   if (!state.hasMore) return false;
@@ -144,14 +178,16 @@ function renderCategorias() {
 
 // ─── Aplicar filtros (tab + categoria + busqueda) ───
 function aplicarFiltros() {
-  let filtered = [...state.products];
+  // Si tab=local, usar state.locales
+  const esLocal = state.currentTab === 'local';
+  let filtered = esLocal ? [...state.locales] : [...state.products];
 
   // Tab
   const tab = state.currentTab;
-  if (tab === 'imported') {
+  if (tab === 'local') {
+    // Ya están filtrados arriba (state.locales)
+  } else if (tab === 'imported') {
     filtered = filtered.filter(p => p.source && p.source !== 'manual' && p.source !== 'local');
-  } else if (tab === 'local') {
-    filtered = filtered.filter(p => p.source === 'manual' || p.source === 'local');
   } else if (tab === 'ebay') {
     filtered = filtered.filter(p => !p.source || p.source === 'ebay' || String(p.source).startsWith('ebay-'));
   } else if (tab === 'temu') {
@@ -214,7 +250,8 @@ function renderProductos() {
       <div class="product-body">
         <div class="product-category">${p.category || ''}</div>
         <div class="product-title">${p.aiTitulo || p.title || 'Sin titulo'}</div>
-        <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
+        ${p._isLocal && (p.provincia || p.municipio) ? `<div class="product-ubicacion" style="font-size:11px;color:#6b7280;margin:2px 0 4px">📍 ${[p.provincia, p.municipio].filter(Boolean).join(' / ')}</div>` : ''}
+        <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}${p._isLocal && p.precioCUP ? `<span style="font-size:11px;color:#6b7280;margin-left:6px">· ${Number(p.precioCUP).toLocaleString()} CUP</span>` : ''}</div>
         <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
         <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
       </div>
@@ -352,10 +389,16 @@ $('lightbox').addEventListener('touchend', e => {
 
 // ─── Tabs ───
 document.querySelectorAll('.tab').forEach(tab => {
-  tab.onclick = () => {
+  tab.onclick = async () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     state.currentTab = tab.dataset.tab;
+    // Si es local y no cargado, cargar primero
+    if (state.currentTab === 'local' && !state.localesCargados) {
+      const loading = $('loading');
+      if (loading) loading.classList.remove('hidden');
+      await cargarLocales();
+    }
     aplicarFiltros();
     if (window.__renderDestacados) window.__renderDestacados();
   };
