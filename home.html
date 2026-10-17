@@ -305,6 +305,41 @@
     </section>
 
   
+    <section class="card" data-card="locales" data-view="locales" data-default="open" id="localesCard">
+      <div class="card-head">
+        <h2>🏘️ Productos Locales</h2>
+        <span class="badge" id="localesCount">0</span>
+      </div>
+      <div class="card-body">
+        <p class="manual-hint">Productos que vendes tú. Se mostrarán en la Shop con pestaña <b>Local</b> y filtros por provincia/municipio.</p>
+
+        <div class="locales-toolbar">
+          <button id="localNewBtn" class="btn-primary">➕ Nuevo producto</button>
+          <button id="localBulkBtn" class="btn-ghost">📤 Carga masiva (IA)</button>
+        </div>
+
+        <div class="locales-filters">
+          <select id="localFilterProvincia" class="input-filter">
+            <option value="">Todas las provincias</option>
+          </select>
+          <select id="localFilterMunicipio" class="input-filter" disabled>
+            <option value="">Todos los municipios</option>
+          </select>
+          <select id="localFilterEstado" class="input-filter">
+            <option value="">Todos los estados</option>
+            <option value="nuevo">Nuevo</option>
+            <option value="usado">Usado</option>
+            <option value="reacondicionado">Reacondicionado</option>
+          </select>
+          <input id="localSearch" type="text" placeholder="🔍 Buscar..." class="input-filter">
+        </div>
+
+        <div id="localesList" class="locales-list">
+          <div class="act-empty">Cargando productos locales…</div>
+        </div>
+      </div>
+    </section>
+
     <section class="card collapsible" data-card="stats" data-view="home" data-default="closed" id="statsCard">
       <div class="card-head">
         <h2>Estadísticas de la tienda</h2>
@@ -858,6 +893,10 @@
   <button class="nav-item" data-view="productos">
     <span class="nav-icon">📦</span>
     <span class="nav-label">Productos</span>
+  </button>
+  <button class="nav-item" data-view="locales">
+    <span class="nav-icon">🏘️</span>
+    <span class="nav-label">Locales</span>
   </button>
   <button class="nav-item" data-view="import">
     <span class="nav-icon">🌐</span>
