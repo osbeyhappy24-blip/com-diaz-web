@@ -4035,7 +4035,9 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     try {
       const r = await api('/api/manual/products?tipo=local');
       const d = r || {};
-      localesCache = (d.products || []).filter(p => p.tipo === 'local');
+      localesCache = (d.products || []).filter(p => 
+        p.tipo === 'local' || p.source === 'local'
+      );
       renderLocales();
       const cnt = $L('localesCount');
       if (cnt) cnt.textContent = localesCache.length;
