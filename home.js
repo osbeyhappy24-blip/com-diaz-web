@@ -4382,7 +4382,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
     // Carga masiva (placeholder - después)
     $L('localBulkBtn')?.addEventListener('click', () => {
-      alert('🚧 Carga masiva con IA: próximamente');
+      window.dispatchEvent(new CustomEvent('comdiaz:open-bulk'));
     });
 
     console.log('✅ Panel Locales listo');

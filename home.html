@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -748,7 +748,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=19"></script>
+  <script src="home.js?v=21"></script>
 
   
 
@@ -1102,6 +1102,134 @@
     <div class="copilot-action-btns">
       <button id="copilotActionCancel" class="btn-ghost">Cancelar</button>
       <button id="copilotActionConfirm" class="btn-primary">✅ Ejecutar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ MODAL CARGA MASIVA ═══ -->
+<div id="bulkModal" class="modal hidden">
+  <div class="modal-card" style="max-width:720px">
+    <div class="modal-head">
+      <div>
+        <h3>📤 Carga masiva con IA</h3>
+        <span id="bulkStepLabel" style="font-size:11px;color:var(--muted)">Paso 1 de 4</span>
+      </div>
+      <button id="bulkModalClose" class="btn-mini">✕</button>
+    </div>
+
+    <div style="padding:16px 20px;max-height:75vh;overflow-y:auto">
+
+      <!-- Indicador de pasos -->
+      <div class="bulk-steps-indicator">
+        <div class="bulk-step-dot active" data-step="1">1</div>
+        <div class="bulk-step-line"></div>
+        <div class="bulk-step-dot" data-step="2">2</div>
+        <div class="bulk-step-line"></div>
+        <div class="bulk-step-dot" data-step="3">3</div>
+        <div class="bulk-step-line"></div>
+        <div class="bulk-step-dot" data-step="4">4</div>
+      </div>
+
+      <!-- PASO 1: Seleccionar fotos -->
+      <div id="bulkStep1" class="bulk-step-panel">
+        <div class="bulk-upload-area" id="bulkUploadArea">
+          <input id="bulkFileInput" type="file" accept="image/*" multiple style="display:none">
+          <div class="bulk-upload-icon">📷</div>
+          <button type="button" id="bulkSelectBtn" class="btn-primary">Seleccionar fotos</button>
+          <p class="bulk-hint">Máximo 30 fotos por lote · Cada foto se analiza con IA</p>
+        </div>
+        <div id="bulkPreviewGrid" class="bulk-preview-grid"></div>
+        <div class="bulk-step-actions">
+          <button type="button" id="bulkCancel1" class="btn-ghost">Cancelar</button>
+          <button type="button" id="bulkNext1" class="btn-primary" disabled>Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- PASO 2: Datos comunes + cuota -->
+      <div id="bulkStep2" class="bulk-step-panel hidden">
+        <p class="bulk-hint" style="margin-bottom:12px">Estos datos se aplicarán a TODAS las fotos. La IA puede sobrescribirlos si detecta algo distinto.</p>
+
+        <div class="local-form-grid">
+          <label class="local-form-label">
+            <span>Provincia *</span>
+            <select id="bulkProvincia" class="input-filter"></select>
+          </label>
+          <label class="local-form-label">
+            <span>Municipio</span>
+            <select id="bulkMunicipio" class="input-filter" disabled>
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label class="local-form-label">
+            <span>Estado base</span>
+            <select id="bulkEstado" class="input-filter">
+              <option value="nuevo">Nuevo</option>
+              <option value="usado">Usado</option>
+              <option value="reacondicionado">Reacondicionado</option>
+              <option value="auto">Dejar que la IA decida</option>
+            </select>
+          </label>
+          <label class="local-form-label">
+            <span>Categoría base (opcional)</span>
+            <select id="bulkCategoria" class="input-filter">
+              <option value="">Dejar que la IA decida</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="bulk-quota-box">
+          <div class="bulk-quota-header">
+            <span>💎 Cuota IA hoy</span>
+            <span id="bulkQuotaText">0 / 300</span>
+          </div>
+          <div class="bulk-quota-bar">
+            <div id="bulkQuotaFill" class="bulk-quota-fill" style="width:0%"></div>
+          </div>
+          <p class="bulk-hint" style="margin:8px 0 0">Análisis restantes: <b id="bulkQuotaAvailable">300</b> · Reset diario a las 00:00</p>
+        </div>
+
+        <div class="bulk-step-actions">
+          <button type="button" id="bulkBack2" class="btn-ghost">← Atrás</button>
+          <button type="button" id="bulkNext2" class="btn-primary">🤖 Analizar con IA</button>
+        </div>
+      </div>
+
+      <!-- PASO 3: Procesando -->
+      <div id="bulkStep3" class="bulk-step-panel hidden">
+        <div class="bulk-progress-container">
+          <div class="bulk-progress-bar">
+            <div id="bulkProgressFill" class="bulk-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="bulk-progress-info">
+            <span id="bulkProgressText">Analizando 0 / 0...</span>
+            <span id="bulkProgressETA">Calculando...</span>
+          </div>
+        </div>
+        <p class="bulk-hint" style="margin:8px 0 16px">La IA procesa de 5 en 5. Puedes cerrar y volver después.</p>
+        <div id="bulkLiveGrid" class="bulk-live-grid"></div>
+        <div class="bulk-step-actions">
+          <button type="button" id="bulkPauseBtn" class="btn-ghost">⏸ Pausar</button>
+          <button type="button" id="bulkSkip3" class="btn-ghost">Saltar a revisión →</button>
+        </div>
+      </div>
+
+      <!-- PASO 4: Revisar y publicar -->
+      <div id="bulkStep4" class="bulk-step-panel hidden">
+        <div class="bulk-review-header">
+          <p>Revisa y edita antes de publicar:</p>
+          <div class="bulk-review-actions">
+            <button type="button" id="bulkSelectAll" class="btn-ghost">☑ Todos</button>
+            <button type="button" id="bulkDeselectAll" class="btn-ghost">☐ Ninguno</button>
+          </div>
+        </div>
+        <div id="bulkReviewGrid" class="bulk-review-grid"></div>
+        <div class="bulk-step-actions">
+          <button type="button" id="bulkBack4" class="btn-ghost">← Atrás</button>
+          <button type="button" id="bulkPublishAll" class="btn-primary">✅ Publicar <span id="bulkPublishCount">0</span></button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
