@@ -4596,8 +4596,9 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   }
 
   // ─── Enviar mensaje al backend ───
-  async function enviarAlBackend(mensaje, hist, opts = {}) {
-    const r = await fetch(API + '/api/ai/copilot', {
+    async function enviarAlBackend(mensaje, hist, opts = {}) {
+    const onChunk = opts.onChunk || (() => {});
+    const r = await fetch(API + '/api/ai/copilot-stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -4605,7 +4606,38 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       },
       body: JSON.stringify({ mensaje, historial: hist })
     });
-    return r.json();
+    if (!r.ok || !r.body) {
+      return { ok: false, error: 'HTTP ' + r.status };
+    }
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let respuestaCompleta = '';
+    let accionSugerida = null;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data: ')) continue;
+        try {
+          const parsed = JSON.parse(trimmed.slice(6));
+          if (parsed.chunk) {
+            respuestaCompleta += parsed.chunk;
+            onChunk(parsed.chunk);
+          } else if (parsed.done) {
+            if (parsed.accionSugerida) accionSugerida = parsed.accionSugerida;
+            if (parsed.textoFinal) respuestaCompleta = parsed.textoFinal;
+          } else if (parsed.error) {
+            return { ok: false, error: parsed.error };
+          }
+        } catch(_) {}
+      }
+    }
+    return { ok: true, respuesta: respuestaCompleta, accionSugerida };
   }
 
   // ─── Handler de enviar mensaje ───
@@ -4630,19 +4662,54 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     enviando = true;
     const loadingBubble = addMsg('bot', '🤔 Pensando...', { loading: true, noPersist: true });
 
+    // Bubble vacío que se rellenará con el streaming
+    let streamBubble = null;
+
     try {
-      const data = await enviarAlBackend(texto, historial.slice(-6));
+      const data = await enviarAlBackend(texto, historial.slice(-6), {
+        onChunk: (chunk) => {
+          if (!streamBubble) {
+            if (loadingBubble && loadingBubble.parentElement) {
+              loadingBubble.parentElement.remove();
+            }
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'copilot-msg copilot-msg-bot';
+            streamBubble = document.createElement('div');
+            streamBubble.className = 'copilot-bubble';
+            msgDiv.appendChild(streamBubble);
+            const messages = $cp('copilotMessages');
+            if (messages) {
+              messages.appendChild(msgDiv);
+              messages.scrollTop = messages.scrollHeight;
+            }
+          }
+          // Streaming: no escapamos hasta el final, usamos textContent durante el stream
+          streamBubble.textContent += chunk;
+          const messages = $cp('copilotMessages');
+          if (messages) messages.scrollTop = messages.scrollHeight;
+        }
+      });
 
       if (loadingBubble && loadingBubble.parentElement) {
         loadingBubble.parentElement.remove();
       }
 
       if (!data.ok) {
-        addMsg('bot', '❌ Error: ' + (data.error || 'desconocido'));
+        if (streamBubble) streamBubble.textContent = '❌ Error: ' + (data.error || 'desconocido');
+        else addMsg('bot', '❌ Error: ' + (data.error || 'desconocido'));
         return;
       }
 
-      addMsg('bot', data.respuesta || '(sin respuesta)');
+      // Reemplazar el contenido del bubble con HTML escapado final
+      if (streamBubble) {
+        streamBubble.innerHTML = String(data.respuesta || '').replace(/\n/g, '<br>');
+      } else {
+        addMsg('bot', data.respuesta || '(sin respuesta)');
+      }
+
+      // Persistir en historial
+      historial.push({ rol: 'bot', texto: data.respuesta || '', ts: Date.now() });
+      guardar();
 
       if (data.accionSugerida) {
         mostrarAccion(data.accionSugerida);
@@ -4651,7 +4718,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
       if (loadingBubble && loadingBubble.parentElement) {
         loadingBubble.parentElement.remove();
       }
-      addMsg('bot', '❌ Error de conexión. Reintentaré al reconectar.');
+      if (streamBubble) streamBubble.textContent = '❌ Error de conexión.';
+      else addMsg('bot', '❌ Error de conexión. Reintentaré al reconectar.');
       colaOffline.push({ tipo: 'mensaje', mensaje: texto, historial: [...historial], ts: Date.now() });
       guardar();
     } finally {
