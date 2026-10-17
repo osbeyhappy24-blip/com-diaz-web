@@ -1719,6 +1719,7 @@ main.container > section[data-view] {
 /* Mostrar solo las de la vista activa */
 body[data-active-view="home"] main.container > section[data-view="home"],
 body[data-active-view="productos"] main.container > section[data-view="productos"],
+body[data-active-view="locales"] main.container > section[data-view="locales"],
 body[data-active-view="import"] main.container > section[data-view="import"],
 body[data-active-view="pedidos"] main.container > section[data-view="pedidos"],
 body[data-active-view="analisis"] main.container > section[data-view="analisis"] {
