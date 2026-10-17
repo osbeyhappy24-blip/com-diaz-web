@@ -4404,3 +4404,413 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   });
 
 })();
+
+
+// ═══════════════════════════════════════════════════════
+// COPILOTO IA — Panel flotante con chat contextual
+// ═══════════════════════════════════════════════════════
+(function comdiaz_copilot_v1(){
+  const $cp = id => document.getElementById(id);
+  const HIST_KEY = 'comdiaz_copilot_hist';
+  const QUEUE_KEY = 'comdiaz_copilot_queue';
+  const SNAP_KEY = 'comdiaz_copilot_snapshot';
+  const MAX_HIST = 30;
+
+  let historial = [];
+  let colaOffline = [];
+  let abierto = false;
+  let enviando = false;
+  let accionPendiente = null;
+
+  // ─── Cargar estado desde localStorage ───
+  function cargar() {
+    try { historial = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch(_) {}
+    try { colaOffline = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch(_) {}
+    if (!Array.isArray(historial)) historial = [];
+    if (!Array.isArray(colaOffline)) colaOffline = [];
+  }
+
+  function guardar() {
+    try {
+      localStorage.setItem(HIST_KEY, JSON.stringify(historial.slice(-MAX_HIST)));
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(colaOffline));
+    } catch(_) {}
+  }
+
+  // ─── Detectar conexión ───
+  function estaOnline() {
+    return navigator.onLine !== false;
+  }
+
+  function actualizarEstado() {
+    const status = $cp('copilotStatus');
+    const offline = $cp('copilotOffline');
+    if (!status) return;
+    if (estaOnline()) {
+      status.textContent = 'En línea';
+      status.classList.remove('offline');
+      if (offline) offline.classList.add('hidden');
+      // Si hay cola, intentar enviar
+      procesarCola();
+    } else {
+      const pendientes = colaOffline.length;
+      status.textContent = pendientes > 0 ? `Offline (${pendientes})` : 'Offline';
+      status.classList.add('offline');
+      if (offline) offline.classList.remove('hidden');
+    }
+  }
+
+  // ─── Añadir mensaje al chat (visual + memoria) ───
+  function addMsg(rol, texto, opts = {}) {
+    const messages = $cp('copilotMessages');
+    if (!messages) return;
+
+    const div = document.createElement('div');
+    div.className = 'copilot-msg copilot-msg-' + rol;
+    const bubble = document.createElement('div');
+    bubble.className = 'copilot-bubble';
+    if (opts.loading) bubble.classList.add('loading');
+    bubble.innerHTML = texto.replace(/\n/g, '<br>');
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+
+    if (!opts.loading && !opts.noPersist) {
+      historial.push({ rol, texto, ts: Date.now() });
+      guardar();
+    }
+    return bubble;
+  }
+
+  // ─── Mostrar acciones sugeridas ───
+  function mostrarAccion(accion) {
+    if (!accion || !accion.tipo) return;
+    const messages = $cp('copilotMessages');
+    if (!messages) return;
+
+    const div = document.createElement('div');
+    div.className = 'copilot-msg copilot-msg-bot';
+    const bubble = document.createElement('div');
+    bubble.className = 'copilot-bubble';
+    bubble.innerHTML = `💡 <b>Acción sugerida:</b> ${accion.tipo}`;
+
+    const btn = document.createElement('button');
+    btn.className = 'copilot-action-btn';
+    btn.textContent = '⚙️ Ver y confirmar';
+    btn.onclick = () => abrirConfirmacion(accion);
+    bubble.appendChild(btn);
+
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // ─── Modal de confirmación ───
+  function abrirConfirmacion(accion) {
+    accionPendiente = accion;
+    const modal = $cp('copilotActionModal');
+    const title = $cp('copilotActionTitle');
+    const desc = $cp('copilotActionDesc');
+    if (!modal) return;
+
+    title.textContent = '⚙️ ' + (accion.tipo || 'Acción');
+    desc.textContent = accion.detalles || 'El copiloto sugiere esta acción. ¿Deseas ejecutarla?';
+    modal.classList.remove('hidden');
+  }
+
+  function cerrarConfirmacion() {
+    const modal = $cp('copilotActionModal');
+    if (modal) modal.classList.add('hidden');
+    accionPendiente = null;
+  }
+
+  // ─── Ejecutar acción confirmada ───
+  async function ejecutarAccion() {
+    if (!accionPendiente) return;
+    const accion = accionPendiente;
+    cerrarConfirmacion();
+
+    if (!estaOnline()) {
+      addMsg('bot', '⚠️ No hay conexión. La acción se ejecutará al reconectar.');
+      colaOffline.push({ tipo: 'accion', accion, ts: Date.now() });
+      guardar();
+      actualizarEstado();
+      return;
+    }
+
+    try {
+      addMsg('bot', '⚙️ Ejecutando: ' + accion.tipo + '...');
+
+      // Mapeo de tipos → endpoints
+      let resultado = null;
+      const t = accion.tipo.toLowerCase();
+
+      if (t.includes('publicar') && accion.detalles) {
+        // Ejemplo: publicar producto por ID
+        const match = String(accion.detalles).match(/local-[\w-]+/);
+        if (match) {
+          resultado = await api('/api/manual/products/' + match[0], {
+            method: 'PUT',
+            body: JSON.stringify({ publicado: true })
+          });
+        }
+      } else if (t.includes('sincronizar')) {
+        resultado = await api('/api/manual/sync-published', { method: 'POST', body: '{}' });
+      } else if (t.includes('banner')) {
+        resultado = await api('/api/ai/generate-banners', { method: 'POST', body: '{}' });
+      } else {
+        addMsg('bot', '⚠️ No sé cómo ejecutar "' + accion.tipo + '" todavía. Dímelo y lo implemento.');
+        return;
+      }
+
+      if (resultado && resultado.ok) {
+        addMsg('bot', '✅ Acción completada con éxito.');
+      } else {
+        addMsg('bot', '❌ Error: ' + (resultado?.error || 'desconocido'));
+      }
+    } catch (e) {
+      addMsg('bot', '❌ Error ejecutando: ' + e.message);
+    }
+  }
+
+  // ─── Procesar cola offline ───
+  async function procesarCola() {
+    if (!estaOnline() || !colaOffline.length || enviando) return;
+    const pendientes = [...colaOffline];
+    colaOffline = [];
+    guardar();
+
+    for (const item of pendientes) {
+      try {
+        if (item.tipo === 'mensaje') {
+          await enviarAlBackend(item.mensaje, item.historial, { silencioso: true });
+        } else if (item.tipo === 'accion') {
+          // TODO: ejecutar acción pendiente
+        }
+      } catch(e) {
+        colaOffline.push(item);
+      }
+    }
+    guardar();
+    actualizarEstado();
+  }
+
+  // ─── Enviar mensaje al backend ───
+  async function enviarAlBackend(mensaje, hist, opts = {}) {
+    const r = await fetch(API + '/api/ai/copilot', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || ''
+      },
+      body: JSON.stringify({ mensaje, historial: hist })
+    });
+    return r.json();
+  }
+
+  // ─── Handler de enviar mensaje ───
+  async function enviar() {
+    const input = $cp('copilotInput');
+    if (!input) return;
+    const texto = input.value.trim();
+    if (!texto || enviando) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    addMsg('user', texto);
+
+    if (!estaOnline()) {
+      addMsg('bot', '📡 Sin conexión. Tu mensaje se guardará y enviaré al reconectar.');
+      colaOffline.push({ tipo: 'mensaje', mensaje: texto, historial: [...historial], ts: Date.now() });
+      guardar();
+      actualizarEstado();
+      return;
+    }
+
+    enviando = true;
+    const loadingBubble = addMsg('bot', '🤔 Pensando...', { loading: true, noPersist: true });
+
+    try {
+      const data = await enviarAlBackend(texto, historial.slice(-6));
+
+      if (loadingBubble && loadingBubble.parentElement) {
+        loadingBubble.parentElement.remove();
+      }
+
+      if (!data.ok) {
+        addMsg('bot', '❌ Error: ' + (data.error || 'desconocido'));
+        return;
+      }
+
+      addMsg('bot', data.respuesta || '(sin respuesta)');
+
+      if (data.accionSugerida) {
+        mostrarAccion(data.accionSugerida);
+      }
+    } catch (e) {
+      if (loadingBubble && loadingBubble.parentElement) {
+        loadingBubble.parentElement.remove();
+      }
+      addMsg('bot', '❌ Error de conexión. Reintentaré al reconectar.');
+      colaOffline.push({ tipo: 'mensaje', mensaje: texto, historial: [...historial], ts: Date.now() });
+      guardar();
+    } finally {
+      enviando = false;
+      actualizarEstado();
+    }
+  }
+
+  // ─── Abrir / cerrar panel ───
+  function abrirPanel() {
+    const panel = $cp('copilotPanel');
+    if (!panel) return;
+    panel.classList.remove('hidden');
+    abierto = true;
+    actualizarEstado();
+    const input = $cp('copilotInput');
+    if (input) setTimeout(() => input.focus(), 200);
+    // Cargar historial visual
+    renderHistorial();
+  }
+
+  function cerrarPanel() {
+    const panel = $cp('copilotPanel');
+    if (panel) panel.classList.add('hidden');
+    abierto = false;
+  }
+
+  // ─── Render historial guardado ───
+  function renderHistorial() {
+    const messages = $cp('copilotMessages');
+    if (!messages) return;
+    // Mantener mensaje inicial del bot
+    const initial = messages.querySelector('.copilot-msg-bot .copilot-bubble:not(.loading)');
+    messages.innerHTML = '';
+    if (initial) {
+      const clone = initial.closest('.copilot-msg').cloneNode(true);
+      messages.appendChild(clone);
+    }
+    // Re-añadir historial (últimos 10)
+    historial.slice(-10).forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'copilot-msg copilot-msg-' + (h.rol === 'user' ? 'user' : 'bot');
+      const bubble = document.createElement('div');
+      bubble.className = 'copilot-bubble';
+      bubble.innerHTML = String(h.texto || '').replace(/\n/g, '<br>');
+      div.appendChild(bubble);
+      messages.appendChild(div);
+    });
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // ─── Detección de cambios en el state (innovador) ───
+  function detectarCambios() {
+    try {
+      const st = window.state || null;
+      if (!st || !st.results) return;
+
+      const snapAnterior = JSON.parse(localStorage.getItem(SNAP_KEY) || 'null');
+      const snapActual = {
+        ts: Date.now(),
+        resultsTotal: st.results.length,
+        localesTotal: (st.productosManuales || []).filter(p => p.tipo === 'local').length,
+        publishedTotal: (st.published || []).length,
+        resultsIds: st.results.slice(0, 500).map(r => r.id), // hash parcial
+      };
+
+      if (snapAnterior) {
+        const diffs = [];
+        if (snapActual.resultsTotal !== snapAnterior.resultsTotal) {
+          const delta = snapActual.resultsTotal - snapAnterior.resultsTotal;
+          diffs.push(`${delta > 0 ? '+' : ''}${delta} productos eBay`);
+        }
+        if (snapActual.localesTotal !== snapAnterior.localesTotal) {
+          const delta = snapActual.localesTotal - snapAnterior.localesTotal;
+          diffs.push(`${delta > 0 ? '+' : ''}${delta} locales`);
+        }
+        if (snapActual.publishedTotal !== snapAnterior.publishedTotal) {
+          const delta = snapActual.publishedTotal - snapAnterior.publishedTotal;
+          diffs.push(`${delta > 0 ? '+' : ''}${delta} publicados`);
+        }
+        if (diffs.length && !abierto) {
+          const badge = $cp('copilotBadge');
+          if (badge) {
+            badge.textContent = String((Number(badge.textContent) || 0) + 1);
+            badge.classList.remove('hidden');
+          }
+          console.log('[COPILOT] Cambios detectados:', diffs.join(', '));
+        }
+      }
+
+      localStorage.setItem(SNAP_KEY, JSON.stringify(snapActual));
+    } catch(e) {
+      console.warn('[COPILOT] Error detectando cambios:', e);
+    }
+  }
+
+  // ─── Init ───
+  function init() {
+    const btn = $cp('copilotBtn');
+    const panel = $cp('copilotPanel');
+    const close = $cp('copilotClose');
+    const send = $cp('copilotSend');
+    const input = $cp('copilotInput');
+    const cancel = $cp('copilotActionCancel');
+    const confirm = $cp('copilotActionConfirm');
+
+    if (!btn || !panel) {
+      console.warn('[COPILOT] Elementos no encontrados');
+      return;
+    }
+
+    cargar();
+    actualizarEstado();
+
+    btn.onclick = () => {
+      if (abierto) cerrarPanel();
+      else {
+        abrirPanel();
+        const badge = $cp('copilotBadge');
+        if (badge) badge.classList.add('hidden');
+      }
+    };
+
+    if (close) close.onclick = cerrarPanel;
+    if (cancel) cancel.onclick = cerrarConfirmacion;
+    if (confirm) confirm.onclick = ejecutarAccion;
+
+    if (send) send.onclick = enviar;
+
+    if (input) {
+      input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          enviar();
+        }
+      });
+    }
+
+    // Escuchar conexión
+    window.addEventListener('online', () => {
+      actualizarEstado();
+      addMsg('bot', '✅ Reconectado. Procesando mensajes pendientes...');
+    });
+    window.addEventListener('offline', actualizarEstado);
+
+    // Detección de cambios cada 30s
+    setInterval(detectarCambios, 30000);
+    setTimeout(detectarCambios, 5000);
+
+    console.log('✅ Copiloto listo');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 800));
+  } else {
+    setTimeout(init, 800);
+  }
+})();

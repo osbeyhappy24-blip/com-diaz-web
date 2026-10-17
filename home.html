@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -748,7 +748,7 @@
   </div>
 </div>
 
-  <script src="home.js?v=18"></script>
+  <script src="home.js?v=19"></script>
 
   
 
@@ -1052,6 +1052,56 @@
         <button id="localSaveBtn" class="btn-primary" style="flex:2">💾 Guardar</button>
       </div>
 
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ COPILOTO IA ═══ -->
+<button id="copilotBtn" class="copilot-btn" title="Copiloto IA">
+  <span class="copilot-icon">🤖</span>
+  <span id="copilotBadge" class="copilot-badge hidden">0</span>
+</button>
+
+<div id="copilotPanel" class="copilot-panel hidden">
+  <div class="copilot-header">
+    <div class="copilot-title">
+      <span>🤖 Copiloto IA</span>
+      <span id="copilotStatus" class="copilot-status">En línea</span>
+    </div>
+    <button id="copilotClose" class="copilot-close">✕</button>
+  </div>
+
+  <div id="copilotMessages" class="copilot-messages">
+    <div class="copilot-msg copilot-msg-bot">
+      <div class="copilot-bubble">
+        ¡Hola! 👋 Soy tu copiloto. Puedo ayudarte con:
+        <br>• 📊 Ver el estado del negocio
+        <br>• 💡 Sugerir mejoras
+        <br>• 🔍 Detectar problemas
+        <br>• ⚙️ Proponer acciones (con tu aprobación)
+        <br><br>¿En qué te ayudo?
+      </div>
+    </div>
+  </div>
+
+  <div id="copilotOffline" class="copilot-offline hidden">
+    📡 Sin conexión — tus mensajes se guardarán y enviarán al reconectar
+  </div>
+
+  <div class="copilot-input-wrap">
+    <textarea id="copilotInput" class="copilot-input" rows="1" placeholder="Pregúntame lo que quieras..."></textarea>
+    <button id="copilotSend" class="copilot-send" title="Enviar">➤</button>
+  </div>
+</div>
+
+<div id="copilotActionModal" class="copilot-action-modal hidden">
+  <div class="copilot-action-card">
+    <h3 id="copilotActionTitle">⚙️ Acción sugerida</h3>
+    <p id="copilotActionDesc" style="color:var(--muted);font-size:13px;margin:8px 0 16px"></p>
+    <div class="copilot-action-btns">
+      <button id="copilotActionCancel" class="btn-ghost">Cancelar</button>
+      <button id="copilotActionConfirm" class="btn-primary">✅ Ejecutar</button>
     </div>
   </div>
 </div>
