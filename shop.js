@@ -764,8 +764,16 @@ cargarCatalogo();
       e.preventDefault();
       e.stopPropagation();
       const pid = t.dataset.pid;
-      const prod = state.products.find(p => p.id === pid);
-      if (prod) addToCart(prod);
+      // Buscar en TODAS las fuentes: eBay + locales + filtrados
+      let prod = state.products.find(p => p.id === pid)
+              || (state.locales || []).find(p => p.id === pid)
+              || state.filtered.find(p => p.id === pid);
+      if (prod) {
+        addToCart(prod);
+      } else {
+        console.warn('[CART] Producto no encontrado:', pid);
+        if (typeof toast === 'function') toast('⚠️ Producto no disponible', 'err');
+      }
       return;
     }
   }, true);
