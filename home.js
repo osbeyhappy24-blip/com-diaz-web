@@ -4598,14 +4598,18 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   // ─── Enviar mensaje al backend ───
     async function enviarAlBackend(mensaje, hist, opts = {}) {
     const onChunk = opts.onChunk || (() => {});
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
     const r = await fetch(API + '/api/ai/copilot-stream', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || ''
       },
-      body: JSON.stringify({ mensaje, historial: hist })
+      body: JSON.stringify({ mensaje, historial: hist }),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
     if (!r.ok || !r.body) {
       return { ok: false, error: 'HTTP ' + r.status };
     }
@@ -4735,6 +4739,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     panel.classList.remove('hidden');
     abierto = true;
     actualizarEstado();
+    fetch(API + '/health', { cache: 'no-store' }).catch(() => {});
     const input = $cp('copilotInput');
     if (input) setTimeout(() => input.focus(), 200);
     // Cargar historial visual
