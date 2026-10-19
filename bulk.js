@@ -9,7 +9,7 @@
   const MAX_FOTOS = 30;
   const MAX_DAILY = 300;
   const BATCH_SIZE = 5;
-  const BATCH_INTERVAL = 60000;
+  const BATCH_INTERVAL = 15000;  // 15s entre batches (con 3 keys Gemini = 45 RPM)
 
   let st = { paso: 1, fotos: [], provincia: '', municipio: '', estadoBase: 'auto', categoria: '', procesando: false, pausado: false };
   let provinciasCache = null;
@@ -173,9 +173,12 @@
         });
         if (up && up.ok && up.url) {
           foto.url = up.url;
-          delete foto.base64;
+          // NO borrar base64 hasta después de publicar (respaldo)
+          // delete foto.base64;
+          console.log('[BULK] Foto subida a ImgBB:', foto.url);
           guardar();
         } else {
+          console.warn('[BULK] ImgBB falló:', up?.error);
           foto.error = 'No se pudo subir: ' + (up?.error || '?');
           return;
         }
@@ -187,6 +190,7 @@
       });
 
       if (r && r.ok && r.sugerencia) {
+        console.log('[BULK] Análisis OK:', foto.id, '→', r.sugerencia.titulo);
         if (st.estadoBase && st.estadoBase !== 'auto') r.sugerencia.estado = st.estadoBase;
         if (st.categoria) r.sugerencia.categoria = st.categoria;
         foto.sugerencia = r.sugerencia;
@@ -322,7 +326,10 @@
       return `
         <div class="bulk-review-card ${f.descartada ? 'discarded' : ''}" data-idx="${idx}">
           <input type="checkbox" class="bulk-review-check" data-idx="${idx}" ${f.descartada ? '' : 'checked'}>
-          <img src="${f.url || f.base64 || ''}" alt="">
+          ${f.url || f.base64 
+            ? `<img src="${f.url || f.base64}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <div style="width:80px;height:80px;border-radius:8px;background:var(--bg);display:${f.url||f.base64?'none':'flex'};align-items:center;justify-content:center;color:var(--muted);font-size:10px;flex-shrink:0">Sin img</div>
           <div class="bulk-review-body">
             <input type="text" class="bulk-edit-titulo" data-idx="${idx}" value="${(s.titulo || '').replace(/"/g, '&quot;')}">
             <div class="bulk-review-row">
