@@ -4887,3 +4887,133 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     setTimeout(init, 800);
   }
 })();
+
+
+// ═══════════════════════════════════════════════════════
+// PANEL DE CATÁLOGO — Progreso visual
+// ═══════════════════════════════════════════════════════
+(function comdiaz_catalog_panel_v1(){
+  const $C = id => document.getElementById(id);
+  
+  function proximaBusqueda(tipo) {
+    const now = new Date();
+    const cuba = new Date(now.toLocaleString('en-US', { timeZone: 'America/Havana' }));
+    const dia = cuba.getDay();
+    const hora = cuba.getHours();
+    
+    if (tipo === 'diaria') {
+      // Lun-Sáb 05:00
+      const diasHasta = (dia === 0) ? 1 : (dia === 6) ? 2 : 1;
+      const target = new Date(cuba);
+      if (hora < 5) {
+        target.setDate(target.getDate());
+        target.setHours(5, 0, 0, 0);
+      } else {
+        target.setDate(target.getDate() + diasHasta);
+        target.setHours(5, 0, 0, 0);
+      }
+      return target.toLocaleString('es', { weekday: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    if (tipo === 'semanal') {
+      // Domingo 05:00
+      const diasHastaDom = (7 - dia) % 7 || 7;
+      const target = new Date(cuba);
+      if (dia === 0 && hora < 5) {
+        target.setHours(5, 0, 0, 0);
+      } else {
+        target.setDate(target.getDate() + diasHastaDom);
+        target.setHours(5, 0, 0, 0);
+      }
+      return target.toLocaleString('es', { weekday: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    if (tipo === 'mensual') {
+      // 1er domingo del mes 06:00
+      const target = new Date(cuba);
+      target.setDate(1);
+      while (target.getDay() !== 0) target.setDate(target.getDate() + 1);
+      target.setHours(6, 0, 0, 0);
+      if (target <= cuba) {
+        target.setMonth(target.getMonth() + 1);
+        target.setDate(1);
+        while (target.getDay() !== 0) target.setDate(target.getDate() + 1);
+        target.setHours(6, 0, 0, 0);
+      }
+      return target.toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+    return '—';
+  }
+  
+  async function cargarEstado() {
+    try {
+      const r = await api('/api/catalog/status');
+      if (!r || !r.ok) {
+        $C('catalogStatusMsg').textContent = '⚠️ No se pudo cargar el estado';
+        return;
+      }
+      
+      // Contador y porcentaje
+      $C('catalogCount').textContent = r.activos.toLocaleString() + ' / ' + r.capMax.toLocaleString();
+      $C('catalogPercent').textContent = r.porcentaje + '%';
+      $C('catalogBadge').textContent = r.porcentaje + '%';
+      
+      // Barra de progreso con color
+      const fill = $C('catalogProgressFill');
+      fill.style.width = r.porcentaje + '%';
+      fill.className = 'catalog-progress-fill';
+      if (r.estado === 'amarillo') fill.classList.add('warn');
+      if (r.estado === 'rojo') fill.classList.add('danger');
+      
+      // Mensaje de estado
+      const msg = $C('catalogStatusMsg');
+      msg.textContent = (r.estado === 'verde' ? '🟢 ' : r.estado === 'amarillo' ? '🟡 ' : '🔴 ') + r.mensaje;
+      msg.className = 'catalog-status-msg';
+      if (r.estado === 'amarillo') msg.classList.add('warn');
+      if (r.estado === 'rojo') msg.classList.add('danger');
+      
+      // Métricas
+      $C('catalogConIA').textContent = r.conIA.toLocaleString();
+      $C('catalogSinIA').textContent = r.sinIA.toLocaleString();
+      $C('catalogDisponibles').textContent = r.disponibles.toLocaleString();
+      
+      // Próximas búsquedas
+      $C('nextDaily').textContent = proximaBusqueda('diaria');
+      $C('nextWeekly').textContent = proximaBusqueda('semanal');
+      $C('nextMonthly').textContent = proximaBusqueda('mensual');
+    } catch(e) {
+      console.warn('[CATALOG-PANEL] Error:', e);
+    }
+  }
+  
+  function init() {
+    if (!$C('catalogCard')) return;
+    
+    cargarEstado();
+    
+    // Botón recargar
+    $C('catalogRefreshBtn')?.addEventListener('click', () => {
+      const btn = $C('catalogRefreshBtn');
+      btn.textContent = '⏳ Actualizando...';
+      btn.disabled = true;
+      cargarEstado().finally(() => {
+        btn.textContent = '🔄 Actualizar';
+        btn.disabled = false;
+      });
+    });
+    
+    // Auto-refresh cada 60s si la tarjeta está visible
+    setInterval(() => {
+      const card = $C('catalogCard');
+      if (card && card.getBoundingClientRect().top < window.innerHeight) {
+        cargarEstado();
+      }
+    }, 60000);
+    
+    console.log('✅ Panel de catálogo listo');
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 800));
+  } else {
+    setTimeout(init, 800);
+  }
+})();

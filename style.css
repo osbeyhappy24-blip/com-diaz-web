@@ -3250,3 +3250,111 @@ body {
 #copilotPanel.copilot-panel:not(.hidden) {
   display: flex !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   TARJETA DE PROGRESO DEL CATÁLOGO
+   ═══════════════════════════════════════════════════════ */
+.catalog-progress-wrap { margin-bottom: 14px; }
+
+.catalog-progress-bar {
+  height: 12px;
+  background: var(--bg-2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+}
+.catalog-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width .6s ease, background .3s;
+  border-radius: 999px;
+}
+.catalog-progress-fill.warn {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+.catalog-progress-fill.danger {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.catalog-progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.catalog-status-msg {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  text-align: center;
+  background: rgba(16,185,129,.12);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,.25);
+}
+.catalog-status-msg.warn {
+  background: rgba(245,158,11,.12);
+  color: #fbbf24;
+  border-color: rgba(245,158,11,.25);
+}
+.catalog-status-msg.danger {
+  background: rgba(239,68,68,.12);
+  color: #f87171;
+  border-color: rgba(239,68,68,.25);
+}
+
+.catalog-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.catalog-metric {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+}
+.catalog-metric-num {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.catalog-metric-lbl {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.catalog-next-runs {
+  background: rgba(124,58,237,.06);
+  border: 1px solid rgba(124,58,237,.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.catalog-next-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 6px;
+}
+.catalog-next-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 3px 0;
+  color: var(--text);
+}
+.catalog-next-item span:last-child {
+  color: var(--muted);
+  font-weight: 600;
+}
