@@ -33,8 +33,14 @@
       localStorage.setItem(KEY, JSON.stringify(st));
     } catch(e) {
       if (e.name === 'QuotaExceededError') {
-        st.fotos.forEach(f => { if (f.url && f.base64) delete f.base64; });
-        try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(_) {}
+        // NO borrar base64 de memoria (rompe el flujo actual)
+        // Solo guardar versión sin base64 en localStorage, sin tocar st
+        try {
+          const copia = JSON.parse(JSON.stringify(st));
+          copia.fotos.forEach(f => { if (f.url && f.base64) delete f.base64; });
+          localStorage.setItem(KEY, JSON.stringify(copia));
+          console.warn('[BULK] localStorage lleno, guardando sin base64');
+        } catch(_) {}
       }
     }
   }
@@ -308,9 +314,20 @@
 
   // ─── Render review (paso 4) ───
   function renderReview() {
+    console.log('[BULK-REVIEW] Ejecutando renderReview. Fotos totales:', st.fotos.length);
+    st.fotos.forEach((f, i) => {
+      console.log('[BULK-REVIEW] Foto', i, '→', {
+        analizada: f.analizada,
+        tieneSugerencia: !!f.sugerencia,
+        tieneUrl: !!f.url,
+        tieneBase64: !!f.base64,
+        error: f.error
+      });
+    });
     const grid = $B('bulkReviewGrid');
-    if (!grid) return;
+    if (!grid) { console.error('[BULK-REVIEW] GRID NO ENCONTRADO'); return; }
     const validas = st.fotos.filter(f => f.analizada && f.sugerencia);
+    console.log('[BULK-REVIEW] Fotos válidas:', validas.length);
     if (!validas.length) {
       grid.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">No hay fotos analizadas</p>';
       if ($B('bulkPublishCount')) $B('bulkPublishCount').textContent = '0';
@@ -319,6 +336,7 @@
 
     const cats = (window.state?.categories || []).map(c => c.label || c);
 
+    try {
     grid.innerHTML = validas.map(f => {
       const s = f.sugerencia;
       const idx = st.fotos.indexOf(f);
@@ -352,6 +370,10 @@
         </div>
       `;
     }).join('');
+    } catch(err) {
+      console.error('[BULK-REVIEW] ERROR:', err);
+      grid.innerHTML = '<p style="color:#f87171;padding:20px">Error al mostrar fotos: ' + err.message + '</p>';
+    }
 
     bindReviewEdits(grid);
     actualizarPublishCount();
