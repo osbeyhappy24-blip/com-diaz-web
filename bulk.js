@@ -173,19 +173,23 @@
   async function analizarFoto(foto) {
     try {
       if (!foto.url) {
-        const up = await api('/api/upload-image', {
-          method: 'POST',
-          body: JSON.stringify({ image: foto.base64, nombre: 'bulk_' + foto.id })
-        });
+        console.log('[BULK] Subiendo foto', foto.id, 'base64 length:', (foto.base64 || '').length);
+        // Intentar hasta 2 veces con XHR
+        let up = null;
+        for (let intento = 1; intento <= 2; intento++) {
+          up = await apiUpload({ image: foto.base64, nombre: 'bulk_' + foto.id });
+          if (up && up.ok && up.url) break;
+          console.warn('[BULK] Upload intento ' + intento + ' falló:', up?.error);
+          if (intento < 2) await new Promise(r => setTimeout(r, 2000));
+        }
         if (up && up.ok && up.url) {
           foto.url = up.url;
-          // NO borrar base64 hasta después de publicar (respaldo)
-          // delete foto.base64;
-          console.log('[BULK] Foto subida a ImgBB:', foto.url);
+          console.log('[BULK] Foto subida OK:', foto.url);
           guardar();
         } else {
-          console.warn('[BULK] ImgBB falló:', up?.error);
-          foto.error = 'No se pudo subir: ' + (up?.error || '?');
+          console.warn('[BULK] ImgBB falló después de 2 intentos:', up?.error);
+          foto.error = 'Upload: ' + (up?.error || 'Failed');
+          guardar();
           return;
         }
       }
