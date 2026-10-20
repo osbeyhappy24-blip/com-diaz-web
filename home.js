@@ -4596,84 +4596,59 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   }
 
   // ─── Enviar mensaje al backend ───
-    async function enviarAlBackend(mensaje, hist, opts = {}) {
+  // ─── Enviar mensaje al backend (XHR puro para máxima compatibilidad) ───
+  async function enviarAlBackend(mensaje, hist, opts = {}) {
     const onChunk = opts.onChunk || (() => {});
-    // CRÍTICO: forzar fallback SIEMPRE (WebView crashea con stream)
-    const soportaStream = false;
-
-    if (!soportaStream) {
-      // FALLBACK: usar endpoint sin stream (/api/ai/copilot)
-      console.log('[COPILOT] WebView sin ReadableStream → usando fallback');
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000);
-      const r = await fetch(API + '/api/ai/copilot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || ''
-        },
-        body: JSON.stringify({ mensaje, historial: hist }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      if (!r.ok) {
-        return { ok: false, error: 'HTTP ' + r.status };
-      }
-      const data = await r.json();
-      if (data.ok && data.respuesta) {
-        onChunk(data.respuesta);  // Un solo chunk con toda la respuesta
-      }
-      return data;
-    }
-
-    // Stream normal (WebView moderno)
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
-    const r = await fetch(API + '/api/ai/copilot-stream', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || ''
-      },
-      body: JSON.stringify({ mensaje, historial: hist }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    if (!r.ok || !r.body) {
-      return { ok: false, error: 'HTTP ' + r.status };
-    }
-    const reader = r.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let respuestaCompleta = '';
-    let accionSugerida = null;
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith('data: ')) continue;
-        try {
-          const parsed = JSON.parse(trimmed.slice(6));
-          if (parsed.chunk) {
-            respuestaCompleta += parsed.chunk;
-            onChunk(parsed.chunk);
-          } else if (parsed.done) {
-            if (parsed.accionSugerida) accionSugerida = parsed.accionSugerida;
-            if (parsed.textoFinal) respuestaCompleta = parsed.textoFinal;
-          } else if (parsed.error) {
-            return { ok: false, error: parsed.error };
+    
+    console.log('[COPILOT] Enviando con XMLHttpRequest...');
+    
+    return new Promise((resolve) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API + '/api/ai/copilot', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
+        xhr.timeout = 90000;
+        
+        xhr.onload = function() {
+          console.log('[COPILOT] XHR status:', xhr.status);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const data = JSON.parse(xhr.responseText);
+              console.log('[COPILOT] XHR OK, respuesta recibida');
+              if (data.ok && data.respuesta) {
+                onChunk(data.respuesta);
+              }
+              resolve(data);
+            } catch(e) {
+              console.error('[COPILOT] XHR JSON error:', e);
+              resolve({ ok: false, error: 'Respuesta inválida' });
+            }
+          } else {
+            console.error('[COPILOT] XHR HTTP error:', xhr.status);
+            resolve({ ok: false, error: 'HTTP ' + xhr.status });
           }
-        } catch(_) {}
+        };
+        
+        xhr.onerror = function() {
+          console.error('[COPILOT] XHR error de red');
+          resolve({ ok: false, error: 'Error de red (XHR)' });
+        };
+        
+        xhr.ontimeout = function() {
+          console.error('[COPILOT] XHR timeout');
+          resolve({ ok: false, error: 'Timeout (XHR)' });
+        };
+        
+        const body = JSON.stringify({ mensaje, historial: hist });
+        xhr.send(body);
+      } catch(e) {
+        console.error('[COPILOT] XHR excepción:', e);
+        resolve({ ok: false, error: e.message });
       }
-    }
-    return { ok: true, respuesta: respuestaCompleta, accionSugerida };
+    });
   }
 
-  // ─── Handler de enviar mensaje ───
   async function enviar() {
     const input = $cp('copilotInput');
     if (!input) return;
