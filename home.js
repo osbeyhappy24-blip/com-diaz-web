@@ -4598,10 +4598,8 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   // ─── Enviar mensaje al backend ───
     async function enviarAlBackend(mensaje, hist, opts = {}) {
     const onChunk = opts.onChunk || (() => {});
-    // Detectar si el WebView soporta ReadableStream
-    const soportaStream = typeof window.ReadableStream !== 'undefined' &&
-                          typeof Response !== 'undefined' &&
-                          Response.prototype.body;
+    // CRÍTICO: forzar fallback SIEMPRE (WebView crashea con stream)
+    const soportaStream = false;
 
     if (!soportaStream) {
       // FALLBACK: usar endpoint sin stream (/api/ai/copilot)
