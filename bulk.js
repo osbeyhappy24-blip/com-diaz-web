@@ -170,6 +170,45 @@
 
 
   // ─── Análisis individual ───
+  // ─── Upload con XHR (compatible con WebViews viejos) ───
+  function apiUpload(payload) {
+    return new Promise((resolve) => {
+      console.log('[BULK] apiUpload iniciando...');
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API + '/api/upload-image', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
+        xhr.timeout = 120000;
+        
+        xhr.onload = function() {
+          console.log('[BULK] apiUpload status:', xhr.status);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText)); }
+            catch(e) { resolve({ ok: false, error: 'JSON inválido' }); }
+          } else {
+            resolve({ ok: false, error: 'HTTP ' + xhr.status });
+          }
+        };
+        
+        xhr.onerror = function() {
+          console.warn('[BULK] apiUpload error de red');
+          resolve({ ok: false, error: 'Error de red (XHR)' });
+        };
+        
+        xhr.ontimeout = function() {
+          console.warn('[BULK] apiUpload timeout');
+          resolve({ ok: false, error: 'Timeout (XHR)' });
+        };
+        
+        xhr.send(JSON.stringify(payload));
+      } catch(e) {
+        console.error('[BULK] apiUpload excepción:', e);
+        resolve({ ok: false, error: e.message });
+      }
+    });
+  }
+
   async function analizarFoto(foto) {
     try {
       if (!foto.url) {
@@ -445,10 +484,7 @@
 
       try {
         if (!foto.url) {
-          const up = await api('/api/upload-image', {
-            method: 'POST',
-            body: JSON.stringify({ image: foto.base64, nombre: 'bulk_' + foto.id })
-          });
+          const up = await apiUpload({ image: foto.base64, nombre: 'bulk_' + foto.id });
           if (!up?.ok || !up.url) { fail++; continue; }
           foto.url = up.url;
           delete foto.base64;
