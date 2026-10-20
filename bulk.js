@@ -314,22 +314,36 @@
 
   // ─── Render review (paso 4) ───
   function renderReview() {
-    console.log('[BULK-REVIEW] Ejecutando renderReview. Fotos totales:', st.fotos.length);
-    st.fotos.forEach((f, i) => {
-      console.log('[BULK-REVIEW] Foto', i, '→', {
-        analizada: f.analizada,
-        tieneSugerencia: !!f.sugerencia,
-        tieneUrl: !!f.url,
-        tieneBase64: !!f.base64,
-        error: f.error
-      });
-    });
     const grid = $B('bulkReviewGrid');
-    if (!grid) { console.error('[BULK-REVIEW] GRID NO ENCONTRADO'); return; }
+    if (!grid) return;
     const validas = st.fotos.filter(f => f.analizada && f.sugerencia);
-    console.log('[BULK-REVIEW] Fotos válidas:', validas.length);
+    
+    // ═══ PANEL DE DEBUG VISIBLE (para diagnosticar sin PC) ═══
+    let debugPanel = $B('bulkDebugPanel');
+    if (!debugPanel) {
+      debugPanel = document.createElement('div');
+      debugPanel.id = 'bulkDebugPanel';
+      debugPanel.style.cssText = 'background:#1a1f2e;border:1px solid #f59e0b;border-radius:8px;padding:10px;margin-bottom:12px;font-size:11px;font-family:monospace;max-height:250px;overflow-y:auto';
+      if (grid.parentElement) {
+        grid.parentElement.insertBefore(debugPanel, grid);
+      }
+    }
+    
+    let debugHTML = '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px">🔍 Debug: ' + validas.length + ' válidas / ' + st.fotos.length + ' totales</div>';
+    st.fotos.forEach((f, i) => {
+      const items = [
+        (f.analizada ? '✅' : '❌') + ' analizada',
+        (f.sugerencia ? '✅' : '❌') + ' sugerencia',
+        (f.url ? '✅' : '❌') + ' url',
+        (f.base64 ? '✅' : '❌') + ' base64',
+        f.error ? '❌ ' + f.error : ''
+      ].filter(Boolean);
+      debugHTML += '<div style="color:#cbd5e1;margin-bottom:4px;padding:3px 0;border-bottom:1px solid #374151">Foto ' + (i+1) + ': ' + items.join(' · ') + '</div>';
+    });
+    debugPanel.innerHTML = debugHTML;
+    
     if (!validas.length) {
-      grid.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">No hay fotos analizadas</p>';
+      grid.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">No hay fotos analizadas aún. Espera a que termine el análisis o vuelve al paso 3.</p>';
       if ($B('bulkPublishCount')) $B('bulkPublishCount').textContent = '0';
       return;
     }
@@ -337,39 +351,38 @@
     const cats = (window.state?.categories || []).map(c => c.label || c);
 
     try {
-    grid.innerHTML = validas.map(f => {
-      const s = f.sugerencia;
-      const idx = st.fotos.indexOf(f);
-      const conf = Math.round((s.confianza || 0) * 100);
-      return `
-        <div class="bulk-review-card ${f.descartada ? 'discarded' : ''}" data-idx="${idx}">
-          <input type="checkbox" class="bulk-review-check" data-idx="${idx}" ${f.descartada ? '' : 'checked'}>
-          ${f.url || f.base64 
-            ? `<img src="${f.url || f.base64}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-            : ''}
-          <div style="width:80px;height:80px;border-radius:8px;background:var(--bg);display:${f.url||f.base64?'none':'flex'};align-items:center;justify-content:center;color:var(--muted);font-size:10px;flex-shrink:0">Sin img</div>
-          <div class="bulk-review-body">
-            <input type="text" class="bulk-edit-titulo" data-idx="${idx}" value="${(s.titulo || '').replace(/"/g, '&quot;')}">
-            <div class="bulk-review-row">
-              <select class="bulk-edit-cat" data-idx="${idx}">
-                ${cats.map(c => `<option value="${c}" ${c === s.categoria ? 'selected' : ''}>${c}</option>`).join('')}
-              </select>
-              <select class="bulk-edit-estado" data-idx="${idx}">
-                <option value="nuevo" ${s.estado === 'nuevo' ? 'selected' : ''}>Nuevo</option>
-                <option value="usado" ${s.estado === 'usado' ? 'selected' : ''}>Usado</option>
-                <option value="reacondicionado" ${s.estado === 'reacondicionado' ? 'selected' : ''}>Reacond.</option>
-              </select>
+      grid.innerHTML = validas.map(f => {
+        const s = f.sugerencia;
+        const idx = st.fotos.indexOf(f);
+        const conf = Math.round((s.confianza || 0) * 100);
+        return `
+          <div class="bulk-review-card ${f.descartada ? 'discarded' : ''}" data-idx="${idx}">
+            <input type="checkbox" class="bulk-review-check" data-idx="${idx}" ${f.descartada ? '' : 'checked'}>
+            ${f.url || f.base64 
+              ? `<img src="${f.url || f.base64}" alt="" style="width:80px;height:80px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">`
+              : '<div style="width:80px;height:80px;border-radius:8px;background:#374151;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px">Sin img</div>'}
+            <div class="bulk-review-body">
+              <input type="text" class="bulk-edit-titulo" data-idx="${idx}" value="${(s.titulo || '').replace(/"/g, '&quot;')}">
+              <div class="bulk-review-row">
+                <select class="bulk-edit-cat" data-idx="${idx}">
+                  ${cats.map(c => `<option value="${c}" ${c === s.categoria ? 'selected' : ''}>${c}</option>`).join('')}
+                </select>
+                <select class="bulk-edit-estado" data-idx="${idx}">
+                  <option value="nuevo" ${s.estado === 'nuevo' ? 'selected' : ''}>Nuevo</option>
+                  <option value="usado" ${s.estado === 'usado' ? 'selected' : ''}>Usado</option>
+                  <option value="reacondicionado" ${s.estado === 'reacondicionado' ? 'selected' : ''}>Reacond.</option>
+                </select>
+              </div>
+              <div class="bulk-review-row" style="align-items:center">
+                <input type="number" class="bulk-edit-precio" data-idx="${idx}" value="${s.precioSugeridoUSD || 0}" step="0.01" min="0">
+                <span class="bulk-review-badge ${conf < 70 ? 'warn' : ''}">${conf}%</span>
+                ${f.dup ? '<span class="bulk-review-badge warn">⚠️ Dup</span>' : ''}
+              </div>
+              <textarea class="bulk-edit-desc" data-idx="${idx}">${s.descripcion || ''}</textarea>
             </div>
-            <div class="bulk-review-row" style="align-items:center">
-              <input type="number" class="bulk-edit-precio" data-idx="${idx}" value="${s.precioSugeridoUSD || 0}" step="0.01" min="0">
-              <span class="bulk-review-badge ${conf < 70 ? 'warn' : ''}">${conf}%</span>
-              ${f.dup ? '<span class="bulk-review-badge warn">⚠️ Dup</span>' : ''}
-            </div>
-            <textarea class="bulk-edit-desc" data-idx="${idx}">${s.descripcion || ''}</textarea>
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('');
     } catch(err) {
       console.error('[BULK-REVIEW] ERROR:', err);
       grid.innerHTML = '<p style="color:#f87171;padding:20px">Error al mostrar fotos: ' + err.message + '</p>';

@@ -4743,7 +4743,12 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     panel.classList.remove('hidden');
     abierto = true;
     actualizarEstado();
-    fetch(API + '/health', { cache: 'no-store' }).catch(() => {});
+    // Warmup: 4 pings escalonados para despertar Render
+    [0, 2000, 8000, 20000].forEach(ms => {
+      setTimeout(() => {
+        fetch(API + '/health', { cache: 'no-store' }).catch(() => {});
+      }, ms);
+    });
     const input = $cp('copilotInput');
     if (input) setTimeout(() => input.focus(), 200);
     // Cargar historial visual
