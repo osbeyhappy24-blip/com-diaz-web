@@ -4598,6 +4598,37 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   // ─── Enviar mensaje al backend ───
     async function enviarAlBackend(mensaje, hist, opts = {}) {
     const onChunk = opts.onChunk || (() => {});
+    // Detectar si el WebView soporta ReadableStream
+    const soportaStream = typeof window.ReadableStream !== 'undefined' &&
+                          typeof Response !== 'undefined' &&
+                          Response.prototype.body;
+
+    if (!soportaStream) {
+      // FALLBACK: usar endpoint sin stream (/api/ai/copilot)
+      console.log('[COPILOT] WebView sin ReadableStream → usando fallback');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
+      const r = await fetch(API + '/api/ai/copilot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || ''
+        },
+        body: JSON.stringify({ mensaje, historial: hist }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!r.ok) {
+        return { ok: false, error: 'HTTP ' + r.status };
+      }
+      const data = await r.json();
+      if (data.ok && data.respuesta) {
+        onChunk(data.respuesta);  // Un solo chunk con toda la respuesta
+      }
+      return data;
+    }
+
+    // Stream normal (WebView moderno)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000);
     const r = await fetch(API + '/api/ai/copilot-stream', {
