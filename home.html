@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -793,7 +793,7 @@
 </div>
 
   <script src="home.js?v=32"></script>
-<script src="bulk.js?v=8"></script>
+<script src="bulk.js?v=9"></script>
 
   
 
@@ -1155,127 +1155,61 @@
 <!-- ═══ MODAL CARGA MASIVA ═══ -->
 <div id="bulkModal" class="modal hidden">
   <div class="modal-card" style="max-width:720px">
+
+    <!-- HEADER -->
     <div class="modal-head">
       <div>
-        <h3>📤 Carga masiva con IA</h3>
-        <span id="bulkStepLabel" style="font-size:11px;color:var(--muted)">Paso 1 de 4</span>
+        <h3 id="bulkModalTitle">📤 Subir productos en lote</h3>
+        <span id="bulkCounter" style="font-size:11px;color:var(--muted)">0 / 50 productos</span>
       </div>
       <button id="bulkModalClose" class="btn-mini">✕</button>
     </div>
 
     <div style="padding:16px 20px;max-height:75vh;overflow-y:auto">
 
-      <!-- Indicador de pasos -->
-      <div class="bulk-steps-indicator">
-        <div class="bulk-step-dot active" data-step="1">1</div>
-        <div class="bulk-step-line"></div>
-        <div class="bulk-step-dot" data-step="2">2</div>
-        <div class="bulk-step-line"></div>
-        <div class="bulk-step-dot" data-step="3">3</div>
-        <div class="bulk-step-line"></div>
-        <div class="bulk-step-dot" data-step="4">4</div>
-      </div>
+      <!-- ═══ PASO 1: Selección de fotos ═══ -->
+      <div id="bulkStep1">
+        <p class="manual-hint" style="margin-bottom:12px">Elige hasta 50 fotos. Cada foto será un producto independiente con sus propios datos.</p>
 
-      <!-- PASO 1: Seleccionar fotos -->
-      <div id="bulkStep1" class="bulk-step-panel">
         <div class="bulk-upload-area" id="bulkUploadArea">
           <input id="bulkFileInput" type="file" accept="image/*" multiple style="display:none">
           <div class="bulk-upload-icon">📷</div>
           <button type="button" id="bulkSelectBtn" class="btn-primary">Seleccionar fotos</button>
-          <p class="bulk-hint">Máximo 30 fotos por lote · Cada foto se analiza con IA</p>
+          <p class="bulk-hint">Máximo 50 · Se comprimirán automáticamente</p>
         </div>
+
         <div id="bulkPreviewGrid" class="bulk-preview-grid"></div>
+
         <div class="bulk-step-actions">
           <button type="button" id="bulkCancel1" class="btn-ghost">Cancelar</button>
-          <button type="button" id="bulkNext1" class="btn-primary" disabled>Siguiente →</button>
+          <button type="button" id="bulkNext1" class="btn-primary" disabled>Empezar a editar →</button>
         </div>
       </div>
 
-      <!-- PASO 2: Datos comunes + cuota -->
-      <div id="bulkStep2" class="bulk-step-panel hidden">
-        <p class="bulk-hint" style="margin-bottom:12px">Estos datos se aplicarán a TODAS las fotos. La IA puede sobrescribirlos si detecta algo distinto.</p>
+      <!-- ═══ PASO 2: Edición por acordeón ═══ -->
+      <div id="bulkStep2" class="hidden">
+        <p class="manual-hint" style="margin-bottom:12px">Edita cada producto. Solo los marcados ✅ se publicarán.</p>
 
-        <div class="local-form-grid">
-          <label class="local-form-label">
-            <span>Provincia *</span>
-            <div style="display:flex;gap:6px;align-items:center">
-              <select id="bulkProvincia" class="input-filter" style="flex:1"></select>
-              <button type="button" id="bulkReloadProv" class="btn-ghost" style="padding:8px 10px;font-size:14px" title="Recargar provincias">🔄</button>
-            </div>
-          </label>
-          <label class="local-form-label">
-            <span>Municipio</span>
-            <select id="bulkMunicipio" class="input-filter" disabled>
-              <option value="">Todos</option>
-            </select>
-          </label>
-          <label class="local-form-label">
-            <span>Estado base</span>
-            <select id="bulkEstado" class="input-filter">
-              <option value="nuevo">Nuevo</option>
-              <option value="usado">Usado</option>
-              <option value="reacondicionado">Reacondicionado</option>
-              <option value="auto">Dejar que la IA decida</option>
-            </select>
-          </label>
-          <label class="local-form-label">
-            <span>Categoría base (opcional)</span>
-            <select id="bulkCategoria" class="input-filter">
-              <option value="">Dejar que la IA decida</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="bulk-quota-box">
-          <div class="bulk-quota-header">
-            <span>💎 Cuota IA hoy</span>
-            <span id="bulkQuotaText">0 / 300</span>
-          </div>
-          <div class="bulk-quota-bar">
-            <div id="bulkQuotaFill" class="bulk-quota-fill" style="width:0%"></div>
-          </div>
-          <p class="bulk-hint" style="margin:8px 0 0">Análisis restantes: <b id="bulkQuotaAvailable">300</b> · Reset diario a las 00:00</p>
-        </div>
+        <div id="bulkEditList"></div>
 
         <div class="bulk-step-actions">
-          <button type="button" id="bulkBack2" class="btn-ghost">← Atrás</button>
-          <button type="button" id="bulkNext2" class="btn-primary">🤖 Analizar con IA</button>
+          <button type="button" id="bulkBack1" class="btn-ghost">← Añadir más fotos</button>
+          <button type="button" id="bulkPublishAll" class="btn-primary">✅ Publicar <span id="bulkPublishCount">0</span></button>
         </div>
       </div>
 
-      <!-- PASO 3: Procesando -->
-      <div id="bulkStep3" class="bulk-step-panel hidden">
+      <!-- ═══ PASO 3: Progreso de publicación ═══ -->
+      <div id="bulkStep3" class="hidden">
         <div class="bulk-progress-container">
           <div class="bulk-progress-bar">
             <div id="bulkProgressFill" class="bulk-progress-fill" style="width:0%"></div>
           </div>
           <div class="bulk-progress-info">
-            <span id="bulkProgressText">Analizando 0 / 0...</span>
-            <span id="bulkProgressETA">Calculando...</span>
+            <span id="bulkProgressText">Publicando 0 / 0...</span>
+            <span id="bulkProgressOk" style="color:#10b981"></span>
           </div>
         </div>
-        <p class="bulk-hint" style="margin:8px 0 16px">La IA procesa de 5 en 5. Puedes cerrar y volver después.</p>
-        <div id="bulkLiveGrid" class="bulk-live-grid"></div>
-        <div class="bulk-step-actions">
-          <button type="button" id="bulkPauseBtn" class="btn-ghost">⏸ Pausar</button>
-          <button type="button" id="bulkSkip3" class="btn-ghost">Saltar a revisión →</button>
-        </div>
-      </div>
-
-      <!-- PASO 4: Revisar y publicar -->
-      <div id="bulkStep4" class="bulk-step-panel hidden">
-        <div class="bulk-review-header">
-          <p>Revisa y edita antes de publicar:</p>
-          <div class="bulk-review-actions">
-            <button type="button" id="bulkSelectAll" class="btn-ghost">☑ Todos</button>
-            <button type="button" id="bulkDeselectAll" class="btn-ghost">☐ Ninguno</button>
-          </div>
-        </div>
-        <div id="bulkReviewGrid" class="bulk-review-grid"></div>
-        <div class="bulk-step-actions">
-          <button type="button" id="bulkBack4" class="btn-ghost">← Atrás</button>
-          <button type="button" id="bulkPublishAll" class="btn-primary">✅ Publicar <span id="bulkPublishCount">0</span></button>
-        </div>
+        <div id="bulkPublishLog" style="font-size:12px;font-family:monospace;max-height:200px;overflow-y:auto;background:#0b0f1a;padding:8px;border-radius:6px;margin-top:8px"></div>
       </div>
 
     </div>

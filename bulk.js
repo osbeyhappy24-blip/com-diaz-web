@@ -1,86 +1,65 @@
 
 // ═══════════════════════════════════════════════════════
-// CARGA MASIVA CON IA — Parte 1: Setup + helpers
+// CARGA MASIVA v2 — Acordeón de productos
 // ═══════════════════════════════════════════════════════
-(function comdiaz_bulk_v1(){
+(function comdiaz_bulk_v2(){
   const $B = id => document.getElementById(id);
-  const KEY = 'comdiaz_bulk_state';
-  const QUOTA_KEY = 'comdiaz_bulk_quota';
-  const MAX_FOTOS = 30;
-  const MAX_DAILY = 300;
+  const KEY = 'comdiaz_bulk_v2_state';
+  const MAX_FOTOS = 50;
   const BATCH_SIZE = 5;
-  const BATCH_INTERVAL = 15000;  // 15s entre batches (con 3 keys Gemini = 45 RPM)
 
-  let st = { paso: 1, fotos: [], provincia: '', municipio: '', estadoBase: 'auto', categoria: '', procesando: false, pausado: false };
+  let productos = [];  // Array de productos individuales
   let provinciasCache = null;
+  let categoriasCache = null;
+  let publicando = false;
 
   function sleep(ms) { return new Promise(s => setTimeout(s, ms)); }
 
+  // ─── Persistencia ───
   function cargar() {
     try {
       const raw = localStorage.getItem(KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);
-      if (saved && Array.isArray(saved.fotos) && saved.fotos.length) {
-        if (confirm('📦 Tienes un lote sin terminar (' + saved.fotos.length + ' fotos). ¿Continuar?')) st = saved;
-        else localStorage.removeItem(KEY);
+      if (saved && Array.isArray(saved.productos) && saved.productos.length) {
+        if (confirm('📦 Tienes ' + saved.productos.length + ' productos en borrador. ¿Continuar editando?')) {
+          productos = saved.productos;
+        } else {
+          localStorage.removeItem(KEY);
+        }
       }
     } catch(_) {}
   }
 
   function guardar() {
     try {
-      localStorage.setItem(KEY, JSON.stringify(st));
+      const copia = productos.map(p => ({
+        id: p.id, base64: p.base64, url: p.url,
+        titulo: p.titulo, descripcion: p.descripcion,
+        precioUSD: p.precioUSD, precioCUP: p.precioCUP,
+        category: p.category, estado: p.estado,
+        provincia: p.provincia, municipio: p.municipio,
+        cantidad: p.cantidad, notas: p.notas,
+        descartado: p.descartado, listo: p.listo
+      }));
+      localStorage.setItem(KEY, JSON.stringify({ productos: copia }));
     } catch(e) {
       if (e.name === 'QuotaExceededError') {
-        // NO borrar base64 de memoria (rompe el flujo actual)
-        // Solo guardar versión sin base64 en localStorage, sin tocar st
         try {
-          const copia = JSON.parse(JSON.stringify(st));
-          copia.fotos.forEach(f => { if (f.url && f.base64) delete f.base64; });
-          localStorage.setItem(KEY, JSON.stringify(copia));
-          console.warn('[BULK] localStorage lleno, guardando sin base64');
+          const copia = productos.map(p => ({ ...p, base64: p.url ? null : p.base64 }));
+          localStorage.setItem(KEY, JSON.stringify({ productos: copia }));
         } catch(_) {}
       }
     }
   }
 
-  function cargarCuota() {
-    try {
-      const raw = localStorage.getItem(QUOTA_KEY);
-      if (raw) {
-        const q = JSON.parse(raw);
-        const hoy = new Date().toISOString().slice(0, 10);
-        if (q.fecha === hoy) return q.usados || 0;
-      }
-    } catch(_) {}
-    return 0;
-  }
-
-  function guardarCuota(usados) {
-    const hoy = new Date().toISOString().slice(0, 10);
-    try { localStorage.setItem(QUOTA_KEY, JSON.stringify({ fecha: hoy, usados })); } catch(_) {}
-  }
-
-  function cuotaDisponible() { return MAX_DAILY - cargarCuota(); }
-
-  function actualizarCuotaUI() {
-    const usados = cargarCuota();
-    const pct = Math.min(100, (usados / MAX_DAILY) * 100);
-    if ($B('bulkQuotaFill')) {
-      $B('bulkQuotaFill').style.width = pct + '%';
-      $B('bulkQuotaFill').classList.toggle('warn', pct >= 80);
-    }
-    if ($B('bulkQuotaText')) $B('bulkQuotaText').textContent = usados + ' / ' + MAX_DAILY;
-    if ($B('bulkQuotaAvailable')) $B('bulkQuotaAvailable').textContent = (MAX_DAILY - usados);
-  }
-
+  // ─── Comprimir imagen ───
   function comprimir(file, maxSize, quality) {
     maxSize = maxSize || 800; quality = quality || 0.6;
     return new Promise((resolve, reject) => {
       const img = new Image();
       const reader = new FileReader();
-      reader.onload = (e) => { img.src = e.target.result; };
+      reader.onload = e => img.src = e.target.result;
       reader.onerror = reject;
       reader.readAsDataURL(file);
       img.onload = () => {
@@ -99,626 +78,464 @@
   }
 
 
-  // ─── Navegación entre pasos ───
-  function irPaso(n) {
-    st.paso = n;
-    guardar();
-    [1,2,3,4].forEach(i => {
-      const panel = $B('bulkStep' + i);
-      if (panel) panel.classList.toggle('hidden', i !== n);
-      const dot = document.querySelector('.bulk-step-dot[data-step="' + i + '"]');
-      if (dot) {
-        dot.classList.toggle('active', i === n);
-        dot.classList.toggle('done', i < n);
-      }
-      const line = document.querySelectorAll('.bulk-step-line')[i - 1];
-      if (line) line.classList.toggle('done', i < n);
-    });
-    if ($B('bulkStepLabel')) $B('bulkStepLabel').textContent = 'Paso ' + n + ' de 4';
-    if (n === 3) actualizarProgreso();
-    if (n === 4) renderReview();
-  }
-
-
-  // ─── Selección de archivos ───
-  async function handleFiles(files) {
-    const disponibles = MAX_FOTOS - st.fotos.length;
-    if (disponibles <= 0) { alert('Máximo ' + MAX_FOTOS + ' fotos por lote'); return; }
-    const arr = Array.from(files).slice(0, disponibles);
-    if (!arr.length) return;
-
-    const btn = $B('bulkSelectBtn');
-    const original = btn.textContent;
-    btn.textContent = '⏳ Comprimiendo...';
-    btn.disabled = true;
-
-    for (const file of arr) {
-      try {
-        const base64 = await comprimir(file, 800, 0.6);
-        st.fotos.push({
-          id: 'f' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-          base64: base64, url: null, sugerencia: null,
-          analizada: false, error: null, dup: false
-        });
-      } catch(e) { console.warn('[BULK] Error comprimiendo:', e); }
-    }
-
-    btn.textContent = original;
-    btn.disabled = false;
-    guardar();
-    renderPreview();
-  }
-
-  // ─── Render preview (paso 1) ───
-  function renderPreview() {
-    const grid = $B('bulkPreviewGrid');
-    if (!grid) return;
-    grid.innerHTML = st.fotos.map((f, i) => `
-      <div class="bulk-preview-item">
-        <img src="${f.base64 || f.url || ''}" alt="">
-        <button class="bulk-remove" data-idx="${i}">✕</button>
-      </div>
-    `).join('');
-    grid.querySelectorAll('.bulk-remove').forEach(btn => {
-      btn.onclick = () => {
-        st.fotos.splice(Number(btn.dataset.idx), 1);
-        guardar(); renderPreview();
-      };
-    });
-    if ($B('bulkNext1')) $B('bulkNext1').disabled = st.fotos.length === 0;
-  }
-
-
-  // ─── Análisis individual ───
-  // ─── Upload con XHR (compatible con WebViews viejos) ───
-  function apiUpload(payload) {
-    return new Promise((resolve) => {
-      console.log('[BULK] apiUpload iniciando...');
-      try {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', API + '/api/upload-image', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
-        xhr.timeout = 120000;
-        
-        xhr.onload = function() {
-          console.log('[BULK] apiUpload status:', xhr.status);
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try { resolve(JSON.parse(xhr.responseText)); }
-            catch(e) { resolve({ ok: false, error: 'JSON inválido' }); }
-          } else {
-            resolve({ ok: false, error: 'HTTP ' + xhr.status });
-          }
-        };
-        
-        xhr.onerror = function() {
-          console.warn('[BULK] apiUpload error de red');
-          resolve({ ok: false, error: 'Error de red (XHR)' });
-        };
-        
-        xhr.ontimeout = function() {
-          console.warn('[BULK] apiUpload timeout');
-          resolve({ ok: false, error: 'Timeout (XHR)' });
-        };
-        
-        xhr.send(JSON.stringify(payload));
-      } catch(e) {
-        console.error('[BULK] apiUpload excepción:', e);
-        resolve({ ok: false, error: e.message });
-      }
-    });
-  }
-
-  async function analizarFoto(foto) {
-    try {
-      if (!foto.url) {
-        console.log('[BULK] Subiendo foto', foto.id, 'base64 length:', (foto.base64 || '').length);
-        // Intentar hasta 2 veces con XHR
-        let up = null;
-        for (let intento = 1; intento <= 2; intento++) {
-          up = await apiUpload({ image: foto.base64, nombre: 'bulk_' + foto.id });
-          if (up && up.ok && up.url) break;
-          console.warn('[BULK] Upload intento ' + intento + ' falló:', up?.error);
-          if (intento < 2) await new Promise(r => setTimeout(r, 2000));
-        }
-        if (up && up.ok && up.url) {
-          foto.url = up.url;
-          console.log('[BULK] Foto subida OK:', foto.url);
-          guardar();
-        } else {
-          console.warn('[BULK] ImgBB falló después de 2 intentos:', up?.error);
-          foto.error = 'Upload: ' + (up?.error || 'Failed');
-          guardar();
-          return;
-        }
-      }
-
-      const r = await api('/api/ai/analyze-photo', {
-        method: 'POST',
-        body: JSON.stringify({ imageUrl: foto.url })
-      });
-
-      if (r && r.ok && r.sugerencia) {
-        console.log('[BULK] Análisis OK:', foto.id, '→', r.sugerencia.titulo);
-        if (st.estadoBase && st.estadoBase !== 'auto') r.sugerencia.estado = st.estadoBase;
-        if (st.categoria) r.sugerencia.categoria = st.categoria;
-        foto.sugerencia = r.sugerencia;
-        foto.analizada = true;
-        foto.error = null;
-
-        const existentes = (window.state && window.state.productosManuales) || [];
-        foto.dup = existentes.some(p =>
-          p.tipo === 'local' && p.title && foto.sugerencia &&
-          String(p.title).toLowerCase().trim() === String(foto.sugerencia.titulo).toLowerCase().trim()
-        );
-
-        guardarCuota(cargarCuota() + 1);
-      } else {
-        foto.error = (r && r.error) || 'Error analizando';
-      }
-    } catch(e) {
-      foto.error = e.message || 'Error de red';
-    }
-    guardar();
-    renderLive();
-    actualizarProgreso();
-    // Actualizar paso 4 si ya está visible (para ver fotos conforme terminan)
-    if (st.paso === 4 || st.paso === 3) {
-      const reviewGrid = $B('bulkReviewGrid');
-      if (reviewGrid && st.paso === 4) renderReview();
-    }
-  }
-
-
-  // ─── Procesar lote completo ───
-  async function procesarLote() {
-    if (st.procesando) return;
-    st.procesando = true;
-    st.pausado = false;
-    irPaso(3);
-    renderLive();
-
-    const pendientes = st.fotos.filter(f => !f.analizada && !f.error && (f.base64 || f.url));
-    const disponibles = cuotaDisponible();
-
-    if (!pendientes.length) {
-      st.procesando = false;
-      irPaso(4);
-      return;
-    }
-
-    if (pendientes.length > disponibles) {
-      const ok = confirm('Solo te quedan ' + disponibles + ' análisis hoy. Se procesarán ' + disponibles + ' fotos. ¿Continuar?');
-      if (!ok) { st.procesando = false; return; }
-    }
-
-    const aProcesar = pendientes.slice(0, disponibles);
-
-    for (let i = 0; i < aProcesar.length; i += BATCH_SIZE) {
-      if (st.pausado) { st.procesando = false; actualizarProgreso(); return; }
-
-      const lote = aProcesar.slice(i, i + BATCH_SIZE);
-      const batchStart = Date.now();
-      lote.forEach(f => { f.procesando = true; });
-      renderLive();
-
-      await Promise.all(lote.map(f => analizarFoto(f)));
-      lote.forEach(f => { delete f.procesando; });
-
-      guardar();
-
-      if (i + BATCH_SIZE < aProcesar.length) {
-        const elapsed = Date.now() - batchStart;
-        const wait = Math.max(0, BATCH_INTERVAL - elapsed);
-        if (wait > 0 && !st.pausado) await sleep(wait);
-      }
-    }
-
-    st.procesando = false;
-    guardar();
-    irPaso(4);
-    renderReview();
-  }
-
-
-  // ─── Render live (paso 3) ───
-  function renderLive() {
-    const grid = $B('bulkLiveGrid');
-    if (!grid) return;
-    grid.innerHTML = st.fotos.map(f => {
-      let cls = 'pending', txt = '⏳ Esperando';
-      if (f.analizada) { cls = 'done'; txt = '✅ ' + Math.round((f.sugerencia?.confianza || 0) * 100) + '%'; }
-      else if (f.procesando) { cls = 'processing'; txt = '🤖 Analizando...'; }
-      else if (f.error) { cls = 'error'; txt = '❌ ' + String(f.error).slice(0, 30); }
-
-      return `
-        <div class="bulk-live-card ${cls}">
-          <img src="${f.base64 || f.url || ''}" alt="">
-          <div class="bulk-live-body">
-            <div class="bulk-live-title">${f.sugerencia?.titulo || 'Sin título'}</div>
-            <div class="bulk-live-status ${cls}">${txt}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function actualizarProgreso() {
-    const total = st.fotos.length;
-    const listas = st.fotos.filter(f => f.analizada || f.error).length;
-    const pct = total > 0 ? (listas / total) * 100 : 0;
-    if ($B('bulkProgressFill')) $B('bulkProgressFill').style.width = pct + '%';
-    if ($B('bulkProgressText')) $B('bulkProgressText').textContent = 'Analizando ' + listas + ' / ' + total + '...';
-    if ($B('bulkProgressETA')) {
-      const restantes = total - listas;
-      if (restantes <= 0) $B('bulkProgressETA').textContent = '✅ Completado';
-      else {
-        const min = Math.ceil(restantes / 5);
-        $B('bulkProgressETA').textContent = '~' + min + ' min';
-      }
-    }
-  }
-
-
-  // ─── Render review (paso 4) ───
-  function renderReview() {
-    const grid = $B('bulkReviewGrid');
-    if (!grid) return;
-    const validas = st.fotos.filter(f => f.analizada && f.sugerencia);
-    
-    // ═══ PANEL DE DEBUG VISIBLE (para diagnosticar sin PC) ═══
-    let debugPanel = $B('bulkDebugPanel');
-    if (!debugPanel) {
-      debugPanel = document.createElement('div');
-      debugPanel.id = 'bulkDebugPanel';
-      debugPanel.style.cssText = 'background:#1a1f2e;border:1px solid #f59e0b;border-radius:8px;padding:10px;margin-bottom:12px;font-size:11px;font-family:monospace;max-height:250px;overflow-y:auto';
-      if (grid.parentElement) {
-        grid.parentElement.insertBefore(debugPanel, grid);
-      }
-    }
-    
-    let debugHTML = '<div style="color:#fbbf24;font-weight:700;margin-bottom:6px">🔍 Debug: ' + validas.length + ' válidas / ' + st.fotos.length + ' totales</div>';
-    st.fotos.forEach((f, i) => {
-      const items = [
-        (f.analizada ? '✅' : '❌') + ' analizada',
-        (f.sugerencia ? '✅' : '❌') + ' sugerencia',
-        (f.url ? '✅' : '❌') + ' url',
-        (f.base64 ? '✅' : '❌') + ' base64',
-        f.error ? '❌ ' + f.error : ''
-      ].filter(Boolean);
-      debugHTML += '<div style="color:#cbd5e1;margin-bottom:4px;padding:3px 0;border-bottom:1px solid #374151">Foto ' + (i+1) + ': ' + items.join(' · ') + '</div>';
-    });
-    debugPanel.innerHTML = debugHTML;
-    
-    if (!validas.length) {
-      grid.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px">No hay fotos analizadas aún. Espera a que termine el análisis o vuelve al paso 3.</p>';
-      if ($B('bulkPublishCount')) $B('bulkPublishCount').textContent = '0';
-      return;
-    }
-
-    const cats = (window.state?.categories || []).map(c => c.label || c);
-
-    try {
-      grid.innerHTML = validas.map(f => {
-        const s = f.sugerencia;
-        const idx = st.fotos.indexOf(f);
-        const conf = Math.round((s.confianza || 0) * 100);
-        return `
-          <div class="bulk-review-card ${f.descartada ? 'discarded' : ''}" data-idx="${idx}">
-            <input type="checkbox" class="bulk-review-check" data-idx="${idx}" ${f.descartada ? '' : 'checked'}>
-            ${f.url || f.base64 
-              ? `<img src="${f.url || f.base64}" alt="" style="width:80px;height:80px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">`
-              : '<div style="width:80px;height:80px;border-radius:8px;background:#374151;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px">Sin img</div>'}
-            <div class="bulk-review-body">
-              <input type="text" class="bulk-edit-titulo" data-idx="${idx}" value="${(s.titulo || '').replace(/"/g, '&quot;')}">
-              <div class="bulk-review-row">
-                <select class="bulk-edit-cat" data-idx="${idx}">
-                  ${cats.map(c => `<option value="${c}" ${c === s.categoria ? 'selected' : ''}>${c}</option>`).join('')}
-                </select>
-                <select class="bulk-edit-estado" data-idx="${idx}">
-                  <option value="nuevo" ${s.estado === 'nuevo' ? 'selected' : ''}>Nuevo</option>
-                  <option value="usado" ${s.estado === 'usado' ? 'selected' : ''}>Usado</option>
-                  <option value="reacondicionado" ${s.estado === 'reacondicionado' ? 'selected' : ''}>Reacond.</option>
-                </select>
-              </div>
-              <div class="bulk-review-row" style="align-items:center">
-                <input type="number" class="bulk-edit-precio" data-idx="${idx}" value="${s.precioSugeridoUSD || 0}" step="0.01" min="0">
-                <span class="bulk-review-badge ${conf < 70 ? 'warn' : ''}">${conf}%</span>
-                ${f.dup ? '<span class="bulk-review-badge warn">⚠️ Dup</span>' : ''}
-              </div>
-              <textarea class="bulk-edit-desc" data-idx="${idx}">${s.descripcion || ''}</textarea>
-            </div>
-          </div>
-        `;
-      }).join('');
-    } catch(err) {
-      console.error('[BULK-REVIEW] ERROR:', err);
-      grid.innerHTML = '<p style="color:#f87171;padding:20px">Error al mostrar fotos: ' + err.message + '</p>';
-    }
-
-    bindReviewEdits(grid);
-    actualizarPublishCount();
-  }
-
-  function bindReviewEdits(grid) {
-    grid.querySelectorAll('.bulk-review-check').forEach(el => {
-      el.onchange = () => {
-        const i = Number(el.dataset.idx);
-        if (st.fotos[i]) { st.fotos[i].descartada = !el.checked; guardar(); renderReview(); }
-      };
-    });
-    ['titulo','cat','estado','precio','desc'].forEach(campo => {
-      const cls = '.bulk-edit-' + campo;
-      grid.querySelectorAll(cls).forEach(el => {
-        const evt = (campo === 'cat' || campo === 'estado') ? 'change' : 'input';
-        el[evt === 'change' ? 'onchange' : 'oninput'] = () => {
-          const i = Number(el.dataset.idx);
-          if (!st.fotos[i]?.sugerencia) return;
-          const s = st.fotos[i].sugerencia;
-          if (campo === 'titulo') s.titulo = el.value;
-          if (campo === 'cat') s.categoria = el.value;
-          if (campo === 'estado') s.estado = el.value;
-          if (campo === 'precio') s.precioSugeridoUSD = Number(el.value) || 0;
-          if (campo === 'desc') s.descripcion = el.value;
-          guardar();
-        };
-      });
-    });
-  }
-
-  function actualizarPublishCount() {
-    const total = st.fotos.filter(f => f.analizada && !f.descartada).length;
-    if ($B('bulkPublishCount')) $B('bulkPublishCount').textContent = total;
-  }
-
-
-  // ─── Publicar todos ───
-  async function publicarTodos() {
-    const aPublicar = st.fotos.filter(f => f.analizada && f.sugerencia && !f.descartada);
-    if (!aPublicar.length) { alert('No hay fotos para publicar'); return; }
-    if (!st.provincia) { alert('Falta provincia'); return; }
-
-    const btn = $B('bulkPublishAll');
-    const original = btn.textContent;
-    let ok = 0, fail = 0;
-
-    for (let i = 0; i < aPublicar.length; i++) {
-      const foto = aPublicar[i];
-      btn.textContent = '⏳ ' + (i + 1) + '/' + aPublicar.length + '...';
-      btn.disabled = true;
-
-      try {
-        if (!foto.url) {
-          const up = await apiUpload({ image: foto.base64, nombre: 'bulk_' + foto.id });
-          if (!up?.ok || !up.url) { fail++; continue; }
-          foto.url = up.url;
-          delete foto.base64;
-        }
-
-        const s = foto.sugerencia;
-        const body = {
-          tipo: 'local', title: s.titulo, description: s.descripcion,
-          category: s.categoria, estado: s.estado,
-          provincia: st.provincia, municipio: st.municipio || null,
-          precioUSD: s.precioSugeridoUSD,
-          image: foto.url, images: [foto.url],
-          publicado: true, cantidad: 1
-        };
-
-        const r = await api('/api/manual/products', { method: 'POST', body: JSON.stringify(body) });
-        if (r && r.ok) { ok++; foto.publicado = true; }
-        else { fail++; }
-      } catch(e) { fail++; }
-
-      await sleep(1500);
-    }
-
-    btn.textContent = original;
-    btn.disabled = false;
-    st.fotos = st.fotos.filter(f => !f.publicado);
-    guardar();
-
-    alert('✅ Publicados: ' + ok + '\n❌ Fallidos: ' + fail);
-
-    if (st.fotos.length === 0) {
-      localStorage.removeItem(KEY);
-      cerrarModal();
-      window.dispatchEvent(new CustomEvent('comdiaz:reload-locales'));
-    } else {
-      renderReview();
-    }
-  }
-
-  // ─── Provincias / municipios ───
+  // ─── Cargar provincias y categorías ───
   async function cargarProvincias() {
     if (provinciasCache && Object.keys(provinciasCache).length > 0) return provinciasCache;
-
-    // 1) Intentar desde localStorage (caché de sesión anterior)
     try {
       const cached = localStorage.getItem('comdiaz_provincias_cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed && Object.keys(parsed).length > 0) {
           provinciasCache = parsed;
-          console.log('[BULK] Provincias desde caché:', Object.keys(parsed).length);
           return provinciasCache;
         }
       }
     } catch(_) {}
-
-    // 2) Fetch al backend con retry
-    const urls = [
-      'https://com-diaz.onrender.com/api/public/provincias',
-      API + '/api/public/provincias'
-    ];
-    for (const url of urls) {
-      for (let intento = 1; intento <= 2; intento++) {
-        try {
-          console.log('[BULK] Cargando provincias desde', url, 'intento', intento);
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 8000);
-          const r = await fetch(url, { signal: controller.signal });
-          clearTimeout(timeout);
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          const d = await r.json();
-          if (d && d.provincias && Object.keys(d.provincias).length > 0) {
-            provinciasCache = d.provincias;
-            try { localStorage.setItem('comdiaz_provincias_cache', JSON.stringify(d.provincias)); } catch(_) {}
-            console.log('[BULK] Provincias cargadas:', Object.keys(d.provincias).length);
-            return provinciasCache;
-          }
-        } catch(e) {
-          console.warn('[BULK] Falló ' + url + ' intento ' + intento + ':', e.message);
-          if (intento < 2) await new Promise(rs => setTimeout(rs, 1000));
-        }
+    try {
+      const r = await fetch(API + '/api/public/provincias');
+      const d = await r.json();
+      if (d && d.provincias) {
+        provinciasCache = d.provincias;
+        try { localStorage.setItem('comdiaz_provincias_cache', JSON.stringify(d.provincias)); } catch(_) {}
+        return provinciasCache;
       }
-    }
-
-    console.error('[BULK] No se pudieron cargar provincias');
+    } catch(_) {}
     return {};
   }
 
-  async function poblarSelects() {
-    const provincias = await cargarProvincias();
-    const selProv = $B('bulkProvincia');
-    const selCat = $B('bulkCategoria');
-    if (selProv) {
-      selProv.innerHTML = '<option value="">Elige provincia...</option>';
-      Object.keys(provincias).sort().forEach(p => {
-        selProv.innerHTML += `<option value="${p}" ${p === st.provincia ? 'selected' : ''}>${p}</option>`;
-      });
-    }
-    if (selCat) {
-      const cats = (window.state?.categories || []).map(c => c.label || c);
-      selCat.innerHTML = '<option value="">IA decide</option>';
-      cats.forEach(c => {
-        selCat.innerHTML += `<option value="${c}" ${c === st.categoria ? 'selected' : ''}>${c}</option>`;
-      });
-    }
+  function cargarCategorias() {
+    if (categoriasCache) return categoriasCache;
+    const cats = (window.state?.categories || []).map(c => c.label || c);
+    categoriasCache = cats.length ? cats : ['Local'];
+    return categoriasCache;
   }
 
-  function poblarMunicipios() {
-    const prov = $B('bulkProvincia')?.value;
-    const selMun = $B('bulkMunicipio');
-    if (!selMun) return;
-    if (!prov || !provinciasCache?.[prov]) {
-      selMun.innerHTML = '<option value="">Todos</option>';
-      selMun.disabled = true;
-      return;
-    }
-    selMun.disabled = false;
-    selMun.innerHTML = '<option value="">Todos</option>';
-    (provinciasCache[prov] || []).sort().forEach(m => {
-      selMun.innerHTML += `<option value="${m}" ${m === st.municipio ? 'selected' : ''}>${m}</option>`;
+  // ─── Preview de fotos (Paso 1) ───
+  function renderPreview() {
+    const grid = $B('bulkPreviewGrid');
+    if (!grid) return;
+    grid.innerHTML = productos.map((p, i) => `
+      <div class="bulk-preview-item">
+        <img src="${p.base64 || ''}" alt="">
+        <span class="bulk-num">${i + 1}</span>
+        <button class="bulk-remove" data-idx="${i}">✕</button>
+      </div>
+    `).join('');
+    grid.querySelectorAll('.bulk-remove').forEach(btn => {
+      btn.onclick = () => {
+        productos.splice(Number(btn.dataset.idx), 1);
+        guardar();
+        renderPreview();
+        actualizarContador();
+      };
+    });
+    actualizarContador();
+    if ($B('bulkNext1')) $B('bulkNext1').disabled = productos.length === 0;
+  }
+
+  function actualizarContador() {
+    if ($B('bulkCounter')) $B('bulkCounter').textContent = productos.length + ' / ' + MAX_FOTOS + ' productos';
+  }
+
+  // ─── Ir a paso (1 o 2 o 3) ───
+  function irPaso(n) {
+    [1, 2, 3].forEach(i => {
+      const step = $B('bulkStep' + i);
+      if (step) step.classList.toggle('hidden', i !== n);
     });
   }
 
-  async function abrirModal() {
+  // ─── Iniciar edición (Paso 2) ───
+  async function iniciarEdicion() {
+    if (productos.length === 0) return;
+    await cargarProvincias();
+    cargarCategorias();
+    irPaso(2);
+    renderAcordeon();
+    actualizarPublishCount();
+  }
+
+  // ─── Render acordeón ───
+  function renderAcordeon() {
+    const list = $B('bulkEditList');
+    if (!list) return;
+    const provincias = provinciasCache || {};
+    const categorias = categoriasCache || [];
+
+    list.innerHTML = productos.map((p, i) => {
+      const provinciaOpts = Object.keys(provincias).sort()
+        .map(pr => `<option value="${pr}" ${p.provincia === pr ? 'selected' : ''}>${pr}</option>`).join('');
+      const catOpts = categorias
+        .map(c => `<option value="${c}" ${p.category === c ? 'selected' : ''}>${c}</option>`).join('');
+      
+      return `
+        <div class="bulk-edit-item ${p.listo ? 'ready' : ''} ${p.descartado ? 'discarded' : ''}" data-idx="${i}">
+          <div class="bulk-edit-header" data-idx="${i}">
+            <img class="bulk-thumb" src="${p.base64 || p.url || ''}" alt="">
+            <div class="bulk-edit-summary">
+              <div class="b-title">${p.titulo || 'Sin título'}</div>
+              <div class="b-meta">
+                <span class="b-price">$${Number(p.precioUSD || 0).toFixed(2)}</span>
+                <span>${p.provincia || 'Sin provincia'}</span>
+              </div>
+            </div>
+            <span class="bulk-edit-badge">${p.listo ? '✅' : '⏳'}</span>
+            <button class="bulk-delete" data-idx="${i}">🗑️</button>
+          </div>
+          <div class="bulk-edit-body" style="display:none" data-body="${i}">
+            <label><span>Título *</span><input type="text" data-field="titulo" data-idx="${i}" value="${(p.titulo || '').replace(/"/g, '&quot;')}" placeholder="Ej: Bicicleta rodado 26"></label>
+            <label><span>Descripción (opcional)</span><textarea data-field="descripcion" data-idx="${i}" placeholder="La IA la generará después si la dejas vacía">${p.descripcion || ''}</textarea></label>
+            <div class="bulk-row-2">
+              <label><span>Precio USD *</span><input type="number" data-field="precioUSD" data-idx="${i}" value="${p.precioUSD || ''}" step="0.01" min="0"></label>
+              <label><span>Precio CUP</span><input type="number" data-field="precioCUP" data-idx="${i}" value="${p.precioCUP || ''}" step="1" min="0"></label>
+            </div>
+            <div class="bulk-row-2">
+              <label><span>Categoría</span><select data-field="category" data-idx="${i}"><option value="">Elige...</option>${catOpts}</select></label>
+              <label><span>Estado</span><select data-field="estado" data-idx="${i}"><option value="nuevo" ${p.estado === 'nuevo' ? 'selected' : ''}>Nuevo</option><option value="usado" ${p.estado === 'usado' ? 'selected' : ''}>Usado</option><option value="reacondicionado" ${p.estado === 'reacondicionado' ? 'selected' : ''}>Reacondicionado</option></select></label>
+            </div>
+            <div class="bulk-row-2">
+              <label><span>Provincia *</span><select data-field="provincia" data-idx="${i}"><option value="">Elige...</option>${provinciaOpts}</select></label>
+              <label><span>Municipio</span><select data-field="municipio" data-idx="${i}" ${!p.provincia ? 'disabled' : ''}><option value="">Todos</option></select></label>
+            </div>
+            <button type="button" class="btn-apply-ubic" data-idx="${i}">📍 Aplicar esta ubicación a todas</button>
+            <div class="bulk-row-2">
+              <label><span>Cantidad</span><input type="number" data-field="cantidad" data-idx="${i}" value="${p.cantidad || 1}" min="1"></label>
+              <label><span>Notas (privadas)</span><input type="text" data-field="notas" data-idx="${i}" value="${(p.notas || '').replace(/"/g, '&quot;')}" placeholder="Opcional"></label>
+            </div>
+            <div class="bulk-actions-row">
+              <button type="button" class="bulk-btn-ready" data-ready="${i}" ${p.listo ? 'disabled' : ''}>${p.listo ? '✅ Listo' : '✅ Marcar listo'}</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    bindAcordeon();
+    if (productos.length > 0) {
+      const firstBody = list.querySelector('[data-body="0"]');
+      if (firstBody) firstBody.style.display = 'flex';
+    }
+  }
+
+
+  // ─── Bind eventos del acordeón ───
+  function bindAcordeon() {
+    const list = $B('bulkEditList');
+    if (!list) return;
+
+    // Toggle expandir/colapsar
+    list.querySelectorAll('.bulk-edit-header').forEach(h => {
+      h.onclick = (e) => {
+        if (e.target.closest('.bulk-delete')) return;
+        const idx = h.dataset.idx;
+        const body = list.querySelector('[data-body="' + idx + '"]');
+        if (!body) return;
+        const isOpen = body.style.display !== 'none';
+        body.style.display = isOpen ? 'none' : 'flex';
+        h.closest('.bulk-edit-item').classList.toggle('expanded', !isOpen);
+      };
+    });
+
+    // Eliminar producto
+    list.querySelectorAll('.bulk-delete').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        if (!confirm('¿Eliminar este producto del lote?')) return;
+        productos.splice(Number(btn.dataset.idx), 1);
+        guardar();
+        renderAcordeon();
+        actualizarPublishCount();
+      };
+    });
+
+    // Cambios en campos
+    list.querySelectorAll('[data-field]').forEach(el => {
+      const evt = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(evt, () => {
+        const idx = Number(el.dataset.idx);
+        const field = el.dataset.field;
+        if (!productos[idx]) return;
+        productos[idx][field] = el.value;
+        
+        // Actualizar resumen en header
+        const item = list.querySelector('[data-idx="' + idx + '"]');
+        if (item) {
+          const summary = item.querySelector('.b-title');
+          const price = item.querySelector('.b-price');
+          const prov = item.querySelector('.b-meta span:nth-child(2)');
+          if (summary) summary.textContent = productos[idx].titulo || 'Sin título';
+          if (price) price.textContent = '$' + Number(productos[idx].precioUSD || 0).toFixed(2);
+          if (prov) prov.textContent = productos[idx].provincia || 'Sin provincia';
+        }
+
+        // Si cambia provincia, actualizar municipios
+        if (field === 'provincia') {
+          const munSel = list.querySelector('[data-field="municipio"][data-idx="' + idx + '"]');
+          if (munSel) {
+            const prov = el.value;
+            const municipios = (provinciasCache || {})[prov] || [];
+            munSel.disabled = !municipios.length;
+            munSel.innerHTML = '<option value="">Todos</option>' + municipios.sort().map(m => `<option value="${m}">${m}</option>`).join('');
+          }
+        }
+
+        guardar();
+        actualizarPublishCount();
+      });
+    });
+
+    // Aplicar ubicación a todas
+    list.querySelectorAll('.btn-apply-ubic').forEach(btn => {
+      btn.onclick = () => {
+        const idx = Number(btn.dataset.idx);
+        const p = productos[idx];
+        if (!p || !p.provincia) {
+          alert('Elige primero la provincia de este producto');
+          return;
+        }
+        if (!confirm('¿Aplicar "' + p.provincia + (p.municipio ? ' / ' + p.municipio : '') + '" a todos los productos?')) return;
+        productos.forEach(x => {
+          x.provincia = p.provincia;
+          x.municipio = p.municipio;
+        });
+        guardar();
+        renderAcordeon();
+        alert('✅ Ubicación aplicada a todos');
+      };
+    });
+
+    // Marcar listo
+    list.querySelectorAll('.bulk-btn-ready').forEach(btn => {
+      btn.onclick = () => {
+        const idx = Number(btn.dataset.ready);
+        const p = productos[idx];
+        if (!p) return;
+        if (!p.titulo || !p.titulo.trim()) { alert('Falta el título'); return; }
+        if (!p.precioUSD || Number(p.precioUSD) <= 0) { alert('Falta el precio USD'); return; }
+        if (!p.provincia) { alert('Falta la provincia'); return; }
+        p.listo = true;
+        guardar();
+        renderAcordeon();
+        actualizarPublishCount();
+      };
+    });
+  }
+
+  function actualizarPublishCount() {
+    const listos = productos.filter(p => p.listo && !p.descartado).length;
+    if ($B('bulkPublishCount')) $B('bulkPublishCount').textContent = listos;
+    if ($B('bulkPublishAll')) $B('bulkPublishAll').disabled = listos === 0;
+  }
+
+  // ─── Upload con XHR ───
+  function apiUpload(payload) {
+    return new Promise((resolve) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API + '/api/upload-image', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
+        xhr.timeout = 120000;
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText)); }
+            catch(e) { resolve({ ok: false, error: 'JSON inválido' }); }
+          } else resolve({ ok: false, error: 'HTTP ' + xhr.status });
+        };
+        xhr.onerror = () => resolve({ ok: false, error: 'Error de red' });
+        xhr.ontimeout = () => resolve({ ok: false, error: 'Timeout' });
+        xhr.send(JSON.stringify(payload));
+      } catch(e) { resolve({ ok: false, error: e.message }); }
+    });
+  }
+
+  // ─── Publicar de 5 en 5 ───
+  async function publicarTodos() {
+    const listos = productos.filter(p => p.listo && !p.descartado);
+    if (!listos.length) { alert('No hay productos listos'); return; }
+    if (publicando) return;
+    publicando = true;
+
+    irPaso(3);
+    const log = $B('bulkPublishLog');
+    if (log) log.innerHTML = '';
+
+    let exitosos = 0;
+    let fallidos = 0;
+
+    for (let i = 0; i < listos.length; i++) {
+      const p = listos[i];
+      const pct = Math.round(((i) / listos.length) * 100);
+      
+      if ($B('bulkProgressFill')) $B('bulkProgressFill').style.width = pct + '%';
+      if ($B('bulkProgressText')) $B('bulkProgressText').textContent = 'Publicando ' + (i + 1) + ' / ' + listos.length + '...';
+      if ($B('bulkProgressOk')) $B('bulkProgressOk').textContent = '✅ ' + exitosos + (fallidos ? ' · ❌ ' + fallidos : '');
+
+      try {
+        // 1) Subir foto si no tiene URL
+        let imgUrl = p.url;
+        if (!imgUrl && p.base64) {
+          const up = await apiUpload({ image: p.base64, nombre: 'local_' + Date.now() });
+          if (!up || !up.ok || !up.url) throw new Error('Upload: ' + (up?.error || '?'));
+          imgUrl = up.url;
+          p.url = imgUrl;
+        }
+        if (!imgUrl) throw new Error('Sin imagen');
+
+        // 2) Crear producto
+        const body = {
+          tipo: 'local',
+          title: p.titulo,
+          description: p.descripcion || '',
+          images: [imgUrl],
+          image: imgUrl,
+          category: p.category || 'Local',
+          estado: p.estado || 'nuevo',
+          provincia: p.provincia,
+          municipio: p.municipio || null,
+          precioUSD: Number(p.precioUSD) || 0,
+          precioCUP: Number(p.precioCUP) || null,
+          cantidad: Number(p.cantidad) || 1,
+          notas: p.notas || null,
+          publicado: true
+        };
+
+        const r = await api('/api/manual/products', {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+
+        if (!r || !r.ok) throw new Error('Backend: ' + (r?.error || '?'));
+
+        // Marcar como publicado
+        p.publicado = true;
+        exitosos++;
+        if (log) log.innerHTML += '<div style="color:#10b981">✅ ' + (p.titulo || '(sin título)').slice(0, 50) + '</div>';
+      } catch(e) {
+        fallidos++;
+        if (log) log.innerHTML += '<div style="color:#ef4444">❌ ' + (p.titulo || '').slice(0, 30) + ': ' + e.message + '</div>';
+      }
+
+      // Throttle 1s entre productos
+      await sleep(1000);
+    }
+
+    if ($B('bulkProgressFill')) $B('bulkProgressFill').style.width = '100%';
+    if ($B('bulkProgressText')) $B('bulkProgressText').textContent = '✅ Completado: ' + exitosos + ' publicados' + (fallidos ? ' · ' + fallidos + ' fallidos' : '');
+    if ($B('bulkProgressOk')) $B('bulkProgressOk').textContent = '';
+
+    // Quitar los publicados del array
+    productos = productos.filter(p => !p.publicado);
+    guardar();
+    publicando = false;
+
+    setTimeout(() => {
+      if (productos.length === 0) {
+        cerrarModal();
+        window.dispatchEvent(new CustomEvent('comdiaz:reload-locales'));
+      } else {
+        alert('✅ Publicados: ' + exitosos + '\\n❌ Fallidos: ' + fallidos + '\\n\\nQuedan ' + productos.length + ' pendientes');
+        irPaso(2);
+        renderAcordeon();
+        actualizarPublishCount();
+      }
+    }, 1500);
+  }
+
+  // ─── Abrir/cerrar modal ───
+  function abrirModal() {
     const modal = $B('bulkModal');
     if (!modal) return;
     modal.classList.remove('hidden');
-
-    const selProv = $B('bulkProvincia');
-    if (selProv) selProv.innerHTML = '<option value="">Cargando provincias...</option>';
-
-    try {
-      await poblarSelects();
-      poblarMunicipios();
-      actualizarCuotaUI();
-      renderPreview();
-      if (st.fotos.length) irPaso(st.paso);
-      else irPaso(1);
-
-      // Verificar si realmente se cargaron provincias
-      if (selProv && selProv.options.length <= 1) {
-        selProv.innerHTML = '<option value="">⚠️ Error cargando provincias</option>';
-        alert('⚠️ No se pudieron cargar las provincias.\n\nVerifica tu conexión a internet e intenta de nuevo.\n\nSi el problema persiste, cierra y vuelve a abrir la app.');
-      }
-    } catch(e) {
-      console.error('[BULK] Error abriendo modal:', e);
-      if (selProv) selProv.innerHTML = '<option value="">⚠️ Error: ' + e.message + '</option>';
-    }
+    irPaso(1);
+    renderPreview();
+    actualizarContador();
   }
 
   function cerrarModal() {
     const modal = $B('bulkModal');
     if (modal) modal.classList.add('hidden');
+    if (productos.length === 0) {
+      try { localStorage.removeItem(KEY); } catch(_) {}
+    }
   }
-
 
   // ─── Init ───
   function init() {
     cargar();
 
+    // Paso 1: seleccionar fotos
     $B('bulkSelectBtn')?.addEventListener('click', () => $B('bulkFileInput').click());
-    $B('bulkFileInput')?.addEventListener('change', (e) => {
-      if (e.target.files) handleFiles(e.target.files);
-      e.target.value = '';
-    });
-    $B('bulkModalClose')?.addEventListener('click', () => {
-      if (st.procesando) {
-        if (!confirm('Hay análisis en curso. ¿Cerrar? (se pausará)')) return;
-        st.pausado = true;
+    $B('bulkFileInput')?.addEventListener('change', async (e) => {
+      if (!e.target.files) return;
+      const files = Array.from(e.target.files).slice(0, MAX_FOTOS - productos.length);
+      if (!files.length) { alert('Máximo ' + MAX_FOTOS + ' fotos'); return; }
+
+      const btn = $B('bulkSelectBtn');
+      const orig = btn.textContent;
+      btn.textContent = '⏳ Comprimiendo ' + files.length + '...';
+      btn.disabled = true;
+
+      for (const file of files) {
+        try {
+          const base64 = await comprimir(file, 800, 0.6);
+          productos.push({
+            id: 'p' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+            base64: base64,
+            url: null,
+            titulo: '',
+            descripcion: '',
+            precioUSD: '',
+            precioCUP: '',
+            category: '',
+            estado: 'nuevo',
+            provincia: '',
+            municipio: '',
+            cantidad: 1,
+            notas: '',
+            listo: false,
+            descartado: false
+          });
+        } catch(_) {}
       }
+
+      btn.textContent = orig;
+      btn.disabled = false;
+      e.target.value = '';
+      guardar();
+      renderPreview();
+    });
+
+    // Paso 1 → Paso 2
+    $B('bulkNext1')?.addEventListener('click', iniciarEdicion);
+    $B('bulkCancel1')?.addEventListener('click', () => {
+      if (productos.length && !confirm('¿Descartar los ' + productos.length + ' productos?')) return;
+      productos = [];
+      guardar();
       cerrarModal();
     });
-    $B('bulkCancel1')?.addEventListener('click', () => {
-      if (confirm('¿Descartar las fotos seleccionadas?')) {
-        st.fotos = []; guardar(); cerrarModal();
-      }
-    });
-    $B('bulkNext1')?.addEventListener('click', () => {
-      if (!st.fotos.length) return;
-      irPaso(2);
-      actualizarCuotaUI();
-    });
-    $B('bulkBack2')?.addEventListener('click', () => irPaso(1));
-    $B('bulkNext2')?.addEventListener('click', () => {
-      st.provincia = $B('bulkProvincia')?.value || '';
-      st.municipio = $B('bulkMunicipio')?.value || '';
-      st.estadoBase = $B('bulkEstado')?.value || 'auto';
-      st.categoria = $B('bulkCategoria')?.value || '';
-      if (!st.provincia) { alert('Elige una provincia'); return; }
-      guardar();
-      procesarLote();
-    });
-    $B('bulkProvincia')?.addEventListener('change', poblarMunicipios);
-    $B('bulkPauseBtn')?.addEventListener('click', () => {
-      st.pausado = true;
-      alert('⏸ Pausado. Los análisis en curso terminarán.');
-    });
-    $B('bulkSkip3')?.addEventListener('click', () => {
-      st.pausado = true;
-      st.procesando = false;
-      irPaso(4);
-      renderReview();
-    });
-    $B('bulkBack4')?.addEventListener('click', () => irPaso(3));
+
+    // Paso 2 → Paso 1 (volver)
+    $B('bulkBack1')?.addEventListener('click', () => irPaso(1));
+
+    // Paso 2 → publicar
     $B('bulkPublishAll')?.addEventListener('click', publicarTodos);
-    $B('bulkSelectAll')?.addEventListener('click', () => {
-      st.fotos.forEach(f => { if (f.analizada) f.descartada = false; });
-      guardar(); renderReview();
-    });
-    $B('bulkDeselectAll')?.addEventListener('click', () => {
-      st.fotos.forEach(f => { f.descartada = true; });
-      guardar(); renderReview();
+
+    // Cerrar modal
+    $B('bulkModalClose')?.addEventListener('click', () => {
+      if (publicando) { alert('Espera a que termine de publicar'); return; }
+      cerrarModal();
     });
 
-    // Botón recargar provincias
-    $B('bulkReloadProv')?.addEventListener('click', async () => {
-      provinciasCache = null;
-      try { localStorage.removeItem('comdiaz_provincias_cache'); } catch(_) {}
-      const selProv = $B('bulkProvincia');
-      if (selProv) selProv.innerHTML = '<option value="">Cargando...</option>';
-      await poblarSelects();
-      poblarMunicipios();
-      if (selProv && selProv.options.length <= 1) {
-        alert('❌ Aún no se pudieron cargar. Verifica tu internet.');
-      }
-    });
-
+    // Trigger desde botón "Carga masiva"
     window.addEventListener('comdiaz:open-bulk', abrirModal);
-    console.log('✅ Bulk upload IA listo');
+
+    // Recargar locales al terminar
+    window.addEventListener('comdiaz:reload-locales', () => {
+      if (typeof cargarLocales === 'function') cargarLocales();
+    });
+
+    console.log('✅ Bulk v2 listo');
   }
 
   if (document.readyState === 'loading') {
