@@ -262,6 +262,11 @@
     guardar();
     renderLive();
     actualizarProgreso();
+    // Actualizar paso 4 si ya está visible (para ver fotos conforme terminan)
+    if (st.paso === 4 || st.paso === 3) {
+      const reviewGrid = $B('bulkReviewGrid');
+      if (reviewGrid && st.paso === 4) renderReview();
+    }
   }
 
 

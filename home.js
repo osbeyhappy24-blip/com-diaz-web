@@ -4180,6 +4180,32 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   }
 
   // ─── Subir imagen(es) ───
+  // ─── Upload con XHR (WebView compatible) ───
+  function apiUploadXHR(payload) {
+    return new Promise((resolve) => {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API + '/api/upload-image', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
+        xhr.timeout = 120000;
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText)); }
+            catch(e) { resolve({ ok: false, error: 'JSON inválido' }); }
+          } else {
+            resolve({ ok: false, error: 'HTTP ' + xhr.status });
+          }
+        };
+        xhr.onerror = function() { resolve({ ok: false, error: 'Error de red (XHR)' }); };
+        xhr.ontimeout = function() { resolve({ ok: false, error: 'Timeout (XHR)' }); };
+        xhr.send(JSON.stringify(payload));
+      } catch(e) {
+        resolve({ ok: false, error: e.message });
+      }
+    });
+  }
+
   async function subirImagenes(files) {
     const box = $L('localImgsPreview');
     for (const file of files) {
@@ -4207,10 +4233,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
           });
         }
 
-        const resp = await api('/api/upload-image', {
-          method: 'POST',
-          body: JSON.stringify({ image: base64, nombre: 'local_' + Date.now() })
-        });
+        const resp = await apiUploadXHR({ image: base64, nombre: 'local_' + Date.now() });
 
         if (resp && resp.ok && resp.url) {
           imagenesActuales.push(resp.url);

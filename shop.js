@@ -1050,7 +1050,7 @@ cargarCatalogo();
         <div class="product-body">
           <div class="product-category">${p.category || ''}</div>
           <div class="product-title">${p.title || 'Sin titulo'}</div>
-          <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
+          <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}${p.precioCUP ? ` <span style="font-size:11px;color:#6b7280;margin-left:4px">· ${Number(p.precioCUP).toLocaleString()} CUP</span>` : ''}</div>
           <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
           <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
         </div>
@@ -1659,7 +1659,7 @@ cargarCatalogo();
         <div class="product-body">
           <div class="product-category">${p.category || ""}</div>
           <div class="product-title">${p.title || "Sin titulo"}</div>
-          <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}</div>
+          <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}${p.precioCUP ? ` <span style="font-size:11px;color:#6b7280;margin-left:4px">· ${Number(p.precioCUP).toLocaleString()} CUP</span>` : ''}</div>
           <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
           <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
         </div>
