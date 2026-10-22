@@ -1,0 +1,665 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mi panel · Comdiaz Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="favicon-shop.png">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #0b0f1a;
+  color: #e5e7eb;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.header {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  padding: 20px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 { font-size: 18px; }
+.header p { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+.logout-btn {
+  background: rgba(0,0,0,.3);
+  border: none;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* Card de info del vendedor */
+.info-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid #243049;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.info-row .label { color: #94a3b8; }
+.info-row .value { color: #e5e7eb; font-weight: 600; }
+
+/* Cuota */
+.quota-bar {
+  height: 10px;
+  background: #111827;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.quota-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width .5s;
+  border-radius: 999px;
+}
+.quota-fill.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.quota-fill.full { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.quota-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 6px;
+  color: #94a3b8;
+}
+
+/* Badge estado */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.badge.aprobado { background: rgba(16,185,129,.2); color: #34d399; }
+.badge.pendiente { background: rgba(245,158,11,.2); color: #fbbf24; }
+.badge.suspendido { background: rgba(239,68,68,.2); color: #f87171; }
+.badge.publicado { background: rgba(124,58,237,.2); color: #a78bfa; }
+.badge.oculto { background: rgba(148,163,184,.2); color: #94a3b8; }
+
+/* Botón añadir producto */
+.add-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: transform .15s;
+}
+.add-btn:active { transform: scale(.98); }
+.add-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Lista de productos */
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item {
+  display: flex;
+  gap: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid #243049;
+  border-radius: 12px;
+  padding: 10px;
+}
+.product-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #111827;
+  flex-shrink: 0;
+}
+.product-body {
+  flex: 1;
+  min-width: 0;
+}
+.product-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.product-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: #10b981;
+  margin-bottom: 4px;
+}
+.product-meta {
+  font-size: 11px;
+  color: #94a3b8;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.product-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.product-actions button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #243049;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.product-actions .btn-edit { color: #a78bfa; border-color: rgba(167,139,250,.3); }
+.product-actions .btn-del { color: #f87171; border-color: rgba(248,113,113,.3); }
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal.hidden { display: none; }
+.modal-card {
+  background: #0f1524;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #243049;
+}
+.modal-head {
+  padding: 16px;
+  border-bottom: 1px solid #243049;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-head h3 { font-size: 16px; }
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 22px;
+  cursor: pointer;
+}
+.modal-body { padding: 16px; }
+
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+label:first-child { margin-top: 0; }
+input, select, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #243049;
+  background: #111827;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: #7c3aed; }
+textarea { min-height: 60px; resize: vertical; }
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.btn-save {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 16px;
+}
+.btn-save:disabled { opacity: .6; }
+
+.error {
+  background: rgba(239,68,68,.15);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #f87171;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-top: 12px;
+  display: none;
+}
+.error.show { display: block; }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  border: 1px solid #374151;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 2000;
+  display: none;
+}
+.toast.show { display: block; }
+.toast.ok { border-color: #10b981; }
+.toast.err { border-color: #ef4444; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Mi panel</h1>
+    <p id="sellerName">Cargando...</p>
+  </div>
+  <button class="logout-btn" onclick="logout()">Salir</button>
+</div>
+
+<div class="container">
+
+  <!-- Info del vendedor -->
+  <div class="info-card">
+    <div class="info-row">
+      <span class="label">Estado</span>
+      <span class="value" id="sellerEstado">—</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Plan</span>
+      <span class="value" id="sellerPlan">—</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Teléfono</span>
+      <span class="value" id="sellerTelefono">—</span>
+    </div>
+
+    <div class="quota-bar">
+      <div class="quota-fill" id="quotaFill" style="width:0%"></div>
+    </div>
+    <div class="quota-text">
+      <span id="quotaUsada">0 productos</span>
+      <span id="quotaMax">—</span>
+    </div>
+  </div>
+
+  <!-- Botón añadir -->
+  <button class="add-btn" id="addProductBtn" onclick="abrirModal()">➕ Añadir producto</button>
+
+  <!-- Lista de productos -->
+  <div class="products-list" id="productsList">
+    <div class="empty">Cargando productos...</div>
+  </div>
+
+</div>
+
+<!-- Modal nuevo/editar producto -->
+<div class="modal hidden" id="productModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="modalTitle">Nuevo producto</h3>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Título *</label>
+      <input type="text" id="prodTitulo" maxlength="200" placeholder="Ej: Bicicleta rodado 26">
+
+      <label>Descripción</label>
+      <textarea id="prodDescripcion" maxlength="2000" placeholder="Detalles del producto..."></textarea>
+
+      <div class="row-2">
+        <div>
+          <label>Precio USD *</label>
+          <input type="number" id="prodPrecioUSD" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div>
+          <label>Precio CUP</label>
+          <input type="number" id="prodPrecioCUP" step="1" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <label>Categoría</label>
+      <input type="text" id="prodCategoria" maxlength="80" placeholder="Ej: Motos y Bicicletas">
+
+      <div class="row-2">
+        <div>
+          <label>Provincia</label>
+          <input type="text" id="prodProvincia" maxlength="60">
+        </div>
+        <div>
+          <label>Municipio</label>
+          <input type="text" id="prodMunicipio" maxlength="60">
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div>
+          <label>Estado</label>
+          <select id="prodEstado">
+            <option value="nuevo">Nuevo</option>
+            <option value="usado">Usado</option>
+            <option value="reacondicionado">Reacondicionado</option>
+          </select>
+        </div>
+        <div>
+          <label>Stock</label>
+          <input type="number" id="prodStock" min="1" value="1">
+        </div>
+      </div>
+
+      <div id="modalError" class="error"></div>
+
+      <button class="btn-save" id="btnSave" onclick="guardarProducto()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000'
+  : 'https://com-diaz.onrender.com';
+
+const TOKEN = localStorage.getItem('comdiaz_seller_token');
+if (!TOKEN) {
+  location.href = 'seller.html';
+}
+
+let sellerData = null;
+let productos = [];
+let editingId = null;
+
+function toast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + tipo;
+  setTimeout(() => t.className = 'toast ' + tipo, 2500);
+}
+
+async function cargarPerfil() {
+  try {
+    const r = await fetch(API + '/api/seller/me', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const d = await r.json();
+    if (!d.ok) {
+      if (r.status === 401) { logout(); return; }
+      toast('Error: ' + d.error, 'err');
+      return;
+    }
+    sellerData = d.seller;
+    renderPerfil();
+    cargarProductos();
+  } catch(e) {
+    toast('Error conexión: ' + e.message, 'err');
+  }
+}
+
+function renderPerfil() {
+  const s = sellerData;
+  document.getElementById('sellerName').textContent = s.nombre;
+  document.getElementById('sellerTelefono').textContent = s.telefono;
+  document.getElementById('sellerEstado').innerHTML = '<span class="badge ' + s.estado + '">' + s.estado + '</span>';
+  document.getElementById('sellerPlan').textContent = s.plan ? s.plan.nombre : '—';
+
+  const usada = s.cuota_usada || 0;
+  const max = s.cuota_max || 50;
+  const pct = max === -1 ? 0 : Math.min(100, (usada / max) * 100);
+  const fill = document.getElementById('quotaFill');
+  fill.style.width = (max === -1 ? 100 : pct) + '%';
+  fill.className = 'quota-fill' + (pct >= 90 ? ' full' : pct >= 70 ? ' warn' : '');
+  document.getElementById('quotaUsada').textContent = usada + ' productos';
+  document.getElementById('quotaMax').textContent = max === -1 ? '∞' : max + ' máx';
+
+  const btn = document.getElementById('addProductBtn');
+  if (s.estado !== 'aprobado') {
+    btn.disabled = true;
+    btn.textContent = s.estado === 'pendiente' ? '⏳ Cuenta pendiente de aprobación' : '🚫 Cuenta suspendida';
+  } else if (max !== -1 && usada >= max) {
+    btn.disabled = true;
+    btn.textContent = '🔒 Cuota alcanzada - actualiza plan';
+  }
+}
+
+async function cargarProductos() {
+  try {
+    const r = await fetch(API + '/api/seller/products', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const d = await r.json();
+    productos = d.products || [];
+    renderProductos();
+  } catch(e) {
+    toast('Error: ' + e.message, 'err');
+  }
+}
+
+function renderProductos() {
+  const list = document.getElementById('productsList');
+  if (!productos.length) {
+    list.innerHTML = '<div class="empty">Aún no tienes productos.<br>Toca "➕ Añadir producto" para empezar.</div>';
+    return;
+  }
+  list.innerHTML = productos.map(p => {
+    const img = (p.imagenes && p.imagenes[0]) || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 70 70%22><rect fill=%22%23111827%22 width=%2270%22 height=%2270%22/><text x=%2235%22 y=%2238%22 font-size=%2210%22 fill=%22%2364748b%22 text-anchor=%22middle%22>Sin img</text></svg>';
+    return `
+      <div class="product-item">
+        <img class="product-img" src="${img}" alt="">
+        <div class="product-body">
+          <div class="product-title">${(p.titulo || '').replace(/</g,'&lt;')}</div>
+          <div class="product-price">$${Number(p.precio_usd || 0).toFixed(2)}${p.precio_cup ? ' · ' + Number(p.precio_cup).toLocaleString() + ' CUP' : ''}</div>
+          <div class="product-meta">
+            <span>${p.categoria || 'Sin categoría'}</span>
+            <span class="badge ${p.publicado ? 'publicado' : 'oculto'}">${p.publicado ? 'Publicado' : 'Oculto'}</span>
+          </div>
+          <div class="product-actions">
+            <button class="btn-edit" onclick="editar(${JSON.stringify(p.id).replace(/"/g, '&quot;')})">✏️ Editar</button>
+            <button class="btn-del" onclick="eliminar(${JSON.stringify(p.id).replace(/"/g, '&quot;')})">🗑️ Eliminar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function abrirModal(id = null) {
+  editingId = id;
+  const err = document.getElementById('modalError');
+  err.classList.remove('show');
+  document.getElementById('modalTitle').textContent = id ? 'Editar producto' : 'Nuevo producto';
+
+  if (id) {
+    const p = productos.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('prodTitulo').value = p.titulo || '';
+    document.getElementById('prodDescripcion').value = p.descripcion || '';
+    document.getElementById('prodPrecioUSD').value = p.precio_usd || '';
+    document.getElementById('prodPrecioCUP').value = p.precio_cup || '';
+    document.getElementById('prodCategoria').value = p.categoria || '';
+    document.getElementById('prodProvincia').value = p.provincia || '';
+    document.getElementById('prodMunicipio').value = p.municipio || '';
+    document.getElementById('prodEstado').value = p.estado_producto || 'nuevo';
+    document.getElementById('prodStock').value = p.stock || 1;
+  } else {
+    document.getElementById('prodTitulo').value = '';
+    document.getElementById('prodDescripcion').value = '';
+    document.getElementById('prodPrecioUSD').value = '';
+    document.getElementById('prodPrecioCUP').value = '';
+    document.getElementById('prodCategoria').value = '';
+    document.getElementById('prodProvincia').value = sellerData?.provincia || '';
+    document.getElementById('prodMunicipio').value = sellerData?.municipio || '';
+    document.getElementById('prodEstado').value = 'nuevo';
+    document.getElementById('prodStock').value = 1;
+  }
+
+  document.getElementById('productModal').classList.remove('hidden');
+}
+
+function cerrarModal() {
+  document.getElementById('productModal').classList.add('hidden');
+}
+
+async function guardarProducto() {
+  const btn = document.getElementById('btnSave');
+  const err = document.getElementById('modalError');
+  err.classList.remove('show');
+
+  const body = {
+    titulo: document.getElementById('prodTitulo').value.trim(),
+    descripcion: document.getElementById('prodDescripcion').value.trim(),
+    precio_usd: Number(document.getElementById('prodPrecioUSD').value),
+    precio_cup: Number(document.getElementById('prodPrecioCUP').value) || null,
+    categoria: document.getElementById('prodCategoria').value.trim(),
+    provincia: document.getElementById('prodProvincia').value.trim(),
+    municipio: document.getElementById('prodMunicipio').value.trim(),
+    estado_producto: document.getElementById('prodEstado').value,
+    stock: Number(document.getElementById('prodStock').value) || 1,
+  };
+
+  if (!body.titulo || body.titulo.length < 3) {
+    err.textContent = 'Título mínimo 3 caracteres';
+    err.classList.add('show');
+    return;
+  }
+  if (!body.precio_usd || body.precio_usd <= 0) {
+    err.textContent = 'Precio USD requerido';
+    err.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  try {
+    const url = editingId
+      ? API + '/api/seller/products/' + editingId
+      : API + '/api/seller/products';
+    const method = editingId ? 'PUT' : 'POST';
+    const r = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + TOKEN
+      },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+
+    if (d.ok) {
+      toast(editingId ? '✅ Producto actualizado' : '✅ Producto creado', 'ok');
+      cerrarModal();
+      cargarPerfil();
+    } else {
+      err.textContent = d.error || 'Error al guardar';
+      err.classList.add('show');
+    }
+  } catch(e) {
+    err.textContent = 'Error: ' + e.message;
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Guardar';
+  }
+}
+
+function editar(id) {
+  abrirModal(id);
+}
+
+async function eliminar(id) {
+  if (!confirm('¿Eliminar este producto? No aparecerá más en la tienda.')) return;
+  try {
+    const r = await fetch(API + '/api/seller/products/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const d = await r.json();
+    if (d.ok) {
+      toast('✅ Producto eliminado', 'ok');
+      cargarPerfil();
+    } else {
+      toast('Error: ' + d.error, 'err');
+    }
+  } catch(e) {
+    toast('Error: ' + e.message, 'err');
+  }
+}
+
+function logout() {
+  localStorage.removeItem('comdiaz_seller_token');
+  localStorage.removeItem('comdiaz_seller_data');
+  location.href = 'shop.html';
+}
+
+// Cerrar modal al tocar backdrop
+document.getElementById('productModal').addEventListener('click', (e) => {
+  if (e.target.id === 'productModal') cerrarModal();
+});
+
+// Init
+cargarPerfil();
+setInterval(cargarPerfil, 60000);  // refrescar cada minuto
+
+</script>
+
+</body>
+</html>
+

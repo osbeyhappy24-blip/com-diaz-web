@@ -1,0 +1,372 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vender en Comdiaz · Comdiaz Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="favicon-shop.png">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #0b0f1a;
+  color: #e5e7eb;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  padding: 20px 16px;
+  text-align: center;
+}
+.header h1 { font-size: 22px; margin-bottom: 4px; }
+.header p { font-size: 13px; opacity: 0.9; }
+
+.container {
+  flex: 1;
+  padding: 24px 16px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tabs {
+  display: flex;
+  background: rgba(255,255,255,.05);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all .2s;
+  color: #94a3b8;
+}
+.tab.active {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #243049;
+  background: #111827;
+  color: #e5e7eb;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .2s;
+}
+input:focus, select:focus { border-color: #7c3aed; }
+
+.hint {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: transform .15s;
+}
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.btn-back {
+  background: transparent;
+  border: 1px solid #243049;
+  color: #94a3b8;
+  margin-top: 12px;
+}
+
+.error {
+  background: rgba(239,68,68,.15);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #f87171;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 16px;
+  display: none;
+}
+.error.show { display: block; }
+
+.success {
+  background: rgba(16,185,129,.15);
+  border: 1px solid rgba(16,185,129,.3);
+  color: #34d399;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 16px;
+  display: none;
+}
+.success.show { display: block; }
+
+.pending {
+  text-align: center;
+  padding: 40px 20px;
+  display: none;
+}
+.pending.show { display: block; }
+.pending-icon { font-size: 64px; margin-bottom: 16px; }
+.pending h2 { font-size: 20px; margin-bottom: 12px; }
+.pending p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+
+.footer {
+  padding: 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 11px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏪 Vender en Comdiaz</h1>
+  <p>Sube tus productos y véndelos en Cuba</p>
+</div>
+
+<div class="container">
+
+  <div id="viewTabs">
+    <div class="tabs">
+      <div class="tab active" data-tab="register">Registrarme</div>
+      <div class="tab" data-tab="login">Ya tengo cuenta</div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="panel-register" class="panel active">
+      <form id="formRegister">
+        <label>Tu nombre completo *</label>
+        <input type="text" id="regNombre" placeholder="Ej: Juan Pérez" maxlength="80" required>
+
+        <label>Tu WhatsApp *</label>
+        <input type="tel" id="regTelefono" placeholder="Ej: 5351234567" maxlength="20" inputmode="numeric" required>
+        <p class="hint">Con este número te contactarán los compradores</p>
+
+        <label>Contraseña *</label>
+        <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" minlength="6" required>
+
+        <label>Provincia</label>
+        <select id="regProvincia">
+          <option value="">Selecciona...</option>
+        </select>
+
+        <label>Municipio</label>
+        <select id="regMunicipio" disabled>
+          <option value="">Primero la provincia</option>
+        </select>
+
+        <button type="submit" class="btn" id="btnRegister">Crear cuenta</button>
+        <div id="regError" class="error"></div>
+        <div id="regSuccess" class="success"></div>
+      </form>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="panel-login" class="panel">
+      <form id="formLogin">
+        <label>Tu WhatsApp</label>
+        <input type="tel" id="logTelefono" placeholder="Ej: 5351234567" maxlength="20" inputmode="numeric" required>
+
+        <label>Contraseña</label>
+        <input type="password" id="logPassword" placeholder="Tu contraseña" required>
+
+        <button type="submit" class="btn" id="btnLogin">Iniciar sesión</button>
+        <div id="logError" class="error"></div>
+      </form>
+    </div>
+
+    <!-- PENDIENTE DE APROBACIÓN -->
+    <div id="panel-pending" class="pending">
+      <div class="pending-icon">⏳</div>
+      <h2>Cuenta creada exitosamente</h2>
+      <p>Tu cuenta está <b>pendiente de aprobación</b>.<br>Te avisaremos cuando esté lista para publicar productos.</p>
+      <button class="btn btn-back" onclick="location.href='shop.html'">← Volver a la tienda</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Comdiaz Shop · com-diaz-web.onrender.com
+</div>
+
+<script>
+const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000'
+  : 'https://com-diaz.onrender.com';
+
+// Provincias
+async function cargarProvincias() {
+  try {
+    const r = await fetch(API + '/api/public/provincias');
+    const d = await r.json();
+    const provincias = d.provincias || {};
+    const sel = document.getElementById('regProvincia');
+    sel.innerHTML = '<option value="">Selecciona...</option>';
+    Object.keys(provincias).sort().forEach(p => {
+      sel.innerHTML += '<option value="' + p + '">' + p + '</option>';
+    });
+    window._provincias = provincias;
+  } catch(e) { console.error(e); }
+}
+
+document.getElementById('regProvincia').addEventListener('change', (e) => {
+  const prov = e.target.value;
+  const mun = document.getElementById('regMunicipio');
+  if (!prov || !window._provincias || !window._provincias[prov]) {
+    mun.disabled = true;
+    mun.innerHTML = '<option value="">Primero la provincia</option>';
+    return;
+  }
+  mun.disabled = false;
+  mun.innerHTML = '<option value="">Selecciona...</option>';
+  window._provincias[prov].sort().forEach(m => {
+    mun.innerHTML += '<option value="' + m + '">' + m + '</option>';
+  });
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Registro
+document.getElementById('formRegister').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnRegister');
+  const err = document.getElementById('regError');
+  const suc = document.getElementById('regSuccess');
+  err.classList.remove('show');
+  suc.classList.remove('show');
+  btn.disabled = true;
+  btn.textContent = 'Creando cuenta...';
+
+  try {
+    const r = await fetch(API + '/api/seller/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: document.getElementById('regNombre').value.trim(),
+        telefono: document.getElementById('regTelefono').value.trim(),
+        password: document.getElementById('regPassword').value,
+        provincia: document.getElementById('regProvincia').value || null,
+        municipio: document.getElementById('regMunicipio').value || null,
+      }),
+    });
+    const d = await r.json();
+
+    if (d.ok) {
+      // Guardar token
+      localStorage.setItem('comdiaz_seller_telefono', document.getElementById('regTelefono').value.trim());
+      // Mostrar pendiente
+      document.getElementById('panel-register').classList.remove('active');
+      document.getElementById('viewTabs').querySelector('.tabs').style.display = 'none';
+      document.getElementById('panel-pending').classList.add('show');
+    } else {
+      err.textContent = d.error || 'Error al crear cuenta';
+      err.classList.add('show');
+    }
+  } catch(e) {
+    err.textContent = 'Error de conexión: ' + e.message;
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Crear cuenta';
+  }
+});
+
+// Login
+document.getElementById('formLogin').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnLogin');
+  const err = document.getElementById('logError');
+  err.classList.remove('show');
+  btn.disabled = true;
+  btn.textContent = 'Iniciando sesión...';
+
+  try {
+    const r = await fetch(API + '/api/seller/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telefono: document.getElementById('logTelefono').value.trim(),
+        password: document.getElementById('logPassword').value,
+      }),
+    });
+    const d = await r.json();
+
+    if (d.ok && d.token) {
+      localStorage.setItem('comdiaz_seller_token', d.token);
+      localStorage.setItem('comdiaz_seller_data', JSON.stringify(d.seller));
+      location.href = 'seller-panel.html';
+    } else {
+      err.textContent = d.error || 'Credenciales inválidas';
+      err.classList.add('show');
+    }
+  } catch(e) {
+    err.textContent = 'Error de conexión: ' + e.message;
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Iniciar sesión';
+  }
+});
+
+// Init
+cargarProvincias();
+
+// Si ya tiene sesión, ir directo al panel
+if (localStorage.getItem('comdiaz_seller_token')) {
+  location.href = 'seller-panel.html';
+}
+</script>
+
+</body>
+</html>
+
