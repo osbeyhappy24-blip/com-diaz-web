@@ -259,7 +259,10 @@
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.nav-item');
     if (btn && btn.dataset.view === 'vendedores') {
-      setTimeout(init, 100);
+      setTimeout(() => {
+        if (!inicializado) { init(); }
+        else { cargarStats(); cargarSellers(estadoActual); }
+      }, 100);
     }
   });
 
