@@ -68,8 +68,13 @@ function renderStatus() {
 }
 
 function renderMeta() {
-  $('countProducts').textContent = state.results.length;
-  $('countCats').textContent = state.categories.length;
+  if (state._lightMode && state._lightCounts) {
+    $('countProducts').textContent = state._lightCounts.productos || 0;
+    $('countCats').textContent = state._lightCounts.categorias || 0;
+  } else {
+    $('countProducts').textContent = (state.results || []).length;
+    $('countCats').textContent = (state.categories || []).length;
+  }
   $('lastRun').textContent = timeAgo(state.automation.lastRun);
 }
 
@@ -168,25 +173,60 @@ async function refresh() {
     return;
   }
 
-  // 3) Intentar traer del servidor
+  // 3) Intentar traer estado completo (1.7 MB)
   try {
     if (window.comdiaz_update_badge) window.comdiaz_update_badge('syncing');
     state = await api('/api/state');
     if (window.comdiaz_save_cache) window.comdiaz_save_cache(state);
     renderAll();
     if (window.comdiaz_update_badge) window.comdiaz_update_badge('online');
+    return;
   } catch (e) {
-    console.error('refresh error:', e);
-    if (cached) {
-      // Usar caché y marcar offline
-      state = cached;
-      try { renderAll(); } catch(_){}
-      if (window.comdiaz_update_badge) window.comdiaz_update_badge('offline');
-      toast('🔴 Sin conexión · usando datos guardados', 'err');
-    } else {
-      if (window.comdiaz_update_badge) window.comdiaz_update_badge('error');
-      toast('No se pudo conectar y no hay datos guardados', 'err');
+    console.warn('refresh /api/state falló, probando /api/home:', e.message);
+  }
+
+  // 4) FALLBACK: /api/home (300 bytes) — mantiene running real del servidor
+  try {
+    const home = await api('/api/home');
+    if (home && home.ok) {
+      const base = state || cached || {};
+      state = {
+        ...base,
+        automation: {
+          ...(base.automation || {}),
+          running: home.running === true,
+          publishTimes: home.publishTimes || [],
+          lastRun: home.lastRun || null,
+          delaySeconds: home.delaySeconds || 5,
+        },
+        margin: home.margin || base.margin || 35,
+        // Contadores que renderMeta usará
+        _lightCounts: {
+          productos: home.productos,
+          categorias: home.categorias,
+          conIA: home.conIA,
+          locales: home.locales,
+          capMax: home.capMax,
+        },
+        _lightMode: true,
+      };
+      renderAll();
+      if (window.comdiaz_update_badge) window.comdiaz_update_badge('online');
+      return;
     }
+  } catch (e) {
+    console.warn('refresh /api/home también falló:', e.message);
+  }
+
+  // 5) Todo falló — usar caché
+  if (cached) {
+    state = cached;
+    try { renderAll(); } catch(_){}
+    if (window.comdiaz_update_badge) window.comdiaz_update_badge('offline');
+    toast('🔴 Usando datos guardados', 'err');
+  } else {
+    if (window.comdiaz_update_badge) window.comdiaz_update_badge('error');
+    toast('No se pudo conectar', 'err');
   }
 }
 
