@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -381,6 +381,48 @@
         <div id="localesList" class="locales-list">
           <div class="act-empty">Cargando productos locales…</div>
         </div>
+      </div>
+    </section>
+
+    <section class="card collapsible" data-card="vendedores" data-view="vendedores" data-default="open" id="vendedoresCard">
+      <div class="card-head">
+        <h2>🏪 Vendedores</h2>
+        <span class="badge" id="vendedoresCount">0</span>
+      </div>
+      <div class="card-body">
+        <p class="manual-hint">Aprueba o suspende vendedores. Solo los aprobados pueden publicar productos.</p>
+
+        <div class="admin-stats-grid" id="adminStats">
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statPendientes">0</div>
+            <div class="admin-stat-lbl">⏳ Pendientes</div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statAprobados">0</div>
+            <div class="admin-stat-lbl">✅ Aprobados</div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statSuspendidos">0</div>
+            <div class="admin-stat-lbl">🚫 Suspendidos</div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statProductos">0</div>
+            <div class="admin-stat-lbl">📦 Productos</div>
+          </div>
+        </div>
+
+        <div class="admin-tabs" id="sellersTabs">
+          <button class="admin-tab active" data-estado="pendiente">⏳ Pendientes</button>
+          <button class="admin-tab" data-estado="aprobado">✅ Aprobados</button>
+          <button class="admin-tab" data-estado="suspendido">🚫 Suspendidos</button>
+          <button class="admin-tab" data-estado="">📋 Todos</button>
+        </div>
+
+        <div id="sellersList" class="sellers-list">
+          <div class="act-empty">Cargando vendedores…</div>
+        </div>
+
+        <button id="sellersRefreshBtn" class="btn-ghost" style="width:100%;margin-top:12px">🔄 Actualizar</button>
       </div>
     </section>
 
@@ -792,8 +834,9 @@
   </div>
 </div>
 
-  <script src="home.js?v=33"></script>
+  <script src="home.js?v=34"></script>
 <script src="bulk.js?v=9"></script>
+<script src="sellers-admin.js?v=1"></script>
 
   
 
@@ -942,6 +985,11 @@
   <button class="nav-item" data-view="locales">
     <span class="nav-icon">🏘️</span>
     <span class="nav-label">Locales</span>
+  </button>
+  <button class="nav-item" data-view="vendedores">
+    <span class="nav-icon">🏪</span>
+    <span class="nav-label">Vendedores</span>
+    <span id="sellersBadge" class="nav-badge hidden">0</span>
   </button>
   <button class="nav-item" data-view="import">
     <span class="nav-icon">🌐</span>
