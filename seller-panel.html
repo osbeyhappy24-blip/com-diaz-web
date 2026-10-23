@@ -1642,9 +1642,18 @@ console.log('✅ Photo uploader + quota cache ready');
   }
 
   async function registrarPushSeller() {
+    function _log(m, e) { console.log('[PUSH-REG] ' + m + (e ? ' | ' + (e.message || e) : '')); }
     try {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-      if (typeof TOKEN === 'undefined' || !TOKEN) return;
+      _log('Iniciando');
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        _log('❌ API no soportada');
+        return;
+      }
+      if (typeof TOKEN === 'undefined' || !TOKEN) {
+        _log('❌ Sin TOKEN');
+        return;
+      }
+      _log('API OK, TOKEN presente');
 
       // Registrar SW si no está
       let reg;
@@ -1702,9 +1711,15 @@ console.log('✅ Photo uploader + quota cache ready');
         body: JSON.stringify({ subscription: sub })
       });
       const saved = await save.json();
-      if (saved.ok) console.log('✅ Push suscrito. Total subs:', saved.total);
+      if (saved.ok) {
+        console.log('✅ Push suscrito. Total subs:', saved.total);
+        _log('Suscrito, total: ' + saved.total);
+      } else {
+        _log('❌ Backend no guardó: ' + JSON.stringify(saved));
+      }
     } catch(e) {
-      console.warn('[PUSH] Error:', e.message);
+      _log('❌ Error', e);
+      console.warn('[PUSH] Error:', e);
     }
   }
 
@@ -1729,6 +1744,162 @@ console.log('✅ Photo uploader + quota cache ready');
   }
 
   console.log('✅ Push subscription helper cargado');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Push: activación + diagnóstico (v3, reparado)
+// ═══════════════════════════════════════════════════════
+(function(){
+  const LOG = [];
+  function log(msg, err) {
+    const line = '[PUSH] ' + msg + (err ? ' | ' + (err.message || err) : '');
+    console.log(line);
+    LOG.push(line);
+    // Guardar en window para debug
+    window._pushLog = LOG;
+  }
+
+  function showDebugPanel(titulo, lineas) {
+    // Panel de debug visible en pantalla (no consola)
+    let panel = document.getElementById('pushDebugPanel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'pushDebugPanel';
+      panel.style.cssText = 'position:fixed;top:60px;left:8px;right:8px;background:#0f172a;color:#f1f5f9;padding:14px;border-radius:12px;border:2px solid #3b82f6;z-index:10001;font-size:12px;font-family:monospace;max-height:60vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.5';
+      document.body.appendChild(panel);
+    }
+    panel.innerHTML = '<div style="font-weight:bold;color:#fbbf24;margin-bottom:8px">' + titulo + '</div>' +
+      lineas.join('\n') +
+      '<div style="margin-top:10px"><button onclick="this.parentNode.remove()" style="background:#3b82f6;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Cerrar</button></div>';
+    panel.style.display = 'block';
+  }
+  window._showPushDebug = showDebugPanel;
+
+  function checkEstado() {
+    const bell = document.getElementById('notifBell');
+    const btn = document.getElementById('pushActivateBtn');
+    const banner = document.getElementById('pushBanner');
+    if (!bell) { log('bell no encontrado'); return; }
+
+    const soportado = ('Notification' in window) && ('serviceWorker' in navigator) && ('PushManager' in window);
+    log('Soporte: Notification=' + ('Notification' in window) + ' SW=' + ('serviceWorker' in navigator) + ' PushManager=' + ('PushManager' in window));
+
+    if (!soportado) {
+      log('❌ API no soportada');
+      if (btn) btn.style.display = 'none';
+      if (banner) banner.style.display = 'none';
+      return;
+    }
+
+    const permiso = Notification.permission;
+    log('Permiso: ' + permiso);
+
+    if (permiso === 'granted') {
+      if (btn) btn.style.display = 'none';
+      if (banner) banner.style.display = 'none';
+      // Auto-registrar
+      setTimeout(() => {
+        if (typeof window.comdiazRegistrarPush === 'function') {
+          log('Auto-registrando push...');
+          window.comdiazRegistrarPush();
+        }
+      }, 500);
+      return;
+    }
+
+    if (permiso === 'denied') {
+      if (btn) {
+        btn.style.display = 'inline-flex';
+        btn.textContent = '⚙️ Revisar';
+        btn.style.background = 'linear-gradient(135deg,#64748b,#475569)';
+      }
+      return;
+    }
+
+    // default
+    if (btn) btn.style.display = 'inline-flex';
+    if (banner) {
+      const cerrado = localStorage.getItem('comdiaz_push_banner_dismissed');
+      if (!cerrado) banner.style.display = 'block';
+    }
+  }
+  window._checkPushEstado = checkEstado;
+
+  window.activarNotificaciones = async function() {
+    log('Botón tocado');
+    if (!('Notification' in window)) {
+      alert('Navegador no soporta notificaciones');
+      return;
+    }
+
+    if (Notification.permission === 'denied') {
+      showDebugPanel('🔕 Notificaciones bloqueadas', [
+        'Abre Ajustes de Android → Comdiaz Shop → Notificaciones → Permitir.',
+        'Después vuelve aquí y toca el botón.'
+      ]);
+      return;
+    }
+
+    try {
+      log('Solicitando permiso...');
+      const permiso = await Notification.requestPermission();
+      log('Permiso resultado: ' + permiso);
+
+      if (permiso === 'granted') {
+        const banner = document.getElementById('pushBanner');
+        const btn = document.getElementById('pushActivateBtn');
+        if (banner) banner.style.display = 'none';
+        if (btn) btn.style.display = 'none';
+
+        if (typeof window.comdiazRegistrarPush === 'function') {
+          log('Llamando comdiazRegistrarPush...');
+          await window.comdiazRegistrarPush();
+          log('Registro push completado');
+          if (typeof toast === 'function') toast('✅ Notificaciones activadas', 'ok');
+        } else {
+          log('❌ comdiazRegistrarPush no disponible');
+        }
+      } else if (permiso === 'denied') {
+        showDebugPanel('🔕 Bloqueado', ['Abre Ajustes de Android para activar notificaciones.']);
+      }
+    } catch(e) {
+      log('Error pidiendo permiso', e);
+      showDebugPanel('❌ Error al pedir permiso', [
+        'Error: ' + (e.message || e),
+        'Log completo:',
+        ...LOG
+      ]);
+    }
+  };
+
+  window.cerrarBannerPush = function() {
+    const banner = document.getElementById('pushBanner');
+    if (banner) banner.style.display = 'none';
+    try { localStorage.setItem('comdiaz_push_banner_dismissed', '1'); } catch(_) {}
+  };
+
+  // Diagnóstico con #debugpush
+  if (location.hash === '#debugpush') {
+    setTimeout(() => {
+      showDebugPanel('🔬 Diagnóstico Push', [
+        'Notification API: ' + ('Notification' in window),
+        'serviceWorker: ' + ('serviceWorker' in navigator),
+        'PushManager: ' + ('PushManager' in window),
+        'Notification.permission: ' + (typeof Notification !== 'undefined' ? Notification.permission : 'N/A'),
+        'Standalone: ' + window.matchMedia('(display-mode: standalone)').matches,
+        'UserAgent: ' + navigator.userAgent.slice(0, 100),
+        '',
+        'Log:',
+        ...LOG
+      ]);
+    }, 1500);
+  }
+
+  // Ejecutar al cargar
+  setTimeout(checkEstado, 1000);
 })();
 </script>
 
