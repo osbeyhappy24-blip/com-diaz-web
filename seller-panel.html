@@ -1616,6 +1616,104 @@ console.log('✅ Photo uploader + quota cache ready');
 })();
 </script>
 
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Suscripción Push (Web Push VAPID)
+// ═══════════════════════════════════════════════════════
+(function(){
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  async function registrarPushSeller() {
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      if (typeof TOKEN === 'undefined' || !TOKEN) return;
+
+      // Registrar SW si no está
+      let reg;
+      try {
+        reg = await navigator.serviceWorker.getRegistration('/service-worker.js');
+        if (!reg) reg = await navigator.serviceWorker.register('/service-worker.js');
+        await navigator.serviceWorker.ready;
+      } catch(e) {
+        console.warn('[PUSH] SW no registrado:', e.message);
+        return;
+      }
+
+      // ¿Ya suscrito?
+      let sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        // Verificar que backend lo tenga
+        try {
+          await fetch(API + '/api/seller/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+            body: JSON.stringify({ subscription: sub })
+          });
+        } catch(_) {}
+        return;
+      }
+
+      // Pedir permiso si no está dado
+      if (Notification.permission === 'default') {
+        // Pequeño delay para no spamear al entrar
+        await new Promise(r => setTimeout(r, 3000));
+        const permiso = await Notification.requestPermission();
+        if (permiso !== 'granted') {
+          console.log('[PUSH] Permiso rechazado por el usuario');
+          return;
+        }
+      } else if (Notification.permission !== 'granted') {
+        return;
+      }
+
+      // Obtener VAPID public key
+      const r = await fetch(API + '/api/public/vapid-key');
+      const d = await r.json();
+      if (!d.ok || !d.publicKey) return;
+
+      // Suscribir
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(d.publicKey)
+      });
+
+      // Guardar en backend
+      const save = await fetch(API + '/api/seller/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ subscription: sub })
+      });
+      const saved = await save.json();
+      if (saved.ok) console.log('✅ Push suscrito. Total subs:', saved.total);
+    } catch(e) {
+      console.warn('[PUSH] Error:', e.message);
+    }
+  }
+
+  // Ejecutar cuando el panel esté cargado y TOKEN disponible
+  setTimeout(registrarPushSeller, 4000);
+
+  // Auto-abrir panel de notifs si llegamos con #notif
+  if (location.hash === '#notif') {
+    setTimeout(() => {
+      if (typeof toggleNotifPanel === 'function') toggleNotifPanel();
+      // Limpiar hash
+      try { history.replaceState(null, '', location.pathname); } catch(_) {}
+    }, 2500);
+  }
+
+  console.log('✅ Push subscription helper cargado');
+})();
+</script>
+
 </body>
 </html>
 
