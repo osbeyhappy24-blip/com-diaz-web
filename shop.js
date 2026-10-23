@@ -15,6 +15,70 @@ function _waUrl(phone, text) {
   return 'https://wa.me/' + p + (t ? '?text=' + t : '');
 }
 
+// ═══════════════════════════════════════════════════════
+// Contacto de vendedor — solo al tocar WhatsApp
+// ═══════════════════════════════════════════════════════
+async function obtenerContactoVendedor(productId) {
+  try {
+    const r = await fetch(API_BASE + '/api/public/seller-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: String(productId) })
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d.ok ? d : null;
+  } catch(_) { return null; }
+}
+
+// Interceptar clicks en botones "Pedir por WhatsApp" para productos seller
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.product-buy, [data-product-buy], #pmWaBtn');
+  if (!btn) return;
+
+  // El botón debe tener data-id o estar en modal con producto activo
+  let prodId = btn.getAttribute('data-id');
+  if (!prodId && btn.id === 'pmWaBtn') {
+    // Modal de producto — buscar producto activo en state
+    const st = window.state || {};
+    if (st.productoAbierto && st.productoAbierto.id) prodId = st.productoAbierto.id;
+  }
+  if (!prodId) return;
+
+  // Si NO es seller, dejamos el flujo viejo (no prevenimos)
+  if (!String(prodId).startsWith('seller_')) return;
+
+  // Es seller: interceptar
+  e.preventDefault();
+  e.stopPropagation();
+
+  btn.disabled = true;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Conectando...';
+
+  try {
+    const info = await obtenerContactoVendedor(prodId);
+    if (!info || !info.telefono) {
+      alert('El vendedor no está disponible en este momento.');
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+      return;
+    }
+    const mensaje = 'Hola ' + (info.nombre || '') + ', vengo de *Comdiaz Shop* y me interesa: ' + (info.titulo || 'tu producto') + (info.precio_usd ? ' ($' + info.precio_usd + ')' : '');
+    if (typeof _waUrl === 'function') {
+      window.location.href = _waUrl(info.telefono, mensaje);
+    } else {
+      window.open('https://wa.me/' + info.telefono + '?text=' + encodeURIComponent(mensaje), '_blank');
+    }
+  } catch(err) {
+    alert('Error conectando con el vendedor.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
+}, true);  // ← capture: intercepta ANTES del handler existente
+
+
 
 // ─── Helper: abrir WhatsApp en la app (no en el navegador) ───
 function abrirWhatsApp(numero, mensaje) {
