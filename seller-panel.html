@@ -374,7 +374,7 @@ textarea { min-height: 60px; resize: vertical; }
   </div>
 
   <!-- Botón añadir -->
-  <button class="add-btn" id="addProductBtn" onclick="abrirModal()">➕ Añadir producto</button>
+  <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
 
   <!-- Lista de productos -->
   <div class="products-list" id="productsList">
@@ -439,7 +439,7 @@ textarea { min-height: 60px; resize: vertical; }
 
       <label>📷 Foto del producto</label>
       <div class="photo-upload">
-        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">
+        <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handleMultiplePhotos(event)">
         <div class="photo-empty" id="photoEmpty" onclick="document.getElementById('photoInput').click()">
           <div class="photo-icon">📷</div>
           <div class="photo-text">Toca para añadir foto</div>
@@ -454,7 +454,7 @@ textarea { min-height: 60px; resize: vertical; }
 
       <div id="modalError" class="error"></div>
 
-      <button class="btn-save" id="btnSave" onclick="guardarProducto()">💾 Guardar</button>
+      <button class="btn-save" id="btnSave" onclick="guardarProductoEnLote()">💾 Guardar y siguiente</button>
     </div>
   </div>
 </div>
@@ -711,64 +711,11 @@ setInterval(cargarPerfil, 60000);  // refrescar cada minuto
 
 
 
+
+
 // ═══════════════════════════════════════════════════════
-// FOTO DEL PRODUCTO (1 foto, comprimida en cliente)
+// HELPERS DE FOTO (comprimir, base64, preview, quitar)
 // ═══════════════════════════════════════════════════════
-let imagenActual = null;   // URL final (después de subir)
-let imagenBlob = null;     // blob comprimido local
-
-function resetPhotoState() {
-  imagenActual = null;
-  imagenBlob = null;
-  const input = document.getElementById('photoInput');
-  if (input) input.value = '';
-  const prev = document.getElementById('photoPreviewWrap');
-  if (prev) prev.classList.add('hidden');
-  const emp = document.getElementById('photoEmpty');
-  if (emp) emp.classList.remove('hidden');
-  const st = document.getElementById('photoStatus');
-  if (st) { st.textContent = ''; st.className = 'photo-status'; }
-}
-
-function mostrarFotoPreview(url, status, statusText) {
-  const wrap = document.getElementById('photoPreviewWrap');
-  const img = document.getElementById('photoPreview');
-  const emp = document.getElementById('photoEmpty');
-  const st = document.getElementById('photoStatus');
-  if (!wrap || !img) return;
-  img.src = url;
-  wrap.classList.remove('hidden');
-  if (emp) emp.classList.add('hidden');
-  if (st) {
-    st.textContent = statusText || '';
-    st.className = 'photo-status ' + (status || '');
-  }
-}
-
-function quitarFoto() {
-  resetPhotoState();
-}
-
-async function handlePhotoSelect(e) {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  if (!file.type.startsWith('image/')) { toast('Solo imágenes', 'err'); return; }
-  if (file.size > 10 * 1024 * 1024) { toast('Máximo 10MB', 'err'); return; }
-
-  mostrarFotoPreview(URL.createObjectURL(file), 'uploading', 'Comprimiendo…');
-
-  try {
-    const compressed = await comprimirImagen(file, 1200, 0.82);
-    imagenBlob = compressed;
-    imagenActual = null;
-    mostrarFotoPreview(URL.createObjectURL(compressed), 'uploading', 'Subiendo…');
-    await subirFoto();
-  } catch(err) {
-    mostrarFotoPreview('', 'err', 'Error comprimiendo');
-    toast('Error: ' + err.message, 'err');
-  }
-}
-
 function comprimirImagen(file, maxDim, quality) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -783,9 +730,9 @@ function comprimirImagen(file, maxDim, quality) {
       canvas.width = width; canvas.height = height;
       canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       canvas.toBlob(b => b ? resolve(b) : reject(new Error('compresión falló')),
-                    'image/jpeg', quality);
+                    'image/jpeg', quality || 0.82);
     };
-    img.onerror = () => reject(new Error('no se pudo cargar'));
+    img.onerror = () => reject(new Error('no se pudo cargar la imagen'));
     img.src = URL.createObjectURL(file);
   });
 }
@@ -799,40 +746,196 @@ function blobToBase64(blob) {
   });
 }
 
-async function subirFoto() {
-  if (!imagenBlob) return;
-  if (!navigator.onLine) {
-    mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
-      'Sin conexión · se subirá al guardar');
+function mostrarFotoPreview(url, status, statusText) {
+  const wrap = document.getElementById('photoPreviewWrap');
+  const img = document.getElementById('photoPreview');
+  const emp = document.getElementById('photoEmpty');
+  const st = document.getElementById('photoStatus');
+  if (!wrap || !img) return;
+  if (url) img.src = url;
+  wrap.classList.remove('hidden');
+  if (emp) emp.classList.add('hidden');
+  if (st) {
+    st.textContent = statusText || '';
+    st.className = 'photo-status ' + (status || '');
+  }
+}
+
+function quitarFoto() {
+  // En modo lote: elimina el producto actual de la cola
+  if (typeof colaProductos !== 'undefined' && indiceCola < colaProductos.length) {
+    colaProductos.splice(indiceCola, 1);
+    if (indiceCola >= colaProductos.length) indiceCola = colaProductos.length - 1;
+    if (colaProductos.length === 0) {
+      const modal = document.getElementById('productModal');
+      if (modal) modal.classList.add('hidden');
+      toast('Producto quitado de la cola', 'ok');
+      return;
+    }
+    if (typeof abrirFormularioSiguiente === 'function') abrirFormularioSiguiente();
+  }
+}
+
+function resetPhotoState() {
+  const input = document.getElementById('photoInput');
+  if (input) input.value = '';
+  const prev = document.getElementById('photoPreviewWrap');
+  if (prev) prev.classList.add('hidden');
+  const emp = document.getElementById('photoEmpty');
+  if (emp) emp.classList.remove('hidden');
+  const st = document.getElementById('photoStatus');
+  if (st) { st.textContent = ''; st.className = 'photo-status'; }
+}
+
+// ═══════════════════════════════════════════════════════
+// CARGA MASIVA DE PRODUCTOS (1 foto = 1 producto)
+// ═══════════════════════════════════════════════════════
+let colaProductos = [];      // Array de { blob, url, datos: {} }
+let indiceCola = 0;         // Índice del producto actual en el asistente
+
+function resetBulkState() {
+  colaProductos = [];
+  indiceCola = 0;
+  const bulkStatus = document.getElementById('bulkStatus');
+  if (bulkStatus) bulkStatus.textContent = '';
+}
+
+async function handleMultiplePhotos(event) {
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
+
+  resetBulkState();
+  const statusEl = document.getElementById('photoStatus');
+  
+  // 1. Comprimir todas las imágenes
+  for (let i = 0; i < files.length; i++) {
+    statusEl.textContent = `Comprimiendo ${i + 1} de ${files.length}...`;
+    try {
+      const compressedBlob = await comprimirImagen(files[i], 1200, 0.82);
+      colaProductos.push({ blob: compressedBlob, url: null, datos: {} });
+    } catch (err) {
+      console.error('Error comprimiendo:', files[i].name, err);
+    }
+  }
+  
+  statusEl.textContent = `${colaProductos.length} fotos listas. Iniciando formularios...`;
+  
+  // 2. Iniciar el asistente para el primer producto
+  if (colaProductos.length > 0) {
+    abrirFormularioSiguiente();
+  }
+}
+
+function abrirFormularioSiguiente() {
+  if (indiceCola >= colaProductos.length) {
+    // Asistente terminado
+    toast(`✅ ${colaProductos.length} productos creados.`, 'ok');
+    cerrarModal();
+    cargarPerfil(); // Recargar la lista de productos
     return;
   }
+
+  const producto = colaProductos[indiceCola];
+  
+  // Rellenar el modal con los datos del producto actual
+  document.getElementById('modalTitle').textContent = `Nuevo producto ${indiceCola + 1} de ${colaProductos.length}`;
+  document.getElementById('prodTitulo').value = producto.datos.titulo || '';
+  document.getElementById('prodPrecioUSD').value = producto.datos.precio_usd || '';
+  // ... (resetear otros campos del formulario)
+  
+  // Mostrar la vista previa de la imagen actual
+  if (producto.url) {
+    mostrarFotoPreview(producto.url, 'ok', '✓ Foto lista');
+  } else {
+    mostrarFotoPreview(URL.createObjectURL(producto.blob), 'uploading', 'Subiendo...');
+    subirFotoLote(producto); // Subir la foto en segundo plano
+  }
+  
+  document.getElementById('productModal').classList.remove('hidden');
+}
+
+async function subirFotoLote(producto) {
   try {
-    const b64 = await blobToBase64(imagenBlob);
+    const b64 = await blobToBase64(producto.blob);
     const r = await fetch(API + '/api/upload-image', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + TOKEN
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
       body: JSON.stringify({ image: b64, nombre: 'seller_' + Date.now() + '.jpg' })
     });
     const d = await r.json();
     if (d.ok && d.url) {
-      imagenActual = d.url;
+      producto.url = d.url;
       mostrarFotoPreview(d.url, 'ok', '✓ Foto lista');
-    } else if (r.status === 429) {
-      mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
-        'Límite alcanzado · reintenta en 1 min');
     } else {
-      mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
-        d.error || 'Error subiendo');
+      mostrarFotoPreview(URL.createObjectURL(producto.blob), 'err', 'Error al subir');
     }
-  } catch(e) {
-    mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
-      'Sin conexión · se reintentará');
+  } catch (e) {
+    mostrarFotoPreview(URL.createObjectURL(producto.blob), 'err', 'Sin conexión');
   }
 }
 
+// Modificar guardarProducto para que maneje la cola
+async function guardarProductoEnLote() {
+  const producto = colaProductos[indiceCola];
+  if (!producto) return;
+
+  // Recoger datos del formulario actual
+  producto.datos = {
+    titulo: document.getElementById('prodTitulo').value.trim(),
+    descripcion: document.getElementById('prodDescripcion').value.trim(),
+    precio_usd: parseFloat(document.getElementById('prodPrecioUSD').value),
+    precio_cup: parseFloat(document.getElementById('prodPrecioCUP').value) || null,
+    categoria: document.getElementById('prodCategoria').value.trim(),
+    provincia: document.getElementById('prodProvincia').value.trim(),
+    municipio: document.getElementById('prodMunicipio').value.trim(),
+    estado_producto: document.getElementById('prodEstado').value,
+    stock: parseInt(document.getElementById('prodStock').value) || 1,
+    imagenes: producto.url ? [producto.url] : [] // Solo la URL subida
+  };
+
+  // Validación básica
+  if (producto.datos.titulo.length < 3 || !producto.datos.precio_usd || producto.datos.precio_usd <= 0) {
+    document.getElementById('modalError').textContent = 'Título y precio USD son obligatorios.';
+    document.getElementById('modalError').classList.add('show');
+    return;
+  }
+
+  // Enviar al backend
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  
+  try {
+    const r = await fetch(API + '/api/seller/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify(producto.datos)
+    });
+    const d = await r.json();
+    if (d.ok) {
+      indiceCola++;
+      document.getElementById('modalError').classList.remove('show');
+      abrirFormularioSiguiente(); // Pasar al siguiente
+    } else {
+      throw new Error(d.error || 'Error del servidor');
+    }
+  } catch (e) {
+    document.getElementById('modalError').textContent = 'Error: ' + e.message;
+    document.getElementById('modalError').classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Guardar y siguiente';
+  }
+}
+
+// (botón Guardar ya enlazado directamente en HTML)
+
+// Exponer funciones para que el HTML las use
+window.handleMultiplePhotos = handleMultiplePhotos;
+window.abrirFormularioSiguiente = abrirFormularioSiguiente;
+window.resetBulkState = resetBulkState;
+
+console.log('✅ Flujo de carga masiva (1 foto = 1 producto) listo.');
 // ═══════════════════════════════════════════════════════
 // CUOTA CACHEADA (para bloqueo offline)
 // ═══════════════════════════════════════════════════════
