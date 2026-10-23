@@ -572,6 +572,9 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
     <p id="sellerName">Cargando...</p>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
+      <button class="push-activate-btn hidden" id="pushActivateBtn" onclick="activarNotificaciones()" aria-label="Activar notificaciones" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;border:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;display:none;align-items:center;gap:4px;box-shadow:0 4px 12px rgba(251,191,36,.4)">
+        🔔 Activar
+      </button>
       <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel()" aria-label="Notificaciones">
         🔔
         <span class="notif-badge" id="notifBadge">0</span>
@@ -580,7 +583,14 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
     </div>
 </div>
 
-<div class="container">
+<div class="push-banner hidden" id="pushBanner" style="display:none;margin:12px;padding:14px 16px;background:linear-gradient(135deg,#78350f,#422006);border:1px solid #fbbf24;border-radius:12px;color:#fef3c7;font-size:13px;line-height:1.5">
+      <div style="font-size:16px;font-weight:800;margin-bottom:4px">🔔 Activa las notificaciones</div>
+      <div style="opacity:.9">Recibe avisos cuando te aprueben, cuando alguien compre o cuando tu plan esté por vencer. <b>Sin spam.</b></div>
+      <button onclick="activarNotificaciones()" style="margin-top:10px;background:#fbbf24;color:#000;border:none;padding:10px 18px;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px">Activar ahora</button>
+      <button onclick="cerrarBannerPush()" style="margin-top:10px;margin-left:8px;background:transparent;color:#fbbf24;border:1px solid #fbbf24;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">Más tarde</button>
+    </div>
+
+    <div class="container">
 
   <!-- Info del vendedor -->
   <div class="info-card">
@@ -1698,8 +1708,16 @@ console.log('✅ Photo uploader + quota cache ready');
     }
   }
 
-  // Ejecutar cuando el panel esté cargado y TOKEN disponible
-  setTimeout(registrarPushSeller, 4000);
+  // Intentar silenciosamente solo si ya hay permiso concedido
+  // (si no, se pedirá con user gesture al tocar el botón)
+  setTimeout(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      registrarPushSeller();
+    }
+  }, 2000);
+
+  // Exponer para el botón
+  window.comdiazRegistrarPush = registrarPushSeller;
 
   // Auto-abrir panel de notifs si llegamos con #notif
   if (location.hash === '#notif') {
