@@ -175,7 +175,15 @@ input:focus, select:focus { border-color: #7c3aed; }
 
     <!-- REGISTRO -->
     <div id="panel-register" class="panel active">
+      <div style="margin-bottom:16px">
+        <h3 style="color:#f1f5f9;font-size:15px;margin:0 0 4px">1. Elige tu plan</h3>
+        <p style="color:#94a3b8;font-size:12px;margin:0 0 12px">Puedes cambiar de plan en cualquier momento.</p>
+        <div id="planesContainer" data-mode="register" data-actual="basico"></div>
+      </div>
+      <h3 style="color:#f1f5f9;font-size:15px;margin:24px 0 12px">2. Crea tu cuenta</h3>
+
       <form id="formRegister">
+        <input type="hidden" id="selectedPlanId" name="plan_id" value="basico">
         <label>Tu nombre completo *</label>
         <input type="text" id="regNombre" placeholder="Ej: Juan Pérez" maxlength="80" required>
 
@@ -367,6 +375,18 @@ if (localStorage.getItem('comdiaz_seller_token')) {
 }
 </script>
 
+<script src="planes-cards.js?v=1"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const c = document.getElementById('planesContainer');
+  if (!c) return;
+  c.addEventListener('plan-selected', (e) => {
+    const hid = document.getElementById('selectedPlanId');
+    if (hid) hid.value = e.detail.id;
+  });
+});
+</script>
 </body>
 </html>
 
