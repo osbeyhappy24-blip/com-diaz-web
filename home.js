@@ -323,7 +323,12 @@ async function generarShare() {
   });
   $('shareText').value = r.text;
   const enc = encodeURIComponent(r.text);
-  $('waBtn').href = 'https://wa.me/5351425691?text=' + enc;
+  const waBtnEl = $('waBtn');
+  if (waBtnEl) {
+    waBtnEl.removeAttribute('target');
+    waBtnEl.href = '#';
+    waBtnEl.onclick = (e) => { e.preventDefault(); (window.comdiaz_abrirWA || function(n,t){window.open('https://wa.me/'+n+'?text='+t,'_blank')})('5351425691', decodeURIComponent(enc)); };
+  }
   $('fbBtn').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-web.onrender.com/shop.html');
 }
 
@@ -2641,7 +2646,16 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     });
     const msg = encodeURIComponent(armarMensaje(pTmp, estado));
     const link = $id('notificarWA');
-    if (link) link.href = wa ? ('https://wa.me/' + wa + '?text=' + msg) : '#';
+    if (link) {
+    if (wa && window.comdiaz_abrirWA) {
+      // Usar helper: scheme nativo en APK, web en navegador
+      link.removeAttribute('target');
+      link.href = '#';
+      link.onclick = (e) => { e.preventDefault(); window.comdiaz_abrirWA(wa, decodeURIComponent(msg)); };
+    } else {
+      link.href = wa ? ('https://wa.me/' + wa + '?text=' + msg) : '#';
+    }
+  }
   }
 
   async function avanzarNotificar() {

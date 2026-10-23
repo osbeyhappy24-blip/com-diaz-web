@@ -200,7 +200,7 @@
             `).join('')}
           </div>
           <div style="padding:12px 16px;border-top:1px solid var(--border);text-align:center">
-            <a href="https://wa.me/${s.telefono}" target="_blank" style="display:inline-block;padding:10px 16px;background:#25D366;color:#fff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:700">💬 Escribir por WhatsApp</a>
+            <a href="${(window.comdiaz_esAppNativa && window.comdiaz_esAppNativa()) ? 'whatsapp://send?phone=' : 'https://wa.me/'}${s.telefono}?text=Hola%20${encodeURIComponent(s.nombre || '')}%2C%20soy%20admin%20de%20Comdiaz" target="_blank" style="display:inline-block;padding:10px 16px;background:#25D366;color:#fff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:700">💬 Escribir por WhatsApp</a>
           </div>
         </div>
       </div>

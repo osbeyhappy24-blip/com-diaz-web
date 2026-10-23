@@ -849,8 +849,29 @@ async function handleMultiplePhotos(event) {
 
   resetBulkState();
   const statusEl = document.getElementById('photoStatus');
-  
-  // 1. Comprimir todas las imágenes
+  if (!statusEl) return;
+
+  // 0. Pre-validar sesión (evita fallar a mitad de carga)
+  statusEl.textContent = 'Validando sesion...';
+  try {
+    const chk = await fetch(API + '/api/seller/me', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    if (!chk.ok) {
+      if (chk.status === 401) {
+        toast('Sesion expirada. Vuelve a iniciar sesion.', 'err');
+        setTimeout(() => logout(), 1500);
+        return;
+      }
+      throw new Error('status ' + chk.status);
+    }
+  } catch(e) {
+    toast('Sin conexion. Reintenta.', 'err');
+    statusEl.textContent = '';
+    return;
+  }
+
+  // 1. Comprimir todas (secuencial, con progreso)
   for (let i = 0; i < files.length; i++) {
     statusEl.textContent = `Comprimiendo ${i + 1} de ${files.length}...`;
     try {
@@ -861,11 +882,75 @@ async function handleMultiplePhotos(event) {
     }
   }
   
-  statusEl.textContent = `${colaProductos.length} fotos listas. Iniciando formularios...`;
+  if (colaProductos.length === 0) {
+    statusEl.textContent = 'No se pudo comprimir ninguna foto.';
+    return;
+  }
+
+  // 2. Subir TODAS las fotos con delay 2.5s + retry 429
+  //    (garantiza no pegar rate limit 30/min)
+  for (let i = 0; i < colaProductos.length; i++) {
+    const prod = colaProductos[i];
+    if (prod.url) continue;
+
+    // Delay entre uploads (excepto primero)
+    if (i > 0) await new Promise(r => setTimeout(r, 2500));
+
+    statusEl.textContent = `Subiendo foto ${i + 1} de ${colaProductos.length}...`;
+    
+    let exito = false;
+    for (let intento = 0; intento < 3 && !exito; intento++) {
+      try {
+        const b64 = await blobToBase64(prod.blob);
+        const r = await fetch(API + '/api/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + TOKEN
+          },
+          body: JSON.stringify({ image: b64, nombre: 'seller_' + Date.now() + '.jpg' })
+        });
+
+        if (r.status === 401) {
+          toast('Sesion expirada. Vuelve a iniciar sesion.', 'err');
+          setTimeout(() => logout(), 1500);
+          return;
+        }
+        if (r.status === 429) {
+          statusEl.textContent = `Limite alcanzado. Esperando 60s... (${i + 1}/${colaProductos.length})`;
+          await new Promise(r => setTimeout(r, 60000));
+          continue;
+        }
+        const d = await r.json();
+        if (d.ok && d.url) {
+          prod.url = d.url;
+          exito = true;
+        } else {
+          throw new Error(d.error || 'fallo upload');
+        }
+      } catch(e) {
+        if (intento < 2) {
+          statusEl.textContent = `Error foto ${i + 1}. Reintento ${intento + 1}/3...`;
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+    }
+    if (!exito) {
+      statusEl.textContent = `Fallo definitivo en foto ${i + 1}. Continuando con las demas...`;
+    }
+  }
+
+  // 3. Todas subidas → iniciar formularios
+  const subidas = colaProductos.filter(p => p.url).length;
+  statusEl.textContent = `✅ ${subidas}/${colaProductos.length} fotos subidas. Iniciando formularios...`;
   
-  // 2. Iniciar el asistente para el primer producto
-  if (colaProductos.length > 0) {
+  if (subidas > 0) {
+    // Filtrar las que fallaron
+    colaProductos = colaProductos.filter(p => p.url);
+    indiceCola = 0;
     abrirFormularioSiguiente();
+  } else {
+    toast('Ninguna foto se pudo subir. Reintenta.', 'err');
   }
 }
 

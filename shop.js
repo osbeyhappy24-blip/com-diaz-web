@@ -4,6 +4,17 @@ const API_BASE = (location.hostname === 'localhost' || location.hostname === '12
   ? 'http://localhost:3000'
   : 'https://com-diaz.onrender.com';
 
+// Helper: URL de WhatsApp TWA-aware
+function _waUrl(phone, text) {
+  const p = String(phone || '').replace(/\D/g, '');
+  if (!p) return '#';
+  const t = text ? encodeURIComponent(text) : '';
+  if (window.comdiaz_esAppNativa && window.comdiaz_esAppNativa()) {
+    return 'whatsapp://send?phone=' + p + (t ? '&text=' + t : '');
+  }
+  return 'https://wa.me/' + p + (t ? '?text=' + t : '');
+}
+
 
 // ─── Helper: abrir WhatsApp en la app (no en el navegador) ───
 function abrirWhatsApp(numero, mensaje) {
@@ -14,7 +25,7 @@ function abrirWhatsApp(numero, mensaje) {
   const appUrl = 'whatsapp://send?phone=' + clean + (text ? '&text=' + text : '');
 
   // 2) Fallback web (solo si la app no existe)
-  const webUrl = 'https://wa.me/' + clean + (text ? '?text=' + text : '');
+  const webUrl = _waUrl(clean, text);
 
   // En móvil, usar el esquema nativo
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -286,7 +297,7 @@ function generarLinkWhatsApp(producto) {
   if (url) mensaje += `${url}\n`;
   mensaje += `\n¿Esta disponible?`;
 
-  return 'https://wa.me/' + wa + '?text=' + encodeURIComponent(mensaje);
+  return _waUrl(wa, mensaje);
 }
 
 function pedirPorWhatsApp(producto) {
@@ -1346,7 +1357,7 @@ cargarCatalogo();
            '💰 Precio: $' + precio + '\n\n' +
            '🔗 ' + shopUrl + '\n\n' +
            '📲 Pedidos por WhatsApp:\n' +
-           'https://wa.me/' + wa;
+           _waUrl(wa);
   }
 
   async function compartir(p) {
