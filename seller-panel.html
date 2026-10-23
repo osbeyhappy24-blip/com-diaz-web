@@ -517,8 +517,16 @@ async function cargarPerfil() {
     renderPerfil();
     cargarProductos();
   } catch(e) {
-    if (list) list.innerHTML = '<div class="empty" style="color:#f87171">Sin conexion o timeout.<br><button class="retry-btn" onclick="cargarPerfil()">\uD83D\uDD04 Reintentar</button></div>';
-    toast('Error conexion: ' + e.message, 'err');
+    let msg = 'Sin conexion o timeout.';
+    if (e && e.name === 'AbortError') msg = 'Timeout (20s). Servidor lento o dormido.';
+    else if (e && e.message) msg = 'Error: ' + e.message;
+    // Si el token está vacio o corrupto
+    if (!TOKEN || TOKEN.length < 20) msg = 'Sesion invalida. Vuelve a iniciar sesion.';
+    console.error('[PANEL] cargarPerfil error:', e);
+    if (list) list.innerHTML = '<div class="empty" style="color:#f87171">' + msg +
+      '<br><button class="retry-btn" onclick="cargarPerfil()">\uD83D\uDD04 Reintentar</button>' +
+      '<br><button class="retry-btn" style="background:#6b7280;margin-top:8px" onclick="logout()">\uD83D\uDEAA Salir y reloguear</button></div>';
+    toast(msg, 'err');
   }
 }
 
