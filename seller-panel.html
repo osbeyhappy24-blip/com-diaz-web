@@ -336,6 +336,16 @@ textarea { min-height: 60px; resize: vertical; }
   border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
 }
 </style>
+
+<script>
+window.addEventListener('error', e => {
+  alert('ERROR JS: ' + e.message + ' en ' + e.filename + ':' + e.lineno);
+});
+window.addEventListener('unhandledrejection', e => {
+  alert('PROMESA RECHAZADA: ' + e.reason);
+});
+console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,100); };
+</script>
 </head>
 <body>
 
@@ -483,13 +493,23 @@ function toast(msg, tipo = '') {
 }
 
 async function cargarPerfil() {
+  const list = document.getElementById('productsList');
   try {
+    // Pre-warm Render (cold start) — no bloquea si falla
+    try { await fetch(API + '/api/health', { method: 'GET' }); } catch(_) {}
+
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 20000);
     const r = await fetch(API + '/api/seller/me', {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      signal: ctrl.signal
     });
+    clearTimeout(to);
+
     const d = await r.json();
     if (!d.ok) {
       if (r.status === 401) { logout(); return; }
+      if (list) list.innerHTML = '<div class="empty" style="color:#f87171">Error: ' + (d.error||'desconocido') + '<br><button class="retry-btn" onclick="cargarPerfil()">\uD83D\uDD04 Reintentar</button></div>';
       toast('Error: ' + d.error, 'err');
       return;
     }
@@ -497,7 +517,8 @@ async function cargarPerfil() {
     renderPerfil();
     cargarProductos();
   } catch(e) {
-    toast('Error conexión: ' + e.message, 'err');
+    if (list) list.innerHTML = '<div class="empty" style="color:#f87171">Sin conexion o timeout.<br><button class="retry-btn" onclick="cargarPerfil()">\uD83D\uDD04 Reintentar</button></div>';
+    toast('Error conexion: ' + e.message, 'err');
   }
 }
 
@@ -528,14 +549,28 @@ function renderPerfil() {
 }
 
 async function cargarProductos() {
+  const list = document.getElementById('productsList');
+  if (!list) return;
+  if (!productos.length) list.innerHTML = '<div class="empty">Cargando productos\u2026</div>';
+
   try {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 20000);
     const r = await fetch(API + '/api/seller/products', {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      signal: ctrl.signal
     });
+    clearTimeout(to);
     const d = await r.json();
+    if (!d.ok) {
+      if (r.status === 401) { logout(); return; }
+      list.innerHTML = '<div class="empty" style="color:#f87171">Error: ' + (d.error||'desconocido') + '<br><button class="retry-btn" onclick="cargarProductos()">\uD83D\uDD04 Reintentar</button></div>';
+      return;
+    }
     productos = d.products || [];
     renderProductos();
   } catch(e) {
+    list.innerHTML = '<div class="empty" style="color:#f87171">No se pudo cargar.<br><button class="retry-btn" onclick="cargarProductos()">\uD83D\uDD04 Reintentar</button></div>';
     toast('Error: ' + e.message, 'err');
   }
 }
@@ -973,32 +1008,6 @@ async function fetchConTimeout(url, opts, ms) {
 }
 
 // Reemplazar cargarProductos con versión robusta
-window.cargarProductos = async function() {
-  const list = document.getElementById('productsList');
-  if (!list) return;
-  list.innerHTML = '<div class="empty">Cargando…</div>';
-  try {
-    const r = await fetchConTimeout(API + '/api/seller/products', {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
-    }, 15000);
-    const d = await r.json();
-    if (!d.ok) {
-      if (r.status === 401) { logout(); return; }
-      list.innerHTML = '<div class="empty">Error: ' + (d.error || 'desconocido') +
-        '<br><button class="retry-btn" onclick="cargarProductos()">🔄 Reintentar</button></div>';
-      return;
-    }
-    productos = d.products || [];
-    renderProductos();
-  } catch(e) {
-    // Offline o timeout — mostrar cache de productos si existe
-    let cacheMsg = 'No se pudo conectar.';
-    if (!navigator.onLine) cacheMsg = '📴 Sin conexión.';
-    list.innerHTML = '<div class="empty">' + cacheMsg +
-      '<br><button class="retry-btn" onclick="cargarProductos()">🔄 Reintentar</button></div>';
-  }
-};
-
 // Wrapping de abrir/cerrar modal para resetear foto
 if (typeof window.abrirModal === 'function') {
   const _origAbrir = window.abrirModal;
