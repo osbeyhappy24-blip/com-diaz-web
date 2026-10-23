@@ -303,6 +303,39 @@ textarea { min-height: 60px; resize: vertical; }
 .toast.ok { border-color: #10b981; }
 .toast.err { border-color: #ef4444; }
 </style>
+<style>
+/* ── Photo uploader ── */
+.photo-upload { margin: 8px 0 16px; }
+.photo-empty {
+  border: 2px dashed #334155; border-radius: 12px; padding: 24px 12px;
+  text-align: center; cursor: pointer; transition: all .2s; background: #0b1220;
+}
+.photo-empty:hover { border-color: #3b82f6; background: #0f1a2e; }
+.photo-icon { font-size: 32px; margin-bottom: 6px; }
+.photo-text { font-size: 14px; color: #94a3b8; font-weight: 600; }
+.photo-hint { font-size: 11px; color: #64748b; margin-top: 4px; }
+.photo-preview-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #0b1220; }
+.photo-preview { width: 100%; max-height: 320px; object-fit: contain; display: block; }
+.photo-remove {
+  position: absolute; top: 8px; right: 8px; width: 32px; height: 32px;
+  border-radius: 50%; border: none; background: rgba(0,0,0,.75); color: #fff;
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.photo-remove:hover { background: #ef4444; }
+.photo-status {
+  position: absolute; bottom: 8px; left: 8px; right: 8px;
+  font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  background: rgba(0,0,0,.8); color: #fff; text-align: center;
+}
+.photo-status.uploading { background: rgba(59,130,246,.9); }
+.photo-status.ok { background: rgba(34,197,94,.9); }
+.photo-status.err { background: rgba(239,68,68,.9); }
+.hidden { display: none !important; }
+.retry-btn {
+  margin-top: 12px; padding: 8px 16px; background: #3b82f6; color: #fff;
+  border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+</style>
 </head>
 <body>
 
@@ -401,6 +434,21 @@ textarea { min-height: 60px; resize: vertical; }
         <div>
           <label>Stock</label>
           <input type="number" id="prodStock" min="1" value="1">
+        </div>
+      </div>
+
+      <label>📷 Foto del producto</label>
+      <div class="photo-upload">
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">
+        <div class="photo-empty" id="photoEmpty" onclick="document.getElementById('photoInput').click()">
+          <div class="photo-icon">📷</div>
+          <div class="photo-text">Toca para añadir foto</div>
+          <div class="photo-hint">JPG/PNG · se comprime automáticamente</div>
+        </div>
+        <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+          <img id="photoPreview" class="photo-preview" alt="">
+          <button type="button" class="photo-remove" onclick="quitarFoto()">✕</button>
+          <div class="photo-status" id="photoStatus"></div>
         </div>
       </div>
 
@@ -592,6 +640,9 @@ async function guardarProducto() {
     const url = editingId
       ? API + '/api/seller/products/' + editingId
       : API + '/api/seller/products';
+    // Adjuntar imagen si existe
+    body.imagenes = imagenActual ? [imagenActual] : [];
+
     const method = editingId ? 'PUT' : 'POST';
     const r = await fetch(url, {
       method,
@@ -657,6 +708,244 @@ document.getElementById('productModal').addEventListener('click', (e) => {
 // Init
 cargarPerfil();
 setInterval(cargarPerfil, 60000);  // refrescar cada minuto
+
+
+
+// ═══════════════════════════════════════════════════════
+// FOTO DEL PRODUCTO (1 foto, comprimida en cliente)
+// ═══════════════════════════════════════════════════════
+let imagenActual = null;   // URL final (después de subir)
+let imagenBlob = null;     // blob comprimido local
+
+function resetPhotoState() {
+  imagenActual = null;
+  imagenBlob = null;
+  const input = document.getElementById('photoInput');
+  if (input) input.value = '';
+  const prev = document.getElementById('photoPreviewWrap');
+  if (prev) prev.classList.add('hidden');
+  const emp = document.getElementById('photoEmpty');
+  if (emp) emp.classList.remove('hidden');
+  const st = document.getElementById('photoStatus');
+  if (st) { st.textContent = ''; st.className = 'photo-status'; }
+}
+
+function mostrarFotoPreview(url, status, statusText) {
+  const wrap = document.getElementById('photoPreviewWrap');
+  const img = document.getElementById('photoPreview');
+  const emp = document.getElementById('photoEmpty');
+  const st = document.getElementById('photoStatus');
+  if (!wrap || !img) return;
+  img.src = url;
+  wrap.classList.remove('hidden');
+  if (emp) emp.classList.add('hidden');
+  if (st) {
+    st.textContent = statusText || '';
+    st.className = 'photo-status ' + (status || '');
+  }
+}
+
+function quitarFoto() {
+  resetPhotoState();
+}
+
+async function handlePhotoSelect(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('Solo imágenes', 'err'); return; }
+  if (file.size > 10 * 1024 * 1024) { toast('Máximo 10MB', 'err'); return; }
+
+  mostrarFotoPreview(URL.createObjectURL(file), 'uploading', 'Comprimiendo…');
+
+  try {
+    const compressed = await comprimirImagen(file, 1200, 0.82);
+    imagenBlob = compressed;
+    imagenActual = null;
+    mostrarFotoPreview(URL.createObjectURL(compressed), 'uploading', 'Subiendo…');
+    await subirFoto();
+  } catch(err) {
+    mostrarFotoPreview('', 'err', 'Error comprimiendo');
+    toast('Error: ' + err.message, 'err');
+  }
+}
+
+function comprimirImagen(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('compresión falló')),
+                    'image/jpeg', quality);
+    };
+    img.onerror = () => reject(new Error('no se pudo cargar'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('lectura falló'));
+    r.readAsDataURL(blob);
+  });
+}
+
+async function subirFoto() {
+  if (!imagenBlob) return;
+  if (!navigator.onLine) {
+    mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
+      'Sin conexión · se subirá al guardar');
+    return;
+  }
+  try {
+    const b64 = await blobToBase64(imagenBlob);
+    const r = await fetch(API + '/api/upload-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + TOKEN
+      },
+      body: JSON.stringify({ image: b64, nombre: 'seller_' + Date.now() + '.jpg' })
+    });
+    const d = await r.json();
+    if (d.ok && d.url) {
+      imagenActual = d.url;
+      mostrarFotoPreview(d.url, 'ok', '✓ Foto lista');
+    } else if (r.status === 429) {
+      mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
+        'Límite alcanzado · reintenta en 1 min');
+    } else {
+      mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
+        d.error || 'Error subiendo');
+    }
+  } catch(e) {
+    mostrarFotoPreview(URL.createObjectURL(imagenBlob), 'err',
+      'Sin conexión · se reintentará');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CUOTA CACHEADA (para bloqueo offline)
+// ═══════════════════════════════════════════════════════
+function guardarCuotaCache(seller) {
+  try {
+    localStorage.setItem('comdiaz_seller_quota', JSON.stringify({
+      usada: seller.cuota_usada || 0,
+      max: seller.cuota_max || 50,
+      estado: seller.estado,
+      ts: Date.now()
+    }));
+  } catch(_) {}
+}
+function leerCuotaCache() {
+  try {
+    const raw = localStorage.getItem('comdiaz_seller_quota');
+    return raw ? JSON.parse(raw) : null;
+  } catch(_) { return null; }
+}
+
+// ═══════════════════════════════════════════════════════
+// Fix CARGANDO colgado — fetch con timeout + retry + fallback
+// ═══════════════════════════════════════════════════════
+async function fetchConTimeout(url, opts, ms) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms || 15000);
+  try {
+    const r = await fetch(url, Object.assign({}, opts, { signal: ctrl.signal }));
+    clearTimeout(t);
+    return r;
+  } catch(e) {
+    clearTimeout(t);
+    throw e;
+  }
+}
+
+// Reemplazar cargarProductos con versión robusta
+window.cargarProductos = async function() {
+  const list = document.getElementById('productsList');
+  if (!list) return;
+  list.innerHTML = '<div class="empty">Cargando…</div>';
+  try {
+    const r = await fetchConTimeout(API + '/api/seller/products', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    }, 15000);
+    const d = await r.json();
+    if (!d.ok) {
+      if (r.status === 401) { logout(); return; }
+      list.innerHTML = '<div class="empty">Error: ' + (d.error || 'desconocido') +
+        '<br><button class="retry-btn" onclick="cargarProductos()">🔄 Reintentar</button></div>';
+      return;
+    }
+    productos = d.products || [];
+    renderProductos();
+  } catch(e) {
+    // Offline o timeout — mostrar cache de productos si existe
+    let cacheMsg = 'No se pudo conectar.';
+    if (!navigator.onLine) cacheMsg = '📴 Sin conexión.';
+    list.innerHTML = '<div class="empty">' + cacheMsg +
+      '<br><button class="retry-btn" onclick="cargarProductos()">🔄 Reintentar</button></div>';
+  }
+};
+
+// Wrapping de abrir/cerrar modal para resetear foto
+if (typeof window.abrirModal === 'function') {
+  const _origAbrir = window.abrirModal;
+  window.abrirModal = function(id) {
+    resetPhotoState();
+    if (id) {
+      const p = productos.find(x => String(x.id) === String(id));
+      if (p && p.imagenes && p.imagenes[0]) {
+        imagenActual = p.imagenes[0];
+        mostrarFotoPreview(p.imagenes[0], 'ok', '✓ Foto actual');
+      }
+    }
+    return _origAbrir.apply(this, arguments);
+  };
+}
+if (typeof window.cerrarModal === 'function') {
+  const _origCerrar = window.cerrarModal;
+  window.cerrarModal = function() {
+    resetPhotoState();
+    return _origCerrar.apply(this, arguments);
+  };
+}
+
+// Guardar cuota en cache cada vez que se carga perfil
+if (typeof window.renderPerfil === 'function') {
+  const _origRender = window.renderPerfil;
+  window.renderPerfil = function() {
+    if (typeof sellerData !== 'undefined' && sellerData) guardarCuotaCache(sellerData);
+    return _origRender.apply(this, arguments);
+  };
+}
+
+// Eventos online/offline
+window.addEventListener('online', () => {
+  toast('✅ Conexión recuperada', 'ok');
+  if (typeof cargarPerfil === 'function') cargarPerfil();
+});
+window.addEventListener('offline', () => {
+  toast('⚠️ Sin conexión', 'err');
+  // Mostrar cuota cacheada si hay
+  const c = leerCuotaCache();
+  if (c) {
+    const u = document.getElementById('quotaUsada');
+    const m = document.getElementById('quotaMax');
+    if (u) u.textContent = c.usada + ' productos (offline)';
+    if (m) m.textContent = c.max === -1 ? '∞' : c.max + ' máx';
+  }
+});
+
+console.log('✅ Photo uploader + quota cache ready');
 
 </script>
 
