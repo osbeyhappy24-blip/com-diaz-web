@@ -265,3 +265,106 @@ Sistema:
 - Al aprobar vendedor: +5 al que lo refirió (si válido)
 - Cron mensual: reset ref_count, mantener bonus_quota
 - Dashboard admin de referidos
+
+---
+
+## ✅ Sistema de Referidos — COMPLETADO (24 Oct)
+
+### Backend
+- [x] Códigos únicos por seller (ej: OSBEY0267XYZ)
+- [x] Endpoints: GET /api/seller/referral, GET /api/admin/referrals
+- [x] Register acepta `referred_by_code`
+- [x] Al aprobar seller referido: +5 productos al referente
+- [x] Cap 3 referidos/mes + tope total +50
+- [x] Reset mensual automático
+- [x] Cuota total = plan.max + ref_bonus_quota
+- [x] Storage: state.referrals (JSON)
+
+### Frontend
+- [x] seller-panel: sección "🎁 Comparte y gana"
+- [x] Stats: referidos del mes + productos extra
+- [x] Link único con Copiar/WhatsApp
+- [x] seller.html: captura ?ref=CODIGO
+- [x] home.html admin: ranking 🥇🥈🥉
+- [x] Auto-refresh del dashboard
+
+### Anti-fraude
+- [x] Bonus solo al APROBAR (no al registrar)
+- [x] Cap mensual (3)
+- [x] Tope total (50)
+- [x] No cuenta referidos duplicados
+
+## 📊 Estado actual (24 Oct)
+
+| Métrica | Valor |
+|---|---|
+| Sellers aprobados | 1 (Osbey, plan Pro) |
+| Sellers suspendidos | 3 (test) |
+| Productos activos | 11 (10 manuales + 1 seller) |
+| Pagos aprobados | 1 ($5 Pro Osbey) |
+| Push subs activas | 1 |
+| Notificaciones históricas | 10+ |
+| Referidos registrados | 0 (nuevo sistema) |
+
+## 🔒 Próxima sesión — Notificaciones compradores
+
+### Diseño acordado
+**Problema:** con 100+ productos nuevos al día, notificar 1x1 satura.
+
+**Solución:** notificaciones agrupadas por provincia + resumen.
+
+**Flujo:**
+1. Cron cada 6-12h revisa productos nuevos por provincia
+2. Si hay >10 nuevos en una provincia → 1 notif agregada
+3. Ejemplo: "🇨🇺 25 productos nuevos en La Habana. Ver catálogo"
+4. Compradores suscritos por provincia reciben solo la suya
+5. Cap: máx 2 notificaciones/día por comprador
+
+**Anti-saturación:**
+- Agrupación por provincia (no por producto)
+- Ventana de 12h (2/día máximo)
+- Cooldown 4h entre notificaciones
+- Solo productos con imagen + precio > 0
+
+**Auto-activar al entrar:**
+- Requiere user gesture (Chrome Android no permite auto)
+- Solución: popup bonito con beneficio claro ("Recibe ofertas de tu provincia")
+- Recordatorio suave cada 7 días si no acepta
+
+**Escalado año 1:**
+- Con 100 compradores × 2 notifs/día = 200 notifs/día → OK
+- Con 1000 compradores × 2/día = 2000 notifs/día → OK (FCM gratis)
+- Con 10,000 compradores × 2/día = 20,000/día → OK (límite FCM 500k/día)
+- Cap defensivo: máx 500 subs por provincia (evita saturación)
+
+### Fases
+1. **Fase 1 (30 min):** endpoint /api/public/subscribe-buyer + tracking provincia
+2. **Fase 2 (45 min):** cron agrupador + notificación resumen
+3. **Fase 3 (30 min):** frontend shop + popup auto-activar
+4. **Fase 4 (15 min):** auditoría + test end-to-end
+
+## ⚠️ Capacidad y riesgos a futuro
+
+### Storage (verificar caps)
+| Storage | Cap actual | Se llena |
+|---|---|---|
+| state.notifications | 500 | ~2 semanas (alto volumen) |
+| state.sellerSubscriptions | 500 | >500 sellers |
+| state.payments | 1000 | ~año 1 |
+| state.referrals | sin cap | ~año 2 |
+| Supabase seller_products | 500MB | ~500,000 prod = año 3+ |
+
+### Fixes necesarios
+- [ ] Bump cap `state.notifications` 500 → 2000 (mes 3)
+- [ ] Bump cap `state.sellerSubscriptions` 500 → 5000 (mes 6)
+- [ ] Migrar notifs y subs a Supabase si crece >50% de capacidad
+
+### Crones a 1 año
+- [x] Daily, weekly, cleanup, purga, IA, SRE, plan expiry, clean maps
+- [x] Todos con try/catch idempotente
+- [ ] Añadir cron limpiador de state (borrar notifs viejas >30d)
+
+### Performance
+- [x] /api/public/local: 0.5-0.9s (OK)
+- [x] Backend health: <1s
+- [ ] Añadir caché 30s si crece >10k productos
