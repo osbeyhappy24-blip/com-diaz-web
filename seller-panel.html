@@ -661,6 +661,211 @@ textarea { min-height: 60px; resize: vertical; }
   cursor: pointer;
 }
 
+
+/* ═══ Modal de pago (renovación) ═══ */
+.payment-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(4px);
+  z-index: 10002;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.payment-modal-overlay.show { display: flex; }
+.payment-modal {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 20px;
+  max-width: 440px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7);
+  animation: paymentModalSlide .35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes paymentModalSlide {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.payment-modal-head {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.payment-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+}
+.payment-modal-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 4px 0 0;
+}
+.payment-modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.payment-modal-close:hover { background: #1e293b; color: #f1f5f9; }
+
+.payment-modal-body {
+  padding: 16px 20px 20px;
+}
+
+/* Resumen del plan */
+.payment-plan-summary {
+  background: linear-gradient(135deg, rgba(0,63,127,.2), rgba(251,191,36,.1));
+  border: 1px solid rgba(251,191,36,.3);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.payment-plan-icon {
+  font-size: 32px;
+}
+.payment-plan-info {
+  flex: 1;
+}
+.payment-plan-name {
+  font-weight: 800;
+  color: #f1f5f9;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+.payment-plan-price {
+  font-size: 13px;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+/* Métodos de pago */
+.payment-methods-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 10px;
+}
+.payment-method-card {
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.payment-method-card:hover {
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+.payment-method-card.selected {
+  border-color: #22c55e;
+  background: rgba(34,197,94,.08);
+}
+.payment-method-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.payment-method-icon {
+  font-size: 22px;
+}
+.payment-method-name {
+  font-weight: 800;
+  color: #f1f5f9;
+  font-size: 14px;
+  flex: 1;
+}
+.payment-method-datos {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #fbbf24;
+  word-break: break-all;
+  margin-bottom: 6px;
+}
+.payment-method-instr {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Botones de acción */
+.payment-btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: transform .2s;
+}
+.payment-btn-primary:hover {
+  transform: translateY(-1px);
+}
+.payment-btn-primary:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.payment-btn-secondary {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.payment-btn-secondary:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+/* Aviso de pago pendiente */
+.payment-pending-notice {
+  padding: 12px;
+  background: rgba(251,191,36,.15);
+  border: 1px solid rgba(251,191,36,.4);
+  border-radius: 10px;
+  color: #fbbf24;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
 </style>
 <style>
 /* ── Photo uploader ── */
@@ -2296,6 +2501,193 @@ window.forceRegisterPush = async function() {
   console.log('✅ Plan info helper listo');
 })();
 </script>
+
+
+
+<!-- Modal de pago / renovación -->
+<div class="payment-modal-overlay" id="paymentModal">
+  <div class="payment-modal">
+    <div class="payment-modal-head">
+      <div>
+        <h3 class="payment-modal-title">💳 Renovar plan</h3>
+        <p class="payment-modal-subtitle">Elige un método y envía el comprobante</p>
+      </div>
+      <button class="payment-modal-close" onclick="cerrarPaymentModal()">✕</button>
+    </div>
+    <div class="payment-modal-body" id="paymentModalBody">
+      <div style="text-align:center;color:#94a3b8;padding:20px">Cargando métodos...</div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Sistema de pago / renovación
+// ═══════════════════════════════════════════════════════
+(function comdiaz_payments_v1() {
+  let _metodos = [];
+  let _metodoSeleccionado = null;
+  let _waAdmin = '5351425691';
+  let _planInfo = null;
+
+  async function cargarMetodos() {
+    if (typeof TOKEN === 'undefined' || !TOKEN) return;
+    try {
+      // Cargar métodos
+      const r = await fetch(API + '/api/seller/payment/options', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      const d = await r.json();
+      if (d.ok) {
+        _metodos = d.methods || [];
+        _waAdmin = d.whatsapp || '5351425691';
+      }
+      // Cargar plan actual
+      const r2 = await fetch(API + '/api/seller/plan-info', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      const d2 = await r2.json();
+      if (d2.ok) _planInfo = d2;
+    } catch(_) {}
+  }
+
+  function renderModal() {
+    const body = document.getElementById('paymentModalBody');
+    if (!body) return;
+
+    if (!_metodos.length) {
+      body.innerHTML = '<div style="text-align:center;color:#f87171;padding:20px">No hay métodos de pago disponibles. Contacta al admin por WhatsApp.</div>';
+      return;
+    }
+
+    const planNombre = _planInfo?.plan?.nombre || 'Pro';
+    const planPrecio = _planInfo?.plan?.precio_usd || 5;
+    const planMax = _planInfo?.plan?.max_productos || 200;
+
+    body.innerHTML = `
+      <div class="payment-plan-summary">
+        <div class="payment-plan-icon">⭐</div>
+        <div class="payment-plan-info">
+          <div class="payment-plan-name">Plan ${planNombre}</div>
+          <div class="payment-plan-price">$${planPrecio} USD / 30 días · ${planMax} productos</div>
+        </div>
+      </div>
+      <div class="payment-methods-title">Métodos de pago</div>
+      ${_metodos.map(m => `
+        <div class="payment-method-card ${_metodoSeleccionado === m.id ? 'selected' : ''}" onclick="seleccionarMetodo('${m.id}')">
+          <div class="payment-method-head">
+            <span class="payment-method-icon">${m.icono || '💳'}</span>
+            <span class="payment-method-name">${m.nombre}</span>
+            ${_metodoSeleccionado === m.id ? '<span style="color:#22c55e;font-weight:900">✓</span>' : ''}
+          </div>
+          ${_metodoSeleccionado === m.id ? `
+            <div class="payment-method-datos">${m.datos || '(sin datos)'}</div>
+            <div class="payment-method-instr">${m.instrucciones || ''}</div>
+          ` : ''}
+        </div>
+      `).join('')}
+      <button class="payment-btn-primary" onclick="confirmarPago()" ${!_metodoSeleccionado ? 'disabled' : ''}>
+        📱 Enviar comprobante por WhatsApp
+      </button>
+      <button class="payment-btn-secondary" onclick="cerrarPaymentModal()">Cancelar</button>
+    `;
+  }
+
+  window.seleccionarMetodo = function(id) {
+    _metodoSeleccionado = id;
+    renderModal();
+  };
+
+  window.abrirPaymentModal = async function() {
+    await cargarMetodos();
+    _metodoSeleccionado = _metodos[0]?.id || null;
+    renderModal();
+    document.getElementById('paymentModal').classList.add('show');
+  };
+
+  window.cerrarPaymentModal = function() {
+    document.getElementById('paymentModal').classList.remove('show');
+    _metodoSeleccionado = null;
+  };
+
+  window.confirmarPago = async function() {
+    if (!_metodoSeleccionado) return;
+    const metodo = _metodos.find(m => m.id === _metodoSeleccionado);
+    if (!metodo) return;
+
+    const btn = document.querySelector('.payment-btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+    try {
+      // 1. Crear pago pendiente en backend
+      const r = await fetch(API + '/api/seller/payment/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({
+          plan_id: _planInfo?.plan?.id || 'pro',
+          metodo: metodo.nombre,
+          notas: 'Solicitud creada desde panel vendedor'
+        })
+      });
+      const d = await r.json();
+
+      if (!d.ok) {
+        if (r.status === 429) {
+          alert('⏳ ' + d.error);
+          cerrarPaymentModal();
+          return;
+        }
+        alert('Error: ' + (d.error || 'desconocido'));
+        if (btn) { btn.disabled = false; btn.textContent = '📱 Enviar comprobante por WhatsApp'; }
+        return;
+      }
+
+      // 2. Abrir WhatsApp con mensaje prellenado
+      const seller = typeof sellerData !== 'undefined' && sellerData ? sellerData : {};
+      const msg = 'Hola, quiero renovar mi plan ' + (_planInfo?.plan?.nombre || 'Pro') +
+        ' ($' + (_planInfo?.plan?.precio_usd || 5) + ' USD) en Comdiaz Shop.' +
+        '\n\nMi nombre: ' + (seller.nombre || '') +
+        '\nMi teléfono: ' + (seller.telefono || '') +
+        '\nMétodo de pago: ' + metodo.nombre +
+        '\n\nAdjunto comprobante del pago. ID de solicitud: ' + d.pago.id.slice(0, 12);
+
+      const waUrl = 'https://wa.me/' + _waAdmin + '?text=' + encodeURIComponent(msg);
+      window.open(waUrl, '_blank');
+
+      // 3. Mostrar aviso de pendiente
+      const body = document.getElementById('paymentModalBody');
+      if (body) {
+        body.innerHTML = `
+          <div class="payment-pending-notice">
+            ✅ <b>Solicitud enviada</b><br><br>
+            Enviamos tu solicitud al admin. Adjunta el comprobante de pago en el chat de WhatsApp que se abrió.<br><br>
+            <b>Tu plan se activará cuando el admin verifique el pago</b> (usualmente en pocas horas).<br><br>
+            Recibirás una notificación aquí y en la barra del móvil.
+          </div>
+          <button class="payment-btn-primary" onclick="cerrarPaymentModal()">Entendido</button>
+        `;
+      }
+
+      // 4. Recargar plan-info después de 3s para ver si cambió
+      setTimeout(() => {
+        if (typeof cargarPlanInfo === 'function') cargarPlanInfo();
+      }, 3000);
+
+    } catch(e) {
+      alert('Error de conexión: ' + e.message);
+      if (btn) { btn.disabled = false; btn.textContent = '📱 Enviar comprobante por WhatsApp'; }
+    }
+  };
+
+  // Reemplazar la función renovarPlan existente (la del banner) para abrir el modal
+  const _renovarOriginal = window.renovarPlan;
+  window.renovarPlan = function() {
+    abrirPaymentModal();
+  };
+
+  console.log('✅ Sistema de pago listo');
+})();
 
 </body>
 </html>

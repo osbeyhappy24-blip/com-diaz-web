@@ -1265,6 +1265,129 @@
   </div>
 </div>
 
+
+<script>
+// ═══════════════════════════════════════════════════════
+// ADMIN: Pagos pendientes
+// ═══════════════════════════════════════════════════════
+(function comdiaz_admin_payments_v1() {
+  const ADMIN_KEY = () => localStorage.getItem('comdiaz_api_key') || '';
+
+  async function api(path, opts = {}) {
+    const headers = Object.assign({}, opts.headers || {});
+    headers['X-Comdiaz-Key'] = ADMIN_KEY();
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    const r = await fetch(API + path, Object.assign({}, opts, { headers }));
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 100));
+    }
+    return r.json();
+  }
+
+  window.cargarPagosPendientes = async function() {
+    const list = document.getElementById('paymentsList');
+    const badge = document.getElementById('paymentsBadge');
+    if (!list) return;
+    list.innerHTML = '<div class="act-empty">Cargando...</div>';
+
+    try {
+      const d = await api('/api/admin/payments?estado=pendiente');
+      const pagos = d.payments || [];
+
+      if (badge) {
+        if (pagos.length > 0) {
+          badge.textContent = pagos.length;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+
+      if (!pagos.length) {
+        list.innerHTML = '<div class="act-empty">✅ No hay pagos pendientes</div>';
+        return;
+      }
+
+      list.innerHTML = pagos.map(p => {
+        const seller = p.seller || {};
+        const plan = p.plan || {};
+        const fecha = new Date(p.created_at).toLocaleString('es');
+        return `
+          <div class="payment-card-admin" style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:14px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <div>
+                <div style="font-weight:800;color:#f1f5f9;font-size:14px">${seller.nombre || 'Seller'}</div>
+                <div style="font-size:11px;color:#94a3b8">📱 ${seller.telefono || '-'}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:800;color:#fbbf24;font-size:14px">$${p.monto_usd || 0}</div>
+                <div style="font-size:11px;color:#94a3b8">${plan.nombre || p.plan_id}</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:10px">
+              💳 ${p.metodo || 'sin método'} · 📅 ${fecha}
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onclick="aprobarPago('${p.id}')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:800;font-size:12px;cursor:pointer">✅ Aprobar</button>
+              <button onclick="rechazarPago('${p.id}')" style="flex:1;background:#dc2626;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:800;font-size:12px;cursor:pointer">🚫 Rechazar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div class="act-empty" style="color:#f87171">Error: ' + e.message + '</div>';
+    }
+  };
+
+  window.aprobarPago = async function(id) {
+    if (!confirm('¿Aprobar este pago? Se activará el plan por 30 días y se notificará al vendedor.')) return;
+    try {
+      const d = await api('/api/admin/payments/' + id + '/approve', { method: 'POST', body: '{}' });
+      if (d.ok) {
+        alert('✅ Pago aprobado. Plan activo hasta: ' + new Date(d.plan_expira_at).toLocaleDateString('es'));
+        cargarPagosPendientes();
+      } else {
+        alert('Error: ' + d.error);
+      }
+    } catch(e) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  window.rechazarPago = async function(id) {
+    const motivo = prompt('Motivo del rechazo:');
+    if (motivo === null) return;
+    if (!motivo.trim()) { alert('Debes indicar un motivo'); return; }
+    try {
+      const d = await api('/api/admin/payments/' + id + '/reject', {
+        method: 'POST',
+        body: JSON.stringify({ motivo: motivo.trim() })
+      });
+      if (d.ok) {
+        alert('🚫 Pago rechazado. Vendedor notificado.');
+        cargarPagosPendientes();
+      } else {
+        alert('Error: ' + d.error);
+      }
+    } catch(e) {
+      alert('Error: ' + e.message);
+    }
+  };
+
+  // Auto-cargar al entrar a vendedores
+  setInterval(() => {
+    const card = document.getElementById('paymentsAdminCard');
+    if (card && card.getBoundingClientRect().top < window.innerHeight && card.getBoundingClientRect().bottom > 0) {
+      cargarPagosPendientes();
+    }
+  }, 30000);
+
+  setTimeout(cargarPagosPendientes, 3000);
+  console.log('✅ Admin payments listo');
+})();
+</script>
+
 </body>
 </html>
 <!-- Se agrega vía script para evitar problemas de shell -->
