@@ -426,6 +426,20 @@
       </div>
     </section>
 
+    <!-- 💳 Pagos pendientes admin -->
+    <section class="card collapsible" data-card="payments" data-view="vendedores" data-default="open" id="paymentsAdminCard">
+      <div class="card-head">
+        <h2>💳 Pagos pendientes <span id="paymentsBadge" class="nav-badge hidden" style="margin-left:6px">0</span></h2>
+        <button class="btn-ghost" onclick="cargarPagosPendientes()" style="font-size:12px">🔄 Actualizar</button>
+      </div>
+      <div style="padding:12px">
+        <div id="paymentsList" class="payments-list">
+          <div class="act-empty">Cargando...</div>
+        </div>
+      </div>
+    </section>
+
+
     <section class="card collapsible" data-card="stats" data-view="home" data-default="closed" id="statsCard">
       <div class="card-head">
         <h2>Estadísticas de la tienda</h2>
