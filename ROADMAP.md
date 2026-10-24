@@ -199,3 +199,69 @@ Sistema:
 | Notificaciones | 7 preservadas |
 | eBay products | 5232 (bajo cap 5000 activos) |
 | IA keys | 8 (12,000 llamadas/día) |
+
+---
+
+## ✅ Sistema de Pagos — COMPLETADO (24 Oct)
+
+### Flujo end-to-end verificado
+- [x] Vendedor: modal de renovación con métodos dinámicos
+- [x] Métodos: Zelle / USDT (TRC20) / CUP (editables por admin)
+- [x] Envío: crea pago pendiente + abre WhatsApp al admin
+- [x] Admin: sección "💳 Pagos pendientes" con badge
+- [x] Admin: aprobar → activa plan +30d automáticamente
+- [x] Admin: rechazar → pide motivo + notifica al vendedor
+- [x] Notif Telegram al admin al crear pago
+- [x] Notif in-app + push al vendedor al aprobar
+- [x] Pago queda con auditoría: aprobado_at, aprobado_por
+
+### Backend (7 endpoints)
+- [x] GET /api/seller/payment/options
+- [x] POST /api/seller/payment/request
+- [x] GET /api/seller/payments
+- [x] GET /api/admin/payments?estado=
+- [x] POST /api/admin/payments/:id/approve
+- [x] POST /api/admin/payments/:id/reject
+- [x] GET/PUT /api/admin/payment-methods
+
+### Storage y estado
+- [x] state.payments (JSON, cap 1000)
+- [x] paymentMethods en shopConfig (editable)
+- [x] Notif tipos: pago_pendiente, pago_aprobado, pago_rechazado
+
+### Validado en producción
+- [x] Pago de Osbey: $5 Zelle → aprobado 24/10
+- [x] Plan activo hasta 23/11/2026
+- [x] Notificaciones + push llegaron al vendedor
+
+### Bugs resueltos en el camino
+- [x] z-index modal (era 10002 < overlay 99999 → quedaba oculto)
+- [x] Alerts multi-línea rompían el `<script>` (0x0a literales)
+- [x] Fallback duplicado de abrirPaymentModal sobrescribía con undefined
+- [x] onclick renovarPlan() viejo (WhatsApp) → abrirPaymentModal() (modal)
+- [x] Sección HTML #paymentsAdminCard faltaba (JS la buscaba sin éxito)
+- [x] Overlay de suspensión bloqueaba visualmente el modal de pago
+
+## 🔒 Siguiente — Sistema de Referidos (bloque C, ~75 min)
+
+**Reglas:**
+- Compartir en grupo FB → +5 prod (3/mes)
+- Compartir en grupo WA → +5 prod (3/mes)  
+- Verificado por admin → +10 prod (1/semana)
+- Tope mensual: +50 productos
+
+**Anti-fraude:**
+- Link único ?ref=<sellerId>
+- Validación: no mismo grupo dos veces
+- Bonus solo cuando NUEVO vendedor se registra vía link + es aprobado
+- Cap total aunque comparta 100 veces
+- No reemplaza plan pago (solo suma)
+
+**Implementación:**
+- Campos en sellers: referral_code, referred_by, ref_count, ref_bonus_quota, ref_last_reset
+- POST /api/seller/referral/generate → genera link
+- GET /api/seller/referral → stats
+- POST /api/seller/register → acepta referred_by
+- Al aprobar vendedor: +5 al que lo refirió (si válido)
+- Cron mensual: reset ref_count, mantener bonus_quota
+- Dashboard admin de referidos
