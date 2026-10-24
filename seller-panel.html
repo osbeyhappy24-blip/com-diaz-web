@@ -869,6 +869,107 @@ textarea { min-height: 60px; resize: vertical; }
   text-align: center;
 }
 
+
+/* ═══ Sección de referidos ═══ */
+.referral-section {
+  margin: 12px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(251,191,36,.15), rgba(220,38,38,.1));
+  border: 1px solid rgba(251,191,36,.3);
+  border-radius: 14px;
+}
+.referral-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.referral-header-icon {
+  font-size: 28px;
+}
+.referral-header-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+.referral-header-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.referral-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.referral-stat {
+  background: rgba(0,0,0,.25);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+.referral-stat-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fbbf24;
+}
+.referral-stat-lbl {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  margin-top: 2px;
+}
+.referral-link-box {
+  background: #0f172a;
+  border: 1px dashed #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #fbbf24;
+  word-break: break-all;
+  margin-bottom: 10px;
+  user-select: all;
+}
+.referral-actions {
+  display: flex;
+  gap: 8px;
+}
+.referral-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.referral-btn:active { transform: scale(.96); }
+.referral-btn-copy {
+  background: #334155;
+  color: #f1f5f9;
+}
+.referral-btn-copy:hover { background: #475569; }
+.referral-btn-share {
+  background: linear-gradient(135deg, #25d366, #1eb954);
+  color: #fff;
+}
+.referral-btn-share:hover { transform: translateY(-1px); }
+.referral-btn-wa {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000;
+}
+.referral-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
 </style>
 <style>
 /* ── Photo uploader ── */
@@ -986,7 +1087,36 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
 
 </div>
 
-<!-- Modal nuevo/editar producto -->
+    <!-- 🎁 Referidos -->
+    <div class="referral-section" id="referralSection" style="display:none">
+      <div class="referral-header">
+        <div class="referral-header-icon">🎁</div>
+        <div>
+          <div class="referral-header-title">Comparte y gana</div>
+          <div class="referral-header-sub">+5 productos por cada vendedor que traigas</div>
+        </div>
+      </div>
+      <div class="referral-stats">
+        <div class="referral-stat">
+          <div class="referral-stat-num" id="refCount">0</div>
+          <div class="referral-stat-lbl">Referidos este mes</div>
+        </div>
+        <div class="referral-stat">
+          <div class="referral-stat-num" id="refBonus">+0</div>
+          <div class="referral-stat-lbl">Productos extra</div>
+        </div>
+      </div>
+      <div class="referral-link-box" id="refLinkBox">Cargando link...</div>
+      <div class="referral-actions">
+        <button class="referral-btn referral-btn-copy" onclick="copiarLinkReferido()">📋 Copiar</button>
+        <button class="referral-btn referral-btn-wa" onclick="compartirWA()">📱 WhatsApp</button>
+      </div>
+      <div class="referral-hint">
+        Comparte tu link en grupos. Cuando alguien se registre como vendedor y sea aprobado, recibes +5 productos.
+      </div>
+    </div>
+
+    <!-- Modal nuevo/editar producto -->
 <div class="modal hidden" id="productModal">
   <div class="modal-card">
     <div class="modal-head">
@@ -2773,6 +2903,71 @@ window.forceRegisterPush = async function() {
 
 
 <!-- fallback eliminado, versión defensiva está en el script de pagos -->
+
+
+<!-- script referidos roto removido -->
+
+
+<script>
+(function comdiaz_referral_ui_v1() {
+  var _refLink = '';
+  var _refWA = '';
+  var NL = String.fromCharCode(10);
+
+  async function cargarReferidos() {
+    if (typeof TOKEN === 'undefined' || !TOKEN) return;
+    try {
+      var r = await fetch(API + '/api/seller/referral', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      if (!r.ok) return;
+      var d = await r.json();
+      if (!d.ok) return;
+
+      _refLink = d.link || '';
+      _refWA = d.link_shop || d.link;
+
+      var section = document.getElementById('referralSection');
+      var linkBox = document.getElementById('refLinkBox');
+      var refCount = document.getElementById('refCount');
+      var refBonus = document.getElementById('refBonus');
+
+      if (refCount) refCount.textContent = d.ref_count || 0;
+      if (refBonus) refBonus.textContent = '+' + (d.ref_bonus_quota || 0);
+      if (linkBox) linkBox.textContent = _refLink;
+      if (section) section.style.display = 'block';
+    } catch(_) {}
+  }
+
+  window.copiarLinkReferido = function() {
+    if (!_refLink) return;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(_refLink).then(function() {
+        if (typeof toast === 'function') toast('Link copiado', 'ok');
+      }).catch(function() { alert('Link: ' + _refLink); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = _refLink;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); if (typeof toast === 'function') toast('Link copiado', 'ok'); } catch(_) { alert('Link: ' + _refLink); }
+      document.body.removeChild(ta);
+    }
+  };
+
+  window.compartirWA = function() {
+    if (!_refWA) return;
+    var mensaje = 'Hola! Te invito a vender en Comdiaz Shop, la tienda cubana.' + NL + NL +
+      'Registrate con mi link:' + NL + _refWA + NL + NL +
+      'Tendras hasta 200 productos para vender, envio por WhatsApp y notificaciones automaticas.';
+    var url = 'https://wa.me/?text=' + encodeURIComponent(mensaje);
+    window.open(url, '_blank');
+  };
+
+  setTimeout(cargarReferidos, 3000);
+  console.log('Referral UI listo');
+})();
+</script>
 
 </body>
 </html>

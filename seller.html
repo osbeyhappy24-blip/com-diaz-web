@@ -157,6 +157,20 @@ input:focus, select:focus { border-color: #7c3aed; }
   font-size: 11px;
 }
 </style>
+
+<script>
+(function comdiaz_capture_ref_v1() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get('ref');
+    if (ref && ref.length >= 3) {
+      localStorage.setItem('comdiaz_referral_code', ref.toUpperCase());
+      console.log('[REF] Codigo capturado:', ref);
+    }
+  } catch(_) {}
+})();
+</script>
+
 </head>
 <body>
 
@@ -304,8 +318,7 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
         telefono: document.getElementById('regTelefono').value.trim(),
         password: document.getElementById('regPassword').value,
         provincia: document.getElementById('regProvincia').value || null,
-        municipio: document.getElementById('regMunicipio').value || null,
-      }),
+        municipio: document.getElementById('regMunicipio').value || null, referred_by_code: localStorage.getItem('comdiaz_referral_code') || undefined})
     });
     const d = await r.json();
 
@@ -352,7 +365,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
     if (d.ok && d.token) {
       localStorage.setItem('comdiaz_seller_token', d.token);
       localStorage.setItem('comdiaz_seller_data', JSON.stringify(d.seller));
-      location.href = 'seller-panel.html?v=42';
+      location.href = 'seller-panel.html?v=43';
     } else {
       err.textContent = d.error || 'Credenciales inválidas';
       err.classList.add('show');
@@ -371,7 +384,7 @@ cargarProvincias();
 
 // Si ya tiene sesión, ir directo al panel
 if (localStorage.getItem('comdiaz_seller_token')) {
-  location.href = 'seller-panel.html?v=42';
+  location.href = 'seller-panel.html?v=43';
 }
 </script>
 

@@ -440,6 +440,18 @@
     </section>
 
 
+    <section class="card collapsible" data-card="referrals" data-view="vendedores" data-default="open" id="referralsAdminCard">
+      <div class="card-head">
+        <h2>🎁 Ranking de Referidos</h2>
+        <button class="btn-ghost" onclick="cargarRankingReferidos()" style="font-size:12px">🔄 Actualizar</button>
+      </div>
+      <div class="card-body">
+        <div id="referralsList" class="referrals-list">
+          <div class="act-empty">Cargando...</div>
+        </div>
+      </div>
+    </section>
+
     <section class="card collapsible" data-card="stats" data-view="home" data-default="closed" id="statsCard">
       <div class="card-head">
         <h2>Estadísticas de la tienda</h2>
@@ -849,7 +861,7 @@
 </div>
 
   <script src="wa-helper.js?v=1"></script>
-<script src="home.js?v=36"></script>
+<script src="home.js?v=37"></script>
 <script src="bulk.js?v=9"></script>
 <script src="sellers-admin.js?v=2"></script>
 
@@ -1399,6 +1411,65 @@
 
   setTimeout(cargarPagosPendientes, 3000);
   console.log('✅ Admin payments listo');
+})();
+</script>
+
+
+<script>
+(function comdiaz_admin_referrals_v1() {
+  var ADMIN_KEY = function() { return localStorage.getItem('comdiaz_api_key') || ''; };
+
+  window.cargarRankingReferidos = async function() {
+    var list = document.getElementById('referralsList');
+    if (!list) return;
+    list.innerHTML = '<div class="act-empty">Cargando...</div>';
+
+    try {
+      var r = await fetch(API + '/api/admin/referrals', {
+        headers: { 'X-Comdiaz-Key': ADMIN_KEY() }
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var d = await r.json();
+      var refs = d.referrals || [];
+
+      if (!refs.length) {
+        list.innerHTML = '<div class="act-empty">Aun no hay referidos registrados</div>';
+        return;
+      }
+
+      list.innerHTML = refs.map(function(item, idx) {
+        var s = item.seller || {};
+        var rank = idx + 1;
+        var emoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '#' + rank;
+        return '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:#1e293b;border-radius:10px;margin-bottom:8px">' +
+          '<div style="font-size:20px;font-weight:900;min-width:40px;text-align:center">' + emoji + '</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:800;color:#f1f5f9;font-size:14px">' + (s.nombre || 'Seller') + '</div>' +
+            '<div style="font-size:11px;color:#94a3b8">📱 ' + (s.telefono || '-') + ' · ' + (item.referrals_made || 0) + ' referidos</div>' +
+          '</div>' +
+          '<div style="text-align:right">' +
+            '<div style="font-size:18px;font-weight:900;color:#fbbf24">+' + (item.ref_bonus_quota || 0) + '</div>' +
+            '<div style="font-size:10px;color:#94a3b8">productos</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div class="act-empty" style="color:#f87171">Error: ' + e.message + '</div>';
+    }
+  };
+
+  setInterval(function() {
+    var card = document.getElementById('referralsAdminCard');
+    if (card && card.getBoundingClientRect().top < window.innerHeight && card.getBoundingClientRect().bottom > 0) {
+      var list = document.getElementById('referralsList');
+      if (list && list.textContent.indexOf('Cargando') >= 0) {
+        cargarRankingReferidos();
+      }
+    }
+  }, 15000);
+
+  setTimeout(cargarRankingReferidos, 5000);
+  console.log('Admin referrals listo');
 })();
 </script>
 
