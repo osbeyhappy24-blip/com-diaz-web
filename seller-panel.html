@@ -944,7 +944,7 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
         <div class="plan-banner-title" id="planBannerTitle">Tu plan vence pronto</div>
         <div class="plan-banner-msg" id="planBannerMsg"></div>
       </div>
-      <button class="plan-banner-btn" onclick="renovarPlan()">Renovar</button>
+      <button class="plan-banner-btn" onclick="abrirPaymentModal()">Renovar</button>
     </div>
 
     <div class="container">
@@ -2387,7 +2387,7 @@ window.forceRegisterPush = async function() {
       <b>No pierdes nada:</b> tus productos, cuota e historial se conservan intactos.<br><br>
       Renueva ahora y todo vuelve al instante.
     </div>
-    <button class="plan-suspended-cta" onclick="renovarPlan()">
+    <button class="plan-suspended-cta" onclick="abrirPaymentModal()">
       💳 Renovar y reactivar
     </button>
     <button class="plan-suspended-secondary" onclick="logout()">
@@ -2680,11 +2680,8 @@ window.forceRegisterPush = async function() {
     }
   };
 
-  // Reemplazar la función renovarPlan existente (la del banner) para abrir el modal
-  const _renovarOriginal = window.renovarPlan;
-  window.renovarPlan = function() {
-    abrirPaymentModal();
-  };
+  // Asegurar que abrirPaymentModal esté disponible globalmente
+  window.abrirPaymentModal = abrirPaymentModal;
 
   console.log('✅ Sistema de pago listo');
 })();
