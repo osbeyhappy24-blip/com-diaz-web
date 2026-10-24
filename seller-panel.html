@@ -674,7 +674,10 @@ textarea { min-height: 60px; resize: vertical; }
   justify-content: center;
   padding: 16px;
 }
-.payment-modal-overlay.show { display: flex; }
+.payment-modal-overlay.show { display: flex !important; }
+
+/* Forzar visibilidad si se usa la clase 'show' en el overlay */
+.payment-modal-overlay.show { opacity: 1 !important; visibility: visible !important; }
 .payment-modal {
   background: #0f172a;
   border: 1px solid #334155;
@@ -2600,10 +2603,18 @@ window.forceRegisterPush = async function() {
   };
 
   window.abrirPaymentModal = async function() {
+    console.log("[PAYMENT] abrirPaymentModal EJECUTADA");
     await cargarMetodos();
     _metodoSeleccionado = _metodos[0]?.id || null;
     renderModal();
-    document.getElementById('paymentModal').classList.add('show');
+    const modalEl = document.getElementById('paymentModal');
+    console.log("[PAYMENT] Elemento modal:", modalEl);
+    if (modalEl) {
+        modalEl.classList.add('show');
+        console.log("[PAYMENT] Clase 'show' añadida. Clases actuales:", modalEl.className);
+    } else {
+        console.error("[PAYMENT] ERROR: No se encontró el elemento #paymentModal");
+    }
   };
 
   window.cerrarPaymentModal = function() {
