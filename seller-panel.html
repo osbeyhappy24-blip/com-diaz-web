@@ -1567,30 +1567,64 @@ function resetBulkState() {
 }
 
 async function handleMultiplePhotos(event) {
+  console.log('[UPLOAD] handleMultiplePhotos INICIADO');
+  console.log('[UPLOAD] files:', event.target.files?.length || 0);
+  
   const files = Array.from(event.target.files);
-  if (files.length === 0) return;
+  if (files.length === 0) {
+    alert('No se recibieron fotos del selector. Intenta de nuevo.');
+    return;
+  }
+  
+  alert('📸 Recibidas ' + files.length + ' foto(s). Preparando...');
 
   resetBulkState();
   const statusEl = document.getElementById('photoStatus');
-  if (!statusEl) return;
+  if (!statusEl) {
+    alert('ERROR: Falta el elemento #photoStatus en el HTML. Avísale al admin.');
+    console.error('[UPLOAD] Falta #photoStatus');
+    return;
+  }
+  console.log('[UPLOAD] photoStatus encontrado ✅');
 
-  // 0. Pre-validar sesión (evita fallar a mitad de carga)
+  // 0. Pre-validar sesión con timeout 45s (cold start)
   statusEl.textContent = 'Validando sesion...';
+  console.log('[UPLOAD] Validando sesión...');
+  
   try {
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 45000);
+    
     const chk = await fetch(API + '/api/seller/me', {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      signal: ctrl.signal
     });
+    clearTimeout(timeoutId);
+    
+    console.log('[UPLOAD] Pre-check status:', chk.status);
+    
     if (!chk.ok) {
       if (chk.status === 401) {
-        toast('Sesion expirada. Vuelve a iniciar sesion.', 'err');
+        statusEl.textContent = 'Sesion expirada';
+        alert('Sesion expirada. Vuelve a iniciar sesion.');
         setTimeout(() => logout(), 1500);
         return;
       }
-      throw new Error('status ' + chk.status);
+      alert('Error validando sesion: HTTP ' + chk.status);
+      statusEl.textContent = 'Error ' + chk.status;
+      return;
     }
+    statusEl.textContent = 'Sesion OK. Comprimiendo...';
+    console.log('[UPLOAD] Sesion OK, comprimiendo...');
   } catch(e) {
-    toast('Sin conexion. Reintenta.', 'err');
-    statusEl.textContent = '';
+    console.error('[UPLOAD] Pre-check error:', e);
+    if (e.name === 'AbortError') {
+      alert('Servidor dormido (timeout 45s). Toca de nuevo.');
+      statusEl.textContent = 'Timeout. Reintenta.';
+    } else {
+      alert('Sin conexion: ' + (e.message || 'error de red'));
+      statusEl.textContent = 'Sin conexion';
+    }
     return;
   }
 
@@ -1606,9 +1640,13 @@ async function handleMultiplePhotos(event) {
   }
   
   if (colaProductos.length === 0) {
+    alert('ERROR: Ninguna foto se comprimió. Revisa el formato.');
     statusEl.textContent = 'No se pudo comprimir ninguna foto.';
     return;
   }
+  
+  alert('✅ ' + colaProductos.length + ' foto(s) comprimidas. Subiendo...');
+  console.log('[UPLOAD] Fotos comprimidas:', colaProductos.length);
 
   // 2. Subir TODAS las fotos con delay 2.5s + retry 429
   //    (garantiza no pegar rate limit 30/min)
