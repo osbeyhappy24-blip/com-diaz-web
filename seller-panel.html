@@ -2367,7 +2367,7 @@ window.forceRegisterPush = async function() {
     step('Guardado en backend', sdata.ok, sdata.ok ? 'total=' + sdata.total : (sdata.error || 'desconocido'));
 
     if (sdata.ok) {
-      alert('✅ ¡Push conectado! Ahora cuando el admin te mande una notif, aparecerá en la barra de Android con sonido y vibración.\n\nPrueba: pide al admin que te suspenda y te apruebe de nuevo.');
+      alert('Push conectado. Cuando llegue una notif aparecera en la barra de Android.');
     } else {
       alert('❌ Error guardando en backend: ' + (sdata.error || 'desconocido'));
     }
@@ -2602,20 +2602,70 @@ window.forceRegisterPush = async function() {
     renderModal();
   };
 
-  window.abrirPaymentModal = async function() {
-    console.log("[PAYMENT] abrirPaymentModal EJECUTADA");
-    await cargarMetodos();
-    _metodoSeleccionado = _metodos[0]?.id || null;
-    renderModal();
-    const modalEl = document.getElementById('paymentModal');
-    console.log("[PAYMENT] Elemento modal:", modalEl);
-    if (modalEl) {
-        modalEl.classList.add('show');
-        console.log("[PAYMENT] Clase 'show' añadida. Clases actuales:", modalEl.className);
-    } else {
-        console.error("[PAYMENT] ERROR: No se encontró el elemento #paymentModal");
+  window.abrirPaymentModal = function() {
+    // DIAGNÓSTICO: mostrar en pantalla qué pasa
+    try {
+      const modal = document.getElementById('paymentModal');
+      if (!modal) {
+        alert('ERROR: Elemento paymentModal no encontrado en la pagina');
+        return;
+      }
+      
+      // Abrir el modal PRIMERO (con loader)
+      modal.classList.add('show');
+      modal.style.display = 'flex';  // forzar por si CSS falla
+      
+      const body = document.getElementById('paymentModalBody');
+      if (body) {
+        body.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:30px">🔄 Cargando métodos de pago...</div>';
+      }
+      
+      // Cargar métodos async
+      cargarMetodosYRenderizar();
+      
+    } catch(e) {
+      alert('ERROR al abrir modal: ' + (e.message || e));
     }
   };
+
+  // Función separada para cargar y renderizar (async)
+  async function cargarMetodosYRenderizar() {
+    const body = document.getElementById('paymentModalBody');
+    try {
+      // Cargar métodos
+      const r = await fetch(API + '/api/seller/payment/options', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      if (!r.ok) {
+        const errTxt = await r.text();
+        if (body) body.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">Error ' + r.status + ': ' + errTxt.slice(0, 200) + '</div>';
+        return;
+      }
+      const d = await r.json();
+      if (!d.ok) {
+        if (body) body.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">Error: ' + (d.error || 'desconocido') + '</div>';
+        return;
+      }
+      _metodos = d.methods || [];
+      _waAdmin = d.whatsapp || '5351425691';
+
+      // Cargar plan info
+      try {
+        const r2 = await fetch(API + '/api/seller/plan-info', {
+          headers: { 'Authorization': 'Bearer ' + TOKEN }
+        });
+        const d2 = await r2.json();
+        if (d2.ok) _planInfo = d2;
+      } catch(_) {}
+
+      // Seleccionar primer método por defecto
+      _metodoSeleccionado = _metodos[0]?.id || null;
+      renderModal();
+
+    } catch(e) {
+      if (body) body.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">Error de conexión: ' + (e.message || e) + '</div>';
+    }
+  }
 
   window.cerrarPaymentModal = function() {
     document.getElementById('paymentModal').classList.remove('show');
