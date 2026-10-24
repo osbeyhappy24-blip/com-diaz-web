@@ -2498,3 +2498,231 @@ html{scroll-behavior:smooth}
     font-size: 17px;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════
+   🏪 CARDS DE VENDEDOR — "Casitas vivas"
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Card base de seller con borde animado ── */
+.product-card.seller-card {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, var(--accent), var(--accent-3), var(--accent-2)) border-box;
+  position: relative;
+  overflow: visible;
+  animation: sellerBorderPulse 4s ease-in-out infinite;
+}
+@keyframes sellerBorderPulse {
+  0%, 100% {
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(135deg, var(--accent), var(--accent-3), var(--accent-2)) border-box;
+  }
+  50% {
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(315deg, var(--accent), var(--accent-3), var(--accent-2)) border-box;
+  }
+}
+
+/* ── Casita flotante (avatar) ── */
+.seller-house {
+  position: absolute;
+  top: -14px;
+  right: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0,63,127,.35);
+  z-index: 3;
+  animation: casitaFloat 2.8s ease-in-out infinite;
+  cursor: pointer;
+  transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 2px solid #fff;
+}
+.seller-house::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251,191,36,.4), transparent 70%);
+  opacity: 0;
+  animation: casitaGlow 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes casitaFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes casitaGlow {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+.product-card.seller-card:hover .seller-house {
+  transform: scale(1.15) rotate(-6deg);
+  animation-play-state: paused;
+}
+
+/* ── Variante de color por vendedor (hash) ── */
+.seller-house.v1 { background: linear-gradient(135deg, #003f7f, #002a56); box-shadow: 0 6px 18px rgba(0,63,127,.35); }
+.seller-house.v2 { background: linear-gradient(135deg, #dc2626, #991b1b); box-shadow: 0 6px 18px rgba(220,38,38,.35); }
+.seller-house.v3 { background: linear-gradient(135deg, #f59e0b, #b45309); box-shadow: 0 6px 18px rgba(245,158,11,.35); }
+.seller-house.v4 { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 6px 18px rgba(22,163,74,.35); }
+.seller-house.v5 { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 6px 18px rgba(124,58,237,.35); }
+.seller-house.v6 { background: linear-gradient(135deg, #0891b2, #0e7490); box-shadow: 0 6px 18px rgba(8,145,178,.35); }
+
+/* ── Puerta de la casita (hover) ── */
+.seller-house::after {
+  content: '🚪';
+  position: absolute;
+  font-size: 9px;
+  bottom: -2px;
+  right: -2px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .3s, transform .3s;
+}
+.product-card.seller-card:hover .seller-house::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Nombre del vendedor ── */
+.seller-name-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  background: linear-gradient(135deg, rgba(0,63,127,.08), rgba(251,191,36,.12));
+  border: 1px solid rgba(0,63,127,.2);
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+  letter-spacing: .2px;
+}
+.seller-name-tag::before {
+  content: '🏪';
+  font-size: 10px;
+}
+
+/* ── Badge "Verificado" animado ── */
+.product-card.seller-card .product-badge.seller {
+  background: linear-gradient(135deg, var(--success), #15803d);
+  animation: verificadoPulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+@keyframes verificadoPulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(22,163,74,.15); }
+  50% { box-shadow: 0 2px 16px rgba(22,163,74,.5); }
+}
+.product-card.seller-card .product-badge.seller::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+  animation: verificadoShine 3s infinite;
+}
+@keyframes verificadoShine {
+  0%, 60% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* ── Card seller: hover más elaborado ── */
+.product-card.seller-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 16px 40px rgba(0,63,127,.22);
+}
+
+/* ── Botón "Ver catálogo del vendedor" (opcional) ── */
+.seller-shop-link {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: color .2s;
+}
+.seller-shop-link:hover {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════
+   🎉 BANNER DE PROMOCIONES ARRIBA
+   ═══════════════════════════════════════════════════════ */
+.shop-banner-promo {
+  position: relative;
+  margin: 12px 12px 0;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+  animation: promoSlideIn .5s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+}
+.shop-banner-promo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 15% 20%, rgba(255,255,255,.2), transparent 50%);
+  pointer-events: none;
+}
+.shop-banner-promo::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+  animation: promoShine 4s infinite;
+  pointer-events: none;
+}
+@keyframes promoShine {
+  0%, 70% { left: -100%; }
+  100% { left: 200%; }
+}
+.shop-banner-promo.promo-gradient, .shop-banner-promo.gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+.shop-banner-promo.promo-green, .shop-banner-promo.green {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+.shop-banner-promo.promo-yellow, .shop-banner-promo.yellow {
+  background: linear-gradient(135deg, var(--accent-3), #f59e0b);
+  color: var(--text);
+}
+.shop-banner-promo.promo-purple, .shop-banner-promo.purple {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+.shop-banner-promo.promo-orange {
+  background: linear-gradient(135deg, #ea580c, var(--accent-3));
+  color: var(--text);
+}
+.shop-banner-promo.promo-pink {
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+}
+.shop-banner-promo.promo-blue {
+  background: linear-gradient(135deg, var(--accent), #1e40af);
+}
+

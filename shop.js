@@ -15,6 +15,48 @@ function _waUrl(phone, text) {
   return 'https://wa.me/' + p + (t ? '?text=' + t : '');
 }
 
+
+// ═══════════════════════════════════════════════════════
+// Helper: identificar productos de seller + color por vendedor
+// ═══════════════════════════════════════════════════════
+function _esSellerProduct(p) {
+  if (!p) return false;
+  if (p.source === 'seller') return true;
+  if (p.tipo === 'seller') return true;
+  if (p.seller_id) return true;
+  if (p.sellerId) return true;
+  return false;
+}
+
+function _getSellerNombre(p) {
+  return p.seller_nombre || p.sellerNombre || p.vendedor || null;
+}
+
+// Color consistente por nombre (hash simple → 6 colores)
+function _getSellerColorClass(nombre) {
+  const str = String(nombre || 'comdiaz');
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  hash = Math.abs(hash);
+  return 'v' + ((hash % 6) + 1);
+}
+
+// Genera HTML de la casita + tag del vendedor
+function _getCasitaHTML(p) {
+  const nombre = _getSellerNombre(p) || 'Vendedor';
+  const color = _getSellerColorClass(nombre);
+  return {
+    houseHTML: `<div class="seller-house ${color}" title="${nombre}"></div>`,
+    tagHTML: `<span class="seller-name-tag">${nombre}</span>`
+  };
+}
+
+window._esSellerProduct = _esSellerProduct;
+window._getCasitaHTML = _getCasitaHTML;
+
+
 // ═══════════════════════════════════════════════════════
 // Contacto de vendedor — solo al tocar WhatsApp
 // ═══════════════════════════════════════════════════════
@@ -311,18 +353,26 @@ function renderProductos() {
 
   state.filtered.forEach(p => {
     const card = document.createElement('div');
-    card.className = 'product-card';
+    const esSeller = _esSellerProduct(p);
+    card.className = 'product-card' + (esSeller ? ' seller-card' : '');
+    if (esSeller) {
+      card.dataset.sellerId = p.seller_id || p.sellerId || '';
+      card.dataset.source = 'seller';
+    }
 
     const sb = getSourceBadge(p);
     const sourceLabel = sb.label;
     const sourceClass = sb.cls;
+    const casitaData = esSeller ? _getCasitaHTML(p) : { houseHTML: '', tagHTML: '' };
 
     card.innerHTML = `
+      ${casitaData.houseHTML}
       <div class="product-img-wrap">
         <img class="product-img" src="${p.image || ''}" alt="" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f3f4f6%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 font-family=%22sans-serif%22 font-size=%2214%22 fill=%22%239ca3af%22 text-anchor=%22middle%22>Sin imagen</text></svg>'">
         <span class="product-source ${sourceClass}">${sourceLabel}</span>
       </div>
       <div class="product-body">
+        ${casitaData.tagHTML}
         <div class="product-category">${p.category || ''}</div>
         <div class="product-title">${p.aiTitulo || p.title || 'Sin titulo'}</div>
         ${p._isLocal && (p.provincia || p.municipio) ? `<div class="product-ubicacion" style="font-size:11px;color:#6b7280;margin:2px 0 4px">📍 ${[p.provincia, p.municipio].filter(Boolean).join(' / ')}</div>` : ''}
