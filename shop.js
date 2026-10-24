@@ -1582,110 +1582,7 @@ cargarCatalogo();
 // ═══════════════════════════════════════════════
 // BANNER DE PROMOCIONES (comdiaz_banner_v1)
 // ═══════════════════════════════════════════════
-(function comdiaz_banner_v1(){
-  let promos = [];
-  let promoIndex = 0;
-  let rotTimer = null;
-
-  const EMOJIS = {
-    truck: '\u{1F69A}',
-    gift: '\u{1F381}',
-    star: '\u{2B50}',
-    fire: '\u{1F525}',
-    money: '\u{1F4B0}',
-    cart: '\u{1F6D2}',
-    bell: '\u{1F514}',
-    sparkles: '\u{2728}',
-    whatsapp: '\u{1F4AC}',
-    clock: '\u{23F0}',
-    rocket: '\u{1F680}'
-  };
-
-  function renderBanner() {
-    const box = document.getElementById('shopBanner');
-    if (!box) return;
-
-    const cfg = state.config || {};
-
-    const promosBase = Array.isArray(cfg.promociones)
-      ? cfg.promociones.filter(p => p && p.activo !== false && p.texto)
-      : [];
-    const aiBannersArr = Array.isArray(cfg.aiBanners)
-      ? cfg.aiBanners.filter(p => p && p.activo !== false && p.texto)
-      : [];
-    promos = [...promosBase, ...aiBannersArr];
-
-    if (promos.length > 0) {
-      box.classList.remove('hidden');
-      if (rotTimer) { clearInterval(rotTimer); rotTimer = null; }
-      promoIndex = 0;
-      mostrarPromo(0);
-      const seg = Number(cfg.rotacionSeg) || 5;
-      if (promos.length > 1) {
-        rotTimer = setInterval(() => {
-          promoIndex = (promoIndex + 1) % promos.length;
-          mostrarPromo(promoIndex);
-        }, seg * 1000);
-      }
-      return;
-    }
-
-    // Compatibilidad con el banner viejo
-    const activo = cfg.bannerActivo === true;
-    const texto = (cfg.bannerTexto || '').trim();
-    const color = cfg.bannerColor || 'gradient';
-
-    if (!activo || !texto) {
-      box.classList.add('hidden');
-      return;
-    }
-
-    box.className = 'shop-banner ' + color;
-    box.textContent = texto;
-    box.classList.remove('hidden');
-  }
-
-  function mostrarPromo(i) {
-    const box = document.getElementById('shopBanner');
-    if (!box || !promos.length) return;
-    const p = promos[i];
-    if (!p) return;
-
-    box.style.transition = 'opacity 300ms ease, transform 300ms ease';
-    box.style.opacity = '0';
-    box.style.transform = 'translateY(-6px)';
-
-    setTimeout(() => {
-      box.className = 'shop-banner promo-' + (p.color || 'gradient');
-      const emojiKey = p.emoji || '';
-      const emojiChar = EMOJIS[emojiKey] || (emojiKey.length <= 4 ? emojiKey : '');
-      const emojiHtml = emojiChar ? '<span class="promo-emoji">' + emojiChar + '</span> ' : '';
-      const dots = promos.length > 1
-        ? '<span class="promo-dots">' + promos.map((_, idx) => idx === i ? '\u25CF' : '\u25CB').join(' ') + '</span>'
-        : '';
-      const texto = String(p.texto || '').replace(/</g, '&lt;');
-      box.innerHTML = emojiHtml + '<span class="promo-texto">' + texto + '</span>' + dots;
-      box.classList.remove('hidden');
-      box.style.opacity = '1';
-      box.style.transform = 'translateY(0)';
-    }, 300);
-  }
-
-  // Enganchar al cargar catálogo
-  const _orig = window.cargarCatalogo;
-  if (typeof _orig === 'function') {
-    window.cargarCatalogo = async function() {
-      await _orig.apply(this, arguments);
-      setTimeout(renderBanner, 200);
-    };
-  }
-
-  // Arranque
-  setTimeout(renderBanner, 1500);
-  // setInterval(renderBanner, 10000);  // DESACTIVADO: reseteaba la rotación
-
-  console.log('✅ Banner listo');
-})();
+/* banner v1 reemplazado por v2 */
 
 
 // NOTIFICAR PEDIDO AL BACKEND (v2)
@@ -2235,6 +2132,177 @@ cargarCatalogo();
 
   // Si el usuario hace Enter en el hero, ya lo maneja el form onsubmit
   console.log('✅ Hero banner listo');
+})();
+
+
+
+// ═══════════════════════════════════════════════════════
+// BANNER TURISTA MODERNO v2 — con thumbnails de productos
+// ═══════════════════════════════════════════════════════
+(function comdiaz_banner_v2() {
+  let promos = [];
+  let promoIndex = 0;
+  let rotacionTimer = null;
+  let productsCache = [];
+  let rotacionSeg = 4;
+  let productosCargados = false;
+
+  // Esperar a que los productos estén disponibles
+  function esperarProductos(callback) {
+    let intentos = 0;
+    const check = () => {
+      if ((window.state && window.state.products && window.state.products.length > 0) || productosCargados) {
+        productsCache = (window.state && window.state.products) || [];
+        callback();
+        return;
+      }
+      intentos++;
+      if (intentos > 20) { callback(); return; }
+      setTimeout(check, 250);
+    };
+    check();
+  }
+
+  // Elegir 4 productos para los thumbnails según filtro
+  function pickThumbs(filtro) {
+    if (!productsCache.length) return [];
+    let pool = productsCache;
+    if (filtro === 'local') {
+      pool = productsCache.filter(p => p.tipo === 'local' || p._isLocal || p.source === 'local');
+    } else if (filtro === 'ebay') {
+      pool = productsCache.filter(p => p.source === 'ebay' || (p.tipo !== 'local' && p.source !== 'seller'));
+    } else if (filtro === 'seller') {
+      pool = productsCache.filter(p => p.tipo === 'seller' || p.source === 'seller');
+    }
+    if (pool.length === 0) pool = productsCache;
+    // Tomar 4 aleatorios distintos
+    const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
+  }
+
+  function renderBanner() {
+    const box = document.getElementById('shopBanner');
+    if (!box || !promos.length) return;
+
+    const p = promos[promoIndex];
+    const colorClass = 'color-' + (p.color || 'gradient');
+    const thumbs = pickThumbs(p.filtro || 'all');
+
+    box.className = 'shop-banner-promo ' + colorClass;
+    box.classList.remove('hidden');
+
+    box.innerHTML = `
+      <div class="banner-bg"></div>
+      <div class="banner-thumbs left">
+        <div class="banner-thumb" data-idx="0">${thumbs[0] ? '<img src="' + thumbs[0] + '" alt="" loading="lazy">' : ''}</div>
+        <div class="banner-thumb" data-idx="1">${thumbs[1] ? '<img src="' + thumbs[1] + '" alt="" loading="lazy">' : ''}</div>
+      </div>
+      <div class="banner-thumbs right">
+        <div class="banner-thumb" data-idx="2">${thumbs[2] ? '<img src="' + thumbs[2] + '" alt="" loading="lazy">' : ''}</div>
+        <div class="banner-thumb" data-idx="3">${thumbs[3] ? '<img src="' + thumbs[3] + '" alt="" loading="lazy">' : ''}</div>
+      </div>
+      <div class="banner-content">
+        ${p.badge ? '<div class="banner-badge ' + (p.badgeColor || 'hot') + '">' + p.badge + '</div>' : ''}
+        <div class="banner-emoji">${p.emoji || '✨'}</div>
+        <div class="banner-texto">${p.texto || ''}</div>
+        ${p.subtexto ? '<div class="banner-subtexto">' + p.subtexto + '</div>' : ''}
+      </div>
+      <div class="banner-dots">
+        ${promos.map((_, i) => '<div class="banner-dot ' + (i === promoIndex ? 'active' : '') + '" data-dot="' + i + '"></div>').join('')}
+      </div>
+    `;
+
+    // Animar thumbnails (stagger)
+    setTimeout(() => {
+      box.querySelectorAll('.banner-thumb').forEach((t, i) => {
+        setTimeout(() => t.classList.add('visible'), i * 120);
+      });
+    }, 100);
+
+    // Bind dots
+    box.querySelectorAll('.banner-dot').forEach(dot => {
+      dot.onclick = (e) => {
+        e.stopPropagation();
+        promoIndex = Number(dot.dataset.dot);
+        renderBanner();
+        resetTimer();
+      };
+    });
+  }
+
+  function rotar() {
+    if (promos.length <= 1) return;
+    // Animación de transición
+    const content = document.querySelector('.shop-banner-promo .banner-content');
+    if (content) content.classList.add('transitioning');
+    setTimeout(() => {
+      promoIndex = (promoIndex + 1) % promos.length;
+      renderBanner();
+    }, 250);
+  }
+
+  function resetTimer() {
+    if (rotacionTimer) clearInterval(rotacionTimer);
+    if (promos.length > 1) {
+      rotacionTimer = setInterval(rotar, rotacionSeg * 1000);
+    }
+  }
+
+  async function cargarPromos() {
+    try {
+      const r = await fetch(API_BASE + '/api/public/config');
+      if (!r.ok) return;
+      const cfg = await r.json();
+      const shopCfg = cfg.shopConfig || cfg;
+      rotacionSeg = Number(shopCfg.rotacionSeg) || 4;
+
+      const promosBase = (Array.isArray(shopCfg.promociones) ? shopCfg.promociones : [])
+        .filter(p => p && p.activo !== false && p.texto)
+        .sort((a,b) => (a.orden||99) - (b.orden||99));
+
+      const aiArr = (Array.isArray(shopCfg.aiBanners) ? shopCfg.aiBanners : [])
+        .filter(p => p && p.activo !== false && p.texto);
+
+      promos = promosBase.concat(aiArr);
+
+      if (promos.length === 0) return;
+
+      esperarProductos(() => {
+        promoIndex = 0;
+        renderBanner();
+        resetTimer();
+      });
+    } catch(e) {
+      console.warn('[BANNER] Error:', e.message);
+    }
+  }
+
+  // Cargar al inicio
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(cargarPromos, 800));
+  } else {
+    setTimeout(cargarPromos, 800);
+  }
+
+  // Pausar rotación al tocar el banner
+  document.addEventListener('click', (e) => {
+    const banner = e.target.closest('.shop-banner-promo');
+    if (banner && !e.target.closest('.banner-dot')) {
+      if (rotacionTimer) {
+        clearInterval(rotacionTimer);
+        rotacionTimer = null;
+      }
+    }
+  });
+
+  // Reanudar al soltar
+  document.addEventListener('touchend', () => {
+    if (!rotacionTimer && promos.length > 1) {
+      resetTimer();
+    }
+  });
+
+  console.log('✅ Banner turista v2 listo');
 })();
 
 // ═══════════════════════════════════════════════════════

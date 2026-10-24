@@ -2666,63 +2666,234 @@ html{scroll-behavior:smooth}
 /* ═══════════════════════════════════════════════════════
    🎉 BANNER DE PROMOCIONES ARRIBA
    ═══════════════════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════════════════
+   🎨 BANNER TURISTA MODERNO — Comdiaz Shop v2
+   Thumbnails de productos reales + rotación constante
+   ═══════════════════════════════════════════════════════ */
 .shop-banner-promo {
   position: relative;
-  margin: 12px 12px 0;
-  padding: 14px 20px;
-  border-radius: 16px;
-  font-size:14px;
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: center;
-  color: #fff;
+  margin: 8px 12px 16px;
+  border-radius: 20px;
   overflow: hidden;
-  animation: promoSlideIn .5s ease;
-  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  min-height: 130px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.15);
+  animation: bannerEntry .6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.shop-banner-promo::before {
+@keyframes bannerEntry {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.shop-banner-promo.hidden { display: none; }
+
+/* Fondo con gradiente + patrón */
+.shop-banner-promo .banner-bg {
+  position: absolute;
+  inset: 0;
+  transition: background 0.8s ease;
+  z-index: 0;
+}
+.shop-banner-promo .banner-bg::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 15% 20%, rgba(255,255,255,.2), transparent 50%);
-  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.15), transparent 45%),
+    radial-gradient(circle at 85% 70%, rgba(255,255,255,.1), transparent 40%),
+    repeating-linear-gradient(45deg, transparent, transparent 25px, rgba(255,255,255,.03) 25px, rgba(255,255,255,.03) 26px);
+  z-index: 1;
 }
-.shop-banner-promo::after {
+.shop-banner-promo .banner-bg::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
-  animation: promoShine 4s infinite;
-  pointer-events: none;
-}
-@keyframes promoShine {
-  0%, 70% { left: -100%; }
-  100% { left: 200%; }
-}
-.shop-banner-promo.promo-gradient, .shop-banner-promo.gradient {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-}
-.shop-banner-promo.promo-green, .shop-banner-promo.green {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-}
-.shop-banner-promo.promo-yellow, .shop-banner-promo.yellow {
-  background: linear-gradient(135deg, var(--accent-3), #f59e0b);
-  color: var(--text);
-}
-.shop-banner-promo.promo-purple, .shop-banner-promo.purple {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
-}
-.shop-banner-promo.promo-orange {
-  background: linear-gradient(135deg, #ea580c, var(--accent-3));
-  color: var(--text);
-}
-.shop-banner-promo.promo-pink {
-  background: linear-gradient(135deg, #ec4899, #f43f5e);
-}
-.shop-banner-promo.promo-blue {
-  background: linear-gradient(135deg, var(--accent), #1e40af);
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.3) 100%);
+  z-index: 1;
 }
 
+/* Gradientes por color (dinámico) */
+.shop-banner-promo.color-gradient .banner-bg { background: linear-gradient(135deg, #003f7f 0%, #dc2626 100%); }
+.shop-banner-promo.color-yellow .banner-bg { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+.shop-banner-promo.color-purple .banner-bg { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+.shop-banner-promo.color-blue .banner-bg { background: linear-gradient(135deg, #0891b2 0%, #3b82f6 100%); }
+.shop-banner-promo.color-green .banner-bg { background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); }
+.shop-banner-promo.color-orange .banner-bg { background: linear-gradient(135deg, #ea580c 0%, #fbbf24 100%); }
+.shop-banner-promo.color-pink .banner-bg { background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); }
+
+/* Contenido central */
+.shop-banner-promo .banner-content {
+  position: relative;
+  z-index: 2;
+  padding: 18px 90px 18px 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 130px;
+  color: #fff;
+}
+.shop-banner-promo.color-yellow .banner-content,
+.shop-banner-promo.color-orange .banner-content { color: #0f172a; }
+
+/* Badge superior */
+.shop-banner-promo .banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.banner-badge.hot { background: #dc2626; color: #fff; }
+.banner-badge.sale { background: #fbbf24; color: #000; }
+.banner-badge.limited { background: #7c3aed; color: #fff; }
+.banner-badge.new { background: #0891b2; color: #fff; }
+.banner-badge.free { background: #16a34a; color: #fff; }
+
+/* Emoji + texto */
+.shop-banner-promo .banner-emoji {
+  font-size: 22px;
+  margin-bottom: 4px;
+  display: inline-block;
+  animation: emojiWiggle 3s ease-in-out infinite;
+}
+@keyframes emojiWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.05); }
+  75% { transform: rotate(8deg) scale(1.05); }
+}
+.shop-banner-promo .banner-texto {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.15);
+}
+.shop-banner-promo .banner-subtexto {
+  font-size: 11px;
+  opacity: .92;
+  font-weight: 500;
+  letter-spacing: .2px;
+}
+
+/* ═══ THUMBNAILS FLOTANTES DE PRODUCTOS ═══ */
+.shop-banner-promo .banner-thumbs {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  z-index: 3;
+  pointer-events: none;
+}
+.shop-banner-promo .banner-thumbs.left { left: 8px; align-items: flex-start; }
+.shop-banner-promo .banner-thumbs.right { right: 8px; align-items: flex-end; }
+
+.shop-banner-promo .banner-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  background: #fff;
+  animation: thumbFloat 4s ease-in-out infinite;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.shop-banner-promo .banner-thumb:nth-child(1) { animation-delay: 0s; }
+.shop-banner-promo .banner-thumb:nth-child(2) { animation-delay: 0.5s; }
+.shop-banner-promo .banner-thumb:nth-child(3) { animation-delay: 1s; }
+.shop-banner-promo .banner-thumb:nth-child(4) { animation-delay: 1.5s; }
+
+.shop-banner-promo .banner-thumb.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@keyframes thumbFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+.shop-banner-promo .banner-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ═══ INDICADORES DOTS ═══ */
+.shop-banner-promo .banner-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 4;
+}
+.shop-banner-promo .banner-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.4);
+  transition: all .3s;
+  cursor: pointer;
+}
+.shop-banner-promo .banner-dot.active {
+  width: 16px;
+  border-radius: 3px;
+  background: #fff;
+}
+.shop-banner-promo.color-yellow .banner-dot,
+.shop-banner-promo.color-orange .banner-dot {
+  background: rgba(0,0,0,.3);
+}
+.shop-banner-promo.color-yellow .banner-dot.active,
+.shop-banner-promo.color-orange .banner-dot.active {
+  background: #0f172a;
+}
+
+/* Animación de transición entre ofertas */
+.shop-banner-promo .banner-content.transitioning {
+  animation: contentSlide 0.5s ease;
+}
+@keyframes contentSlide {
+  0% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 420px) {
+  .shop-banner-promo .banner-content {
+    padding: 14px 76px 14px 76px;
+  }
+  .shop-banner-promo .banner-thumb {
+    width: 36px;
+    height: 36px;
+  }
+  .shop-banner-promo .banner-thumbs {
+    width: 76px;
+  }
+  .shop-banner-promo .banner-texto {
+    font-size: 15px;
+  }
+}
