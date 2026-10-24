@@ -519,6 +519,148 @@ textarea { min-height: 60px; resize: vertical; }
   opacity: 0;
 }
 
+
+/* ═══ Banner de plan (monetización) ═══ */
+.plan-banner {
+  margin: 0 12px 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  animation: slideDownBanner .35s ease;
+}
+@keyframes slideDownBanner {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.plan-banner.show { display: flex; }
+.plan-banner.info {
+  background: linear-gradient(135deg, #1e3a8a, #1e40af);
+  border: 1px solid #3b82f6;
+  color: #dbeafe;
+}
+.plan-banner.warn {
+  background: linear-gradient(135deg, #78350f, #92400e);
+  border: 1px solid #f59e0b;
+  color: #fef3c7;
+}
+.plan-banner.critical {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  border: 1px solid #ef4444;
+  color: #fee2e2;
+  animation: pulseBanner 2s infinite;
+}
+@keyframes pulseBanner {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.4); }
+  50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+.plan-banner.gracia {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  border: 2px solid #ef4444;
+  color: #fff;
+  animation: pulseBanner 1.5s infinite;
+}
+.plan-banner-icon { font-size: 24px; flex-shrink: 0; }
+.plan-banner-body { flex: 1; min-width: 0; }
+.plan-banner-title { font-weight: 800; font-size: 14px; margin-bottom: 2px; }
+.plan-banner-msg { font-size: 12px; opacity: .92; }
+.plan-banner-btn {
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.plan-banner.info .plan-banner-btn { background: #3b82f6; color: #fff; }
+.plan-banner.warn .plan-banner-btn { background: #f59e0b; color: #000; }
+.plan-banner.critical .plan-banner-btn,
+.plan-banner.gracia .plan-banner-btn { background: #fff; color: #7f1d1d; }
+
+/* Badge días restantes en card de plan */
+.plan-days-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  background: #334155;
+  color: #cbd5e1;
+  vertical-align: middle;
+}
+.plan-days-badge.info { background: #3b82f6; color: #fff; }
+.plan-days-badge.warn { background: #f59e0b; color: #000; }
+.plan-days-badge.critical { background: #ef4444; color: #fff; }
+
+/* Overlay de suspensión por pago */
+.plan-suspended-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #0f172a 0%, #450a0a 100%);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.plan-suspended-overlay.show { display: flex; }
+.plan-suspended-card {
+  background: #0f172a;
+  border: 2px solid #ef4444;
+  border-radius: 20px;
+  padding: 32px 24px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(239,68,68,.3);
+  animation: slideDownBanner .4s ease;
+}
+.plan-suspended-icon { font-size: 64px; margin-bottom: 16px; }
+.plan-suspended-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+.plan-suspended-msg {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.plan-suspended-msg b { color: #fbbf24; }
+.plan-suspended-cta {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  box-shadow: 0 8px 24px rgba(34,197,94,.4);
+}
+.plan-suspended-cta:hover { transform: translateY(-2px); }
+.plan-suspended-secondary {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 </style>
 <style>
 /* ── Photo uploader ── */
@@ -588,6 +730,16 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
       <div style="opacity:.9">Recibe avisos cuando te aprueben, cuando alguien compre o cuando tu plan esté por vencer. <b>Sin spam.</b></div>
       <button onclick="activarNotificaciones()" style="margin-top:10px;background:#fbbf24;color:#000;border:none;padding:10px 18px;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px">Activar ahora</button>
       <button onclick="cerrarBannerPush()" style="margin-top:10px;margin-left:8px;background:transparent;color:#fbbf24;border:1px solid #fbbf24;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">Más tarde</button>
+    </div>
+
+    <!-- Banner de estado del plan (se llena por JS) -->
+    <div class="plan-banner" id="planBanner">
+      <div class="plan-banner-icon" id="planBannerIcon">⏰</div>
+      <div class="plan-banner-body">
+        <div class="plan-banner-title" id="planBannerTitle">Tu plan vence pronto</div>
+        <div class="plan-banner-msg" id="planBannerMsg"></div>
+      </div>
+      <button class="plan-banner-btn" onclick="renovarPlan()">Renovar</button>
     </div>
 
     <div class="container">
@@ -2017,6 +2169,132 @@ window.forceRegisterPush = async function() {
     alert('Error: ' + (e.message || e) + '\n\nToca el panel azul para ver el detalle.');
   }
 };
+</script>
+
+
+<!-- Overlay de suspensión por falta de pago -->
+<div class="plan-suspended-overlay" id="planSuspendedOverlay">
+  <div class="plan-suspended-card">
+    <div class="plan-suspended-icon">🔒</div>
+    <div class="plan-suspended-title">Cuenta suspendida</div>
+    <div class="plan-suspended-msg">
+      Tu plan venció y tus productos ya no son visibles en la tienda.<br><br>
+      <b>No pierdes nada:</b> tus productos, cuota e historial se conservan intactos.<br><br>
+      Renueva ahora y todo vuelve al instante.
+    </div>
+    <button class="plan-suspended-cta" onclick="renovarPlan()">
+      💳 Renovar y reactivar
+    </button>
+    <button class="plan-suspended-secondary" onclick="logout()">
+      Cerrar sesión
+    </button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Estado del plan: banner, badge, overlay de suspensión
+// ═══════════════════════════════════════════════════════
+(function(){
+  const WA_ADMIN = '5351425691';  // número global para renovaciones
+
+  async function cargarPlanInfo() {
+    if (typeof TOKEN === 'undefined' || !TOKEN) return;
+    try {
+      const r = await fetch(API + '/api/seller/plan-info', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.ok) return;
+      renderPlanEstado(d);
+    } catch(_) {}
+  }
+
+  function renderPlanEstado(info) {
+    const banner = document.getElementById('planBanner');
+    const overlay = document.getElementById('planSuspendedOverlay');
+    const planValue = document.getElementById('sellerPlan');
+
+    // Badge de días restantes en la card de plan
+    if (planValue && info.diasRestantes !== null && info.diasRestantes !== undefined) {
+      // Limpiar badge anterior
+      const existente = planValue.querySelector('.plan-days-badge');
+      if (existente) existente.remove();
+      // Añadir badge si aplica
+      if (info.estadoPago === 'activo' || info.estadoPago === 'por_vencer' || info.estadoPago === 'gracia') {
+        const span = document.createElement('span');
+        span.className = 'plan-days-badge ' + (info.urgencia === 'critical' ? 'critical' : info.urgencia === 'warn' ? 'warn' : 'info');
+        const dias = info.diasRestantes;
+        span.textContent = dias > 1 ? dias + ' días' : dias === 1 ? '1 día' : dias === 0 ? 'Vence hoy' : 'Gracia';
+        planValue.appendChild(span);
+      }
+    }
+
+    // Overlay de suspensión
+    if (info.estadoPago === 'suspendido_pago') {
+      if (overlay) overlay.classList.add('show');
+      if (banner) banner.classList.remove('show');
+      return;
+    } else {
+      if (overlay) overlay.classList.remove('show');
+    }
+
+    // Banner según urgencia
+    if (!banner) return;
+
+    const icon = document.getElementById('planBannerIcon');
+    const title = document.getElementById('planBannerTitle');
+    const msg = document.getElementById('planBannerMsg');
+
+    // Reset clases
+    banner.className = 'plan-banner';
+
+    if (info.urgencia === 'none' || !info.mensaje) {
+      banner.classList.remove('show');
+      return;
+    }
+
+    if (info.urgencia === 'info') {
+      banner.classList.add('show', 'info');
+      icon.textContent = '⏰';
+      title.textContent = 'Tu plan vence pronto';
+      msg.textContent = info.mensaje;
+    } else if (info.urgencia === 'warn') {
+      banner.classList.add('show', 'warn');
+      icon.textContent = '⚠️';
+      title.textContent = 'Renueva pronto';
+      msg.textContent = info.mensaje;
+    } else if (info.urgencia === 'critical') {
+      if (info.estadoPago === 'gracia') {
+        banner.classList.add('show', 'gracia');
+        icon.textContent = '🔴';
+        title.textContent = 'Últimas 24 horas';
+        msg.textContent = info.mensaje;
+      } else {
+        banner.classList.add('show', 'critical');
+        icon.textContent = '🚨';
+        title.textContent = 'Últimas horas';
+        msg.textContent = info.mensaje;
+      }
+    }
+  }
+
+  window.renovarPlan = function() {
+    const planActual = document.getElementById('sellerPlan')?.textContent || 'tu plan';
+    const mensaje = 'Hola, quiero renovar mi plan ' + planActual + ' en Comdiaz Shop. Mi teléfono de vendedor es ' + (typeof sellerData !== 'undefined' && sellerData ? sellerData.telefono : '') + '.';
+    const url = 'https://wa.me/' + WA_ADMIN + '?text=' + encodeURIComponent(mensaje);
+    window.open(url, '_blank');
+  };
+
+  // Cargar al inicio (tras 2s para que cargarPerfil termine)
+  setTimeout(cargarPlanInfo, 2500);
+
+  // Refrescar cada 5 min (por si cambia el estado)
+  setInterval(cargarPlanInfo, 5 * 60 * 1000);
+
+  console.log('✅ Plan info helper listo');
+})();
 </script>
 
 </body>
