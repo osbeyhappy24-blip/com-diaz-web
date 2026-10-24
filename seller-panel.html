@@ -947,7 +947,7 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
         <div class="plan-banner-title" id="planBannerTitle">Tu plan vence pronto</div>
         <div class="plan-banner-msg" id="planBannerMsg"></div>
       </div>
-      <button class="plan-banner-btn" onclick="abrirPaymentModal()">Renovar</button>
+      <button class="plan-banner-btn" onclick="alert('[TEST] Clic detectado'); try{abrirPaymentModal()}catch(e){alert('[ERROR] '+e.message)}">Renovar</button>
     </div>
 
     <div class="container">
@@ -2390,7 +2390,7 @@ window.forceRegisterPush = async function() {
       <b>No pierdes nada:</b> tus productos, cuota e historial se conservan intactos.<br><br>
       Renueva ahora y todo vuelve al instante.
     </div>
-    <button class="plan-suspended-cta" onclick="abrirPaymentModal()">
+    <button class="plan-suspended-cta" onclick="alert('[TEST] Clic detectado'); try{abrirPaymentModal()}catch(e){alert('[ERROR] '+e.message)}">
       💳 Renovar y reactivar
     </button>
     <button class="plan-suspended-secondary" onclick="logout()">
@@ -2752,16 +2752,7 @@ window.forceRegisterPush = async function() {
 <!-- fallback removido, se reinserta al final -->
 
 
-<script>
-// FALLBACK: asegurar abrirPaymentModal
-(function(){
-  if (typeof window.abrirPaymentModal === 'function') return;
-  window.abrirPaymentModal = async function() {
-    const m = document.getElementById('paymentModal');
-    if (m) m.classList.add('show');
-  };
-})();
-</script>
+<!-- fallback eliminado, versión defensiva está en el script de pagos -->
 
 </body>
 </html>
