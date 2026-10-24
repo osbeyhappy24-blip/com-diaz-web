@@ -1632,7 +1632,7 @@ async function handleMultiplePhotos(event) {
   for (let i = 0; i < files.length; i++) {
     statusEl.textContent = `Comprimiendo ${i + 1} de ${files.length}...`;
     try {
-      const compressedBlob = await comprimirImagen(files[i], 1200, 0.82);
+      const compressedBlob = await comprimirImagen(files[i], 900, 0.75);
       colaProductos.push({ blob: compressedBlob, url: null, datos: {} });
     } catch (err) {
       console.error('Error comprimiendo:', files[i].name, err);
@@ -1648,59 +1648,97 @@ async function handleMultiplePhotos(event) {
   alert('✅ ' + colaProductos.length + ' foto(s) comprimidas. Subiendo...');
   console.log('[UPLOAD] Fotos comprimidas:', colaProductos.length);
 
-  // 2. Subir TODAS las fotos con delay 2.5s + retry 429
-  //    (garantiza no pegar rate limit 30/min)
+  // 2. Subir TODAS las fotos con retry 2x + SKIP en fallos
+  let exitos = 0;
+  let fallos = 0;
+  let fallosIds = [];
+
   for (let i = 0; i < colaProductos.length; i++) {
     const prod = colaProductos[i];
-    if (prod.url) continue;
+    if (prod.url) { exitos++; continue; }
 
     // Delay entre uploads (excepto primero)
     if (i > 0) await new Promise(r => setTimeout(r, 2500));
 
-    statusEl.textContent = `Subiendo foto ${i + 1} de ${colaProductos.length}...`;
-    
+    statusEl.textContent = `Subiendo foto ${i + 1} de ${colaProductos.length}... (${exitos} ok, ${fallos} fallos)`;
+
     let exito = false;
-    for (let intento = 0; intento < 3 && !exito; intento++) {
+    let ultimoError = '';
+
+    for (let intento = 0; intento < 2 && !exito; intento++) {
       try {
         const b64 = await blobToBase64(prod.blob);
+        console.log(`[UPLOAD] Foto ${i+1} intento ${intento+1}, size=${Math.round(b64.length/1024)}KB`);
+
         const r = await fetch(API + '/api/upload-image', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + TOKEN
           },
-          body: JSON.stringify({ image: b64, nombre: 'seller_' + Date.now() + '.jpg' })
+          body: JSON.stringify({ image: b64, nombre: 'seller_' + Date.now() + '_' + i + '.jpg' })
         });
 
         if (r.status === 401) {
-          toast('Sesion expirada. Vuelve a iniciar sesion.', 'err');
+          statusEl.textContent = 'Sesion expirada';
+          alert('Sesion expirada. Vuelve a iniciar sesion.');
           setTimeout(() => logout(), 1500);
           return;
         }
         if (r.status === 429) {
-          statusEl.textContent = `Limite alcanzado. Esperando 60s... (${i + 1}/${colaProductos.length})`;
+          statusEl.textContent = `Rate limit. Esperando 60s... (${i + 1}/${colaProductos.length})`;
           await new Promise(r => setTimeout(r, 60000));
           continue;
         }
+        if (r.status === 413) {
+          ultimoError = 'Foto muy grande (413)';
+          console.error('[UPLOAD] 413 payload too large en foto', i+1, 'size:', Math.round(b64.length/1024), 'KB');
+          break;
+        }
+
+        if (!r.ok) {
+          ultimoError = 'HTTP ' + r.status;
+          throw new Error('HTTP ' + r.status);
+        }
+
         const d = await r.json();
         if (d.ok && d.url) {
           prod.url = d.url;
           exito = true;
+          exitos++;
+          console.log(`[UPLOAD] Foto ${i+1} OK:`, d.url.substring(0, 50));
         } else {
-          throw new Error(d.error || 'fallo upload');
+          ultimoError = d.error || 'sin URL';
+          throw new Error(ultimoError);
         }
       } catch(e) {
-        if (intento < 2) {
-          statusEl.textContent = `Error foto ${i + 1}. Reintento ${intento + 1}/3...`;
+        ultimoError = e.message || 'error de red';
+        console.error(`[UPLOAD] Foto ${i+1} intento ${intento+1} fallo:`, e.message);
+        if (intento < 1) {
+          statusEl.textContent = `Error foto ${i + 1}. Reintento...`;
           await new Promise(r => setTimeout(r, 3000));
         }
       }
     }
+
     if (!exito) {
-      statusEl.textContent = `Fallo definitivo en foto ${i + 1}. Continuando con las demas...`;
+      fallos++;
+      fallosIds.push(i + 1);
+      console.warn(`[UPLOAD] Foto ${i+1} FALLO definitivo: ${ultimoError}`);
+      statusEl.textContent = `Foto ${i+1} falló (${ultimoError}). Continuando...`;
+      await new Promise(r => setTimeout(r, 1000));
     }
   }
 
+  // Resumen final visible
+  const resumen = `✅ ${exitos} subidas, ❌ ${fallos} fallidas`;
+  statusEl.textContent = resumen;
+  console.log('[UPLOAD] ' + resumen, fallosIds.length ? 'Fotos fallidas: ' + fallosIds.join(', ') : '');
+
+  if (fallos > 0) {
+    var NL = String.fromCharCode(10);
+    alert(resumen + NL + NL + 'Fotos fallidas: ' + fallosIds.join(', ') + NL + NL + 'Las fotos OK se usaran para los formularios.');
+  }
   // 3. Todas subidas → iniciar formularios
   const subidas = colaProductos.filter(p => p.url).length;
   statusEl.textContent = `✅ ${subidas}/${colaProductos.length} fotos subidas. Iniciando formularios...`;
