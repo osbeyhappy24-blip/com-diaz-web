@@ -2134,3 +2134,100 @@ cargarCatalogo();
 
   console.log('✅ Historial de pedidos listo');
 })();
+
+
+// ═══════════════════════════════════════════════════════
+// HERO BANNER — Comdiaz Shop
+// ═══════════════════════════════════════════════════════
+(function comdiaz_hero_v1() {
+  function actualizarStats() {
+    try {
+      const st = window.state || {};
+      const prods = st.products || [];
+      const locales = prods.filter(p => p.tipo === 'local' || p._isLocal || p.source === 'local');
+      const elP = document.getElementById('heroStatProductos');
+      const elL = document.getElementById('heroStatLocales');
+      if (elP && prods.length > 0) elP.textContent = prods.length.toLocaleString();
+      if (elL && locales.length > 0) elL.textContent = locales.length.toLocaleString();
+    } catch(_) {}
+  }
+
+  window.heroBuscar = function() {
+    const inp = document.getElementById('heroSearchInput');
+    if (!inp) return;
+    const q = (inp.value || '').trim();
+    if (!q) return;
+    const mainSearch = document.getElementById('searchInput');
+    if (mainSearch) {
+      mainSearch.value = q;
+      mainSearch.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const productsEl = document.getElementById('products');
+    if (productsEl) {
+      productsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  window.heroVerTodo = function() {
+    const productsEl = document.getElementById('products');
+    if (productsEl) {
+      productsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Actualizar stats cada 2s (hasta que carguen productos)
+  let intentos = 0;
+  const timer = setInterval(() => {
+    actualizarStats();
+    intentos++;
+    if (intentos > 15) clearInterval(timer);
+  }, 2000);
+
+  // Si el usuario hace Enter en el hero, ya lo maneja el form onsubmit
+  console.log('✅ Hero banner listo');
+})();
+
+// ═══════════════════════════════════════════════════════
+// BADGES DE PRODUCTO — engancha las cards existentes
+// ═══════════════════════════════════════════════════════
+(function comdiaz_badges_v1() {
+  function aplicarBadges() {
+    document.querySelectorAll('.product-card').forEach(card => {
+      if (card.querySelector('.product-badge')) return;
+
+      // Detectar tipo por clases o data
+      let tipo = 'ebay';
+      const src = card.dataset.source || '';
+      const text = card.textContent || '';
+      if (card.classList.contains('local') || src === 'local' || text.includes('Local')) {
+        tipo = 'local';
+      } else if (card.dataset.sellerId || src === 'seller') {
+        tipo = 'seller';
+      }
+
+      const badge = document.createElement('div');
+      badge.className = 'product-badge ' + tipo;
+      if (tipo === 'local') badge.textContent = '🇨🇺 Local';
+      else if (tipo === 'seller') badge.textContent = '🏪 Verificado';
+      else badge.textContent = '🌐 Importado';
+
+      card.style.position = 'relative';
+      card.insertBefore(badge, card.firstChild);
+    });
+  }
+
+  // Aplicar tras cada render (MutationObserver en products)
+  const observer = new MutationObserver(() => {
+    setTimeout(aplicarBadges, 100);
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const cont = document.getElementById('products');
+    const featured = document.getElementById('featuredProducts');
+    if (cont) observer.observe(cont, { childList: true, subtree: false });
+    if (featured) observer.observe(featured, { childList: true, subtree: false });
+    setTimeout(aplicarBadges, 500);
+  });
+
+  console.log('✅ Badges de producto listos');
+})();

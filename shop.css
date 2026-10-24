@@ -1,22 +1,33 @@
 /* Comdiaz Shop - Estilos */
 
 :root{
-  --accent:#7c3aed;
-  --accent-2:#ec4899;
-  --bg:#f8f9fc;
+  /* 🇨🇺 Paleta cubana */
+  --accent:#003f7f;           /* azul colonial */
+  --accent-2:#dc2626;         /* rojo vibrante */
+  --accent-3:#fbbf24;         /* amarillo sol */
+  --accent-dark:#002a56;      /* azul profundo */
+  --accent-light:#dbeafe;     /* azul cielo pálido */
+  --bg:#faf7f2;               /* blanco hueso */
   --card:#ffffff;
-  --text:#1a1a2e;
-  --muted:#6b7280;
-  --border:#e5e7eb;
-  --shadow:0 2px 8px rgba(0,0,0,.06);
-  --shadow-hover:0 8px 24px rgba(124,58,237,.15);
-  --radius:12px;
+  --text:#0f172a;             /* negro profundo */
+  --muted:#64748b;            /* gris pizarra */
+  --border:#e2e8f0;
+  --shadow:0 2px 8px rgba(0,63,127,.08);
+  --shadow-hover:0 12px 32px rgba(0,63,127,.18);
+  --radius:14px;
   --wa:#25d366;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --font-display:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 }
+
+/* Importar fuentes cubanas (display + sans) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-family:var(--font-sans);
   background:var(--bg);
   color:var(--text);
   min-height:100vh;
@@ -2078,3 +2089,412 @@ html{scroll-behavior:smooth}
   color: #1e40af;
 }
 .pedido-card-track b { font-family: monospace; }
+
+
+/* ═══════════════════════════════════════════════════════
+   🇨🇺 REDISEÑO CUBANO — Comdiaz Shop
+   Añadido 24 Oct 2026
+   ═══════════════════════════════════════════════════════ */
+
+/* ── HERO BANNER ── */
+.shop-hero {
+  margin: 0 0 20px;
+  padding: 32px 20px 28px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+.shop-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(251,191,36,.25) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(255,255,255,.1) 0%, transparent 45%),
+    repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,255,255,.03) 40px, rgba(255,255,255,.03) 42px);
+  pointer-events: none;
+}
+.shop-hero::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251,191,36,.3), transparent 70%);
+  pointer-events: none;
+}
+.shop-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.shop-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(251,191,36,.2);
+  border: 1px solid rgba(251,191,36,.5);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 14px;
+}
+.shop-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 6vw, 38px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 20px rgba(0,0,0,.15);
+}
+.shop-hero-title span {
+  color: var(--accent-3);
+  text-shadow: 0 2px 16px rgba(251,191,36,.4);
+}
+.shop-hero-subtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: .95;
+  margin-bottom: 22px;
+  max-width: 480px;
+}
+.shop-hero-search {
+  display: flex;
+  gap: 8px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  max-width: 520px;
+  margin-bottom: 16px;
+}
+.shop-hero-search svg {
+  align-self: center;
+  margin-left: 10px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.shop-hero-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 6px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  background: transparent;
+  color: var(--text);
+}
+.shop-hero-search input::placeholder {
+  color: var(--muted);
+}
+.shop-hero-search button {
+  background: linear-gradient(135deg, var(--accent-3), #f59e0b);
+  color: var(--text);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: transform .2s, box-shadow .2s;
+  white-space: nowrap;
+}
+.shop-hero-search button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(251,191,36,.4);
+}
+.shop-hero-ctas {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.shop-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .2s;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+}
+.shop-hero-cta.primary {
+  background: #fff;
+  color: var(--accent);
+}
+.shop-hero-cta.primary:hover {
+  background: var(--accent-3);
+  color: var(--text);
+}
+.shop-hero-cta.secondary {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,.35);
+  backdrop-filter: blur(8px);
+}
+.shop-hero-cta.secondary:hover {
+  background: rgba(255,255,255,.22);
+}
+.shop-hero-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,.15);
+}
+.shop-hero-stat {
+  display: flex;
+  flex-direction: column;
+}
+.shop-hero-stat-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent-3);
+}
+.shop-hero-stat-label {
+  font-size: 10px;
+  opacity: .8;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 2px;
+}
+
+/* ── PROMOCIONES REDISEÑADAS ── */
+.shop-banner {
+  margin: 0 12px 16px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+  animation: promoSlideIn .5s ease;
+}
+@keyframes promoSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.shop-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.15), transparent 50%);
+  pointer-events: none;
+}
+.shop-banner.promo-gradient,
+.shop-banner.gradient {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+}
+.shop-banner.promo-green,
+.shop-banner.green {
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+}
+.shop-banner.promo-yellow {
+  background: linear-gradient(135deg, var(--accent-3) 0%, #f59e0b 100%);
+  color: var(--text);
+}
+.shop-banner.promo-purple {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+}
+.shop-banner.promo-orange {
+  background: linear-gradient(135deg, #ea580c 0%, var(--accent-3) 100%);
+  color: var(--text);
+}
+.shop-banner.promo-pink {
+  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+}
+.shop-banner.promo-blue {
+  background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+}
+
+/* ── CARDS DE PRODUCTO MEJORADAS ── */
+.product-card {
+  position: relative;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent-light);
+}
+.product-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(0,63,127,.05);
+  opacity: 0;
+  transition: opacity .25s;
+}
+.product-card:hover::after {
+  opacity: 1;
+}
+
+/* Badge por tipo (local/verificado/ebay) */
+.product-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.product-badge.local {
+  background: linear-gradient(135deg, var(--accent-3), #f59e0b);
+  color: var(--text);
+}
+.product-badge.seller {
+  background: linear-gradient(135deg, var(--accent), #1e40af);
+  color: #fff;
+}
+.product-badge.ebay {
+  background: rgba(15,23,42,.92);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+/* Precio más destacado */
+.product-price {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Botón de compra más premium */
+.product-buy {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.product-buy::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.3), transparent);
+  transform: translateX(-100%);
+  transition: transform .4s;
+}
+.product-buy:hover::before {
+  transform: translateX(100%);
+}
+.product-buy:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37,211,102,.35);
+}
+
+/* Tabs mejorados */
+.tabs {
+  padding: 0 12px;
+  gap: 8px;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: all .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tab.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,63,127,.3);
+}
+.tab:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Section title con carácter cubano */
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  position: relative;
+  padding-left: 4px;
+}
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 22px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  border-radius: 2px;
+}
+
+/* Header con acento cubano */
+.shop-header {
+  box-shadow: 0 2px 16px rgba(0,63,127,.06);
+}
+.logo-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  transition: transform .3s;
+}
+.logo-badge:hover {
+  transform: rotate(-5deg) scale(1.05);
+}
+#shopTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+/* Footer cubano */
+.shop-footer {
+  background: linear-gradient(180deg, transparent 0%, rgba(0,63,127,.03) 100%);
+  border-top: 1px solid var(--border);
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .shop-hero {
+    padding: 24px 16px 22px;
+  }
+  .shop-hero-stats {
+    gap: 14px;
+  }
+  .shop-hero-stat-num {
+    font-size: 17px;
+  }
+}

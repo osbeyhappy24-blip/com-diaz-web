@@ -8,7 +8,7 @@
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0f172a",
-  "theme_color": "#7c3aed",
+  "theme_color": "#003f7f",
   "lang": "es",
   "categories": ["shopping"],
   "icons": [

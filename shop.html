@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=8">
+<link rel="stylesheet" href="shop.css?v=30">
 <link rel="icon" type="image/png" href="favicon-shop.png">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -70,16 +70,56 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="all">Todo</button>
-    <button class="tab" data-tab="ebay">eBay</button>
-    <button class="tab" data-tab="temu">Temu</button>
-    <button class="tab" data-tab="amazon">Amazon</button>
-    <button class="tab" data-tab="walmart">Walmart</button>
-    <button class="tab" data-tab="local">Locales</button>
+    <button class="tab active" data-tab="all">🌎 Todo</button>
+    <button class="tab" data-tab="local">🇨🇺 Locales</button>
+    <button class="tab" data-tab="ebay">🌐 Importados</button>
   </div>
 
   <div id="categoriesBar" class="categories-bar"></div>
 </header>
+
+
+
+<!-- 🇨🇺 HERO BANNER CUBANO -->
+<section class="shop-hero" id="shopHero">
+  <div class="shop-hero-inner">
+    <div class="shop-hero-badge">🇨🇺 Comdiaz Shop · Cuba</div>
+    <h2 class="shop-hero-title">Lo que buscas, <span>más cerca</span> que nunca</h2>
+    <p class="shop-hero-subtitle">
+      Productos locales de Cuba e importados de eBay, con envío directo. Compra fácil por WhatsApp.
+    </p>
+    <form class="shop-hero-search" onsubmit="event.preventDefault(); heroBuscar();">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input id="heroSearchInput" type="search" placeholder="¿Qué estás buscando hoy?" autocomplete="off">
+      <button type="submit">Buscar</button>
+    </form>
+    <div class="shop-hero-ctas">
+      <button class="shop-hero-cta primary" onclick="heroVerTodo()">
+        🛍 Ver catálogo
+      </button>
+      <a class="shop-hero-cta secondary" href="seller.html">
+        🏪 Quiero vender
+      </a>
+    </div>
+    <div class="shop-hero-stats">
+      <div class="shop-hero-stat">
+        <span class="shop-hero-stat-num" id="heroStatProductos">—</span>
+        <span class="shop-hero-stat-label">Productos</span>
+      </div>
+      <div class="shop-hero-stat">
+        <span class="shop-hero-stat-num" id="heroStatLocales">—</span>
+        <span class="shop-hero-stat-label">Locales</span>
+      </div>
+      <div class="shop-hero-stat">
+        <span class="shop-hero-stat-num">24/7</span>
+        <span class="shop-hero-stat-label">Disponible</span>
+      </div>
+    </div>
+  </div>
+</section>
 
 <main class="shop-main">
   <div id="loading" class="loading">
@@ -137,7 +177,7 @@
       <p class="live-search-hint">Busca en eBay directamente con miles de productos</p>
     </div>
     <button id="liveSearchBtn" class="live-search-btn">🔍 Buscar <b id="liveQuery"></b> en eBay</button>
-    <button id="liveSearchAllBtn" class="live-search-btn live-search-btn-all" style="display:none;background:linear-gradient(135deg,#7c3aed,#ec4899)">🌐 Buscar también en Temu, Amazon, Walmart</button>
+    
   </div>
 
   <div id="empty" class="empty hidden">
@@ -200,7 +240,7 @@
 <div id="toast" class="toast"></div>
 
 <script src="wa-helper.js?v=1"></script>
-<script src="shop.js?v=99"></script>
+<script src="shop.js?v=30"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
