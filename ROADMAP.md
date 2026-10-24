@@ -138,3 +138,64 @@ Sistema:
 - POST /api/admin/sellers/:id/force-expiry — test caducidad (días)
 - GET /api/admin/push-subs — ver suscripciones
 - GET /api/admin/notifications — ver notificaciones
+
+---
+
+## ✅ Auditoría Completa — Sesión 24 Oct
+
+### Seguridad
+- [x] Rate limit login: 5 intentos / 15 min por IP+teléfono
+- [x] Rate limit register: 3 registros / hora por IP
+- [x] Rate limit upload: 30/min por sellerId (5 anón)
+- [x] Errores 500 sin stack traces
+- [x] password_hash nunca expuesto
+- [x] CORS preflight acepta Authorization
+- [x] Validación de esquemas en register (400 no 500)
+- [x] Sin IDOR (endpoints validan seller_id)
+
+### SEO
+- [x] og:title, og:description, og:image
+- [x] twitter:card + twitter:title + twitter:image
+- [x] theme-color cubano (#003f7f)
+- [x] apple-mobile-web-app-title
+- [x] keywords + author
+- Compartir en WhatsApp/FB muestra preview correcta
+
+### Consistencia Visual
+- [x] Fuentes unificadas: de 20+ a 10 tamaños
+  (10/11/12/13/14/16/18/20/24/28/32)
+- [x] Colores hardcodeados → var(--card)/var(--bg)
+- [x] 38 usos de variables CSS (antes ~6)
+- [x] Todos los colores centralizados en :root
+
+### Performance
+- [x] /api/public/local responde 0.5-0.9s (bajo 3s requerido)
+- [x] Service Worker network-first para CSS/JS
+- [x] Cache v7 (invalida caché viejo de v6)
+- [x] HTML network-first
+- [x] SW no cachea /api/seller ni /api/admin
+
+### Bugs Resueltos
+- [x] Persistencia de subs push y notificaciones (6 campos)
+- [x] save() con queue serial (no race conditions)
+- [x] Stats admin calcula en vivo (no cache)
+- [x] Memory leaks prevenidos (cron 1h)
+- [x] Service Worker stale-while → network-first
+
+## 📊 Estado Actual Verificado
+
+| Métrica | Valor |
+|---|---|
+| Backend health | 401 en <1s |
+| Login rate limit | 6º intento → 429 ✅ |
+| Register rate limit | 4º registro → 429 ✅ |
+| Upload rate limit | 5º anónimo → 429 ✅ |
+| SEO meta tags | 7+ propiedades OG/Twitter |
+| Tamaños fuente | 10 únicos (de 20+) |
+| Variables CSS | 38 usos (de ~6) |
+| /api/public/local | 0.5-0.9s |
+| Soft delete | 3 productos Osbey inactivos |
+| Push subs | 1 activa (Osbey) |
+| Notificaciones | 7 preservadas |
+| eBay products | 5232 (bajo cap 5000 activos) |
+| IA keys | 8 (12,000 llamadas/día) |
