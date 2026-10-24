@@ -668,7 +668,7 @@ textarea { min-height: 60px; resize: vertical; }
   inset: 0;
   background: rgba(0,0,0,.75);
   backdrop-filter: blur(4px);
-  z-index: 10002;
+  z-index: 999999 !important;
   display: none;
   align-items: center;
   justify-content: center;
@@ -947,7 +947,7 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
         <div class="plan-banner-title" id="planBannerTitle">Tu plan vence pronto</div>
         <div class="plan-banner-msg" id="planBannerMsg"></div>
       </div>
-      <button class="plan-banner-btn" onclick="alert('[TEST] Clic detectado'); try{abrirPaymentModal()}catch(e){alert('[ERROR] '+e.message)}">Renovar</button>
+      <button class="plan-banner-btn" onclick="abrirPaymentModal()">Renovar</button>
     </div>
 
     <div class="container">
@@ -2390,7 +2390,7 @@ window.forceRegisterPush = async function() {
       <b>No pierdes nada:</b> tus productos, cuota e historial se conservan intactos.<br><br>
       Renueva ahora y todo vuelve al instante.
     </div>
-    <button class="plan-suspended-cta" onclick="alert('[TEST] Clic detectado'); try{abrirPaymentModal()}catch(e){alert('[ERROR] '+e.message)}">
+    <button class="plan-suspended-cta" onclick="abrirPaymentModal()">
       💳 Renovar y reactivar
     </button>
     <button class="plan-suspended-secondary" onclick="logout()">
@@ -2603,11 +2603,17 @@ window.forceRegisterPush = async function() {
   };
 
   window.abrirPaymentModal = function() {
-    // DIAGNÓSTICO: mostrar en pantalla qué pasa
     try {
+      // Ocultar overlay de suspensión temporalmente
+      const overlaySuspend = document.getElementById('planSuspendedOverlay');
+      if (overlaySuspend) {
+        overlaySuspend.classList.remove('show');
+        overlaySuspend.setAttribute('data-hidden-by-payment', 'true');
+      }
+      
       const modal = document.getElementById('paymentModal');
       if (!modal) {
-        alert('ERROR: Elemento paymentModal no encontrado en la pagina');
+        console.error('ERROR: Elemento paymentModal no encontrado en la pagina\'');
         return;
       }
       
@@ -2624,7 +2630,7 @@ window.forceRegisterPush = async function() {
       cargarMetodosYRenderizar();
       
     } catch(e) {
-      alert('ERROR al abrir modal: ' + (e.message || e));
+      console.error('ERROR al abrir modal: \' + (e.message || e)');
     }
   };
 
@@ -2668,8 +2674,22 @@ window.forceRegisterPush = async function() {
   }
 
   window.cerrarPaymentModal = function() {
-    document.getElementById('paymentModal').classList.remove('show');
+    const modal = document.getElementById('paymentModal');
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
     _metodoSeleccionado = null;
+    
+    // Restaurar overlay de suspensión si el usuario no pagó
+    const overlaySuspend = document.getElementById('planSuspendedOverlay');
+    if (overlaySuspend && overlaySuspend.getAttribute('data-hidden-by-payment') === 'true') {
+      overlaySuspend.removeAttribute('data-hidden-by-payment');
+      // Solo restaurar si sigue suspendido
+      if (typeof _planInfo !== 'undefined' && _planInfo && _planInfo.estadoPago === 'suspendido_pago') {
+        overlaySuspend.classList.add('show');
+      }
+    }
   };
 
   window.confirmarPago = async function() {
