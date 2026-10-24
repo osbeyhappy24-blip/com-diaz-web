@@ -2681,10 +2681,26 @@ window.forceRegisterPush = async function() {
   };
 
   // Asegurar que abrirPaymentModal esté disponible globalmente
-  window.abrirPaymentModal = abrirPaymentModal;
+  // (eliminado: window.abrirPaymentModal se define abajo)
 
   console.log('✅ Sistema de pago listo');
 })();
+</script>
+
+
+<!-- fallback removido, se reinserta al final -->
+
+
+<script>
+// FALLBACK: asegurar abrirPaymentModal
+(function(){
+  if (typeof window.abrirPaymentModal === 'function') return;
+  window.abrirPaymentModal = async function() {
+    const m = document.getElementById('paymentModal');
+    if (m) m.classList.add('show');
+  };
+})();
+</script>
 
 </body>
 </html>
