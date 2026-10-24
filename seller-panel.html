@@ -1401,6 +1401,11 @@ console.log('✅ Photo uploader + quota cache ready');
       Cargando...
     </div>
   </div>
+  <div style="padding:10px;border-top:1px solid #1e293b;background:#0b1220;text-align:center">
+    <button onclick="forceRegisterPush()" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:100%">
+      🔄 Conectar notificaciones push
+    </button>
+  </div>
 </div>
 
 <!-- Toast container -->
@@ -1901,6 +1906,117 @@ console.log('✅ Photo uploader + quota cache ready');
   // Ejecutar al cargar
   setTimeout(checkEstado, 1000);
 })();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// Conexión push forzada con diagnóstico paso a paso
+// ═══════════════════════════════════════════════════════
+window.forceRegisterPush = async function() {
+  const steps = [];
+  function step(name, ok, detail) {
+    steps.push((ok ? '✅' : '❌') + ' ' + name + (detail ? ': ' + String(detail).slice(0, 100) : ''));
+    if (typeof window._showPushDebug === 'function') {
+      window._showPushDebug('🔄 Conexión Push — Paso a Paso', steps);
+    }
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  if (typeof TOKEN === 'undefined' || !TOKEN) {
+    step('TOKEN', false, 'No estás logueado');
+    return;
+  }
+  step('TOKEN', true, TOKEN.slice(0, 20) + '...');
+
+  if (!('Notification' in window)) { step('Notification API', false); return; }
+  step('Notification API', true, Notification.permission);
+
+  if (Notification.permission !== 'granted') {
+    step('Permiso', false, 'Es "' + Notification.permission + '". Toca 🔔 Activar primero.');
+    return;
+  }
+  step('Permiso', true);
+
+  if (!('serviceWorker' in navigator)) { step('Service Worker API', false); return; }
+  step('Service Worker API', true);
+
+  if (!('PushManager' in window)) { step('PushManager API', false, 'WebView no soporta push'); return; }
+  step('PushManager API', true);
+
+  try {
+    // Registrar SW
+    let reg = await navigator.serviceWorker.getRegistration('/service-worker.js');
+    if (!reg) {
+      step('Registrando SW', true);
+      reg = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+    } else {
+      step('SW ya registrado', true);
+    }
+    await navigator.serviceWorker.ready;
+    step('SW ready', true, reg.active ? 'activo' : 'pendiente');
+
+    // ¿Ya suscrito?
+    let sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      step('Suscripción existente', true, sub.endpoint.slice(0, 60));
+      // Re-guardar en backend
+      const save = await fetch(API + '/api/seller/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ subscription: sub })
+      });
+      const sdata = await save.json();
+      step('Guardado en backend', sdata.ok, sdata.ok ? 'total=' + sdata.total : sdata.error);
+      if (sdata.ok) alert('✅ Push ya conectado. Cuando llegue una notif debería aparecer en la barra de Android.');
+      return;
+    }
+    step('Sin suscripción previa', true);
+
+    // Fetch VAPID
+    const vr = await fetch(API + '/api/public/vapid-key');
+    const vd = await vr.json();
+    if (!vd.ok || !vd.publicKey || vd.publicKey.length < 20) {
+      step('VAPID key', false, 'vacía o inválida');
+      return;
+    }
+    step('VAPID key', true, vd.publicKey.slice(0, 20) + '...');
+
+    // Suscribir
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vd.publicKey)
+    });
+    step('Suscripción creada', true, sub.endpoint.slice(0, 60));
+
+    // Guardar en backend
+    const save = await fetch(API + '/api/seller/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ subscription: sub })
+    });
+    const sdata = await save.json();
+    step('Guardado en backend', sdata.ok, sdata.ok ? 'total=' + sdata.total : (sdata.error || 'desconocido'));
+
+    if (sdata.ok) {
+      alert('✅ ¡Push conectado! Ahora cuando el admin te mande una notif, aparecerá en la barra de Android con sonido y vibración.\n\nPrueba: pide al admin que te suspenda y te apruebe de nuevo.');
+    } else {
+      alert('❌ Error guardando en backend: ' + (sdata.error || 'desconocido'));
+    }
+  } catch(e) {
+    step('❌ ERROR', false, e.message || String(e));
+    console.error('[FORCE-PUSH]', e);
+    alert('Error: ' + (e.message || e) + '\n\nToca el panel azul para ver el detalle.');
+  }
+};
 </script>
 
 </body>
