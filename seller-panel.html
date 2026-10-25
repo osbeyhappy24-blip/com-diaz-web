@@ -1077,17 +1077,8 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
     </div>
   </div>
 
-  <!-- Botón añadir -->
-  <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
-
-  <!-- Lista de productos -->
-  <div class="products-list" id="productsList">
-    <div class="empty">Cargando productos...</div>
-  </div>
-
-</div>
-
-    <!-- 🎁 Referidos -->
+  
+    <!-- 🎁 Referidos (MOVIDO ARRIBA) -->
     <div class="referral-section" id="referralSection" style="display:none">
       <div class="referral-header">
         <div class="referral-header-icon">🎁</div>
@@ -1115,6 +1106,19 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
         Comparte tu link en grupos. Cuando alguien se registre como vendedor y sea aprobado, recibes +5 productos.
       </div>
     </div>
+
+    <!-- Botón añadir -->
+  <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
+
+  <!-- Lista de productos -->
+  <div class="products-list" id="productsList">
+    <div class="empty">Cargando productos...</div>
+  </div>
+
+</div>
+
+    <!-- 🎁 Referidos -->
+    
 
     <!-- Modal nuevo/editar producto -->
 <div class="modal hidden" id="productModal">
@@ -3031,11 +3035,28 @@ window.forceRegisterPush = async function() {
     }
   };
 
-  window.compartirWA = function() {
+  window.compartirWA = async function() {
     if (!_refWA) return;
     var mensaje = 'Hola! Te invito a vender en Comdiaz Shop, la tienda cubana.' + NL + NL +
       'Registrate con mi link:' + NL + _refWA + NL + NL +
       'Tendras hasta 200 productos para vender, envio por WhatsApp y notificaciones automaticas.';
+
+    // 1. Intentar modal nativo Android (WhatsApp, Facebook, Telegram, Email...)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Comdiaz Shop - Te invito a vender',
+          text: mensaje,
+          url: _refWA
+        });
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        console.warn('[SHARE] navigator.share falló:', e.message);
+      }
+    }
+
+    // 2. Fallback: WhatsApp directo
     var url = 'https://wa.me/?text=' + encodeURIComponent(mensaje);
     window.open(url, '_blank');
   };
