@@ -2253,7 +2253,7 @@ cargarCatalogo();
       const r = await fetch(API_BASE + '/api/public/config');
       if (!r.ok) return;
       const cfg = await r.json();
-      const shopCfg = cfg.shopConfig || cfg;
+      const shopCfg = cfg.config || cfg.shopConfig || cfg;
       rotacionSeg = Number(shopCfg.rotacionSeg) || 4;
 
       const promosBase = (Array.isArray(shopCfg.promociones) ? shopCfg.promociones : [])
