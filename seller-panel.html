@@ -1057,12 +1057,14 @@ textarea { min-height: 60px; resize: vertical; }
   display: none;
   overflow-y: auto;
   padding: 12px;
+  scroll-padding-bottom: 100px;
+  -webkit-overflow-scrolling: touch;
 }
 .bulk-modal-overlay.show { display: block; }
 .bulk-container {
   max-width: 600px;
   margin: 0 auto;
-  padding-bottom: 180px; /* ← espacio para el botón fixed */
+  padding-bottom: 240px; /* ← espacio amplio para el botón fixed */
 }
 .bulk-header {
   position: sticky;
@@ -1225,6 +1227,8 @@ textarea { min-height: 60px; resize: vertical; }
   font-size: 13px;
   color: #f1f5f9;
   font-family: inherit;
+  scroll-margin-bottom: 120px;  /* ← deja espacio debajo al enfocar */
+  scroll-margin-top: 120px;
 }
 .bulk-form-field input:focus,
 .bulk-form-field select:focus,
@@ -1246,7 +1250,7 @@ textarea { min-height: 60px; resize: vertical; }
   right: 0;
   background: #0f172a;
   border-top: 1px solid #334155;
-  padding: 12px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(0,0,0,.4);
 }
@@ -1269,6 +1273,108 @@ textarea { min-height: 60px; resize: vertical; }
   opacity: .5;
   cursor: not-allowed;
 }
+
+
+/* ═══ Banner recuperar borradores (A.2) ═══ */
+.recover-draft-banner {
+  margin: 0 12px 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border: 1px solid #a855f7;
+  border-radius: 14px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(124,58,237,.4);
+  animation: draftSlideIn .5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 50;
+}
+@keyframes draftSlideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.recover-draft-banner.hidden { display: none; }
+.recover-draft-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  animation: draftPulse 2s ease-in-out infinite;
+}
+@keyframes draftPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.recover-draft-body { flex: 1; }
+.recover-draft-title {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+.recover-draft-sub {
+  font-size: 11px;
+  opacity: .9;
+}
+.recover-draft-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.recover-draft-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s;
+  white-space: nowrap;
+}
+.recover-draft-btn:active { transform: scale(.95); }
+.recover-draft-btn-recover {
+  background: #fff;
+  color: #7c3aed;
+}
+.recover-draft-btn-discard {
+  background: rgba(0,0,0,.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.3);
+}
+.recover-draft-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.3);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Indicador de "guardado" en el modal */
+.bulk-draft-status {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(34, 197, 94, .95);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 100000;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.bulk-draft-status.show { opacity: 1; }
 
 </style>
 
@@ -1375,6 +1481,23 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
     </div>
 
     <!-- Botón añadir -->
+  
+<!-- 💾 Banner recuperar borradores (A.2) -->
+<div class="recover-draft-banner hidden" id="recoverDraftBanner">
+  <button class="recover-draft-close" onclick="descartarBorrador()" title="Descartar">✕</button>
+  <div class="recover-draft-icon">💾</div>
+  <div class="recover-draft-body">
+    <div class="recover-draft-title">Tienes un borrador sin guardar</div>
+    <div class="recover-draft-sub" id="recoverDraftSub">N productos pendientes</div>
+  </div>
+  <div class="recover-draft-actions">
+    <button class="recover-draft-btn recover-draft-btn-recover" onclick="recuperarBorrador()">Recuperar</button>
+  </div>
+</div>
+
+<!-- Indicador de guardado (aparece sobre el modal) -->
+<div class="bulk-draft-status" id="bulkDraftStatus">💾 Guardando...</div>
+
   <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
 
   <!-- Lista de productos -->
@@ -3327,9 +3450,21 @@ _bulkItems = items.map(function(item) {
       };
     });
     renderBulkForms();
+    if (typeof window.programarAutosave === 'function') window.programarAutosave();
     poblarProvincias();
     var modal = document.getElementById('bulkModal');
-    if (modal) { modal.classList.add('show'); document.body.style.overflow = 'hidden'; }
+    if (modal) {
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(function() {
+        var firstForm = document.querySelector('#bulkFormsList .bulk-form-card');
+        if (firstForm) {
+          firstForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          var overlay = document.getElementById('bulkModal');
+          if (overlay) overlay.scrollTop = Math.max(0, overlay.scrollTop - 100);
+        }
+      }, 300);
+    }
   };
 
   window.cerrarBulkModal = function() {
@@ -3382,7 +3517,10 @@ _bulkItems = items.map(function(item) {
   }
 
   window.actualizarCampoBulk = function(idx, campo, valor) {
-    if (_bulkItems[idx]) _bulkItems[idx].datos[campo] = valor;
+    if (_bulkItems[idx]) {
+      _bulkItems[idx].datos[campo] = valor;
+      if (typeof window.programarAutosave === 'function') window.programarAutosave();
+    }
   };
 
   window.toggleRemoverBulk = function(idx) {
@@ -3529,6 +3667,7 @@ _bulkItems = items.map(function(item) {
       if (typeof toast === 'function') toast(resumen, 'ok');
     }
     if (exitos > 0) {
+      if (typeof window.borrarBorradorBulk === 'function') window.borrarBorradorBulk();
       setTimeout(function() {
         cerrarBulkModal();
         if (typeof cargarPerfil === 'function') cargarPerfil();
@@ -3539,6 +3678,202 @@ _bulkItems = items.map(function(item) {
   };
 
   console.log('Bulk v2 A.1 listo');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// A.2 — IndexedDB para borradores offline
+// ═══════════════════════════════════════════════════════
+(function comdiaz_bulk_idb() {
+  var DB_NAME = 'comdiaz_bulk';
+  var DB_VERSION = 1;
+  var STORE = 'drafts';
+  var _idb = null;
+  var _autosaveTimer = null;
+  var _borradorActualId = null;
+
+  function abrirIDB() {
+    if (_idb) return Promise.resolve(_idb);
+    return new Promise(function(resolve, reject) {
+      var req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE)) {
+          db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+        }
+      };
+      req.onsuccess = function() { _idb = req.result; resolve(_idb); };
+      req.onerror = function() { reject(req.error); };
+    });
+  }
+
+  function blobToBase64P(blob) {
+    return new Promise(function(resolve, reject) {
+      var r = new FileReader();
+      r.onload = function() { resolve(r.result); };
+      r.onerror = function() { reject(r.error); };
+      r.readAsDataURL(blob);
+    });
+  }
+
+  function base64ToBlob(dataUrl) {
+    var arr = dataUrl.split(',');
+    var mime = arr[0].match(/:(.*?);/)[1];
+    var bstr = atob(arr[1]);
+    var n = bstr.length;
+    var u8 = new Uint8Array(n);
+    for (var i = 0; i < n; i++) u8[i] = bstr.charCodeAt(i);
+    return new Blob([u8], { type: mime });
+  }
+
+  window.guardarBorradorBulk = async function() {
+    if (!window._bulkItemsRef || window._bulkItemsRef.length === 0) return;
+    try {
+      var db = await abrirIDB();
+      var itemsSerializables = await Promise.all(window._bulkItemsRef.map(async function(it) {
+        return {
+          datos: it.datos,
+          url: it.url,
+          removed: it.removed,
+          done: it.done,
+          blobBase64: it.blob ? await blobToBase64P(it.blob) : null
+        };
+      }));
+      var activos = itemsSerializables.filter(function(it) { return !it.removed && !it.done; });
+      if (activos.length === 0) {
+        await window.borrarBorradorBulk();
+        return;
+      }
+      var tx = db.transaction(STORE, 'readwrite');
+      var store = tx.objectStore(STORE);
+      // Si hay un borrador actual, lo actualizamos; si no, creamos uno nuevo
+      var data = {
+        fecha: Date.now(),
+        items: itemsSerializables
+      };
+      if (_borradorActualId) data.id = _borradorActualId;
+      var req = store.put(data);
+      req.onsuccess = function() {
+        _borradorActualId = req.result;
+        mostrarEstadoGuardado();
+      };
+    } catch(e) {
+      console.warn('[IDB] Error guardando borrador:', e);
+    }
+  };
+
+  function mostrarEstadoGuardado() {
+    var el = document.getElementById('bulkDraftStatus');
+    if (!el) return;
+    el.textContent = '💾 Borrador guardado';
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 1500);
+  }
+
+  window.borrarBorradorBulk = async function() {
+    try {
+      var db = await abrirIDB();
+      var tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).clear();
+      _borradorActualId = null;
+      console.log('[IDB] Borradores eliminados');
+    } catch(e) {
+      console.warn('[IDB] Error borrando:', e);
+    }
+  };
+
+  window.recuperarUltimoBorrador = async function() {
+    try {
+      var db = await abrirIDB();
+      var tx = db.transaction(STORE, 'readonly');
+      var store = tx.objectStore(STORE);
+      return new Promise(function(resolve, reject) {
+        var req = store.getAll();
+        req.onsuccess = function() {
+          var all = req.result || [];
+          if (all.length === 0) { resolve(null); return; }
+          all.sort(function(a, b) { return b.fecha - a.fecha; });
+          resolve(all[0]);
+        };
+        req.onerror = function() { reject(req.error); };
+      });
+    } catch(e) {
+      console.warn('[IDB] Error recuperando:', e);
+      return null;
+    }
+  };
+
+  // Auto-save con debounce de 1.5s
+  window.programarAutosave = function() {
+    if (_autosaveTimer) clearTimeout(_autosaveTimer);
+    _autosaveTimer = setTimeout(function() {
+      window.guardarBorradorBulk();
+    }, 1500);
+  };
+
+  // ═══ Recuperar borrador al cargar el panel ═══
+  setTimeout(async function() {
+    if (typeof TOKEN === 'undefined' || !TOKEN) return;
+    var borrador = await window.recuperarUltimoBorrador();
+    if (!borrador || !borrador.items || borrador.items.length === 0) return;
+
+    var activos = borrador.items.filter(function(it) { return !it.removed && !it.done; });
+    if (activos.length === 0) {
+      await window.borrarBorradorBulk();
+      return;
+    }
+
+    // Mostrar banner de recuperar
+    var banner = document.getElementById('recoverDraftBanner');
+    var sub = document.getElementById('recoverDraftSub');
+    if (banner) {
+      if (sub) {
+        var fecha = new Date(borrador.fecha);
+        var hace = Math.round((Date.now() - borrador.fecha) / 60000);
+        var tiempoStr = hace < 60 ? 'hace ' + hace + ' min' : 'hace ' + Math.round(hace / 60) + ' h';
+        sub.textContent = activos.length + ' producto(s) pendientes · ' + tiempoStr;
+      }
+      banner.classList.remove('hidden');
+      _borradorActualId = borrador.id;
+    }
+  }, 2500);
+
+  // ═══ Botón Recuperar ═══
+  window.recuperarBorrador = async function() {
+    var borrador = await window.recuperarUltimoBorrador();
+    if (!borrador || !borrador.items) { alert('No hay borrador'); return; }
+
+    var items = borrador.items.map(function(it) {
+      var blob = it.blobBase64 ? base64ToBlob(it.blobBase64) : null;
+      return {
+        blob: blob,
+        urlPreview: blob ? URL.createObjectURL(blob) : '',
+        url: it.url || null,
+        removed: it.removed || false,
+        done: it.done || false,
+        datos: it.datos || {}
+      };
+    });
+
+    if (typeof window.abrirBulkModal === 'function') {
+      window.abrirBulkModalRecuperado(items, borrador.id);
+    }
+    var banner = document.getElementById('recoverDraftBanner');
+    if (banner) banner.classList.add('hidden');
+  };
+
+  // ═══ Botón Descartar ═══
+  window.descartarBorrador = async function() {
+    if (!confirm('¿Descartar el borrador? Se perderán los datos no guardados.')) return;
+    await window.borrarBorradorBulk();
+    var banner = document.getElementById('recoverDraftBanner');
+    if (banner) banner.classList.add('hidden');
+    if (typeof toast === 'function') toast('Borrador descartado', 'ok');
+  };
+
+  console.log('[IDB] IndexedDB listo');
 })();
 </script>
 
