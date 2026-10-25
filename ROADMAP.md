@@ -1,169 +1,165 @@
-# Comdiaz Shop — Roadmap Completo
-
-**Última actualización:** 24 Oct 2026, 23:45
+# Comdiaz Shop — ROADMAP
+**Última actualización:** 25 Oct 2026
 
 ---
 
-## ✅ COMPLETADO — Sesión 23-24 Oct
+## ✅ COMPLETADO HOY (Sesión 25 Oct)
 
-### 🎨 Shop rediseño cubano
-- [x] Paleta: azul colonial #003f7f, rojo #dc2626, amarillo sol #fbbf24
-- [x] Hero banner con buscador destacado
-- [x] Header vivo: 4 botones animados (Vender/Pedidos/Carrito/WhatsApp)
-- [x] Tabs: Todo 🌎 / Locales 🇨🇺 / Importados 🌐
-- [x] Cards con badge por tipo + avatar flotante para sellers
-- [x] SEO completo: og:title, og:image, twitter:card
-- [x] **Banner turista v2 con thumbnails de productos** (recién completado)
-
-### 🎨 Banner turista v2 (nuevo)
-- [x] 5 ofertas rotando cada 4s (envío gratis, -25%, 2x1, nuevos, sin comisiones)
-- [x] 4 thumbnails de productos reales (2 izq + 2 der, flotando)
-- [x] Thumbnails elegidos por filtro (local/ebay/all/seller)
-- [x] Badge dinámico (HOT/SALE/LIMITED/NEW/FREE) con pulse
-- [x] Emoji con wiggle animation
-- [x] Dots indicadores clickables
-- [x] Pausa al tocar, reanuda al soltar
-- [x] 7 gradientes de color (azul, rojo, amarillo, morado, verde, naranja, rosa)
-- [x] Endpoints admin GET/PUT /api/admin/shop/promociones
-- [x] Rotación configurable (3-15s)
-
-### 📸 Panel vendedor
-- [x] Login, cuota, plan, estado
-- [x] Carga masiva: N fotos → N formularios
-- [x] Compresión cliente (JPEG 1200px @82% ~150KB)
-- [x] Comparador 3 planes en registro
-- [x] Timeout 20s + retry visible
-- [x] Modal de renovación con métodos dinámicos
-- [x] Sección "🎁 Comparte y gana" (referidos)
-
-### 🔔 Notificaciones in-app
-- [x] Badge + panel + toast + swipe + tiempo relativo
-- [x] Persistencia: sobrevive redeploys
-- [x] Aislamiento: cada vendedor recibe solo lo suyo
-- [x] 10 tipos (aprobado, suspendido, plan_*, pago_*, referral_bonus)
-
-### ⚠️ Web Push Android (PARCIAL)
-- [x] Backend: FCM acepta (status 201)
-- [x] Suscripción activa (1)
-- [x] Service Worker con handler push + notificationclick
-- [x] In-app funciona 100%
-- [ ] **Push a barra Android NO aparece** (limitación de TWA/PWABuilder)
-  - Bug conocido de TWA generadas por PWABuilder
-  - FCM acepta pero Android no muestra
-  - Solución: recompilar APK con Bubblewrap o usar PWA Chrome
-
-### 💳 Sistema de pagos
-- [x] Modal con Zelle / USDT / CUP
-- [x] Flujo: solicitar → WhatsApp admin → aprobar → +30d
-- [x] Cola admin con badge
-- [x] 7 endpoints backend
-- [x] Notificación Telegram al admin
-- [x] Notif in-app al aprobar
-- [x] Verificado end-to-end (Osbey pagó $5 Pro)
-
-### 🎁 Sistema de referidos
-- [x] Códigos determinísticos (sobreviven redeploys)
-- [x] Link único: seller.html?ref=CODIGO
-- [x] Registro con referred_by_code
-- [x] Resolución lazy al aprobar (robusto)
-- [x] +5 productos por referido aprobado
-- [x] Cap: 3/mes, tope +50 acumulado
+### Sistema de referidos (100%)
+- [x] Notif `referral_registered` al referente INMEDIATAMENTE
+- [x] Notif `referral_bonus` al aprobar al referido (+5 productos)
+- [x] Código determinístico (sobrevive redeploys)
+- [x] Resolución lazy del referred_by
 - [x] Dashboard admin con ranking 🥇🥈🥉
 - [x] Endpoint repair para casos edge
-- [x] **VERIFICADO:** Osbey tiene 1 referido, +5 productos, cuota 205
+- [x] Probado con usuario real (Yaumel Gonzales - no usó link, sin bonus)
 
-### 💰 Monetización con caducidad
-- [x] 3 planes: Básico (50/$0), Pro (200/$5), Premium (∞/$15)
-- [x] Ciclo: 7/3/1 días aviso → gracia 24h → suspendido_pago
-- [x] Cron diario 09:00
-- [x] Banner dinámico 5 urgencias + overlay bloqueante
-- [x] Botón Renovar → modal de pago
-- [x] Force-expiry para tests
+### Robustez y escalabilidad
+- [x] Rate limit adaptativo: 20/40/80/120 por plan
+- [x] Caché 30s en `/api/public/local` (4-6x más rápido: 6s → 1.3s)
+- [x] Circuit breaker imgbb (5 fallos → 60s cooldown)
+- [x] Invalidación de caché al crear producto
+- [x] Fix bodyLimit Fastify 1MB → 5MB
 
-### 🔒 Seguridad
-- [x] Rate limit login: 5/15min por IP+teléfono
-- [x] Rate limit register: 3/hora por IP
-- [x] Rate limit upload: 30/min por sellerId
-- [x] CORS preflight Authorization
-- [x] password_hash nunca expuesto
-- [x] Errores sin stack traces
-- [x] Aislamiento: sellers no se ven entre sí
+### Bugs resueltos
+- [x] CSS header botones se perdió (re-añadido)
+- [x] Banner JS leía `cfg.shopConfig` pero API devuelve `cfg.config`
+- [x] Compresión fotos: 1200px@82% → 900px@75% (~80KB)
+- [x] Upload con retry 2x + skip failures + resumen
+- [x] Notificación al referente se insertó en lugar incorrecto (fix definitivo)
 
-### 🧹 Robustez
-- [x] Persistencia 6 campos críticos
-- [x] save() con queue serial
-- [x] Cron 1h limpia rateLimitMap/failMap/loginAttempts
-- [x] Stats admin calcula en vivo (no cache)
-- [x] Service Worker network-first para CSS/JS
-
-### 📱 WhatsApp por producto (VERIFICADO)
-**3 flujos independientes funcionando correctamente:**
-- [x] **eBay (importados)** → WhatsApp global (5351425691)
-- [x] **Manuales (APK privada)** → WhatsApp global (5351425691)
-- [x] **De vendedores** → WhatsApp del vendedor específico
-- [x] **Botón Compartir referidos** → WhatsApp sin número (vendedor elige destino)
-- [x] `/api/public/seller-contact` con validación UUID
-- [x] Rate limit 10/min por IP
-- [x] TWA-aware: whatsapp:// en APK
-
----
-
-## 📊 Estado verificado (24 Oct 23:45)
-
+### Estado actual verificado
 | Métrica | Valor |
 |---|---|
-| Sellers aprobados | 1 (Osbey, Pro, 205 cuota) |
-| Sellers suspendidos | 7 (tests) |
+| Sellers aprobados | 2 (Osbey Pro + Yaumel basico) |
+| Sellers suspendidos | 9 (tests) |
 | Productos activos | 11 (10 manuales + 1 seller) |
-| Push subs activas | 1 |
-| Referidos activos | 1 (+5 aplicado a Osbey) |
-| Pagos procesados | 1 ($5 Pro) |
-| Notificaciones históricas | 10+ |
-| Promociones activas | 5 manuales + 5 IA |
-| Rotación banner | 4s |
+| Push subs | 1 activa (Osbey) |
+| Referidos activos | 0 (Yaumel sin código) |
+| Pagos procesados | 1 ($5 Pro Osbey) |
+| Promociones banner | 5 manuales + 5 IA |
 
 ---
 
-## 🔴 PRÓXIMA SESIÓN — Prioridad alta
+## 🔴 BUG CONOCIDO — Banner con textos ficticios
 
-### 1. Push Android en TWA (bloqueante para UX)
-**Estado:** FCM 201 pero Android no muestra.
+**Problema:** 4 de 5 textos del banner son inventados:
+- ❌ "-25% en productos locales" — no hay descuentos reales
+- ❌ "Compra 2 y llévate 3" — no existe la promo
+- ❌ "Envío gratis en pedidos +$50" — no hay regla configurada
+- ❌ "Nuevos productos cada semana" — sin productos "nuevos" reales
+- ✅ "Sin comisiones por WhatsApp" — **es la única real**
 
+**Solo los thumbnails son reales** (4 fotos de productos reales del catálogo).
+
+**Fix propuesto para próxima sesión (45 min):**
+1. Reemplazar los 5 textos por 5 REALES dinámicos:
+   - "X productos disponibles" (contar del catálogo)
+   - "Desde $[min] USD" (producto más barato real)
+   - "X vendedores verificados" (contar aprobados)
+   - "Compra directo por WhatsApp" (sin comisiones real)
+   - "Productos cubanos e importados" (verdad)
+2. Deshabilitar los 5 aiBanners hasta que IA analice catálogo real
+3. Habilitar IA real cuando esté bien configurada
+
+---
+
+## 🔴 PRÓXIMA SESIÓN — Prioridad ALTA
+
+### 1. Banners REALES dinámicos (45 min)
+**Motivo:** el banner es lo PRIMERO que ve el usuario. Textos ficticios generan desconfianza.
+
+**Implementación:**
+- 5 textos dinámicos calculados del catálogo real
+- 5 aiBanners deshabilitados (o IA con contexto real)
+- Cache-buster nuevo
+
+### 2. Carga masiva UI estilo APK privada (90 min, 3 sub-bloques)
+**Lo que pediste:** flujo como `bulk.js` de tu APK privada.
+
+**A.1 — UI formularios por foto (30 min)**
+- Lista vertical: 1 formulario por foto
+- Preview de cada foto
+- Campos: título, precio USD/CUP, categoría, provincia, municipio, estado, stock
+- Botón ✕ para eliminar foto del lote
+- Sección "🌍 Aplicar a TODOS": provincia/municipio/categoría
+- Botón "💾 Guardar N productos"
+
+**A.2 — Guardado en IndexedDB (30 min)**
+- Cada cambio se guarda automáticamente en IndexedDB
+- Si cierras app → recupera formularios al abrir
+- Estado "borrador guardado"
+
+**A.3 — Cola de sync con retries (30 min)**
+- Subir fotos + crear productos con backoff exponencial (1s→2s→4s→8s→16s)
+- Sección "⏳ Pendientes de sincronizar" con badge
+- Botón "🔄 Sincronizar ahora"
+- Estado visible por producto (pendiente/sincronizando/completado/error)
+
+### 3. Push Android en TWA (variable)
+**Estado:** FCM acepta 201 pero Android no muestra.
+**Causa:** limitación de PWABuilder/Bubblewrap (bug conocido).
 **Opciones:**
-- [ ] A) Recompilar APK con Bubblewrap actualizado
-- [ ] B) Recompilar con PWABuilder (versión más reciente)
-- [ ] C) Documentar que vendedores usen PWA Chrome para push
-- [ ] D) Investigar configuración AndroidManifest (notification channels)
+- A) Recompilar APK con Bubblewrap actualizado
+- B) Usar PWA de Chrome para push (funciona 100%)
+- C) Notificaciones nativas Android (FCM directo)
 
-**Recomendación:** empezar con C (documentar), luego A/B si hay tiempo.
+---
 
-### 2. APK admin completa (dashboard)
-**14 items faltantes identificados:**
+## 🟡 PRÓXIMAS SESIONES — Prioridad MEDIA
+
+### 4. APK admin completa (dashboard)
+**14 items faltantes:**
 - [ ] Editor de métodos de pago (Zelle/USDT/CUP editables)
 - [ ] Dashboard financiero (ingresos por plan, proyección)
-- [ ] Ver productos de un vendedor (modal)
-- [ ] Editar notas internas
-- [ ] Log de auditoría (quién aprobó/cuándo)
+- [ ] Ver productos de cada vendedor (modal desde lista)
+- [ ] Editar notas internas del vendedor
+- [ ] Log de auditoría (quién aprobó/cuándo/qué)
 - [ ] Historial completo de pagos
 - [ ] Historial de notificaciones por seller
 - [ ] Detección de abuso (mismo IP múltiples sellers)
-- [ ] Exportar CSV (vendedores, pagos, productos)
-- [ ] Preview del banner de la Shop en vivo
+- [ ] Exportar CSV (vendedores, pagos, productos, referidos)
+- [ ] Preview del banner de la Shop en tiempo real
 - [ ] Editor de categorías
-- [ ] Ver productos ocultos
+- [ ] Ver productos ocultos (inactivos de sellers suspendidos)
 - [ ] Reactivar vendedor suspendido_pago manual
 - [ ] Editor de promociones del banner (UI)
 
-### 3. IA en procesos (expandir)
-**Ya implementado:**
+### 5. Notificaciones a compradores (diseñado)
+**Diseño aprobado:**
+- Agrupación por provincia (no 1x1)
+- Resumen cada 12h: "25 productos nuevos en La Habana"
+- Cap 2/día por comprador
+- Cooldown 4h entre notifs
+- Filtro: solo productos con imagen + precio > 0
+
+**Auto-activar:**
+- Chrome Android requiere user gesture
+- Popup al 3er producto visto
+- Incentivo: "Recibe ofertas de tu provincia"
+
+**Fases (4 bloques, ~2h):**
+1. Backend subscribe-buyer + tracking provincia
+2. Cron agrupador cada 12h
+3. Frontend popup
+4. Test end-to-end
+
+### 6. Destacados pagados (nueva monetización)
+- [ ] Vendedor paga $1 para destacar producto 7 días
+- [ ] Admin aprueba destacado
+- [ ] Badge ⭐ DESTACADO pulsante
+- [ ] Tracking de vistas
+
+### 7. IA en procesos (expandir)
+**Ya funciona:**
 - [x] Descripción de productos
 - [x] Título optimizado
-- [x] Banners promocionales (5 generados)
-- [x] Copiloto (chat asistente)
+- [x] Banners (genéricos, necesitan mejorar)
+- [x] Copiloto chat
 
 **A implementar:**
 - [ ] Sugerencia de precio óptimo
-- [ ] Análisis de competencia
+- [ ] Análisis de competencia (vs eBay)
 - [ ] Predicción de ventas
 - [ ] Detección de fraude
 - [ ] Traducción eBay inglés → español
@@ -173,43 +169,13 @@
 
 ---
 
-## 🟡 PRÓXIMAS SESIONES — Prioridad media
-
-### 4. Notificaciones a compradores (diseñado)
-**Diseño aprobado:**
-- Agrupación por provincia (no 1x1)
-- Resumen cada 12h: "25 productos nuevos en La Habana"
-- Cap 2/día por comprador
-- Cooldown 4h entre notificaciones
-- Filtro: solo productos con imagen + precio > 0
-
-**Auto-activar (Chrome Android):**
-- Requiere user gesture (no se puede sin click)
-- Popup estratégico al 3er producto visto
-- Incentivo claro: "Recibe ofertas de tu provincia"
-- Recordatorio suave cada 7 días
-
-**Fases (4 bloques, ~2h):**
-1. Backend subscribe-buyer + tracking provincia
-2. Cron agrupador cada 12h
-3. Frontend popup estratégico
-4. Test end-to-end
-
-### 5. Destacados pagados (nueva monetización)
-- [ ] Vendedor paga $1 para destacar 7 días
-- [ ] Admin aprueba destacado
-- [ ] Badge ⭐ DESTACADO pulsante
-- [ ] Tracking de vistas por destacado
-
----
-
-## 🟢 BACKLOG — Prioridad baja
+## 🟢 BACKLOG — Prioridad BAJA
 
 ### Seguridad avanzada
-- [ ] 2FA para admin
-- [ ] Rotación PIN admin
-- [ ] Verificar email al registrar
-- [ ] Log de accesos admin
+- [ ] 2FA para admin (Google Authenticator)
+- [ ] Rotación automática PIN admin
+- [ ] Verificar email al registrarse
+- [ ] Log de accesos admin (IP, hora)
 - [ ] Detección de duplicados (mismo producto 2 sellers)
 
 ### Capacidad (mes 3-6)
@@ -217,6 +183,7 @@
 - [ ] Bump cap `state.sellerSubscriptions` 500 → 5000
 - [ ] Migrar notifs/subs a Supabase si crece >50%
 - [ ] Cron limpiador (notifs viejas >30d)
+- [ ] Caché extendido a otros endpoints
 
 ### UX
 - [ ] Sonido custom push (requiere TWA recompilado)
@@ -226,23 +193,22 @@
 
 ---
 
-## 🚨 Riesgos técnicos conocidos
+## 🚨 RIESGOS TÉCNICOS CONOCIDOS
 
 ### 1. Push Android en TWA
 - FCM acepta 201 pero Android no muestra
-- Bug de PWABuilder/Bubblewrap
+- Bug conocido de PWABuilder/Bubblewrap
 - **Workaround:** PWA Chrome para push
 
-### 2. Termux no tiene /tmp/
+### 2. Termux NO tiene /tmp/
 - Todos los `curl -o /tmp/x` fallan silenciosamente
-- Usar `$HOME/` o pipes `| head -c 500`
-- **Lección aprendida:** futuros scripts nunca usan /tmp/
+- **Regla:** usar `$HOME/` o pipes `| head -c 500`
+- Este bug nos hizo perder 2+ horas en diagnóstico falso
 
 ### 3. Cold start de Render
 - Backend free tier duerme tras 15min inactivo
 - Primera request tarda 30-50s
-- Frontend tiene timeout 20s + retry
-- **Workaround:** plan pagado o ping externo cada 10min
+- Frontend tiene timeout 45s + retry
 
 ### 4. Caps de storage
 | Storage | Cap | Se llena |
@@ -253,26 +219,33 @@
 | state.referrals | sin cap | ~año 2 |
 | Supabase seller_products | 500MB | 500,000 prod = año 3+ |
 
+### 5. Hero banner del CSS
+- Ya está aplicado pero la clase `.shop-hero` puede estar oculta
+- Verificar que `#shopHero` esté visible en `shop.html`
+
 ---
 
-## 📏 Reglas del proyecto
+## 📏 REGLAS DEL PROYECTO
 
-1. Nada de lo hecho se pierde (cambios aditivos con backup)
-2. Cache-busters en cada deploy (`?v=N`)
-3. Verificar en prod con curl ANTES de cerrar
+1. **Nada de lo hecho se pierde** (cambios aditivos con backup)
+2. **Cache-busters en cada deploy** (`?v=N`)
+3. **Verificar en prod con curl ANTES de cerrar**
 4. **Cada push = redeploy Render** (evitar pushes innecesarios)
 5. **NUNCA usar `/tmp/` en Termux** (no existe, usar `$HOME/` o pipes)
-6. Scripts reusables en `~/comdiaz/`:
-   - `test-e2e.sh` — backend end-to-end
-   - `audit.sh` — auditoría general
-   - `audit-crons.sh` — auditoría crones
-   - `audit-full.sh` — auditoría 13 secciones
-   - `audit-cierre.sh` — auditoría de cierre
-   - `audit-profunda.sh` — auditoría 9 áreas profundas
+6. **Añadir alert de diagnóstico** cuando algo falla silenciosamente
+7. **No dejar returns silenciosos** (siempre mostrar error al usuario)
+
+### Scripts reusables en ~/comdiaz/
+- `test-e2e.sh` — backend end-to-end
+- `audit.sh` — auditoría general
+- `audit-crons.sh` — auditoría crones
+- `audit-full.sh` — auditoría 13 secciones
+- `audit-cierre.sh` — auditoría de cierre
+- `audit-profunda.sh` — auditoría 9 áreas profundas
 
 ---
 
-## 🔗 Links de producción
+## 🔗 LINKS DE PRODUCCIÓN
 
 - **Shop:** https://com-diaz-web.onrender.com/shop.html
 - **Seller register:** https://com-diaz-web.onrender.com/seller.html
@@ -281,76 +254,45 @@
 - **Backend:** https://com-diaz.onrender.com
 - **APK Drive:** https://drive.google.com/file/d/1YYad5ECgr8eDiWjWsip5D11md3ayuvxL/view
 - **Grupo WhatsApp:** https://chat.whatsapp.com/HVbGq9WJLgzLVSvhY9WDqh
-- **WhatsApp pedidos:** 5351425691
+- **WhatsApp admin:** 5351425691
+- **Osbey (vendedor real):** 5358980267
+- **Osbey código referido:** OSBEY02676H0
 
 ---
 
-## 🎯 Métricas de éxito (mes 1)
+## 💡 LECCIONES APRENDIDAS ESTA SESIÓN
 
-| Métrica | Meta | Actual |
-|---|---|---|
-| Descargas APK | 20+ | - |
-| Sellers registrados | 5+ | 1 |
-| Sellers aprobados | 3+ | 1 |
-| Productos en catálogo | 30+ | 11 |
-| Referidos activos | 2+ | 1 |
-| Pagos procesados | 2+ | 1 |
+### Sobre el entorno
+1. **Termux no tiene `/tmp/`** → falseó 5+ diagnósticos de "backend 0B"
+2. **Render tiene cold start** → primera request puede tardar 50s
+3. **Service Worker cachea agresivamente** → siempre limpiar después de deploy
+
+### Sobre el código
+1. **Los `\n` literales en heredocs de bash rompen JS** → usar `String.fromCharCode(10)`
+2. **El patrón de reemplazo Python puede fallar silenciosamente** → siempre verificar con `grep -c`
+3. **Balance de `<script>` y `</script>`** → siempre verificar 1:1
+4. **Los `catch (_)` silenciosos ocultan bugs** → añadir `console.error`
+
+### Sobre diagnóstico
+1. **Alert de prueba** > logs de consola (funciona sin chrome://inspect)
+2. **Probar 1 foto antes de 18** (validación incremental)
+3. **Verificar ubicación de funciones** después de insertar (`grep -n`)
 
 ---
 
-## ⏱️ Historial de sesiones
+## 📊 HISTORIAL DE SESIONES
 
 - **Sesión 22 Oct:** Panel vendedor (carga masiva, fotos)
 - **Sesión 23 Oct:** Notificaciones + monetización + auditoría
-- **Sesión 24 Oct:** Shop rediseño + pagos + referidos + banner v2 + auditoría
-
-### Logros sesión 24 Oct
-- 20+ commits
-- 15+ bugs resueltos
-- Shop rediseño cubano (100%)
-- Banner v2 con thumbnails de productos (100%)
-- Pagos end-to-end (100%)
-- Referidos end-to-end (100%)
-- Auditoría profunda 46 puntos (0 fallos críticos)
-- Bug persistencia datos críticos resuelto
-- WhatsApp por producto verificado (3 flujos correctos)
+- **Sesión 24 Oct:** Shop rediseño + pagos + referidos + banner v2
+- **Sesión 25 Oct:** Robustez + fixes referidos + caché + rate limit
+- **Próxima:** Banners reales + carga masiva UI + APK admin
 
 ---
 
-## 🔍 Verificaciones pendientes para próxima sesión
-
-### Banner v2 — probar en APK
-- [ ] Cerrar APK, limpiar caché Chrome, abrir
-- [ ] ¿Ves los thumbnails de productos?
-- [ ] ¿Rota cada 4s?
-- [ ] ¿Badges de color aparecen?
-- [ ] ¿Dots clickeables funcionan?
-
-### Sistema completo
-- [ ] Re-verificar after cold start
-- [ ] Confirmar 5 promos + 5 IA en Shop
-- [ ] Confirmar cuota 205 de Osbey
-- [ ] Confirmar 1 pago procesado
-
----
-
-## 📝 Estado de cuenta de Osbey (para referencia)
-
-- **ID:** d754d687-aff9-41c3-9aa7-aabd38042098
-- **Teléfono:** 5358980267
-- **Plan:** Pro ($5/mes)
-- **Cuota:** 205 productos (200 plan + 5 referidos)
-- **Expira:** 23/11/2026
-- **Código referido:** OSBEY02676H0
-- **Referidos activos:** 1
-- **Productos:** 3 (1 activo, 2 inactivos)
-
----
-
-**Para retomar:** dime "seguimos con Comdiaz" y leo este ROADMAP.
+**Para retomar:** di "seguimos con Comdiaz" y leo este ROADMAP.
 
 **Prioridades próxima sesión:**
-1. Verificar banner v2 en APK
-2. Push Android (diagnóstico profundo o workaround PWA)
-3. APK admin completa
-4. Notificaciones compradores (diseñado)
+1. Banners reales dinámicos (45 min)
+2. Carga masiva A.1 + A.2 + A.3 (90 min)
+3. Push Android (según tiempo)
