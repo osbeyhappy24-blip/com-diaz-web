@@ -3210,13 +3210,21 @@ window.forceRegisterPush = async function() {
       </div>
       <button class="bulk-close-btn" onclick="cerrarBulkModal()">✕</button>
     </div>
+    <!-- ⚠️ Banner de precaución -->
+    <div style="background: linear-gradient(135deg, rgba(251,191,36,.15), rgba(220,38,38,.1)); border: 1px solid rgba(251,191,36,.4); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 12px; color: #fbbf24; line-height: 1.4;">
+      <b>⚠️ Precaución:</b> Sube máximo <b>10 productos a la vez</b>. Si tienes más, hazlo en varias tandas para evitar errores de conexión.
+    </div>
 
     <!-- 🌍 Aplicar a todos -->
     <div class="bulk-global">
       <div class="bulk-global-title">🌍 Aplicar a TODOS los productos</div>
       <div class="bulk-global-row">
-        <input type="text" id="bulkProvincia" placeholder="Provincia">
-        <input type="text" id="bulkMunicipio" placeholder="Municipio">
+        <select id="bulkProvincia" onchange="actualizarMunicipiosBulk()">
+          <option value="">-- Provincia --</option>
+        </select>
+        <select id="bulkMunicipio">
+          <option value="">-- Municipio --</option>
+        </select>
       </div>
       <div class="bulk-global-row" style="grid-template-columns: 1fr;">
         <input type="text" id="bulkCategoria" placeholder="Categoría (opcional)">
@@ -3241,9 +3249,64 @@ window.forceRegisterPush = async function() {
   var _bulkItems = [];
   var _bulkBusy = false;
   var NL = String.fromCharCode(10);
+  // ═══ Datos de provincias y municipios de Cuba ═══
+  var CUBA_GEO = {
+    "Pinar del Río": ["Bahía Honda", "Candelaria", "Consolación del Sur", "Guane", "La Palma", "Los Palacios", "Mantua", "Minas de Matahambre", "Pinar del Río", "San Cristóbal", "San Juan y Martínez", "San Luis", "Sandino", "Viñales"],
+    "Artemisa": ["Alquízar", "Artemisa", "Bauta", "Caimito", "Guanajay", "Güira de Melena", "Mariel", "San Antonio de los Baños", "San Cristóbal", "Bahía Honda", "Candelaria", "San Luis"],
+    "La Habana": ["Arroyo Naranjo", "Boyeros", "Centro Habana", "Cerro", "Cotorro", "Diez de Octubre", "Guanabacoa", "Habana del Este", "Habana Vieja", "La Lisa", "Marianao", "Playa", "Plaza de la Revolución", "Regla", "San Miguel del Padrón"],
+    "Mayabeque": ["Batabanó", "Bejucal", "Güines", "Jaruco", "Madruga", "Melena del Sur", "Nueva Paz", "Quivicán", "San José de las Lajas", "San Nicolás de Bari", "Santa Cruz del Norte"],
+    "Matanzas": ["Calimete", "Cárdenas", "Ciénaga de Zapata", "Colón", "Jagüey Grande", "Jovellanos", "Limonar", "Los Arabos", "Martí", "Matanzas", "Pedro Betancourt", "Perico", "Unión de Reyes"],
+    "Cienfuegos": ["Abreus", "Aguada de Pasajeros", "Cienfuegos", "Cruces", "Cumanayagua", "Palmira", "Rodas", "Santa Isabel de las Lajas"],
+    "Villa Clara": ["Caibarién", "Camajuaní", "Cifuentes", "Corralillo", "Encrucijada", "Manicaragua", "Placetas", "Quemado de Güines", "Ranchuelo", "Remedios", "Sagua la Grande", "Santa Clara", "Santo Domingo"],
+    "Sancti Spíritus": ["Cabaiguán", "Fomento", "Jatibonico", "La Sierpe", "Sancti Spíritus", "Taguasco", "Trinidad", "Yaguajay"],
+    "Ciego de Ávila": ["Baraguá", "Bolivia", "Chambas", "Ciego de Ávila", "Ciro Redondo", "Florencia", "Majagua", "Morón", "Primero de Enero", "Venezuela"],
+    "Camagüey": ["Camagüey", "Carlos M. de Céspedes", "Esmeralda", "Florida", "Guáimaro", "Jimaguayú", "Minas", "Najasa", "Nuevitas", "Santa Cruz del Sur", "Sibanicú", "Sierra de Cubitas", "Vertientes"],
+    "Las Tunas": ["Amancio", "Colombia", "Jesús Menéndez", "Jobabo", "Majibacoa", "Manatí", "Puerto Padre", "Las Tunas"],
+    "Granma": ["Bartolomé Masó", "Bayamo", "Buey Arriba", "Campechuela", "Cauto Cristo", "Guisa", "Jiguaní", "Manzanillo", "Media Luna", "Niquero", "Pilón", "Río Cauto", "Yara"],
+    "Holguín": ["Antilla", "Báguanos", "Banes", "Cacocum", "Calixto García", "Cueto", "Frank País", "Gibara", "Holguín", "Mayarí", "Moa", "Rafael Freyre", "Sagua de Tánamo", "Urbano Noris"],
+    "Santiago de Cuba": ["Contramaestre", "Guamá", "Julio Antonio Mella", "Palma Soriano", "San Luis", "Santiago de Cuba", "Segundo Frente", "Songo-La Maya", "Tercer Frente"],
+    "Guantánamo": ["Baracoa", "Caimanera", "El Salvador", "Guantánamo", "Imías", "Maisí", "Manuel Tames", "Niceto Pérez", "San Antonio del Sur", "Yateras"],
+    "Isla de la Juventud": ["Nueva Gerona"]
+  };
+
+  window.actualizarMunicipiosBulk = function() {
+    var provSel = document.getElementById('bulkProvincia');
+    var muniSel = document.getElementById('bulkMunicipio');
+    if (!provSel || !muniSel) return;
+    var prov = provSel.value;
+    muniSel.innerHTML = '<option value="">-- Municipio --</option>';
+    if (prov && CUBA_GEO[prov]) {
+      CUBA_GEO[prov].forEach(function(m) {
+        var opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        muniSel.appendChild(opt);
+      });
+    }
+  };
+
+  // Poblar provincias al cargar el modal
+  function poblarProvincias() {
+    var provSel = document.getElementById('bulkProvincia');
+    if (!provSel || provSel.options.length > 1) return;
+    Object.keys(CUBA_GEO).sort().forEach(function(p) {
+      var opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      provSel.appendChild(opt);
+    });
+  }
+
 
   window.abrirBulkModal = function(items) {
-    _bulkItems = items.map(function(item) {
+    
+    // ⚠️ Advertir si son muchos productos
+    if (items.length > 10) {
+      if (!confirm('Vas a subir ' + items.length + ' productos. Se recomienda máximo 10 a la vez para evitar errores. ¿Continuar?')) {
+        return;
+      }
+    }
+_bulkItems = items.map(function(item) {
       return {
         blob: item.blob,
         urlPreview: URL.createObjectURL(item.blob),
@@ -3254,6 +3317,7 @@ window.forceRegisterPush = async function() {
       };
     });
     renderBulkForms();
+    poblarProvincias();
     var modal = document.getElementById('bulkModal');
     if (modal) { modal.classList.add('show'); document.body.style.overflow = 'hidden'; }
   };
@@ -3363,12 +3427,35 @@ window.forceRegisterPush = async function() {
       try {
         if (!item.url) {
           var b64 = await blobToBase64(item.blob);
-          var rUpload = await fetch(API + '/api/upload-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-            body: JSON.stringify({ image: b64, nombre: 'bulk_' + Date.now() + '_' + i + '.jpg' })
-          });
-          if (!rUpload.ok) throw new Error('Upload HTTP ' + rUpload.status);
+          var rUpload;
+          var uploadIntentos = 0;
+          while (uploadIntentos < 3) {
+            try {
+              rUpload = await fetch(API + '/api/upload-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+                body: JSON.stringify({ image: b64, nombre: 'bulk_' + Date.now() + '_' + i + '.jpg' })
+              });
+              if (rUpload.ok) break;
+              // Si es error 429 o 5xx, reintentar
+              if (rUpload.status === 429 || rUpload.status >= 500) {
+                uploadIntentos++;
+                if (uploadIntentos < 3) {
+                  await new Promise(function(res) { setTimeout(res, 2000 * uploadIntentos); });
+                  continue;
+                }
+              }
+              throw new Error('Upload HTTP ' + rUpload.status);
+            } catch(e) {
+              uploadIntentos++;
+              if (uploadIntentos < 3) {
+                await new Promise(function(res) { setTimeout(res, 2000 * uploadIntentos); });
+                continue;
+              }
+              throw e;
+            }
+          }
+          if (!rUpload.ok) throw new Error('Upload falló después de 3 intentos');
           var dUpload = await rUpload.json();
           if (!dUpload.ok || !dUpload.url) throw new Error(dUpload.error || 'sin URL');
           item.url = dUpload.url;
@@ -3385,11 +3472,33 @@ window.forceRegisterPush = async function() {
           descripcion: item.datos.descripcion ? item.datos.descripcion.trim() : null,
           imagenes: [item.url]
         };
-        var rCreate = await fetch(API + '/api/seller/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-          body: JSON.stringify(body)
-        });
+        var rCreate;
+        var createIntentos = 0;
+        while (createIntentos < 3) {
+          try {
+            rCreate = await fetch(API + '/api/seller/products', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+              body: JSON.stringify(body)
+            });
+            if (rCreate.ok) break;
+            if (rCreate.status === 429 || rCreate.status >= 500) {
+              createIntentos++;
+              if (createIntentos < 3) {
+                await new Promise(function(res) { setTimeout(res, 2000 * createIntentos); });
+                continue;
+              }
+            }
+            throw new Error('Create HTTP ' + rCreate.status);
+          } catch(e) {
+            createIntentos++;
+            if (createIntentos < 3) {
+              await new Promise(function(res) { setTimeout(res, 2000 * createIntentos); });
+              continue;
+            }
+            throw e;
+          }
+        }
         var dCreate = await rCreate.json();
         if (!dCreate.ok) throw new Error(dCreate.error || 'create failed');
         exitos++;
