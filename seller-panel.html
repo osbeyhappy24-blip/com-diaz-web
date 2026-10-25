@@ -1052,19 +1052,20 @@ textarea { min-height: 60px; resize: vertical; }
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.85);
-  backdrop-filter: blur(6px);
   z-index: 99999;
   display: none;
-  overflow-y: auto;
-  padding: 12px;
-  scroll-padding-bottom: 100px;
-  -webkit-overflow-scrolling: touch;
+  /* Flex column para que el footer quede abajo naturalmente */
+  flex-direction: column;
 }
-.bulk-modal-overlay.show { display: block; }
+.bulk-modal-overlay.show { display: flex; }
 .bulk-container {
   max-width: 600px;
+  width: 100%;
   margin: 0 auto;
-  padding-bottom: 240px; /* ← espacio amplio para el botón fixed */
+  padding: 12px 12px 20px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .bulk-header {
   position: sticky;
@@ -1162,9 +1163,6 @@ textarea { min-height: 60px; resize: vertical; }
   margin-bottom: 16px;
   position: relative;
 }
-.bulk-form-card:last-child {
-  margin-bottom: 40px; /* ← espacio extra para el último */
-}
 .bulk-form-card.removed {
   opacity: .35;
   pointer-events: none;
@@ -1227,8 +1225,6 @@ textarea { min-height: 60px; resize: vertical; }
   font-size: 13px;
   color: #f1f5f9;
   font-family: inherit;
-  scroll-margin-bottom: 120px;  /* ← deja espacio debajo al enfocar */
-  scroll-margin-top: 120px;
 }
 .bulk-form-field input:focus,
 .bulk-form-field select:focus,
@@ -1244,14 +1240,11 @@ textarea { min-height: 60px; resize: vertical; }
 
 /* Footer sticky con botón Guardar */
 .bulk-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  /* Ya no fixed: es hijo de flex column y queda abajo naturalmente */
+  flex-shrink: 0;
   background: #0f172a;
   border-top: 1px solid #334155;
   padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
-  z-index: 100;
   box-shadow: 0 -4px 20px rgba(0,0,0,.4);
 }
 .bulk-save-btn {
@@ -3457,12 +3450,8 @@ _bulkItems = items.map(function(item) {
       modal.classList.add('show');
       document.body.style.overflow = 'hidden';
       setTimeout(function() {
-        var firstForm = document.querySelector('#bulkFormsList .bulk-form-card');
-        if (firstForm) {
-          firstForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          var overlay = document.getElementById('bulkModal');
-          if (overlay) overlay.scrollTop = Math.max(0, overlay.scrollTop - 100);
-        }
+        var container = document.querySelector('#bulkModal .bulk-container');
+        if (container) container.scrollTop = 0;
       }, 300);
     }
   };
