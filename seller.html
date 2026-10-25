@@ -365,7 +365,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
     if (d.ok && d.token) {
       localStorage.setItem('comdiaz_seller_token', d.token);
       localStorage.setItem('comdiaz_seller_data', JSON.stringify(d.seller));
-      location.href = 'seller-panel.html?v=53';
+      location.href = 'seller-panel.html?v=54';
     } else {
       err.textContent = d.error || 'Credenciales inválidas';
       err.classList.add('show');
@@ -384,7 +384,7 @@ cargarProvincias();
 
 // Si ya tiene sesión, ir directo al panel
 if (localStorage.getItem('comdiaz_seller_token')) {
-  location.href = 'seller-panel.html?v=53';
+  location.href = 'seller-panel.html?v=54';
 }
 </script>
 
