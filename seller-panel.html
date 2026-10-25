@@ -3464,6 +3464,18 @@ _bulkItems = items.map(function(item) {
 
   window.cerrarBulkModal = function() {
     if (_bulkBusy) { if (!confirm('Hay una sincronizacion en curso. Cancelar?')) return; }
+    
+    var pendientes = (_bulkItems || []).filter(function(it) { return !it.removed && !it.done; });
+    if (pendientes.length > 0 && !_bulkBusy) {
+      var conDatos = pendientes.filter(function(it) {
+        return it.datos.titulo && it.datos.titulo.trim().length >= 3;
+      });
+      if (conDatos.length > 0) {
+        if (!confirm('Tienes ' + conDatos.length + ' producto(s) con datos sin guardar.\n\nSe guardará como borrador y podrás recuperarlo.\n\n¿Cerrar?')) return;
+        if (typeof window.guardarBorradorBulk === 'function') window.guardarBorradorBulk();
+      }
+    }
+    
     var modal = document.getElementById('bulkModal');
     if (modal) modal.classList.remove('show');
     document.body.style.overflow = '';
@@ -3574,11 +3586,15 @@ _bulkItems = items.map(function(item) {
           var uploadIntentos = 0;
           while (uploadIntentos < 3) {
             try {
+              var ctrlU = new AbortController();
+              var toU = setTimeout(function() { ctrlU.abort(); }, 30000);
               rUpload = await fetch(API + '/api/upload-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-                body: JSON.stringify({ image: b64, nombre: 'bulk_' + Date.now() + '_' + i + '.jpg' })
+                body: JSON.stringify({ image: b64, nombre: 'bulk_' + Date.now() + '_' + i + '.jpg' }),
+                signal: ctrlU.signal
               });
+              clearTimeout(toU);
               if (rUpload.ok) break;
               // Si es error 429 o 5xx, reintentar
               if (rUpload.status === 429 || rUpload.status >= 500) {
@@ -3598,7 +3614,14 @@ _bulkItems = items.map(function(item) {
               throw e;
             }
           }
-          if (!rUpload.ok) throw new Error('Upload falló después de 3 intentos');
+if (rUpload.status === 401) {
+              alert('Sesión expirada. Los productos pendientes se guardarán.');
+              _bulkBusy = false;
+              if (typeof window.guardarBorradorBulk === 'function') window.guardarBorradorBulk();
+              setTimeout(function() { logout(); }, 3000);
+              return;
+            }
+                      if (!rUpload.ok) throw new Error('Upload falló después de 3 intentos');
           var dUpload = await rUpload.json();
           if (!dUpload.ok || !dUpload.url) throw new Error(dUpload.error || 'sin URL');
           item.url = dUpload.url;
@@ -3619,11 +3642,15 @@ _bulkItems = items.map(function(item) {
         var createIntentos = 0;
         while (createIntentos < 3) {
           try {
+            var ctrlC = new AbortController();
+            var toC = setTimeout(function() { ctrlC.abort(); }, 30000);
             rCreate = await fetch(API + '/api/seller/products', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-              body: JSON.stringify(body)
+              body: JSON.stringify(body),
+              signal: ctrlC.signal
             });
+            clearTimeout(toC);
             if (rCreate.ok) break;
             if (rCreate.status === 429 || rCreate.status >= 500) {
               createIntentos++;
@@ -3641,6 +3668,13 @@ _bulkItems = items.map(function(item) {
             }
             throw e;
           }
+        }
+        if (rCreate.status === 401) {
+          alert('Sesión expirada. Los productos pendientes se guardarán. Vuelve a iniciar sesión y reintenta.');
+          _bulkBusy = false;
+          if (typeof window.guardarBorradorBulk === 'function') window.guardarBorradorBulk();
+          setTimeout(function() { logout(); }, 3000);
+          return;
         }
         var dCreate = await rCreate.json();
         if (!dCreate.ok) throw new Error(dCreate.error || 'create failed');
@@ -3661,12 +3695,19 @@ _bulkItems = items.map(function(item) {
     } else {
       if (typeof toast === 'function') toast(resumen, 'ok');
     }
-    if (exitos > 0) {
+    if (exitos > 0 && fallos === 0) {
+      // Éxito total → borrar borrador
       if (typeof window.borrarBorradorBulk === 'function') window.borrarBorradorBulk();
       setTimeout(function() {
         cerrarBulkModal();
         if (typeof cargarPerfil === 'function') cargarPerfil();
       }, 800);
+    } else if (exitos > 0 && fallos > 0) {
+      // Éxito parcial → mantener borrador con los fallidos
+      if (typeof window.guardarBorradorBulk === 'function') window.guardarBorradorBulk();
+      setTimeout(function() {
+        renderBulkForms();
+      }, 500);
     } else {
       renderBulkForms();
     }
@@ -3756,6 +3797,9 @@ _bulkItems = items.map(function(item) {
       };
     } catch(e) {
       console.warn('[IDB] Error guardando borrador:', e);
+      if (e.name === 'QuotaExceededError') {
+        alert('Almacenamiento lleno. Guarda los productos actuales para liberar espacio.');
+      }
     }
   };
 
@@ -3870,7 +3914,53 @@ _bulkItems = items.map(function(item) {
     if (typeof toast === 'function') toast('Borrador descartado', 'ok');
   };
 
-  console.log('[IDB] IndexedDB listo');
+  
+  // ═══ GUARDAR INMEDIATO al salir de la app ═══
+  function saveSync() {
+    // Versión sincrónica best-effort: intenta guardar sin await
+    if (window.guardarBorradorBulk) {
+      try { window.guardarBorradorBulk(); } catch(_) {}
+    }
+  }
+
+  // visibilitychange: cuando el usuario minimiza o cambia de app
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+      console.log('[IDB] App oculta, guardando borrador...');
+      saveSync();
+    }
+  });
+
+  // pagehide: cuando la app se cierra o navega fuera (más fiable en móvil)
+  window.addEventListener('pagehide', function() {
+    console.log('[IDB] Page hide, guardando borrador...');
+    saveSync();
+  });
+
+  // beforeunload: fallback para desktop
+  window.addEventListener('beforeunload', function() {
+    saveSync();
+  });
+
+  // ═══ HEARTBEAT: cada 5s guarda si hay cambios pendientes ═══
+  var _lastSavedHash = '';
+  setInterval(function() {
+    if (!window._bulkItemsRef || window._bulkItemsRef.length === 0) return;
+    var modal = document.getElementById('bulkModal');
+    if (!modal || !modal.classList.contains('show')) return;
+    var activos = window._bulkItemsRef.filter(function(it) { return !it.removed && !it.done; });
+    if (activos.length === 0) return;
+    // Hash rápido para detectar cambios
+    var hash = activos.map(function(it) {
+      return it.datos.titulo + '|' + it.datos.precio_usd + '|' + it.datos.categoria;
+    }).join('##');
+    if (hash !== _lastSavedHash) {
+      _lastSavedHash = hash;
+      window.guardarBorradorBulk();
+    }
+  }, 5000);
+
+console.log('[IDB] IndexedDB listo');
 })();
 </script>
 
