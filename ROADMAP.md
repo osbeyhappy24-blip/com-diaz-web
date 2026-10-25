@@ -59,3 +59,54 @@
 - Sección "⏳ Pendientes de sincronizar"
 - Botón "🔄 Sincronizar ahora"
 
+---
+
+## 🟡 PRÓXIMAS SESIONES — Prioridad MEDIA
+
+### Banners reales dinámicos (45 min)
+**Problema:** 4 de 5 textos del banner son ficticios.
+**Fix:**
+- Reemplazar por 5 REALES calculados del catálogo
+- "X productos disponibles" (contar)
+- "Desde $[min] USD" (más barato real)
+- "X vendedores verificados"
+- "Compra directo sin comisiones"
+- "Productos cubanos e importados"
+- Deshabilitar aiBanners hasta IA real
+
+### Compartir producto con link (20 min)
+- Botón "🔗 Compartir" en cada card
+- Genera: `shop.html?product=<id>`
+- Al abrir: scroll al producto + abre modal
+- Usa `navigator.share()` (todas las apps)
+
+### IA fotos locales (120 min)
+**Lo que pediste:**
+- Detectar si foto es de cámara (EXIF)
+- Solo procesar las feas
+- Mejorar con Gemini
+- Generar descripción automática
+- Respetar cuota diaria API
+
+### Antifraude SMS OTP (90 min)
+**Lo que pediste:**
+- Verificar que teléfono sea real
+- Enviar código 6 dígitos por SMS/WhatsApp
+- Requiere Firebase Phone Auth (10k/mes gratis)
+
+### Push Android TWA (variable)
+- FCM acepta pero Android no muestra (bug PWABuilder)
+- Recompilar APK con Bubblewrap actualizado
+- O usar PWA Chrome para push
+
+### APK admin completa (14 items)
+- Editor métodos de pago
+- Dashboard financiero
+- Ver productos por vendedor
+- Editar notas internas
+- Log de auditoría
+- Historial de pagos
+- Exportar CSV
+- Editor de promociones
+- Etc.
+
