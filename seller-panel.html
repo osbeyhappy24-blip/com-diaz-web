@@ -3001,7 +3001,7 @@ window.forceRegisterPush = async function() {
       if (!d.ok) return;
 
       _refLink = d.link || '';
-      _refWA = d.link_shop || d.link;
+      _refWA = d.link;  // seller.html?ref=CODIGO (registro de vendedor)
 
       var section = document.getElementById('referralSection');
       var linkBox = document.getElementById('refLinkBox');
