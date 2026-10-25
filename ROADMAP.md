@@ -110,3 +110,95 @@
 - Editor de promociones
 - Etc.
 
+---
+
+## 🟢 BACKLOG — Prioridad BAJA
+
+### Seguridad
+- [ ] 2FA admin (Google Authenticator)
+- [ ] Rotación PIN admin
+- [ ] Verificar email al registrar
+- [ ] Log de accesos admin
+- [ ] Detección de duplicados
+
+### Capacidad (mes 3-6)
+- [ ] Bump `state.notifications` 500 → 2000
+- [ ] Bump `state.sellerSubscriptions` 500 → 5000
+- [ ] Migrar notifs/subs a Supabase si crece
+- [ ] Cron limpiador (notifs >30d)
+
+### UX
+- [ ] Sonido custom push (requiere TWA)
+- [ ] Modo oscuro
+- [ ] Favoritos/wishlist
+- [ ] Chat interno comprador-vendedor
+
+---
+
+## 🚨 RIESGOS CONOCIDOS
+
+### Termux NO tiene /tmp/
+- `curl -o /tmp/x` falla silencioso
+- Usar `$HOME/` o pipes `| head -c 500`
+- Nos hizo perder 2+ horas en diagnóstico falso
+
+### Cold start de Render
+- Backend free tier duerme tras 15min
+- Primera request: 30-50s
+- Frontend timeout 45s + retry
+
+### Push Android en TWA
+- Bug conocido de PWABuilder
+- Workaround: PWA Chrome
+
+### Caps de storage
+| Storage | Cap | Se llena |
+|---|---|---|
+| notifications | 500 | 2 semanas |
+| sellerSubscriptions | 500 | 500 sellers |
+| payments | 1000 | 1 año |
+| Supabase prod | 500MB | 3+ años |
+
+---
+
+## 📏 REGLAS
+
+1. Nada de lo hecho se pierde
+2. Cache-busters en cada deploy
+3. Verificar en prod con curl ANTES de cerrar
+4. **NUNCA usar `/tmp/` en Termux**
+5. Alerts cuando algo falla silenciosamente
+6. Scripts reusables en `~/comdiaz/`
+
+---
+
+## 🔗 LINKS
+
+- Shop: https://com-diaz-web.onrender.com/shop.html
+- Registro: https://com-diaz-web.onrender.com/seller.html
+- Panel vendedor: https://com-diaz-web.onrender.com/seller-panel.html
+- Admin: https://com-diaz-web.onrender.com/home.html
+- Backend: https://com-diaz.onrender.com
+- APK Drive: https://drive.google.com/file/d/1YYad5ECgr8eDiWjWsip5D11md3ayuvxL/view
+- Grupo WA: https://chat.whatsapp.com/HVbGq9WJLgzLVSvhY9WDqh
+- WA admin: 5351425691
+- Osbey: 5358980267 / código OSBEY02676H0
+
+---
+
+## 📊 HISTORIAL
+
+- Sesión 22 Oct: Panel vendedor
+- Sesión 23 Oct: Notificaciones + monetización
+- Sesión 24 Oct: Shop rediseño + pagos + referidos
+- Sesión 25 Oct: Robustez + referidos 100% + push Android OK
+
+---
+
+**Para retomar:** "seguimos con Comdiaz" → leo este ROADMAP.
+
+**Prioridades próxima sesión:**
+1. Carga masiva A.1 + A.2 + A.3 (90 min)
+2. Banners reales dinámicos (45 min)
+3. Compartir producto con link (20 min)
+4. IA fotos locales (120 min)
