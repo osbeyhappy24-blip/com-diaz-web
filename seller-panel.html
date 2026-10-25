@@ -1369,6 +1369,94 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .bulk-draft-status.show { opacity: 1; }
 
+
+/* ═══ Banner PENDIENTES DE SINCRONIZAR (A.3) ═══ */
+.pending-sync-banner {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  border: 1px solid #ef4444;
+  border-radius: 14px;
+  margin: 0 12px 12px;
+  padding: 14px 16px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(220,38,38,.4);
+  animation: pendingPulse 2s ease-in-out infinite;
+  position: relative;
+  z-index: 50;
+}
+.pending-sync-banner.hidden { display: none; }
+@keyframes pendingPulse {
+  0%, 100% { box-shadow: 0 8px 24px rgba(220,38,38,.4); }
+  50% { box-shadow: 0 8px 32px rgba(220,38,38,.7); }
+}
+.pending-sync-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  animation: pendingShake 1.5s ease-in-out infinite;
+}
+@keyframes pendingShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+.pending-sync-body { flex: 1; }
+.pending-sync-title {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+.pending-sync-sub {
+  font-size: 11px;
+  opacity: .9;
+}
+.pending-sync-btn {
+  background: #fff;
+  color: #dc2626;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform .2s;
+  white-space: nowrap;
+}
+.pending-sync-btn:hover { transform: scale(1.05); }
+.pending-sync-btn:active { transform: scale(.95); }
+.pending-sync-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Toast flotante */
+.pending-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border: 1px solid #ef4444;
+  border-radius: 10px;
+  padding: 12px 18px;
+  color: #fff;
+  font-size: 13px;
+  z-index: 100000;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  animation: pendingToastIn .3s ease;
+  max-width: 90%;
+  text-align: center;
+}
+.pending-toast.success {
+  border-color: #22c55e;
+  background: #052e16;
+}
+@keyframes pendingToastIn {
+  from { transform: translate(-50%, 100%); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
 </style>
 
 <script>
@@ -1490,6 +1578,19 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
 
 <!-- Indicador de guardado (aparece sobre el modal) -->
 <div class="bulk-draft-status" id="bulkDraftStatus">💾 Guardando...</div>
+
+  
+<!-- ⏳ Banner pendientes de sincronizar (A.3) -->
+<div class="pending-sync-banner hidden" id="pendingSyncBanner">
+  <div class="pending-sync-icon">⏳</div>
+  <div class="pending-sync-body">
+    <div class="pending-sync-title">Productos sin sincronizar</div>
+    <div class="pending-sync-sub" id="pendingSyncSub">0 productos</div>
+  </div>
+  <button class="pending-sync-btn" id="pendingSyncBtn" onclick="sincronizarPendientes()">
+    🔄 Sincronizar
+  </button>
+</div>
 
   <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
 
@@ -3684,6 +3785,13 @@ if (rUpload.status === 401) {
         fallos++;
         fallosDetalle.push({ num: i + 1, error: e.message });
         console.warn('[BULK] Foto ' + (i + 1) + ' fallo:', e.message);
+        // Agregar a la cola de pendientes para reintentar después
+        if (typeof window.agregarPendiente === 'function' && body && item.url) {
+          try {
+            await window.agregarPendiente(body, body.titulo || ('Foto ' + (i + 1)));
+            item.done = true; // Marcar como "en cola" para no reintentar aquí
+          } catch(_) {}
+        }
       }
     }
 
@@ -3826,15 +3934,28 @@ if (rUpload.status === 401) {
   window.recuperarUltimoBorrador = async function() {
     try {
       var db = await abrirIDB();
-      var tx = db.transaction(STORE, 'readonly');
+      var tx = db.transaction(STORE, 'readwrite');
       var store = tx.objectStore(STORE);
       return new Promise(function(resolve, reject) {
         var req = store.getAll();
         req.onsuccess = function() {
           var all = req.result || [];
           if (all.length === 0) { resolve(null); return; }
-          all.sort(function(a, b) { return b.fecha - a.fecha; });
-          resolve(all[0]);
+          // Limpiar borradores >7 días
+          var SIETE_DIAS = 7 * 24 * 60 * 60 * 1000;
+          var ahora = Date.now();
+          var validos = [];
+          all.forEach(function(b) {
+            if ((ahora - (b.fecha || 0)) > SIETE_DIAS) {
+              console.log('[IDB] Borrador viejo eliminado:', b.id);
+              store.delete(b.id);
+            } else {
+              validos.push(b);
+            }
+          });
+          if (validos.length === 0) { resolve(null); return; }
+          validos.sort(function(a, b) { return b.fecha - a.fecha; });
+          resolve(validos[0]);
         };
         req.onerror = function() { reject(req.error); };
       });
@@ -3961,6 +4082,253 @@ if (rUpload.status === 401) {
   }, 5000);
 
 console.log('[IDB] IndexedDB listo');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// A.3 — Cola de pendientes de sincronizar
+// ═══════════════════════════════════════════════════════
+(function comdiaz_pending_sync() {
+  var DB_NAME = 'comdiaz_bulk';
+  var DB_VERSION = 2;  // subir versión para crear nuevo store
+  var STORE_PENDING = 'pending';
+  var MAX_RETRIES = 5;
+  var _syncing = false;
+
+  function abrirIDB() {
+    return new Promise(function(resolve, reject) {
+      var req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = function(e) {
+        var db = e.target.result;
+        // Store de drafts (creado en v1)
+        if (!db.objectStoreNames.contains('drafts')) {
+          db.createObjectStore('drafts', { keyPath: 'id', autoIncrement: true });
+        }
+        // Store de pending (nuevo en v2)
+        if (!db.objectStoreNames.contains(STORE_PENDING)) {
+          db.createObjectStore(STORE_PENDING, { keyPath: 'id', autoIncrement: true });
+        }
+      };
+      req.onsuccess = function() { resolve(req.result); };
+      req.onerror = function() { reject(req.error); };
+    });
+  }
+
+  // ═══ Agregar producto a pendientes ═══
+  window.agregarPendiente = async function(productBody, titulo) {
+    try {
+      var db = await abrirIDB();
+      var tx = db.transaction(STORE_PENDING, 'readwrite');
+      var store = tx.objectStore(STORE_PENDING);
+      return new Promise(function(resolve, reject) {
+        var req = store.add({
+          productBody: productBody,
+          titulo: titulo || 'Producto',
+          retries: 0,
+          lastError: null,
+          createdAt: Date.now()
+        });
+        req.onsuccess = function() {
+          console.log('[PENDING] Agregado:', titulo, '→ id', req.result);
+          actualizarBannerPendientes();
+          resolve(req.result);
+        };
+        req.onerror = function() { reject(req.error); };
+      });
+    } catch(e) {
+      console.warn('[PENDING] Error agregando:', e);
+      return null;
+    }
+  };
+
+  // ═══ Listar todos los pendientes ═══
+  window.listarPendientes = async function() {
+    try {
+      var db = await abrirIDB();
+      var tx = db.transaction(STORE_PENDING, 'readonly');
+      var store = tx.objectStore(STORE_PENDING);
+      return new Promise(function(resolve, reject) {
+        var req = store.getAll();
+        req.onsuccess = function() { resolve(req.result || []); };
+        req.onerror = function() { reject(req.error); };
+      });
+    } catch(e) {
+      return [];
+    }
+  };
+
+  // ═══ Quitar pendiente por id ═══
+  window.quitarPendiente = async function(id) {
+    try {
+      var db = await abrirIDB();
+      var tx = db.transaction(STORE_PENDING, 'readwrite');
+      tx.objectStore(STORE_PENDING).delete(id);
+      await new Promise(function(resolve) { tx.oncomplete = resolve; });
+      actualizarBannerPendientes();
+    } catch(e) {
+      console.warn('[PENDING] Error quitando:', e);
+    }
+  };
+
+  // ═══ Actualizar contador/error de un pendiente ═══
+  window.actualizarPendiente = async function(id, updates) {
+    try {
+      var db = await abrirIDB();
+      var tx = db.transaction(STORE_PENDING, 'readwrite');
+      var store = tx.objectStore(STORE_PENDING);
+      return new Promise(function(resolve, reject) {
+        var getReq = store.get(id);
+        getReq.onsuccess = function() {
+          var item = getReq.result;
+          if (!item) { resolve(); return; }
+          Object.assign(item, updates);
+          var putReq = store.put(item);
+          putReq.onsuccess = function() { resolve(); };
+          putReq.onerror = function() { reject(putReq.error); };
+        };
+        getReq.onerror = function() { reject(getReq.error); };
+      });
+    } catch(e) {
+      console.warn('[PENDING] Error actualizando:', e);
+    }
+  };
+
+  // ═══ Actualizar banner de pendientes en el panel ═══
+  window.actualizarBannerPendientes = async function() {
+    var pendientes = await window.listarPendientes();
+    var banner = document.getElementById('pendingSyncBanner');
+    var sub = document.getElementById('pendingSyncSub');
+    if (!banner) return;
+    if (pendientes.length === 0) {
+      banner.classList.add('hidden');
+    } else {
+      banner.classList.remove('hidden');
+      if (sub) {
+        var conError = pendientes.filter(function(p) { return p.retries >= MAX_RETRIES; }).length;
+        var texto = pendientes.length + ' producto(s)';
+        if (conError > 0) texto += ' · ' + conError + ' con error persistente';
+        sub.textContent = texto;
+      }
+    }
+  };
+
+  // ═══ Sincronizar todos los pendientes con backoff ═══
+  window.sincronizarPendientes = async function() {
+    if (_syncing) { alert('Ya hay una sincronización en curso. Espera.'); return; }
+    var pendientes = await window.listarPendientes();
+    if (pendientes.length === 0) { alert('No hay pendientes.'); return; }
+    if (!navigator.onLine) { alert('Sin conexión a internet. Intenta cuando vuelvas a tener señal.'); return; }
+
+    _syncing = true;
+    var btn = document.getElementById('pendingSyncBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Sincronizando...'; }
+
+    var exitos = 0, fallos = 0, errores = [];
+
+    for (var i = 0; i < pendientes.length; i++) {
+      var p = pendientes[i];
+      // Actualizar UI
+      var sub = document.getElementById('pendingSyncSub');
+      if (sub) sub.textContent = (i + 1) + ' de ' + pendientes.length + '...';
+
+      var exito = false;
+      var ultimoError = '';
+      for (var intento = 0; intento < 3 && !exito; intento++) {
+        try {
+          var ctrl = new AbortController();
+          var to = setTimeout(function() { ctrl.abort(); }, 30000);
+          var r = await fetch(API + '/api/seller/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+            body: JSON.stringify(p.productBody),
+            signal: ctrl.signal
+          });
+          clearTimeout(to);
+          if (r.status === 401) {
+            alert('Sesión expirada. Los pendientes se mantienen en cola. Vuelve a iniciar sesión.');
+            _syncing = false;
+            if (btn) { btn.disabled = false; btn.textContent = '🔄 Sincronizar'; }
+            setTimeout(function() { logout(); }, 3000);
+            return;
+          }
+          if (r.ok) {
+            var d = await r.json();
+            if (d.ok) {
+              exito = true;
+              await window.quitarPendiente(p.id);
+              exitos++;
+            } else {
+              ultimoError = d.error || 'desconocido';
+              throw new Error(ultimoError);
+            }
+          } else {
+            ultimoError = 'HTTP ' + r.status;
+            if (r.status === 429 || r.status >= 500) {
+              // Backoff y reintento
+              await new Promise(function(res) { setTimeout(res, 2000 * (intento + 1)); });
+              continue;
+            }
+            throw new Error(ultimoError);
+          }
+        } catch(e) {
+          ultimoError = e.message || 'error de red';
+          if (intento < 2) {
+            await new Promise(function(res) { setTimeout(res, 2000 * (intento + 1)); });
+          }
+        }
+      }
+      if (!exito) {
+        fallos++;
+        errores.push(p.titulo + ': ' + ultimoError);
+        await window.actualizarPendiente(p.id, {
+          retries: (p.retries || 0) + 1,
+          lastError: ultimoError
+        });
+      }
+    }
+
+    _syncing = false;
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Sincronizar'; }
+
+    await window.actualizarBannerPendientes();
+    if (typeof cargarPerfil === 'function') cargarPerfil();
+
+    // Toast final
+    var toast = document.createElement('div');
+    toast.className = 'pending-toast' + (fallos === 0 ? ' success' : '');
+    var NL = String.fromCharCode(10);
+    toast.textContent = exitos + ' sincronizados' + (fallos > 0 ? ' · ' + fallos + ' con error' : ' ✓');
+    document.body.appendChild(toast);
+    setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 4000);
+
+    if (fallos > 0) {
+      alert(exitos + ' sincronizados, ' + fallos + ' con error:' + NL + NL + errores.join(NL));
+    }
+  };
+
+  // ═══ Auto-sync al abrir el panel ═══
+  setTimeout(async function() {
+    if (typeof TOKEN === 'undefined' || !TOKEN) return;
+    await window.actualizarBannerPendientes();
+    // Auto-sync si hay conexión y hay pendientes (sin alert)
+    if (navigator.onLine) {
+      var pendientes = await window.listarPendientes();
+      if (pendientes.length > 0 && pendientes.length <= 5) {
+        console.log('[PENDING] Auto-sync de ' + pendientes.length + ' pendientes...');
+        setTimeout(function() { window.sincronizarPendientes(); }, 3000);
+      }
+    }
+  }, 3500);
+
+  // ═══ Listener online: sincronizar al recuperar conexión ═══
+  window.addEventListener('online', function() {
+    console.log('[PENDING] Conexión recuperada, verificando pendientes...');
+    setTimeout(window.actualizarBannerPendientes, 1000);
+  });
+
+  console.log('[PENDING] Cola de sincronización lista');
 })();
 </script>
 
