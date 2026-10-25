@@ -3467,6 +3467,12 @@ _bulkItems = items.map(function(item) {
     }
   };
 
+  // Función pública: abre modal y resetea el borrador (nuevo batch)
+  window.abrirBulkModal = function(items) {
+    window._borradorActualId = null;
+    window._abrirBulkModalInterno(items);
+  };
+
   window.cerrarBulkModal = function() {
     if (_bulkBusy) { if (!confirm('Hay una sincronizacion en curso. Cancelar?')) return; }
     var modal = document.getElementById('bulkModal');
@@ -3692,7 +3698,7 @@ _bulkItems = items.map(function(item) {
   var STORE = 'drafts';
   var _idb = null;
   var _autosaveTimer = null;
-  var _borradorActualId = null;
+  window._borradorActualId = null;
 
   function abrirIDB() {
     if (_idb) return Promise.resolve(_idb);
@@ -3753,10 +3759,10 @@ _bulkItems = items.map(function(item) {
         fecha: Date.now(),
         items: itemsSerializables
       };
-      if (_borradorActualId) data.id = _borradorActualId;
+      if (window._borradorActualId) data.id = window._borradorActualId;
       var req = store.put(data);
       req.onsuccess = function() {
-        _borradorActualId = req.result;
+        window._borradorActualId = req.result;
         mostrarEstadoGuardado();
       };
     } catch(e) {
@@ -3777,7 +3783,7 @@ _bulkItems = items.map(function(item) {
       var db = await abrirIDB();
       var tx = db.transaction(STORE, 'readwrite');
       tx.objectStore(STORE).clear();
-      _borradorActualId = null;
+      window._borradorActualId = null;
       console.log('[IDB] Borradores eliminados');
     } catch(e) {
       console.warn('[IDB] Error borrando:', e);
@@ -3836,7 +3842,7 @@ _bulkItems = items.map(function(item) {
         sub.textContent = activos.length + ' producto(s) pendientes · ' + tiempoStr;
       }
       banner.classList.remove('hidden');
-      _borradorActualId = borrador.id;
+      window._borradorActualId = borrador.id;
     }
   }, 2500);
 
@@ -3857,8 +3863,10 @@ _bulkItems = items.map(function(item) {
       };
     });
 
-    if (typeof window.abrirBulkModal === 'function') {
+    if (typeof window.abrirBulkModalRecuperado === 'function') {
       window.abrirBulkModalRecuperado(items, borrador.id);
+    } else {
+      console.error('[IDB] abrirBulkModalRecuperado no disponible');
     }
     var banner = document.getElementById('recoverDraftBanner');
     if (banner) banner.classList.add('hidden');
