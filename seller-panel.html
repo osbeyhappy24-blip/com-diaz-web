@@ -1046,6 +1046,227 @@ textarea { min-height: 60px; resize: vertical; }
   transform: scale(0.97) !important;
 }
 
+
+/* ═══ CARGA MASIVA A.1 — Lista de formularios ═══ */
+.bulk-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: none;
+  overflow-y: auto;
+  padding: 12px;
+}
+.bulk-modal-overlay.show { display: block; }
+.bulk-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+.bulk-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+.bulk-header h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #f1f5f9;
+  font-weight: 800;
+}
+.bulk-header .bulk-count {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.bulk-close-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* Global: provincia/municipio para todos */
+.bulk-global {
+  background: linear-gradient(135deg, rgba(0,63,127,.3), rgba(251,191,36,.2));
+  border: 1px solid rgba(251,191,36,.4);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.bulk-global-title {
+  font-size: 13px;
+  color: #fbbf24;
+  font-weight: 800;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bulk-global-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.bulk-global-row input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  color: #f1f5f9;
+  font-family: inherit;
+}
+.bulk-global-row input:focus {
+  outline: none;
+  border-color: #fbbf24;
+}
+.bulk-apply-all-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0f172a;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.bulk-apply-all-btn:hover { transform: translateY(-1px); }
+
+/* Formulario por foto */
+.bulk-form-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.bulk-form-card.removed {
+  opacity: .35;
+  pointer-events: none;
+  text-decoration: line-through;
+}
+.bulk-form-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.bulk-form-num {
+  font-size: 12px;
+  color: #fbbf24;
+  font-weight: 800;
+}
+.bulk-form-remove {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 900;
+}
+.bulk-form-remove:hover {
+  background: #ef4444;
+  color: #fff;
+}
+.bulk-form-preview {
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: #1e293b;
+  display: block;
+}
+.bulk-form-field {
+  margin-bottom: 8px;
+}
+.bulk-form-field label {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.bulk-form-field input,
+.bulk-form-field select,
+.bulk-form-field textarea {
+  width: 100%;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 13px;
+  color: #f1f5f9;
+  font-family: inherit;
+}
+.bulk-form-field input:focus,
+.bulk-form-field select:focus,
+.bulk-form-field textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.bulk-form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* Footer sticky con botón Guardar */
+.bulk-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f172a;
+  border-top: 1px solid #334155;
+  padding: 12px;
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.4);
+}
+.bulk-save-btn {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: block;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(34,197,94,.4);
+}
+.bulk-save-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
 </style>
 
 <script>
@@ -1614,70 +1835,39 @@ function resetBulkState() {
 }
 
 async function handleMultiplePhotos(event) {
-  console.log('[UPLOAD] handleMultiplePhotos INICIADO');
-  console.log('[UPLOAD] files:', event.target.files?.length || 0);
-  
+  console.log('[UPLOAD] Iniciando');
   const files = Array.from(event.target.files);
-  if (files.length === 0) {
-    alert('No se recibieron fotos del selector. Intenta de nuevo.');
-    return;
-  }
-  
-  alert('📸 Recibidas ' + files.length + ' foto(s). Preparando...');
-
+  if (files.length === 0) { alert('No se recibieron fotos.'); return; }
+  alert('Recibidas ' + files.length + ' foto(s). Preparando...');
   resetBulkState();
   const statusEl = document.getElementById('photoStatus');
-  if (!statusEl) {
-    alert('ERROR: Falta el elemento #photoStatus en el HTML. Avísale al admin.');
-    console.error('[UPLOAD] Falta #photoStatus');
-    return;
-  }
-  console.log('[UPLOAD] photoStatus encontrado ✅');
+  if (!statusEl) { alert('ERROR: Falta #photoStatus'); return; }
 
-  // 0. Pre-validar sesión con timeout 45s (cold start)
   statusEl.textContent = 'Validando sesion...';
-  console.log('[UPLOAD] Validando sesión...');
-  
   try {
     const ctrl = new AbortController();
     const timeoutId = setTimeout(() => ctrl.abort(), 45000);
-    
     const chk = await fetch(API + '/api/seller/me', {
       headers: { 'Authorization': 'Bearer ' + TOKEN },
       signal: ctrl.signal
     });
     clearTimeout(timeoutId);
-    
-    console.log('[UPLOAD] Pre-check status:', chk.status);
-    
     if (!chk.ok) {
       if (chk.status === 401) {
-        statusEl.textContent = 'Sesion expirada';
-        alert('Sesion expirada. Vuelve a iniciar sesion.');
+        alert('Sesion expirada.');
         setTimeout(() => logout(), 1500);
         return;
       }
-      alert('Error validando sesion: HTTP ' + chk.status);
-      statusEl.textContent = 'Error ' + chk.status;
+      alert('Error sesion: HTTP ' + chk.status);
       return;
     }
-    statusEl.textContent = 'Sesion OK. Comprimiendo...';
-    console.log('[UPLOAD] Sesion OK, comprimiendo...');
   } catch(e) {
-    console.error('[UPLOAD] Pre-check error:', e);
-    if (e.name === 'AbortError') {
-      alert('Servidor dormido (timeout 45s). Toca de nuevo.');
-      statusEl.textContent = 'Timeout. Reintenta.';
-    } else {
-      alert('Sin conexion: ' + (e.message || 'error de red'));
-      statusEl.textContent = 'Sin conexion';
-    }
+    alert(e.name === 'AbortError' ? 'Timeout 45s. Reintenta.' : 'Sin conexion: ' + e.message);
     return;
   }
 
-  // 1. Comprimir todas (secuencial, con progreso)
   for (let i = 0; i < files.length; i++) {
-    statusEl.textContent = `Comprimiendo ${i + 1} de ${files.length}...`;
+    statusEl.textContent = 'Comprimiendo ' + (i + 1) + ' de ' + files.length + '...';
     try {
       const compressedBlob = await comprimirImagen(files[i], 900, 0.75);
       colaProductos.push({ blob: compressedBlob, url: null, datos: {} });
@@ -1685,118 +1875,18 @@ async function handleMultiplePhotos(event) {
       console.error('Error comprimiendo:', files[i].name, err);
     }
   }
-  
+
   if (colaProductos.length === 0) {
-    alert('ERROR: Ninguna foto se comprimió. Revisa el formato.');
-    statusEl.textContent = 'No se pudo comprimir ninguna foto.';
+    alert('ERROR: Ninguna foto se comprimio.');
+    statusEl.textContent = '';
     return;
   }
-  
-  alert('✅ ' + colaProductos.length + ' foto(s) comprimidas. Subiendo...');
-  console.log('[UPLOAD] Fotos comprimidas:', colaProductos.length);
 
-  // 2. Subir TODAS las fotos con retry 2x + SKIP en fallos
-  let exitos = 0;
-  let fallos = 0;
-  let fallosIds = [];
-
-  for (let i = 0; i < colaProductos.length; i++) {
-    const prod = colaProductos[i];
-    if (prod.url) { exitos++; continue; }
-
-    // Delay entre uploads (excepto primero)
-    if (i > 0) await new Promise(r => setTimeout(r, 2500));
-
-    statusEl.textContent = `Subiendo foto ${i + 1} de ${colaProductos.length}... (${exitos} ok, ${fallos} fallos)`;
-
-    let exito = false;
-    let ultimoError = '';
-
-    for (let intento = 0; intento < 2 && !exito; intento++) {
-      try {
-        const b64 = await blobToBase64(prod.blob);
-        console.log(`[UPLOAD] Foto ${i+1} intento ${intento+1}, size=${Math.round(b64.length/1024)}KB`);
-
-        const r = await fetch(API + '/api/upload-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + TOKEN
-          },
-          body: JSON.stringify({ image: b64, nombre: 'seller_' + Date.now() + '_' + i + '.jpg' })
-        });
-
-        if (r.status === 401) {
-          statusEl.textContent = 'Sesion expirada';
-          alert('Sesion expirada. Vuelve a iniciar sesion.');
-          setTimeout(() => logout(), 1500);
-          return;
-        }
-        if (r.status === 429) {
-          statusEl.textContent = `Rate limit. Esperando 60s... (${i + 1}/${colaProductos.length})`;
-          await new Promise(r => setTimeout(r, 60000));
-          continue;
-        }
-        if (r.status === 413) {
-          ultimoError = 'Foto muy grande (413)';
-          console.error('[UPLOAD] 413 payload too large en foto', i+1, 'size:', Math.round(b64.length/1024), 'KB');
-          break;
-        }
-
-        if (!r.ok) {
-          ultimoError = 'HTTP ' + r.status;
-          throw new Error('HTTP ' + r.status);
-        }
-
-        const d = await r.json();
-        if (d.ok && d.url) {
-          prod.url = d.url;
-          exito = true;
-          exitos++;
-          console.log(`[UPLOAD] Foto ${i+1} OK:`, d.url.substring(0, 50));
-        } else {
-          ultimoError = d.error || 'sin URL';
-          throw new Error(ultimoError);
-        }
-      } catch(e) {
-        ultimoError = e.message || 'error de red';
-        console.error(`[UPLOAD] Foto ${i+1} intento ${intento+1} fallo:`, e.message);
-        if (intento < 1) {
-          statusEl.textContent = `Error foto ${i + 1}. Reintento...`;
-          await new Promise(r => setTimeout(r, 3000));
-        }
-      }
-    }
-
-    if (!exito) {
-      fallos++;
-      fallosIds.push(i + 1);
-      console.warn(`[UPLOAD] Foto ${i+1} FALLO definitivo: ${ultimoError}`);
-      statusEl.textContent = `Foto ${i+1} falló (${ultimoError}). Continuando...`;
-      await new Promise(r => setTimeout(r, 1000));
-    }
-  }
-
-  // Resumen final visible
-  const resumen = `✅ ${exitos} subidas, ❌ ${fallos} fallidas`;
-  statusEl.textContent = resumen;
-  console.log('[UPLOAD] ' + resumen, fallosIds.length ? 'Fotos fallidas: ' + fallosIds.join(', ') : '');
-
-  if (fallos > 0) {
-    var NL = String.fromCharCode(10);
-    alert(resumen + NL + NL + 'Fotos fallidas: ' + fallosIds.join(', ') + NL + NL + 'Las fotos OK se usaran para los formularios.');
-  }
-  // 3. Todas subidas → iniciar formularios
-  const subidas = colaProductos.filter(p => p.url).length;
-  statusEl.textContent = `✅ ${subidas}/${colaProductos.length} fotos subidas. Iniciando formularios...`;
-  
-  if (subidas > 0) {
-    // Filtrar las que fallaron
-    colaProductos = colaProductos.filter(p => p.url);
-    indiceCola = 0;
-    abrirFormularioSiguiente();
+  statusEl.textContent = '';
+  if (typeof window.abrirBulkModal === 'function') {
+    window.abrirBulkModal(colaProductos);
   } else {
-    toast('Ninguna foto se pudo subir. Reintenta.', 'err');
+    alert('ERROR: Falta modal bulk.');
   }
 }
 
@@ -3106,6 +3196,230 @@ window.forceRegisterPush = async function() {
 
   setTimeout(cargarReferidos, 3000);
   console.log('Referral UI listo');
+})();
+</script>
+
+
+<!-- 📸 Modal carga masiva A.1 -->
+<div class="bulk-modal-overlay" id="bulkModal">
+  <div class="bulk-container">
+    <div class="bulk-header">
+      <div>
+        <h3 id="bulkTitle">Productos a subir</h3>
+        <div class="bulk-count" id="bulkCount">0 fotos seleccionadas</div>
+      </div>
+      <button class="bulk-close-btn" onclick="cerrarBulkModal()">✕</button>
+    </div>
+
+    <!-- 🌍 Aplicar a todos -->
+    <div class="bulk-global">
+      <div class="bulk-global-title">🌍 Aplicar a TODOS los productos</div>
+      <div class="bulk-global-row">
+        <input type="text" id="bulkProvincia" placeholder="Provincia">
+        <input type="text" id="bulkMunicipio" placeholder="Municipio">
+      </div>
+      <div class="bulk-global-row" style="grid-template-columns: 1fr;">
+        <input type="text" id="bulkCategoria" placeholder="Categoría (opcional)">
+      </div>
+      <button class="bulk-apply-all-btn" onclick="aplicarGlobalATodos()">✨ Aplicar a todos</button>
+    </div>
+
+    <!-- Lista de formularios -->
+    <div id="bulkFormsList"></div>
+  </div>
+
+  <div class="bulk-footer">
+    <button class="bulk-save-btn" id="bulkSaveBtn" onclick="guardarTodosBulk()" disabled>
+      💾 Guardar 0 productos
+    </button>
+  </div>
+</div>
+
+
+<script>
+(function comdiaz_bulk_v2() {
+  var _bulkItems = [];
+  var _bulkBusy = false;
+  var NL = String.fromCharCode(10);
+
+  window.abrirBulkModal = function(items) {
+    _bulkItems = items.map(function(item) {
+      return {
+        blob: item.blob,
+        urlPreview: URL.createObjectURL(item.blob),
+        url: null,
+        removed: false,
+        done: false,
+        datos: { titulo: '', precio_usd: '', precio_cup: '', categoria: '', provincia: '', municipio: '', estado_producto: 'nuevo', stock: 1, descripcion: '' }
+      };
+    });
+    renderBulkForms();
+    var modal = document.getElementById('bulkModal');
+    if (modal) { modal.classList.add('show'); document.body.style.overflow = 'hidden'; }
+  };
+
+  window.cerrarBulkModal = function() {
+    if (_bulkBusy) { if (!confirm('Hay una sincronizacion en curso. Cancelar?')) return; }
+    var modal = document.getElementById('bulkModal');
+    if (modal) modal.classList.remove('show');
+    document.body.style.overflow = '';
+    _bulkItems.forEach(function(it) { if (it.urlPreview) URL.revokeObjectURL(it.urlPreview); });
+    _bulkItems = [];
+  };
+
+  function escapeAttr(v) {
+    if (v === null || v === undefined) return '';
+    return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function renderBulkForms() {
+    var list = document.getElementById('bulkFormsList');
+    var count = document.getElementById('bulkCount');
+    var title = document.getElementById('bulkTitle');
+    var saveBtn = document.getElementById('bulkSaveBtn');
+    if (!list) return;
+
+    var activos = _bulkItems.filter(function(it) { return !it.removed && !it.done; }).length;
+    if (count) count.textContent = activos + ' activos de ' + _bulkItems.length + ' total';
+    if (title) title.textContent = activos + ' producto(s) por guardar';
+
+    var html = '';
+    _bulkItems.forEach(function(item, idx) {
+      var classes = 'bulk-form-card' + (item.removed ? ' removed' : '');
+      html += '<div class="' + classes + '" data-idx="' + idx + '">';
+      html += '<div class="bulk-form-head">';
+      html += '<span class="bulk-form-num">Foto ' + (idx + 1) + ' de ' + _bulkItems.length + (item.done ? ' OK' : '') + '</span>';
+      html += '<button type="button" class="bulk-form-remove" onclick="toggleRemoverBulk(' + idx + ')">' + (item.removed ? '&#8634;' : '&#10005;') + '</button>';
+      html += '</div>';
+      html += '<img class="bulk-form-preview" src="' + item.urlPreview + '" alt="" loading="lazy">';
+      html += '<div class="bulk-form-field"><label>Titulo *</label><input type="text" value="' + escapeAttr(item.datos.titulo) + '" placeholder="Ej: Bicicleta rodado 26" oninput="actualizarCampoBulk(' + idx + ', \'titulo\', this.value)"></div>';
+      html += '<div class="bulk-form-row-2"><div class="bulk-form-field"><label>Precio USD *</label><input type="number" value="' + escapeAttr(item.datos.precio_usd) + '" placeholder="0.00" min="0" step="0.01" oninput="actualizarCampoBulk(' + idx + ', \'precio_usd\', this.value)"></div><div class="bulk-form-field"><label>Precio CUP</label><input type="number" value="' + escapeAttr(item.datos.precio_cup) + '" placeholder="0" min="0" oninput="actualizarCampoBulk(' + idx + ', \'precio_cup\', this.value)"></div></div>';
+      html += '<div class="bulk-form-field"><label>Categoria</label><input type="text" value="' + escapeAttr(item.datos.categoria) + '" placeholder="Ej: Motos y Bicicletas" oninput="actualizarCampoBulk(' + idx + ', \'categoria\', this.value)"></div>';
+      html += '<div class="bulk-form-row-2"><div class="bulk-form-field"><label>Provincia</label><input type="text" value="' + escapeAttr(item.datos.provincia) + '" placeholder="Camaguey" oninput="actualizarCampoBulk(' + idx + ', \'provincia\', this.value)"></div><div class="bulk-form-field"><label>Municipio</label><input type="text" value="' + escapeAttr(item.datos.municipio) + '" placeholder="Sibanicu" oninput="actualizarCampoBulk(' + idx + ', \'municipio\', this.value)"></div></div>';
+      html += '<div class="bulk-form-row-2"><div class="bulk-form-field"><label>Estado</label><select onchange="actualizarCampoBulk(' + idx + ', \'estado_producto\', this.value)"><option value="nuevo"' + (item.datos.estado_producto === 'nuevo' ? ' selected' : '') + '>Nuevo</option><option value="usado"' + (item.datos.estado_producto === 'usado' ? ' selected' : '') + '>Usado</option><option value="reacondicionado"' + (item.datos.estado_producto === 'reacondicionado' ? ' selected' : '') + '>Reacondicionado</option></select></div><div class="bulk-form-field"><label>Stock</label><input type="number" value="' + (item.datos.stock || 1) + '" min="1" oninput="actualizarCampoBulk(' + idx + ', \'stock\', this.value)"></div></div>';
+      html += '</div>';
+    });
+    list.innerHTML = html;
+
+    if (saveBtn) {
+      saveBtn.textContent = _bulkBusy ? 'Guardando...' : 'Guardar ' + activos + ' producto(s)';
+      saveBtn.disabled = _bulkBusy || activos === 0;
+    }
+  }
+
+  window.actualizarCampoBulk = function(idx, campo, valor) {
+    if (_bulkItems[idx]) _bulkItems[idx].datos[campo] = valor;
+  };
+
+  window.toggleRemoverBulk = function(idx) {
+    if (_bulkItems[idx] && !_bulkItems[idx].done) {
+      _bulkItems[idx].removed = !_bulkItems[idx].removed;
+      renderBulkForms();
+    }
+  };
+
+  window.aplicarGlobalATodos = function() {
+    var prov = (document.getElementById('bulkProvincia').value || '').trim();
+    var muni = (document.getElementById('bulkMunicipio').value || '').trim();
+    var cat = (document.getElementById('bulkCategoria').value || '').trim();
+    if (!prov && !muni && !cat) { alert('Escribe al menos provincia, municipio o categoria.'); return; }
+    var aplicados = 0;
+    _bulkItems.forEach(function(item) {
+      if (item.removed || item.done) return;
+      if (prov) item.datos.provincia = prov;
+      if (muni) item.datos.municipio = muni;
+      if (cat) item.datos.categoria = cat;
+      aplicados++;
+    });
+    renderBulkForms();
+    if (typeof toast === 'function') toast('Aplicado a ' + aplicados + ' producto(s)', 'ok');
+  };
+
+  window.guardarTodosBulk = async function() {
+    if (_bulkBusy) return;
+    var activos = _bulkItems.filter(function(it) { return !it.removed && !it.done; });
+    if (activos.length === 0) { alert('No hay productos para guardar.'); return; }
+
+    var invalidos = [];
+    activos.forEach(function(item) {
+      var num = _bulkItems.indexOf(item) + 1;
+      if (!item.datos.titulo || item.datos.titulo.trim().length < 3) invalidos.push('Foto ' + num + ': titulo muy corto');
+      if (!item.datos.precio_usd || Number(item.datos.precio_usd) <= 0) invalidos.push('Foto ' + num + ': precio USD requerido');
+    });
+    if (invalidos.length > 0) {
+      alert('Corrige estos campos:' + NL + NL + invalidos.slice(0, 5).join(NL) + (invalidos.length > 5 ? NL + '...' : ''));
+      return;
+    }
+
+    _bulkBusy = true;
+    renderBulkForms();
+    var exitos = 0, fallos = 0, fallosDetalle = [];
+
+    for (var i = 0; i < _bulkItems.length; i++) {
+      var item = _bulkItems[i];
+      if (item.removed || item.done) continue;
+      var saveBtn = document.getElementById('bulkSaveBtn');
+      if (saveBtn) saveBtn.textContent = (exitos + fallos + 1) + ' de ' + activos.length + '...';
+      try {
+        if (!item.url) {
+          var b64 = await blobToBase64(item.blob);
+          var rUpload = await fetch(API + '/api/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+            body: JSON.stringify({ image: b64, nombre: 'bulk_' + Date.now() + '_' + i + '.jpg' })
+          });
+          if (!rUpload.ok) throw new Error('Upload HTTP ' + rUpload.status);
+          var dUpload = await rUpload.json();
+          if (!dUpload.ok || !dUpload.url) throw new Error(dUpload.error || 'sin URL');
+          item.url = dUpload.url;
+        }
+        var body = {
+          titulo: item.datos.titulo.trim(),
+          precio_usd: Number(item.datos.precio_usd),
+          precio_cup: item.datos.precio_cup ? Number(item.datos.precio_cup) : null,
+          categoria: item.datos.categoria ? item.datos.categoria.trim() : null,
+          provincia: item.datos.provincia ? item.datos.provincia.trim() : null,
+          municipio: item.datos.municipio ? item.datos.municipio.trim() : null,
+          estado_producto: item.datos.estado_producto || 'nuevo',
+          stock: Number(item.datos.stock) || 1,
+          descripcion: item.datos.descripcion ? item.datos.descripcion.trim() : null,
+          imagenes: [item.url]
+        };
+        var rCreate = await fetch(API + '/api/seller/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+          body: JSON.stringify(body)
+        });
+        var dCreate = await rCreate.json();
+        if (!dCreate.ok) throw new Error(dCreate.error || 'create failed');
+        exitos++;
+        item.done = true;
+      } catch(e) {
+        fallos++;
+        fallosDetalle.push({ num: i + 1, error: e.message });
+        console.warn('[BULK] Foto ' + (i + 1) + ' fallo:', e.message);
+      }
+    }
+
+    _bulkBusy = false;
+    var resumen = 'OK ' + exitos + ' guardados, ERR ' + fallos + ' fallidos';
+    if (fallos > 0) {
+      var detalle = fallosDetalle.map(function(f) { return 'Foto ' + f.num + ': ' + f.error; }).join(NL);
+      alert(resumen + NL + NL + 'Fallidos:' + NL + detalle);
+    } else {
+      if (typeof toast === 'function') toast(resumen, 'ok');
+    }
+    if (exitos > 0) {
+      setTimeout(function() {
+        cerrarBulkModal();
+        if (typeof cargarPerfil === 'function') cargarPerfil();
+      }, 800);
+    } else {
+      renderBulkForms();
+    }
+  };
+
+  console.log('Bulk v2 A.1 listo');
 })();
 </script>
 
