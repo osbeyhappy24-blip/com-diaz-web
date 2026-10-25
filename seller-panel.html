@@ -1062,7 +1062,7 @@ textarea { min-height: 60px; resize: vertical; }
 .bulk-container {
   max-width: 600px;
   margin: 0 auto;
-  padding-bottom: 100px;
+  padding-bottom: 180px; /* ← espacio para el botón fixed */
 }
 .bulk-header {
   position: sticky;
@@ -1157,8 +1157,11 @@ textarea { min-height: 60px; resize: vertical; }
   border: 1px solid #334155;
   border-radius: 14px;
   padding: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   position: relative;
+}
+.bulk-form-card:last-child {
+  margin-bottom: 40px; /* ← espacio extra para el último */
 }
 .bulk-form-card.removed {
   opacity: .35;
@@ -1838,6 +1841,19 @@ async function handleMultiplePhotos(event) {
   console.log('[UPLOAD] Iniciando');
   const files = Array.from(event.target.files);
   if (files.length === 0) { alert('No se recibieron fotos.'); return; }
+
+  // ⚠️ Confirm ANTES de comprimir (mantiene fotos seleccionadas)
+  if (files.length > 10) {
+    const totalFotos = files.length;
+    if (!confirm('Vas a subir ' + totalFotos + ' productos.\n\nSe recomienda MÁXIMO 10 a la vez para evitar errores.\n\n¿Continuar con las ' + totalFotos + ' fotos?')) {
+      // Cancelar → mantener input con las fotos seleccionadas
+      const input = document.getElementById('photoInput');
+      if (input) input.value = '';  // resetear input para permitir nueva selección
+      if (typeof toast === 'function') toast('Cancelado. Puedes quitar algunas fotos y reintentar.', 'ok');
+      return;
+    }
+  }
+
   alert('Recibidas ' + files.length + ' foto(s). Preparando...');
   resetBulkState();
   const statusEl = document.getElementById('photoStatus');
@@ -3300,12 +3316,6 @@ window.forceRegisterPush = async function() {
 
   window.abrirBulkModal = function(items) {
     
-    // ⚠️ Advertir si son muchos productos
-    if (items.length > 10) {
-      if (!confirm('Vas a subir ' + items.length + ' productos. Se recomienda máximo 10 a la vez para evitar errores. ¿Continuar?')) {
-        return;
-      }
-    }
 _bulkItems = items.map(function(item) {
       return {
         blob: item.blob,
