@@ -2153,6 +2153,7 @@ cargarCatalogo();
     const check = () => {
       if ((window.state && window.state.products && window.state.products.length > 0) || productosCargados) {
         productsCache = (window.state && window.state.products) || [];
+        construirPoolThumbs();
         callback();
         return;
       }
@@ -2163,21 +2164,60 @@ cargarCatalogo();
     check();
   }
 
-  // Elegir 4 productos para los thumbnails según filtro
-  function pickThumbs(filtro) {
-    if (!productsCache.length) return [];
-    let pool = productsCache;
+  // Pool fijo de 16 imágenes precargadas (se calcula 1 vez)
+  let _thumbsPool = [];
+  let _thumbsPrecargadas = false;
+
+  function construirPoolThumbs() {
+    if (_thumbsPrecargadas || !productsCache.length) return;
+    // Recoger todas las imágenes válidas del catálogo
+    const todas = productsCache
+      .map(p => p.image || (p.images && p.images[0]))
+      .filter(url => url && url.length > 20 && url.startsWith('http'));
+    // Tomar hasta 16 únicas
+    const unicas = [...new Set(todas)].slice(0, 16);
+    _thumbsPool = unicas;
+    _thumbsPrecargadas = true;
+    console.log('[BANNER] Pool de', _thumbsPool.length, 'imágenes precargadas');
+
+    // Precargar TODAS en caché del navegador
+    _thumbsPool.forEach(url => {
+      const img = new Image();
+      img.src = url;
+    });
+  }
+
+  // Elegir 4 del pool (índice rotativo determinístico por promo)
+  function pickThumbs(filtro, promoIdx) {
+    if (!_thumbsPool.length) construirPoolThumbs();
+    if (!_thumbsPool.length) return [];
+
+    // Filtrar según categoría
+    let pool = _thumbsPool;
     if (filtro === 'local') {
-      pool = productsCache.filter(p => p.tipo === 'local' || p._isLocal || p.source === 'local');
-    } else if (filtro === 'ebay') {
-      pool = productsCache.filter(p => p.source === 'ebay' || (p.tipo !== 'local' && p.source !== 'seller'));
+      pool = productsCache
+        .filter(p => (p.tipo === 'local' || p._isLocal || p.source === 'local') && p.image)
+        .map(p => p.image)
+        .slice(0, 16);
     } else if (filtro === 'seller') {
-      pool = productsCache.filter(p => p.tipo === 'seller' || p.source === 'seller');
+      pool = productsCache
+        .filter(p => (p.tipo === 'seller' || p.source === 'seller') && p.image)
+        .map(p => p.image)
+        .slice(0, 16);
     }
-    if (pool.length === 0) pool = productsCache;
-    // Tomar 4 aleatorios distintos
-    const shuffled = pool.slice().sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 4).map(p => p.image || p.images?.[0]).filter(Boolean);
+    if (pool.length < 4) pool = _thumbsPool;
+    if (pool.length === 0) return [];
+
+    // Precargar este pool si es nuevo
+    pool.forEach(url => { const img = new Image(); img.src = url; });
+
+    // Selección determinística por promoIdx (siempre mismo set para misma promo)
+    const idx = (promoIdx || 0) * 4;
+    const result = [];
+    for (let i = 0; i < 4; i++) {
+      result.push(pool[(idx + i) % pool.length]);
+    }
+    return result;
   }
 
   function renderBanner() {
@@ -2186,7 +2226,7 @@ cargarCatalogo();
 
     const p = promos[promoIndex];
     const colorClass = 'color-' + (p.color || 'gradient');
-    const thumbs = pickThumbs(p.filtro || 'all');
+    const thumbs = pickThumbs(p.filtro || 'all', promoIndex);
 
     box.className = 'shop-banner-promo ' + colorClass;
     box.classList.remove('hidden');
@@ -2194,12 +2234,12 @@ cargarCatalogo();
     box.innerHTML = `
       <div class="banner-bg"></div>
       <div class="banner-thumbs left">
-        <div class="banner-thumb" data-idx="0">${thumbs[0] ? '<img src="' + thumbs[0] + '" alt="" loading="lazy">' : ''}</div>
-        <div class="banner-thumb" data-idx="1">${thumbs[1] ? '<img src="' + thumbs[1] + '" alt="" loading="lazy">' : ''}</div>
+        <div class="banner-thumb" data-idx="0">${thumbs[0] ? '<img src="' + thumbs[0] + '" alt="" loading="eager" decoding="async" onerror="this.parentNode.style.background=\'linear-gradient(135deg, #1e293b, #334155)\'; this.remove();">' : '<div style="width:100%;height:100%;background:linear-gradient(135deg, #1e293b, #334155);"></div>'}</div>
+        <div class="banner-thumb" data-idx="1">${thumbs[1] ? '<img src="' + thumbs[1] + '" alt="" loading="eager" decoding="async" onerror="this.parentNode.style.background=\'linear-gradient(135deg, #1e293b, #334155)\'; this.remove();">' : '<div style="width:100%;height:100%;background:linear-gradient(135deg, #1e293b, #334155);"></div>'}</div>
       </div>
       <div class="banner-thumbs right">
-        <div class="banner-thumb" data-idx="2">${thumbs[2] ? '<img src="' + thumbs[2] + '" alt="" loading="lazy">' : ''}</div>
-        <div class="banner-thumb" data-idx="3">${thumbs[3] ? '<img src="' + thumbs[3] + '" alt="" loading="lazy">' : ''}</div>
+        <div class="banner-thumb" data-idx="2">${thumbs[2] ? '<img src="' + thumbs[2] + '" alt="" loading="eager" decoding="async" onerror="this.parentNode.style.background=\'linear-gradient(135deg, #1e293b, #334155)\'; this.remove();">' : '<div style="width:100%;height:100%;background:linear-gradient(135deg, #1e293b, #334155);"></div>'}</div>
+        <div class="banner-thumb" data-idx="3">${thumbs[3] ? '<img src="' + thumbs[3] + '" alt="" loading="eager" decoding="async" onerror="this.parentNode.style.background=\'linear-gradient(135deg, #1e293b, #334155)\'; this.remove();">' : '<div style="width:100%;height:100%;background:linear-gradient(135deg, #1e293b, #334155);"></div>'}</div>
       </div>
       <div class="banner-content">
         ${p.badge ? '<div class="banner-badge ' + (p.badgeColor || 'hot') + '">' + p.badge + '</div>' : ''}
