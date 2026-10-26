@@ -2175,14 +2175,27 @@ cargarCatalogo();
       .map(p => p.image || (p.images && p.images[0]))
       .filter(url => url && url.length > 20 && url.startsWith('http'));
     // Tomar hasta 16 únicas
-    const unicas = [...new Set(todas)].slice(0, 16);
+    const unicas = [...new Set(todas)].slice(0, 24);
     _thumbsPool = unicas;
     _thumbsPrecargadas = true;
     console.log('[BANNER] Pool de', _thumbsPool.length, 'imágenes precargadas');
 
-    // Precargar TODAS en caché del navegador
+    // Precargar TODAS en caché del navegador y esperar a que carguen
+    let cargadas = 0;
+    const total = _thumbsPool.length;
+    console.log('[BANNER] Precargando', total, 'imágenes...');
+    
     _thumbsPool.forEach(url => {
       const img = new Image();
+      img.onload = () => {
+        cargadas++;
+        if (cargadas === total) {
+          console.log('[BANNER] Pool completo: ' + total + ' imágenes listas');
+        }
+      };
+      img.onerror = () => {
+        cargadas++;
+      };
       img.src = url;
     });
   }
@@ -2223,6 +2236,13 @@ cargarCatalogo();
   function renderBanner() {
     const box = document.getElementById('shopBanner');
     if (!box || !promos.length) return;
+    
+    // Si el pool no está listo aún, esperar 500ms y reintentar
+    if (!_thumbsPrecargadas && productsCache.length > 0) {
+      construirPoolThumbs();
+      setTimeout(renderBanner, 500);
+      return;
+    }
 
     const p = promos[promoIndex];
     const colorClass = 'color-' + (p.color || 'gradient');
