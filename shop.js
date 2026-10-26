@@ -2250,20 +2250,34 @@ cargarCatalogo();
 
   async function cargarPromos() {
     try {
-      const r = await fetch(API_BASE + '/api/public/config');
-      if (!r.ok) return;
-      const cfg = await r.json();
-      const shopCfg = cfg.config || cfg.shopConfig || cfg;
-      rotacionSeg = Number(shopCfg.rotacionSeg) || 4;
+      // 1. Cargar banners REALES (dinámicos)
+      let bannersReales = [];
+      try {
+        const r = await fetch(API_BASE + '/api/public/banners-real');
+        if (r.ok) {
+          const d = await r.json();
+          if (d.ok && Array.isArray(d.banners)) {
+            bannersReales = d.banners.filter(p => p && p.activo !== false && p.texto);
+          }
+        }
+      } catch(_) {}
 
-      const promosBase = (Array.isArray(shopCfg.promociones) ? shopCfg.promociones : [])
-        .filter(p => p && p.activo !== false && p.texto)
-        .sort((a,b) => (a.orden||99) - (b.orden||99));
+      // 2. Fallback a config viejo si banners-real falla
+      let promosBase = [];
+      let rotacionSeg = 4;
+      if (bannersReales.length === 0) {
+        const r = await fetch(API_BASE + '/api/public/config');
+        if (r.ok) {
+          const cfg = await r.json();
+          const shopCfg = cfg.config || cfg.shopConfig || cfg;
+          rotacionSeg = Number(shopCfg.rotacionSeg) || 4;
+          promosBase = (Array.isArray(shopCfg.promociones) ? shopCfg.promociones : [])
+            .filter(p => p && p.activo !== false && p.texto)
+            .sort((a,b) => (a.orden||99) - (b.orden||99));
+        }
+      }
 
-      const aiArr = (Array.isArray(shopCfg.aiBanners) ? shopCfg.aiBanners : [])
-        .filter(p => p && p.activo !== false && p.texto);
-
-      promos = promosBase.concat(aiArr);
+      promos = bannersReales.length > 0 ? bannersReales : promosBase;
 
       if (promos.length === 0) return;
 
