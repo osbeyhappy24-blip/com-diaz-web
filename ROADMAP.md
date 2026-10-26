@@ -1,178 +1,281 @@
 # Comdiaz Shop — ROADMAP
-**Última actualización:** 25 Oct 2026, tarde
+**Última actualización:** 26 Oct 2026
 
 ---
 
-## ✅ COMPLETADO (Sesión 25 Oct)
+## ✅ COMPLETADO (Sesiones 23-26 Oct)
 
-### Sistema de referidos 100% end-to-end
+### 🎁 Sistema de Referidos (100% end-to-end)
 - [x] Código único determinístico por sellerId (inmutable)
-- [x] Link compartido → seller.html?ref=CODIGO (fix aplicado)
-- [x] Notif `referral_registered` inmediata al referente
-- [x] Notif `referral_bonus` al aprobar (+5 productos)
+- [x] Link compartido → seller.html?ref=CODIGO
+- [x] Notificación `referral_registered` inmediata
+- [x] Notificación `referral_bonus` al aprobar (+5)
+- [x] **Persistencia: sobrevive redeploys** (guardarEnNube + cargarDesdeNube)
+- [x] Cada seller tiene su código auto-generado
 - [x] Push en barra Android funcionando
-- [x] Cada seller tiene su código único automático
-- [x] Test real con Keila (esposa de Osbey) exitoso
 - [x] Soft delete libera teléfono para re-registro
+- [x] Endpoint repair para casos edge
+- [x] Bonus visible en panel vendedor (cuota_max)
+- [x] Sección "Comparte y gana" movida arriba (visible)
+- [x] Botón Compartir con `navigator.share` (modal nativo Android)
+- [x] Botón vibrante (gradiente animado + pulse + shine)
+- [x] Título "🎁 Comparte y gana productos gratis"
 
-### Robustez y escalabilidad
+### 🔒 Headers de Seguridad (100% via Render API)
+- [x] Content-Security-Policy
+- [x] Permissions-Policy
+- [x] Referrer-Policy
+- [x] X-Content-Type-Options
+- [x] X-Frame-Options
+- [x] Configurados via API Render (PUT /v1/services/{id}/headers)
+
+### 📸 Carga Masiva (100% completo)
+- [x] A.1 UI: formularios por foto (lista vertical)
+- [x] A.1: preview + campos editables por foto
+- [x] A.1: provincia/municipio desplegable (16 prov + 168 mun)
+- [x] A.1: sección "Aplicar a TODOS"
+- [x] A.1: botón ✕ eliminar foto del lote
+- [x] A.1: banner precaución >10 productos
+- [x] A.1: confirm antes de comprimir si >10
+- [x] A.1: auto-scroll al primer form
+- [x] A.1: layout flex (botón no tapa campos)
+- [x] A.2: IndexedDB borradores
+- [x] A.2: auto-save cada 1.5s
+- [x] A.2: heartbeat cada 5s
+- [x] A.2: saveSync en visibilitychange/pagehide/beforeunload
+- [x] A.2: banner recuperar borrador
+- [x] A.2: recuperar / descartar
+- [x] A.3: cola pendientes de sincronizar
+- [x] A.3: retry con backoff (2s/4s/6s)
+- [x] A.3: banner rojo pendientes
+- [x] A.3: auto-sync al recuperar conexión
+- [x] A.3: cleanup borradores >7 días
+- [x] Bugs: timeout 30s por foto, 401 mid-upload, quota exceeded
+
+### 🚨 Cap 5000 + Automation (100% resuelto)
+- [x] Bug: catálogo excedía 125% (6260/5000)
+- [x] Fix A: purgaDefensivaCap() recorta por score/publicados/IA
+- [x] Fix B: mergeProducts rechaza si activos >= CATALOG_CAP
+- [x] Fix C: ebay-notification NO agrega productos (verificado)
+- [x] Fix D: automation.running = false si cap alcanzado
+- [x] Fix E: cron cada hora valida y purga
+- [x] Endpoint /api/admin/automation/cap-check (forzar manual)
+- [x] /api/automation/start rechaza si cap (429)
+- [x] **Estado actual: 5000/5000 activos, automation: false**
+
+### ⚡ Escalabilidad
 - [x] Rate limit adaptativo: 20/40/80/120 por plan
-- [x] Caché 30s en `/api/public/local` (6s → 1.3s)
+- [x] Caché 30s /api/public/local (6s → 1.3s = 4-6x)
 - [x] Circuit breaker imgbb (5 fallos → 60s)
 - [x] Fix bodyLimit Fastify 1MB → 5MB
-- [x] Fix CSS header (se perdió, re-añadido)
-- [x] Fix banner JS cfg.config
+- [x] Save queue serial (no race conditions)
 
-### Fixes UI
-- [x] Compresión fotos 900px@75% (~80KB)
-- [x] Upload con retry 2x + skip failures + resumen
-- [x] navigator.share (modal nativo Android - todas las apps)
-- [x] Sección "Comparte y gana" movida arriba (visible)
+### 🔐 Seguridad
+- [x] Rate limit login: 5/15min por IP+teléfono
+- [x] Rate limit register: 3/hora por IP
+- [x] Rate limit upload: 30/min por sellerId
+- [x] CORS preflight Authorization
+- [x] password_hash nunca expuesto
+- [x] Errores sin stack traces
+- [x] Aislamiento: sellers no se ven entre sí
+- [x] bcrypt hashing
+- [x] Validación UUID en seller-contact
 
-### Estado actual
-| Métrica | Valor |
-|---|---|
-| Sellers aprobados | 3 (Osbey Pro + Keila + Yaumel basico) |
-| Sellers suspendidos | 9 (tests) |
-| Sellers eliminados | 1 (Keila antigua - soft delete) |
-| Productos activos | 11 (10 manuales + 1 seller) |
-| Push subs | 1 activa (Osbey) |
-| Referidos activos | 1 (Keila referida por Osbey) |
-| Pagos procesados | 1 ($5 Pro) |
+### 🎨 Shop Rediseño Cubano
+- [x] Paleta: azul #003f7f, rojo #dc2626, amarillo #fbbf24
+- [x] Hero banner con buscador
+- [x] Header vivo: 4 botones (Vender/Pedidos/Carrito/WhatsApp)
+- [x] Tabs: Todo/Locales/Importados (sin Temu/Amazon)
+- [x] Cards con badge por tipo + avatar flotante sellers
+- [x] Banner turista v2 con thumbnails de productos
+- [x] 5 promos rotando cada 4s (HOT/SALE/LIMITED/NEW/FREE)
+- [x] SEO completo (og:*, twitter:*)
+- [x] Cache-busters actualizados
+
+### 💳 Sistema de Pagos
+- [x] Modal con Zelle/USDT/CUP
+- [x] Flujo: solicitar → WhatsApp admin → aprobar → +30d
+- [x] Cola admin con badge
+- [x] 7 endpoints backend
+- [x] Notif Telegram al admin
+- [x] Notif in-app al aprobar
+
+### 🔔 Notificaciones
+- [x] In-app: badge + panel + toast + swipe + tiempo relativo
+- [x] Web Push Android (FCM acepta 201, verificado en tests)
+- [x] Persistencia: sobrevive redeploys (6 campos críticos)
+- [x] 10 tipos (aprobado, suspendido, plan_*, pago_*, referral_*)
+- [x] Cron 1h limpia rateLimitMap/failMap/loginAttempts
 
 ---
 
-## 🔴 PRÓXIMO BLOQUE — Carga masiva UI (90 min)
+## 🔴 PRÓXIMOS BLOQUES (Prioridad ALTA)
 
-### A.1 — UI formularios por foto (30 min)
-- Lista vertical: 1 formulario por foto
-- Preview + campos por foto
-- Sección "🌍 Aplicar a TODOS"
-- Botón "💾 Guardar N productos"
+### 1. Banners reales dinámicos (45 min)
+**Problema:** 4 de 5 textos son ficticios:
+- ❌ "-25% productos locales" (no hay descuentos)
+- ❌ "Compra 2 y llévate 3" (no existe)
+- ❌ "Envío gratis +$50" (sin regla)
+- ❌ "Nuevos productos cada semana" (sin nuevos reales)
+- ✅ "Sin comisiones WhatsApp" (única real)
 
-### A.2 — IndexedDB offline (30 min)
-- Guardar cambios automáticamente
-- Recuperar al reabrir
-
-### A.3 — Cola de sync (30 min)
-- Reintentos con backoff (1s→2s→4s→8s)
-- Sección "⏳ Pendientes de sincronizar"
-- Botón "🔄 Sincronizar ahora"
-
----
-
-## 🟡 PRÓXIMAS SESIONES — Prioridad MEDIA
-
-### Banners reales dinámicos (45 min)
-**Problema:** 4 de 5 textos del banner son ficticios.
-**Fix:**
-- Reemplazar por 5 REALES calculados del catálogo
-- "X productos disponibles" (contar)
+**Fix:** 5 textos dinámicos basados en catálogo:
+- "X productos disponibles" (contar results)
 - "Desde $[min] USD" (más barato real)
-- "X vendedores verificados"
-- "Compra directo sin comisiones"
+- "X vendedores verificados" (contar aprobados)
+- "Compra directo por WhatsApp" (sin comisiones real)
 - "Productos cubanos e importados"
-- Deshabilitar aiBanners hasta IA real
+- Deshabilitar aiBanners genéricos
 
-### Compartir producto con link (20 min)
-- Botón "🔗 Compartir" en cada card
-- Genera: `shop.html?product=<id>`
-- Al abrir: scroll al producto + abre modal
-- Usa `navigator.share()` (todas las apps)
+### 2. Compartir producto con link directo (20 min)
+- Botón "🔗 Compartir" en cada product card
+- Genera link: shop.html?product=<id>
+- Al abrir → scroll al producto + abre modal
+- Usa navigator.share() (todas las apps Android)
 
-### IA fotos locales (120 min)
-**Lo que pediste:**
-- Detectar si foto es de cámara (EXIF)
-- Solo procesar las feas
-- Mejorar con Gemini
+### 3. Verificación visual completa (30 min)
+**Shop pública:**
+- [ ] Header 4 botones con colores
+- [ ] Banner v2 rota cada 4s con thumbnails
+- [ ] Tabs: 3 (sin Temu/Amazon)
+- [ ] Cards: avatar sellers + "Verificado"
+- [ ] Sin tag de nombre del vendedor
+- [ ] WhatsApp por tipo de producto
+- [ ] Responsive en móvil
+
+**Panel vendedor:**
+- [ ] Referidos ARRIBA del botón Añadir productos
+- [ ] Link seller.html?ref= correcto
+- [ ] Botón Compartir vibrante
+- [ ] Cuota incluye bonus referidos
+- [ ] Modal bulk abre sin overlap
+
+**Admin panel:**
+- [ ] Stats: 5000/5000 correcto
+- [ ] Automation: false
+- [ ] Ranking referidos visible
+- [ ] Notif push con icono Shop
+
+---
+
+## 🟡 PRÓXIMAS SESIONES (Prioridad MEDIA)
+
+### 4. Antifraude SMS OTP (90 min + Firebase setup)
+- Verificar que el teléfono sea real
+- Firebase Phone Auth (10k/mes gratis)
+- Al registrar: enviar código 6 dígitos
+- Sin verificar → cuenta pendiente
+
+### 5. IA fotos locales (120 min)
+- Detectar fotos de cámara vs editadas (EXIF)
+- Mejorar fotos feas con Gemini
 - Generar descripción automática
 - Respetar cuota diaria API
+- **Las 10 fotos locales actuales sin descripción se pueden generar**
 
-### Antifraude SMS OTP (90 min)
-**Lo que pediste:**
-- Verificar que teléfono sea real
-- Enviar código 6 dígitos por SMS/WhatsApp
-- Requiere Firebase Phone Auth (10k/mes gratis)
+### 6. Notificaciones compradores (120 min)
+- Agrupación por provincia (no 1x1)
+- Resumen cada 12h: "25 productos nuevos en La Habana"
+- Cap 2/día por comprador
+- Popup auto-activar (Chrome requiere gesture)
 
-### Push Android TWA (variable)
-- FCM acepta pero Android no muestra (bug PWABuilder)
-- Recompilar APK con Bubblewrap actualizado
-- O usar PWA Chrome para push
-
-### APK admin completa (14 items)
-- Editor métodos de pago
-- Dashboard financiero
-- Ver productos por vendedor
-- Editar notas internas
-- Log de auditoría
-- Historial de pagos
-- Exportar CSV
-- Editor de promociones
-- Etc.
+### 7. APK admin completa (2-3h)
+**14 items faltantes:**
+- [ ] Editor métodos de pago
+- [ ] Dashboard financiero
+- [ ] Ver productos por vendedor
+- [ ] Editar notas internas
+- [ ] Log de auditoría
+- [ ] Historial completo de pagos
+- [ ] Exportar CSV
+- [ ] Editor de promociones
+- [ ] Ver productos ocultos
+- [ ] Reactivar suspendido_pago manual
+- [ ] Detección de abuso
+- [ ] Preview banner en vivo
+- [ ] Editor de categorías
+- [ ] Historial notifs por seller
 
 ---
 
-## 🟢 BACKLOG — Prioridad BAJA
+## 🟢 BACKLOG (Prioridad BAJA)
 
-### Seguridad
+### Seguridad avanzada
 - [ ] 2FA admin (Google Authenticator)
-- [ ] Rotación PIN admin
+- [ ] Rotación automática PIN admin
 - [ ] Verificar email al registrar
-- [ ] Log de accesos admin
-- [ ] Detección de duplicados
+- [ ] Log de accesos admin (IP, hora)
+- [ ] Detección duplicados (mismo producto 2 sellers)
+
+### UX
+- [ ] Sonido custom push (requiere TWA recompilado)
+- [ ] Modo oscuro
+- [ ] Favoritos/wishlist
+- [ ] Chat interno comprador-vendedor
+- [ ] App PWA instalable
+
+### Monetización
+- [ ] Destacados pagados ($1/7 días)
+- [ ] Planes anuales con descuento
+- [ ] Comisiones por venta (opcional)
 
 ### Capacidad (mes 3-6)
 - [ ] Bump `state.notifications` 500 → 2000
 - [ ] Bump `state.sellerSubscriptions` 500 → 5000
-- [ ] Migrar notifs/subs a Supabase si crece
-- [ ] Cron limpiador (notifs >30d)
-
-### UX
-- [ ] Sonido custom push (requiere TWA)
-- [ ] Modo oscuro
-- [ ] Favoritos/wishlist
-- [ ] Chat interno comprador-vendedor
+- [ ] Migrar notifs/subs a Supabase
+- [ ] Índices Supabase para búsquedas
 
 ---
 
 ## 🚨 RIESGOS CONOCIDOS
 
-### Termux NO tiene /tmp/
-- `curl -o /tmp/x` falla silencioso
-- Usar `$HOME/` o pipes `| head -c 500`
-- Nos hizo perder 2+ horas en diagnóstico falso
+### Push Android TWA
+- FCM acepta 201 pero Android no siempre muestra
+- Bug conocido de PWABuilder/Bubblewrap
+- **Workaround:** PWA Chrome para push
 
-### Cold start de Render
+### Termux NO tiene /tmp/
+- `curl -o /tmp/x` falla silenciosamente
+- Usar `$HOME/` o pipes `| head -c 500`
+- **Este bug nos hizo perder 2+ horas**
+
+### Cold start Render
 - Backend free tier duerme tras 15min
 - Primera request: 30-50s
-- Frontend timeout 45s + retry
-
-### Push Android en TWA
-- Bug conocido de PWABuilder
-- Workaround: PWA Chrome
+- Frontend tiene timeout 45s + retry
 
 ### Caps de storage
 | Storage | Cap | Se llena |
 |---|---|---|
-| notifications | 500 | 2 semanas |
-| sellerSubscriptions | 500 | 500 sellers |
-| payments | 1000 | 1 año |
-| Supabase prod | 500MB | 3+ años |
+| state.notifications | 500 | ~2 semanas |
+| state.sellerSubscriptions | 500 | >500 sellers |
+| state.payments | 1000 | ~1 año |
+| state.results | 5000 (ACTIVO) | ✅ en cap |
+| Supabase seller_products | 500MB | 3+ años |
 
 ---
 
-## 📏 REGLAS
+## 📏 REGLAS DEL PROYECTO
 
-1. Nada de lo hecho se pierde
-2. Cache-busters en cada deploy
-3. Verificar en prod con curl ANTES de cerrar
-4. **NUNCA usar `/tmp/` en Termux**
-5. Alerts cuando algo falla silenciosamente
-6. Scripts reusables en `~/comdiaz/`
+1. **Nada se pierde** — cambios aditivos con backup
+2. **Cache-busters en cada deploy** (`?v=N`)
+3. **Verificar en prod con curl ANTES de cerrar**
+4. **Cada push = redeploy Render** (evitar innecesarios)
+5. **NUNCA usar `/tmp/` en Termux** (usar `$HOME/`)
+6. **Alerts cuando algo falla silenciosamente**
+7. **No dejar returns silenciosos** (siempre mostrar error)
+8. **Fixes estructurales > padding hacks** (lección del footer overlap)
+
+### Scripts reusables en ~/comdiaz/
+- `test-e2e.sh` — backend end-to-end
+- `audit.sh` — auditoría general
+- `audit-crons.sh` — crones
+- `audit-full.sh` — 13 secciones
+- `audit-profunda.sh` — 9 áreas
 
 ---
 
-## 🔗 LINKS
+## 🔗 LINKS DE PRODUCCIÓN
 
 - Shop: https://com-diaz-web.onrender.com/shop.html
 - Registro: https://com-diaz-web.onrender.com/seller.html
@@ -183,22 +286,40 @@
 - Grupo WA: https://chat.whatsapp.com/HVbGq9WJLgzLVSvhY9WDqh
 - WA admin: 5351425691
 - Osbey: 5358980267 / código OSBEY02676H0
+- Render Service ID (frontend): srv-db2bap6i0phs73e2bf7g
 
 ---
 
-## 📊 HISTORIAL
+## 📊 ESTADO ACTUAL (26 Oct 2026)
 
-- Sesión 22 Oct: Panel vendedor
-- Sesión 23 Oct: Notificaciones + monetización
-- Sesión 24 Oct: Shop rediseño + pagos + referidos
-- Sesión 25 Oct: Robustez + referidos 100% + push Android OK
+| Métrica | Valor |
+|---|---|
+| Productos activos | **5000/5000 (CAP)** |
+| Automation | **false** ✅ |
+| Categorías | 36 |
+| Con IA | 5965 |
+| Pendientes IA | 295 |
+| Sellers aprobados | 3 (Osbey Pro + Keila + Yaumel) |
+| Sellers suspendidos | 9 (tests) |
+| Sellers eliminados | 1 (Keila antigua) |
+| Bonus referidos | Osbey: +5 (persistido) |
+| Pagos procesados | 1 ($5 Pro) |
+| Push subs | 1 activa |
+| Headers seguridad | ✅ Todos configurados |
+| Referrals persistencia | ✅ Verificada tras redeploy |
+| Carga masiva | ✅ A.1 + A.2 + A.3 |
 
 ---
 
-**Para retomar:** "seguimos con Comdiaz" → leo este ROADMAP.
+## 🎯 PRÓXIMA SESIÓN — Orden sugerido
 
-**Prioridades próxima sesión:**
-1. Carga masiva A.1 + A.2 + A.3 (90 min)
-2. Banners reales dinámicos (45 min)
-3. Compartir producto con link (20 min)
-4. IA fotos locales (120 min)
+1. **Verificación visual** (30 min)
+2. **Banners reales dinámicos** (45 min)
+3. **Compartir producto con link** (20 min)
+4. Luego: **Antifraude SMS** o **IA fotos** o **APK admin**
+
+---
+
+**Para retomar:** di "seguimos con Comdiaz" → leo ROADMAP.
+
+**Última actualización:** 26 Oct 2026
