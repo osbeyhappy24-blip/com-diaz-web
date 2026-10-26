@@ -17,7 +17,7 @@
 })();
 
 const API_LOCAL = 'http://localhost:3000';
-const API_PROD  = 'https://com-diaz.onrender.com';
+const API_PROD  = 'https://dice-duo-valentine-controversy.trycloudflare.com';
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? API_LOCAL
   : API_PROD;
@@ -4014,7 +4014,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   async function cargarProvincias() {
     if (provinciasCache) return provinciasCache;
     try {
-      const r = await fetch('https://com-diaz.onrender.com/api/public/provincias');
+      const r = await fetch('https://dice-duo-valentine-controversy.trycloudflare.com/api/public/provincias');
       const d = await r.json();
       provinciasCache = d.provincias || {};
       return provinciasCache;

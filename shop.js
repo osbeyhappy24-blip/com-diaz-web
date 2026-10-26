@@ -2,7 +2,7 @@
 
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:3000'
-  : 'https://com-diaz.onrender.com';
+  : 'https://dice-duo-valentine-controversy.trycloudflare.com';
 
 // Helper: URL de WhatsApp TWA-aware
 function _waUrl(phone, text) {
