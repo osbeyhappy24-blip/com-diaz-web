@@ -379,6 +379,7 @@ function renderProductos() {
         <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}${p._isLocal && p.precioCUP ? `<span style="font-size:11px;color:#6b7280;margin-left:6px">· ${Number(p.precioCUP).toLocaleString()} CUP</span>` : ''}</div>
         <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
         <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
+        <button class="product-share" data-share-id="${p.id}" title="Compartir producto" style="margin-top:6px;width:100%;padding:8px;border-radius:8px;border:1px solid #003f7f;background:white;color:#003f7f;font-size:13px;cursor:pointer;font-weight:600;">🔗 Compartir</button>
       </div>
     `;
 
@@ -393,6 +394,16 @@ function renderProductos() {
       e.stopPropagation();
       pedirPorWhatsApp(p);
     });
+
+    // Boton de compartir (link directo al producto)
+    const shareBtn = card.querySelector('.product-share');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        compartirProducto(p);
+      });
+    }
 
     grid.appendChild(card);
   });
@@ -437,6 +448,85 @@ function pedirPorWhatsApp(producto) {
 }
 
 // ─── Modal de producto ───
+// ─── Compartir producto (link directo) ───
+async function compartirProducto(p) {
+  const id = p && p.id != null ? String(p.id) : '';
+  if (!id) { alert('No se puede compartir este producto'); return; }
+
+  const base = location.origin + location.pathname;
+  const url = base + '?product=' + encodeURIComponent(id);
+  const titulo = p.aiTitulo || p.title || 'Producto';
+  const precio = p.salePrice ? ' — Desde $' + Number(p.salePrice).toFixed(2) + ' USD' : '';
+  const texto = 'Mira este producto en Comdiaz: ' + titulo + precio + ' 🇨🇺';
+
+  // 1) Web Share API nativo (Android / iOS / desktop moderno)
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Comdiaz Shop', text: texto, url: url });
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;  // usuario canceló
+    }
+  }
+
+  // 2) Fallback: copiar al portapapeles
+  try {
+    await navigator.clipboard.writeText(texto + '\n' + url);
+    alert('✅ Enlace copiado. Pégalo en WhatsApp o donde quieras:\n' + url);
+  } catch {
+    // 3) Último recurso: prompt con el link
+    window.prompt('Copia este enlace para compartir:', url);
+  }
+}
+window.compartirProducto = compartirProducto;
+
+// ─── Abrir producto desde URL (?product=<id>) ───
+(function initProductFromURL() {
+  function intentarAbrir() {
+    try {
+      const params = new URLSearchParams(location.search);
+      const pid = params.get('product');
+      if (!pid) return true;  // no hay nada que hacer
+
+      const st = (typeof state !== 'undefined' && state) ? state : (window.state || {});
+      const todos = [].concat(st.products || [], st.filtered || []);
+      const p = todos.find(function(x) { return String(x.id) === String(pid); });
+
+      if (p) {
+        abrirModalProducto(p);
+        // Limpiar param de URL para no re-abrir al recargar
+        try {
+          const cleanUrl = location.origin + location.pathname + (location.hash || '');
+          history.replaceState(null, '', cleanUrl);
+        } catch (e) { /* noop */ }
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.warn('[share] Error abriendo producto desde URL:', err);
+      return true;  // no reintentar infinito
+    }
+  }
+
+  let intentos = 0;
+  const maxIntentos = 24;  // 24 * 500ms = 12s
+  function retry() {
+    if (intentarAbrir()) return;
+    intentos++;
+    if (intentos < maxIntentos) {
+      setTimeout(retry, 500);
+    } else {
+      console.warn('[share] Producto no encontrado tras 12s. Puede que no exista o la red esté lenta.');
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(retry, 600); });
+  } else {
+    setTimeout(retry, 600);
+  }
+})();
+
 function abrirModalProducto(p) {
   const modal = $('productModal');
   $('pmImage').src = p.image || '';
