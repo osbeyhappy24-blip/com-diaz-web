@@ -395,13 +395,17 @@ function renderProductos() {
       pedirPorWhatsApp(p);
     });
 
-    // Boton de compartir (link directo al producto)
+    // Boton de compartir (usa el mismo formato rico del módulo v1)
     const shareBtn = card.querySelector('.product-share');
     if (shareBtn) {
       shareBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
-        compartirProducto(p);
+        if (typeof window.compartirV1 === 'function') {
+          window.compartirV1(p);
+        } else if (typeof compartirProducto === 'function') {
+          compartirProducto(p);  // fallback
+        }
       });
     }
 
@@ -493,7 +497,8 @@ window.compartirProducto = compartirProducto;
       const p = todos.find(function(x) { return String(x.id) === String(pid); });
 
       if (p) {
-        abrirModalProducto(p);
+        const opener = (typeof window.abrirModalProducto === 'function') ? window.abrirModalProducto : abrirModalProducto;
+        opener(p);
         // Limpiar param de URL para no re-abrir al recargar
         try {
           const cleanUrl = location.origin + location.pathname + (location.hash || '');
@@ -1552,7 +1557,7 @@ cargarCatalogo();
   function generarMensaje(p) {
     const titulo = p.title || 'Producto';
     const precio = Number(p.salePrice || 0).toFixed(2);
-    const shopUrl = 'https://com-diaz-web.onrender.com/shop.html';
+    const shopUrl = 'https://com-diaz-web.onrender.com/shop.html' + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
     const wa = (state && state.config && state.config.whatsapp) || '5351425691';
     const tienda = (state && state.config && state.config.titulo) || 'Comdiaz Shop';
 
@@ -1596,6 +1601,8 @@ cargarCatalogo();
     }
   });
 
+  // Exponer para que el botón de la card use el mismo formato rico
+  window.compartirV1 = compartir;
   console.log('✅ Compartir producto listo');
 })();
 
