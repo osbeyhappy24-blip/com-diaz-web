@@ -24,6 +24,49 @@ const API = (location.hostname === 'localhost' || location.hostname === '127.0.0
 
 let state = null;
 
+// ═══════════════════════════════════════════════════════════
+// LOGIN CON PIN — pide PIN si no hay uno guardado
+// ═══════════════════════════════════════════════════════════
+async function asegurarLogin() {
+  // Si ya hay PIN guardado, verificar que funcione
+  const saved = localStorage.getItem('comdiaz_api_key');
+  if (saved) {
+    try {
+      const r = await fetch(API_PROD + '/api/home', {
+        headers: { 'X-Comdiaz-Key': saved }
+      });
+      if (r.ok) return true;  // PIN válido, continuar
+    } catch(e) {}
+    // PIN guardado no funciona, pedir de nuevo
+    localStorage.removeItem('comdiaz_api_key');
+  }
+
+  // Pedir PIN en bucle hasta que sea válido o el usuario cancele
+  for (let intento = 0; intento < 5; intento++) {
+    const pin = prompt(intento === 0
+      ? '🔑 Introduce el PIN del admin:'
+      : '❌ PIN incorrecto. Intenta de nuevo (o Cancelar para salir):');
+    if (!pin) { alert('Login cancelado'); return false; }
+
+    try {
+      const r = await fetch(API_PROD + '/api/home', {
+        headers: { 'X-Comdiaz-Key': pin.trim() }
+      });
+      if (r.ok) {
+        localStorage.setItem('comdiaz_api_key', pin.trim());
+        return true;
+      } else {
+        alert('PIN incorrecto');
+      }
+    } catch(e) {
+      alert('Error de conexión: ' + e.message);
+    }
+  }
+
+  alert('Demasiados intentos. Recarga la página.');
+  return false;
+}
+
 const $ = id => document.getElementById(id);
 const fmtMoney = n => '$' + Number(n).toFixed(2);
 
@@ -104,6 +147,8 @@ function renderCategories() {
           method:'POST',
           body: JSON.stringify({ label: c.label }),
         });
+        const ok = await asegurarLogin();
+        if (!ok) return;
         await refresh();
         toast(`Eliminada: ${c.label}`);
       };
