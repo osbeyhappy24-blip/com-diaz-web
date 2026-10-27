@@ -17,7 +17,7 @@
 })();
 
 const API_LOCAL = 'http://localhost:3000';
-const API_PROD  = 'https://circumstances-palmer-cut-enlarge.trycloudflare.com';
+const API_PROD  = 'https://com-diaz-ty2b.onrender.com';
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? API_LOCAL
   : API_PROD;
@@ -329,7 +329,7 @@ async function generarShare() {
     waBtnEl.href = '#';
     waBtnEl.onclick = (e) => { e.preventDefault(); (window.comdiaz_abrirWA || function(n,t){window.open('https://wa.me/'+n+'?text='+t,'_blank')})('5351425691', decodeURIComponent(enc)); };
   }
-  $('fbBtn').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-web.onrender.com/shop.html');
+  $('fbBtn').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-ty2b.onrender.com/shop.html');
 }
 
 $('shareBtn').onclick = async () => {
@@ -3856,7 +3856,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     const t = $id('postsTexto');
     if (!t || !t.value) return;
     const texto = encodeURIComponent(t.value);
-    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-web.onrender.com/shop.html') + '&quote=' + texto, '_blank');
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://com-diaz-ty2b.onrender.com/shop.html') + '&quote=' + texto, '_blank');
   }
 
   document.addEventListener('click', (e) => {
@@ -4014,7 +4014,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   async function cargarProvincias() {
     if (provinciasCache) return provinciasCache;
     try {
-      const r = await fetch('https://circumstances-palmer-cut-enlarge.trycloudflare.com/api/public/provincias');
+      const r = await fetch('https://com-diaz-ty2b.onrender.com/api/public/provincias');
       const d = await r.json();
       provinciasCache = d.provincias || {};
       return provinciasCache;

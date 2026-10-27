@@ -2,7 +2,7 @@
 
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:3000'
-  : 'https://circumstances-palmer-cut-enlarge.trycloudflare.com';
+  : 'https://com-diaz-ty2b.onrender.com';
 
 // Helper: URL de WhatsApp TWA-aware
 function _waUrl(phone, text) {
@@ -1557,7 +1557,7 @@ cargarCatalogo();
   function generarMensaje(p) {
     const titulo = p.title || 'Producto';
     const precio = Number(p.salePrice || 0).toFixed(2);
-    const shopUrl = 'https://com-diaz-web.onrender.com/shop.html' + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
+    const shopUrl = 'https://com-diaz-ty2b.onrender.com/shop.html' + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
     const wa = (state && state.config && state.config.whatsapp) || '5351425691';
     const tienda = (state && state.config && state.config.titulo) || 'Comdiaz Shop';
 
