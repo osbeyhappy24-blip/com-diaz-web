@@ -147,8 +147,6 @@ function renderCategories() {
           method:'POST',
           body: JSON.stringify({ label: c.label }),
         });
-        const ok = await asegurarLogin();
-        if (!ok) return;
         await refresh();
         toast(`Eliminada: ${c.label}`);
       };
@@ -354,7 +352,12 @@ $('newCatInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') $('addCatBtn').click();
 });
 
-refresh();
+// ═══ ARRANQUE DEL ADMIN — login con PIN antes de cargar ═══
+(async () => {
+  const ok = await asegurarLogin();
+  if (!ok) return;
+  await refresh();
+})();
 setInterval(refresh, 15000);
 
 // ---------- Share modal ----------
