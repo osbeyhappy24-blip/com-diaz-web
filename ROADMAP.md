@@ -1,5 +1,5 @@
 # Comdiaz Shop — ROADMAP
-**Última actualización:** 28 Oct 2026 (sesión tarde)
+**Última actualización:** 28 Oct 2026 (madrugada — cierre)
 
 ---
 
@@ -192,6 +192,28 @@
 - [ ] Verificar PWA admin desde cero (instalar + entrar + sincronizar)
 - [ ] Recompilar APK admin (Bubblewrap) con URL nueva
 - [ ] Recompilar APK Shop (Bubblewrap) con URL nueva
+
+### 🔍 Auditoría cruzada admin ↔ Shop (28 Oct)
+
+**Hallazgo crítico detectado por el usuario:** Admin tenía 45 categorías de búsqueda sin emoji, Shop tenía 37 categorías reales con emoji → **0 coincidencias exactas**. Al crear sellers esto habría explotado (sellers verían categorías que no existen).
+
+**Fix aplicado:**
+- [x] Endpoint nuevo: `POST /api/admin/sync-categories?k=321302`
+- [x] Lee productos publicados (results + productosManuales)
+- [x] Agrupa por categoría real
+- [x] Genera 37 categorías con `{label, emoji, texto, keywords, count, esLocal}`
+- [x] Preserva keywords de categoría anterior si existía
+- [x] Guarda en GitHub state
+- [x] **Resultado verificado:** Admin 37 = Shop 37 ✅
+
+**Bugs conocidos pendientes (documentados):**
+- ⚠️ `/api/state` devuelve JSON truncado a ~829 KB (por eso admin usa `/api/home` directo)
+- ⚠️ `/api/state` tarda 90s con state grande
+- ⚠️ Supabase sin configurar → sellers vacíos (tema aparte)
+- ⚠️ IA errores: Gemini API key inválida (jobs fallan pero no bloquean)
+- ⚠️ APKs muertas (URL vieja, recompilar con Bubblewrap)
+
+---
 
 **Checklist de prueba real admin (28 Oct):**
 - [ ] Login con PIN 321302
@@ -527,4 +549,4 @@
 
 **Para retomar:** di "seguimos con Comdiaz" → leo ROADMAP.
 
-**Última actualización:** 28 Oct 2026 (sesión tarde)
+**Última actualización:** 28 Oct 2026 (madrugada — cierre)
