@@ -1,5 +1,5 @@
 # Comdiaz Shop — ROADMAP
-**Última actualización:** 28 Oct 2026
+**Última actualización:** 28 Oct 2026 (sesión tarde)
 
 ---
 
@@ -144,6 +144,71 @@
 
 
 
+
+### 🎯 Sesión 28 Oct — Fix admin + prueba end-to-end (EN PROGRESO)
+
+**Objetivo:** dejar el admin 100% funcional en móvil cubano (red bloquea preflight CORS).
+
+**Cambios aplicados:**
+
+#### Backend (`server.js` + `auth.js`)
+- [x] `requireAdmin()` acepta `?k=` además de header `X-Comdiaz-Key`
+- [x] `/api/admin/reset-ratelimit` acepta `?k=` (antes solo header)
+- [x] `/api/admin/sellers` devuelve `[]` si Supabase no configurado (antes 500)
+- [x] `/api/public/sellers/catalog` devuelve `[]` si Supabase no configurado
+- [x] Bug: `/api/state` tarda 90s y devuelve 64 bytes → **BYPASS en frontend**
+
+#### Frontend (`home.js` + `home.html`)
+- [x] Interceptor `fetch` añade `?k=` a la URL (no header → sin preflight)
+- [x] Eliminados todos los `setRequestHeader('X-Comdiaz-Key')` (XHR)
+- [x] Login con `prompt()` nativo (pide PIN si no hay en localStorage)
+- [x] `asegurarLogin()` valida PIN contra `/api/home` antes de cargar
+- [x] **`refresh()` usa `/api/home` directo** (no `/api/state` → evita 90s timeout)
+- [x] Intervalo auto-refresh 15s → 45s (menos presión en red lenta)
+- [x] SW bumped v20→v28 en el proceso
+- [x] Service Worker actualizado a v28
+
+#### Verificaciones (curl)
+- [x] `/api/home?k=321302` → HTTP 200 (300 bytes, <2s)
+- [x] `/api/admin/sellers?k=321302` → `{"ok":true,"_noSupabase":true}`
+- [x] `/api/public/sellers/catalog?k=321302` → `{"ok":true,"_noSupabase":true}`
+- [x] `/api/admin/reset-ratelimit?k=321302` → `{"ok":true}`
+- [x] PIN `321302` funciona (verificado en backend)
+
+**Estado actual del admin en móvil (última prueba):**
+- ✅ Login entra con PIN 321302
+- ✅ Dashboard carga: 5000 productos, 45 cat, 4992 publicados, 10 locales
+- ✅ Tab Productos: 4992 visibles
+- ✅ Tab Locales: 10 manuales
+- ✅ Tab Análisis: 12 visitas hoy, 18 histórico
+- ✅ Tab Importar: fuentes cargadas (eBay, Amazon, SheIn, etc.)
+- ✅ Configuración: margen 35%, WhatsApp, banner
+- ✅ Automatización: pausada, toggle funciona
+- ⚠️ Tab Vendedores: vacío (Supabase sin configurar) → **ya no da error 500**
+- ⚠️ "Error de sync" ocasional → desaparece tras fix de `/api/state` bypass
+
+**Pendiente de esta sesión:**
+- [ ] **Prueba real completa en móvil** (checklist abajo)
+- [ ] Verificar PWA admin desde cero (instalar + entrar + sincronizar)
+- [ ] Recompilar APK admin (Bubblewrap) con URL nueva
+- [ ] Recompilar APK Shop (Bubblewrap) con URL nueva
+
+**Checklist de prueba real admin (28 Oct):**
+- [ ] Login con PIN 321302
+- [ ] Dashboard con stats correctos (5000/45/4992/10)
+- [ ] Tab Productos → ver 4992
+- [ ] Tab Locales → ver 10
+- [ ] Tab Vendedores → vacío sin error
+- [ ] Tab Pedidos → ver historial o vacío
+- [ ] Tab Análisis → gráficos cargan
+- [ ] Tab Importar → fuentes visibles
+- [ ] Configuración → cambiar margen, guardar
+- [ ] Automatización → iniciar/pausar funciona
+- [ ] Compartir resumen → genera texto
+- [ ] Cambiar PIN (321302 → 985898) → funciona
+- [ ] Verificar persistencia: recargar página → sigue autenticado
+
+---
 
 ## 🔴 NUEVAS FASES — Tiendas por Seller + Promociones (28 Oct+)
 
@@ -462,4 +527,4 @@
 
 **Para retomar:** di "seguimos con Comdiaz" → leo ROADMAP.
 
-**Última actualización:** 28 Oct 2026
+**Última actualización:** 28 Oct 2026 (sesión tarde)
