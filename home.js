@@ -217,24 +217,8 @@ async function refresh() {
     return;
   }
 
-  // 3) Intentar traer estado completo (1.7 MB) — con timeout de 12s
-  // En red cubana lenta, 1.7 MB puede tardar 30-60s. Mejor timeout corto + fallback.
-  try {
-    if (window.comdiaz_update_badge) window.comdiaz_update_badge('syncing');
-    const statePromise = api('/api/state');
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('timeout 12s')), 12000)
-    );
-    state = await Promise.race([statePromise, timeoutPromise]);
-    if (window.comdiaz_save_cache) window.comdiaz_save_cache(state);
-    renderAll();
-    if (window.comdiaz_update_badge) window.comdiaz_update_badge('online');
-    return;
-  } catch (e) {
-    console.warn('refresh /api/state falló (' + e.message + '), usando fallback /api/home');
-  }
-
-  // 4) FALLBACK: /api/home (300 bytes) — mantiene running real del servidor
+  // 3) DIRECTO a /api/home (300 bytes) — /api/state está roto (90s timeout)
+  // El state completo se pide bajo demanda (tabs Productos/Pedidos)
   try {
     const home = await api('/api/home');
     if (home && home.ok) {
@@ -264,10 +248,10 @@ async function refresh() {
       return;
     }
   } catch (e) {
-    console.warn('refresh /api/home también falló:', e.message);
+    console.warn('refresh /api/home falló:', e.message);
   }
 
-  // 5) Todo falló — usar caché
+  // 4) Todo falló — usar caché
   if (cached) {
     state = cached;
     try { renderAll(); } catch(_){}
@@ -364,7 +348,7 @@ $('newCatInput').addEventListener('keydown', e => {
   if (!ok) return;
   await refresh();
 })();
-setInterval(refresh, 15000);
+setInterval(refresh, 45000);  // cada 45s (menos presión en red lenta)
 
 // ---------- Share modal ----------
 async function generarShare() {
