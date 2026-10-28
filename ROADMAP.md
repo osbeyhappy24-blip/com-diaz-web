@@ -1,5 +1,5 @@
 # Comdiaz Shop — ROADMAP
-**Última actualización:** 26 Oct 2026
+**Última actualización:** 28 Oct 2026
 
 ---
 
@@ -108,6 +108,102 @@
 - [x] Cron 1h limpia rateLimitMap/failMap/loginAttempts
 
 ---
+
+## ✅ COMPLETADO (Sesión 27-28 Oct) — MIGRACIÓN CRÍTICA + EMERGENCIA
+
+### 🚨 Emergencia Render → GitHub Pages (RESUELTA)
+- [x] Render suspendió cuenta vieja (5 GB ancho de banda agotados)
+- [x] Servicios caídos ~2 días (frontend + backend)
+- [x] Cuenta nueva Render creada: `com-diaz-ty2b.onrender.com` (5 GB frescos)
+- [x] Frontend migrado a **GitHub Pages**: `osbeyhappy24-blip.github.io/com-diaz-web/`
+- [x] Backend redesplegado con state desde GitHub (5000 productos recuperados)
+- [x] Fix bug crítico: `published=0` en state → auto-sanación desde `results`
+- [x] CSP actualizado en `shop.html` + `home.html` con dominio nuevo
+- [x] UptimeRobot reconfigurado (83ms promedio, ping cada 5min, evita cold start)
+- [x] PWA instalable con manifest + service worker
+- [x] Service worker bumped a v25 (force refresh)
+
+### 🔑 Admin — Login con PIN (EN PROGRESO)
+- [x] Añadida función `asegurarLogin()` al arranque del admin
+- [x] **PIN actual en Render: `321302`** (no `985898` — ese quedó en Termux sin subir)
+- [x] Login usa `?k=` en vez de header `X-Comdiaz-Key` (evita preflight CORS)
+- [x] Rate limit reset endpoint documentado (`/api/admin/reset-ratelimit`)
+- [ ] **Verificar login funcional en móvil** (pendiente: rate limit + test)
+
+### 🌐 Dominio (PENDIENTE)
+- [ ] `devs.li`: SSL falló por rate limit Let's Encrypt (devs.li no está en PSL)
+- [ ] `888.moe`: cuota DNS llena del proveedor (no se pueden crear registros)
+- [ ] **Próximo:** comprar dominio propio (~$10/año, Cloudflare/Porkbun)
+- [ ] Mientras tanto: usar `osbeyhappy24-blip.github.io/com-diaz-web/`
+
+### 📱 APKs (PENDIENTE)
+- [ ] APK Shop: muerta (URL vieja `com-diaz-web.onrender.com`)
+- [ ] APK Admin: muerta (URL vieja)
+- [ ] **Workaround actual:** PWA instalable desde Chrome
+- [ ] **Próximo:** recompilar con Bubblewrap (keystore disponible en `~/comdiaz/keystore-backup/`)
+
+
+
+
+## 🔴 NUEVAS FASES — Tiendas por Seller + Promociones (28 Oct+)
+
+### FASE 1: Unificar catálogo (2h) — ALTA PRIORIDAD
+**Objetivo:** eBay + locales + sellers todos visibles juntos en la Shop.
+- [ ] Un solo endpoint `/api/public/catalog` que una los 3 orígenes
+- [ ] Productos seller aparecen en la Shop general con badge 🏪
+- [ ] `seller_id` oculto en público (solo se revela al pedir WhatsApp)
+- [ ] Provincia y municipio visibles en descripción de productos seller
+- [ ] Productos de seller anónimos hasta WhatsApp (privacidad)
+- [ ] Eliminar tab separado "Locales" (todo integrado en "Todo")
+
+### FASE 2: Tienda propia por seller (4h) — ALTA
+**Objetivo:** cada seller tiene su "sala" con sus productos y link directo.
+- [ ] Tabla nueva `seller_shops`: `id, seller_id, slug, nombre, descripcion, logo, banner, color, creada_en`
+- [ ] Página nueva `tienda.html?slug=xxx` (solo productos del seller)
+- [ ] Botón "Crear mi tienda" en panel del vendedor
+- [ ] Validar slug único + no ofensivo (lista de bloqueo)
+- [ ] En catálogo general: `🏪 Vendedor: [nombre tienda]` o "Anónimo"
+- [ ] Compartir link directo de tienda (`?ref=CODIGO` para referidos)
+- [ ] SEO: og:image + title por tienda
+
+### FASE 3: Límites de planes (2h) — ALTA
+**Objetivo:** 50 free / 200 pro / ∞ premium + referidos suman cupo.
+- [ ] Validar límite al crear producto (`SELECT COUNT(*) WHERE seller_id=X`)
+- [ ] Error 429 "Límite alcanzado, cambia de plan"
+- [ ] Referidos suman cupo al plan (`cuota_max` ya existe en panel seller)
+- [ ] Notif admin cuando seller llega al 80% del límite
+- [ ] Página de upgrade con precios visibles
+- [ ] Anti-fraude: bloquear multi-cuentas por mismo teléfono
+
+### FASE 4: Sistema de Promociones (8h) — MEDIA
+**A) Espacios automáticos gratuitos (10 rotativos)**
+- [ ] 🥇 Primera tienda creada (solo la 1ra, para siempre)
+- [ ] 🥈 Tienda con más artículos activos
+- [ ] 🥉 Provincia con más artículos
+- [ ] 🎯 Seller con más artículos vendidos (o publicados)
+- [ ] 🆕 Últimos 5 productos subidos
+- [ ] 🔥 Productos más vistos (últimos 7 días)
+- [ ] Rotación cada 5s con `Math.random()` entre criterios
+- [ ] Notif admin: "🏆 Nueva primera tienda: [nombre]"
+- [ ] Persistencia: primero en Supabase, si falla → state local
+
+**B) Promociones pagadas (monetización)**
+- [ ] Tabla `promotions` (`seller_id, product_id, tipo, desde, hasta, pagado`)
+- [ ] Seller paga $X por destacar 7/15/30 días
+- [ ] Producto destacado aparece en rotación con prioridad
+- [ ] Cap: 5 destacados por seller, 10 totales (anti-saturación)
+- [ ] Notif admin en cada pago
+- [ ] Preview de cómo se verá antes de pagar
+- [ ] Integrar con sistema de pagos existente (Zelle/USDT/CUP)
+
+### FASE 5: Admin robusto (4h) — MEDIA
+- [ ] Log de eventos en panel admin (nueva tienda, pago, límite, etc.)
+- [ ] Tab "🔔 Eventos" con feed en tiempo real
+- [ ] Backup automático del state cada 6h a GitHub
+- [ ] Rate limit en `/api/seller/register` (anti-spam cuentas)
+- [ ] Detección de fraude: IPs repetidas, teléfonos similares, productos duplicados
+- [ ] Exportar CSV de sellers + productos + pagos
+- [ ] Dashboard financiero (ingresos promociones + planes)
 
 ## 🔴 PRÓXIMOS BLOQUES (Prioridad ALTA)
 
@@ -277,23 +373,67 @@
 
 ## 🔗 LINKS DE PRODUCCIÓN
 
-- Shop: https://com-diaz-web.onrender.com/shop.html
-- Registro: https://com-diaz-web.onrender.com/seller.html
-- Panel vendedor: https://com-diaz-web.onrender.com/seller-panel.html
-- Admin: https://com-diaz-web.onrender.com/home.html
-- Backend: https://com-diaz.onrender.com
-- APK Drive: https://drive.google.com/file/d/1YYad5ECgr8eDiWjWsip5D11md3ayuvxL/view
-- Grupo WA: https://chat.whatsapp.com/HVbGq9WJLgzLVSvhY9WDqh
-- WA admin: 5351425691
-- Osbey: 5358980267 / código OSBEY02676H0
-- Render Service ID (frontend): srv-db2bap6i0phs73e2bf7g
+- **Shop**: https://osbeyhappy24-blip.github.io/com-diaz-web/shop.html
+- **Registro seller**: https://osbeyhappy24-blip.github.io/com-diaz-web/seller.html
+- **Panel vendedor**: https://osbeyhappy24-blip.github.io/com-diaz-web/seller-panel.html
+- **Admin**: https://osbeyhappy24-blip.github.io/com-diaz-web/home.html
+- **Backend**: https://com-diaz-ty2b.onrender.com
+- **Backend health**: https://com-diaz-ty2b.onrender.com/health
+- **Repo frontend**: https://github.com/osbeyhappy24-blip/com-diaz-web
+- **Repo backend**: https://github.com/osbeyhappy24-blip/com-diaz
+- **Repo state**: https://github.com/osbeyhappy24-blip/comdiaz-state (privado)
+- **Grupo WA**: https://chat.whatsapp.com/HVbGq9WJLgzLVSvhY9WDqh
+- **WA admin**: 5351425691
+- **Osbey**: 5358980267 / código OSBEY02676H0
+
+### Credenciales actuales (RENDER - backend env)
+- PIN admin: `321302`
+- COMDIAZ_KEY: `ukafr7gb`
+- GITHUB_STATE_REPO: `osbeyhappy24-blip/comdiaz-state`
+
 
 ---
 
-## 📊 ESTADO ACTUAL (26 Oct 2026)
+## 📊 ESTADO ACTUAL (28 Oct 2026)
 
+### Infraestructura
+| Componente | Valor |
+|---|---|
+| **Backend** | `com-diaz-ty2b.onrender.com` (Render free tier) |
+| **Frontend** | `osbeyhappy24-blip.github.io/com-diaz-web/` (GitHub Pages) |
+| **Dominio propio** | ❌ Pendiente (comprar ~$10/año) |
+| **UptimeRobot** | ✅ Corriendo (83ms promedio) |
+| **Service Worker** | v25 (force refresh) |
+
+### Catálogo
 | Métrica | Valor |
 |---|---|
+| **Productos eBay** | 4.992 |
+| **Productos locales (manuales)** | 10 |
+| **Productos seller** | 0 (Supabase sin credenciales) |
+| **Total visible** | **5.002** |
+| **Categorías** | 45 |
+| **Cap actual** | 5.000 (ACTIVO, auto-pausa en cap) |
+
+### Sellers
+| Métrica | Valor |
+|---|---|
+| **Sellers aprobados** | 3 (Osbey, Keila, Yaumel) — en Supabase, no en state |
+| **Sellers suspendidos** | 9 (tests) |
+| **Sellers eliminados** | 1 |
+
+### Estado actual
+| Componente | Estado |
+|---|---|
+| **Shop PWA** | ✅ Funcional (5002 productos) |
+| **Admin PWA** | ⚠️ Login en fixing (rate limit + PIN 321302) |
+| **APK Shop** | ❌ Muerta (URL vieja) |
+| **APK Admin** | ❌ Muerta (URL vieja) |
+| **Supabase** | ❌ Sin configurar en Render (sellers no cargan) |
+| **eBay API** | ❌ Sin credenciales (live-search falla, catálogo funciona vía scraping) |
+
+
+---|---|
 | Productos activos | **5000/5000 (CAP)** |
 | Automation | **false** ✅ |
 | Categorías | 36 |
@@ -322,4 +462,4 @@
 
 **Para retomar:** di "seguimos con Comdiaz" → leo ROADMAP.
 
-**Última actualización:** 26 Oct 2026
+**Última actualización:** 28 Oct 2026
