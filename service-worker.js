@@ -1,7 +1,7 @@
 // comdiaz/frontend/service-worker.js
 // Service Worker con cache offline inteligente - Shop + Admin
 
-const CACHE_NAME = 'comdiaz-static-v25';
+const CACHE_NAME = 'comdiaz-static-v26';
 const API_CACHE = 'comdiaz-api-v2';
 
 const STATIC_FILES = [

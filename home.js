@@ -8,9 +8,14 @@
   const _fetch = window.fetch.bind(window);
   window.fetch = function(input, init) {
     const key = localStorage.getItem('comdiaz_api_key');
-    if (key && typeof input === 'string' && input.includes(API)) {
-      init = init || {};
-      init.headers = Object.assign({}, init.headers || {}, { "X-Comdiaz-Key": key });
+    // [FIX Cuba] Usar ?k= en URL en vez de header X-Comdiaz-Key.
+    // El header custom dispara preflight OPTIONS que la red cubana bloquea.
+    // El backend ya acepta ?k= como alternativa al header.
+    if (key && typeof input === 'string' && input.includes('onrender.com')) {
+      if (!input.includes('k=')) {
+        const sep = input.includes('?') ? '&' : '?';
+        input = input + sep + 'k=' + encodeURIComponent(key);
+      }
     }
     return _fetch(input, init);
   };
