@@ -32,9 +32,7 @@ async function asegurarLogin() {
   const saved = localStorage.getItem('comdiaz_api_key');
   if (saved) {
     try {
-      const r = await fetch(API_PROD + '/api/home', {
-        headers: { 'X-Comdiaz-Key': saved }
-      });
+      const r = await fetch(API_PROD + '/api/home?k=' + encodeURIComponent(saved));
       if (r.ok) return true;  // PIN válido, continuar
     } catch(e) {}
     // PIN guardado no funciona, pedir de nuevo
@@ -49,9 +47,7 @@ async function asegurarLogin() {
     if (!pin) { alert('Login cancelado'); return false; }
 
     try {
-      const r = await fetch(API_PROD + '/api/home', {
-        headers: { 'X-Comdiaz-Key': pin.trim() }
-      });
+      const r = await fetch(API_PROD + '/api/home?k=' + encodeURIComponent(pin.trim()));
       if (r.ok) {
         localStorage.setItem('comdiaz_api_key', pin.trim());
         return true;
