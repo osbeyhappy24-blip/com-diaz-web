@@ -217,16 +217,21 @@ async function refresh() {
     return;
   }
 
-  // 3) Intentar traer estado completo (1.7 MB)
+  // 3) Intentar traer estado completo (1.7 MB) — con timeout de 12s
+  // En red cubana lenta, 1.7 MB puede tardar 30-60s. Mejor timeout corto + fallback.
   try {
     if (window.comdiaz_update_badge) window.comdiaz_update_badge('syncing');
-    state = await api('/api/state');
+    const statePromise = api('/api/state');
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout 12s')), 12000)
+    );
+    state = await Promise.race([statePromise, timeoutPromise]);
     if (window.comdiaz_save_cache) window.comdiaz_save_cache(state);
     renderAll();
     if (window.comdiaz_update_badge) window.comdiaz_update_badge('online');
     return;
   } catch (e) {
-    console.warn('refresh /api/state falló, probando /api/home:', e.message);
+    console.warn('refresh /api/state falló (' + e.message + '), usando fallback /api/home');
   }
 
   // 4) FALLBACK: /api/home (300 bytes) — mantiene running real del servidor
@@ -4290,7 +4295,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
         const xhr = new XMLHttpRequest();
         xhr.open('POST', API + '/api/upload-image', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
+        // [FIX Cuba] removido: preflight CORS bloquea header custom en red cubana
         xhr.timeout = 120000;
         xhr.onload = function() {
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -4733,7 +4738,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
         const xhr = new XMLHttpRequest();
         xhr.open('POST', API + '/api/ai/copilot', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('X-Comdiaz-Key', localStorage.getItem('comdiaz_api_key') || '');
+        // [FIX Cuba] removido: preflight CORS bloquea header custom en red cubana
         xhr.timeout = 90000;
         
         xhr.onload = function() {
