@@ -1,7 +1,7 @@
 // comdiaz/frontend/service-worker.js
 // Service Worker con cache offline inteligente - Shop + Admin
 
-const CACHE_NAME = 'comdiaz-static-v40';
+const CACHE_NAME = 'comdiaz-static-v50';
 const API_CACHE = 'comdiaz-api-v2';
 
 const STATIC_FILES = [
@@ -60,6 +60,17 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
+  
+  // [FIX] HTML: network-first (siempre fresco, cache solo offline)
+  if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
+    e.respondWith(
+      fetch(req).then(res => {
+        // No cachear HTML (siempre pedir fresco)
+        return res;
+      }).catch(() => caches.match(req) || caches.match('./home.html'))
+    );
+    return;
+  }
 
   if (req.method !== 'GET') return;
 
