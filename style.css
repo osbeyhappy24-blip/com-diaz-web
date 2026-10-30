@@ -3865,3 +3865,5 @@ body {
   .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-tab { min-width: 80px; font-size: 11px; padding: 8px 6px; }
 }
+
+/* Restructuración Fase A — secciones ocultas (reversible) */
