@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Comdiaz · Home</title>
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=30">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -32,7 +32,7 @@
   <main class="container">
 
     <section class="hero-card collapsible" data-card="hero" data-view="home" data-default="open">
-      <div class="play-row hidden-section">
+      <div class="play-row" style="display:none !important;">
         <button id="toggleBtn" class="toggle-btn paused">
           <span class="icon" id="toggleIcon">▶</span>
           <span class="label" id="toggleLabel">Iniciar automatización</span>
@@ -53,8 +53,8 @@
           <div class="meta-lbl">última búsqueda</div>
         </div>
       </div>
-      <button id="searchNow" class="btn-ghost hidden-section">🔍 Buscar ahora</button>
-      <button id="shareBtn" class="btn-ghost primary">📤 Compartir resumen</button>
+      <button id="searchNow" class="btn-ghost" style="display:none !important;">🔍 Buscar ahora</button>
+      <button id="shareBtn" class="btn-ghost primary" style="display:none !important;">📤 Compartir resumen</button>
     </section>
 
     <section class="card collapsible" data-card="catalog" data-view="home" data-default="open" id="catalogCard">
@@ -101,7 +101,7 @@
       </div>
     </section>
 
-    <section class="card collapsible hidden-section" data-card="margin" data-view="productos" data-default="closed">
+    <section class="card collapsible" data-card="margin" data-view="productos" data-default="closed" style="display:none !important;">
       <h2>Margen de ganancia</h2>
       <div class="margin-row">
         <button id="lockMargin" class="lock-btn" title="Bloquear/Desbloquear margen">🔓</button>
@@ -132,7 +132,7 @@
     </section>
 
   
-        <section class="card collapsible hidden-section" data-card="sources" data-view="productos" data-default="closed" id="sourcesCard">
+        <section class="card collapsible" data-card="sources" data-view="productos" data-default="closed" id="sourcesCard" style="display:none !important;">
       <div class="card-head">
         <h2>Fuentes de productos</h2>
         <button id="toggleSources" class="btn-mini">Configurar</button>
@@ -492,7 +492,7 @@
   
 
 
-    <section class="card collapsible hidden-section" data-card="importhub" data-view="import" data-default="closed" id="importHubCard">
+    <section class="card collapsible" data-card="importhub" data-view="import" data-default="closed" id="importHubCard" style="display:none !important;">
       <div class="card-head">
         <h2>🌐 Import Hub <span id="importHubStatus" class="pedidos-badge">Listo</span></h2>
         <button id="importHubRefresh" class="btn-mini">🔄</button>
@@ -861,7 +861,7 @@
 </div>
 
   <script src="wa-helper.js?v=1"></script>
-<script src="home.js?v=43"></script>
+<script src="home.js?v=50"></script>
 <script src="bulk.js?v=9"></script>
 <script src="sellers-admin.js?v=2"></script>
 
@@ -1018,7 +1018,7 @@
     <span class="nav-label">Vendedores</span>
     <span id="sellersBadge" class="nav-badge hidden">0</span>
   </button>
-  <button class="nav-item hidden-section" data-view="import">
+  <button class="nav-item" data-view="import" style="display:none !important;">
     <span class="nav-icon">🌐</span>
     <span class="nav-label">Importar</span>
   </button>
