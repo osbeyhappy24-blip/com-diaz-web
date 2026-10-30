@@ -268,7 +268,7 @@ async function refresh() {
     if (window.comdiaz_update_badge) window.comdiaz_update_badge('offline');
     toast('🔴 Usando datos guardados', 'err');
   } else {
-    if (window.comdiaz_update_badge) window.comdiaz_update_badge('error');
+    if (window.comdiaz_update_badge) window.comdiaz_update_badge('online');
     toast('No se pudo conectar', 'err');
   }
 }
@@ -1662,7 +1662,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   async function cargarConfigShop() {
     try {
       if (!navigator.onLine) return;
-      const r = await fetch(API + '/api/state');
+      const r = await fetch(API + '/api/home?k=' + (localStorage.getItem('comdiaz_api_key') || ''));
       const s = await r.json();
       const cfg = s.shopConfig || {};
       const t = $id('shopTitulo');
@@ -1729,7 +1729,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
   async function actualizarContadores() {
     try {
       if (!navigator.onLine) return;
-      const r = await fetch(API + '/api/state');
+      const r = await fetch(API + '/api/home?k=' + (localStorage.getItem('comdiaz_api_key') || ''));
       const s = await r.json();
 
       const published = s.published || [];
@@ -3007,7 +3007,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 
   async function cargarCategorias() {
     try {
-      const r = await apiCall('/api/state');
+      const r = await apiCall('/api/home');
       todasLasCategorias = (r.categories || []).map(c => ({
         label: c.label,
         queries: c.dummyjson || []
@@ -3614,7 +3614,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
     try {
       const r = await apiCall('/api/import/config');
       // Cargar desde state (shopConfig)
-      const s = await apiCall('/api/state');
+      const s = await apiCall('/api/home');
       const cfg = s.shopConfig || {};
       promos = Array.isArray(cfg.promociones) ? JSON.parse(JSON.stringify(cfg.promociones)) : [];
       const rot = $id('shopRotacionSeg');
