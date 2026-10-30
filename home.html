@@ -33,13 +33,6 @@
   <main class="container">
 
     <section class="hero-card collapsible" data-card="hero" data-view="home" data-default="open">
-      <div class="play-row" style="display:none !important;">
-        <button id="toggleBtn" class="toggle-btn paused">
-          <span class="icon" id="toggleIcon">▶</span>
-          <span class="label" id="toggleLabel">Iniciar automatización</span>
-        </button>
-        <button id="lockPlay" class="lock-btn" title="Bloquear/Desbloquear automatización">🔓</button>
-      </div>
       <div class="meta-row">
         <div class="meta">
           <div class="meta-num" id="countProducts">—</div>
@@ -54,9 +47,7 @@
           <div class="meta-lbl">última búsqueda</div>
         </div>
       </div>
-      <button id="searchNow" class="btn-ghost" style="display:none !important;">🔍 Buscar ahora</button>
-      <button id="shareBtn" class="btn-ghost primary" style="display:none !important;">📤 Compartir resumen</button>
-    </section>
+      </section>
 
     <section class="card collapsible" data-card="catalog" data-view="home" data-default="open" id="catalogCard">
       <div class="card-head">
@@ -102,16 +93,6 @@
       </div>
     </section>
 
-    <section class="card collapsible" data-card="margin" data-view="productos" data-default="closed" style="display:none !important;">
-      <h2>Margen de ganancia</h2>
-      <div class="margin-row">
-        <button id="lockMargin" class="lock-btn" title="Bloquear/Desbloquear margen">🔓</button>
-        <input type="range" id="marginRange" min="10" max="200" step="1" value="35">
-        <div class="margin-val"><span id="marginVal">35</span>%</div>
-      </div>
-      <div class="margin-hint" id="marginExample">—</div>
-    </section>
-
     <section class="card collapsible" data-card="cats" data-view="productos" data-default="closed">
       <div class="card-head">
         <h2>Categorías</h2>
@@ -133,16 +114,7 @@
     </section>
 
   
-        <section class="card collapsible" data-card="sources" data-view="productos" data-default="closed" id="sourcesCard" style="display:none !important;">
-      <div class="card-head">
-        <h2>Fuentes de productos</h2>
-        <button id="toggleSources" class="btn-mini">Configurar</button>
-      </div>
-      <div id="sourcesList" class="sources-list"></div>
-      <div class="margin-hint">Activa las fuentes que quieras usar en las búsquedas.</div>
-    </section>
-
-    <section class="card collapsible" data-card="hours" data-view="analisis" data-default="closed">
+        <section class="card collapsible" data-card="hours" data-view="analisis" data-default="closed">
       <div class="card-head">
         <h2>Horarios de publicación</h2>
         <button id="toggleHours" class="btn-mini">Editar</button>
@@ -493,82 +465,6 @@
   
 
 
-    <section class="card collapsible" data-card="importhub" data-view="import" data-default="closed" id="importHubCard" style="display:none !important;">
-      <div class="card-head">
-        <h2>🌐 Import Hub <span id="importHubStatus" class="pedidos-badge">Listo</span></h2>
-        <button id="importHubRefresh" class="btn-mini">🔄</button>
-      </div>
-      <div class="card-body">
-        <div class="import-tabs" id="importTabs">
-          <button class="filter-btn active" data-source="temu">🛍️ Temu</button>
-          <button class="filter-btn" data-source="amazon">📦 Amazon</button>
-          <button class="filter-btn" data-source="walmart">🏪 Walmart</button>
-        </div>
-
-        <div class="import-search-row">
-          <input id="importKeyword" type="text" class="pedido-input" placeholder="Buscar productos (ej: smart watch)">
-          <input id="importLimit" type="number" class="pedido-input import-limit" value="20" min="1" max="100">
-          <button id="importSearchBtn" class="btn-primary">🔍 Buscar</button>
-        </div>
-
-        <div id="importResults" class="import-results">
-          <div class="act-empty">Elige una fuente y busca productos</div>
-        </div>
-
-        <div class="import-auto-config">
-          <h3 class="import-config-title">⚙️ Auto-import (10:30 AM)</h3>
-          <label class="import-toggle">
-            <input id="importAutoEnabled" type="checkbox" style="width:auto;margin:0;accent-color:#7c3aed">
-            <span>Activar auto-import diario</span>
-          </label>
-
-          <div class="import-global-row" style="grid-template-columns:1fr">
-            <label class="import-global-field">
-              <span>Límite por categoría</span>
-              <input id="importLimitPerCat" type="number" class="pedido-input" value="5" min="1" max="30">
-            </label>
-          </div>
-          <div class="import-hint" style="font-size:11px;color:var(--muted);margin-bottom:10px;text-align:center">
-            💰 El margen se toma del panel principal (card "💰 Margen")
-          </div>
-
-          <div class="import-subtitle">Fuentes:</div>
-          <div class="import-sources-row">
-            <label class="import-toggle-small">
-              <input type="checkbox" id="importSrc-temu" style="width:auto;margin:0;accent-color:#7c3aed" checked>
-              <span>🛍️ Temu</span>
-            </label>
-            <label class="import-toggle-small">
-              <input type="checkbox" id="importSrc-amazon" style="width:auto;margin:0;accent-color:#7c3aed" checked>
-              <span>📦 Amazon</span>
-            </label>
-            <label class="import-toggle-small">
-              <input type="checkbox" id="importSrc-walmart" style="width:auto;margin:0;accent-color:#7c3aed">
-              <span>🏪 Walmart</span>
-            </label>
-          </div>
-
-          <div class="import-subtitle">
-            Categorías a importar:
-            <button id="importSelectAll" class="btn-mini" style="margin-left:6px;font-size:10px">Todas</button>
-            <button id="importSelectNone" class="btn-mini" style="font-size:10px">Ninguna</button>
-          </div>
-          <div class="import-categories-list" id="importCategoryList">
-            <div class="act-empty">Cargando categorías…</div>
-          </div>
-
-          <div class="import-preview" id="importPreview">— productos estimados</div>
-
-          <div class="import-auto-actions">
-            <button id="importSaveConfig" class="btn-primary">💾 Guardar config</button>
-            <button id="importRunNow" class="btn-secondary">⚡ Ejecutar ahora</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-
     <section class="card collapsible" data-card="dashboard" data-view="analisis" data-default="open" id="dashboardCard">
       <div class="card-head">
         <h2>📊 Estadísticas Shop <span id="dashboardBadge" class="pedidos-badge">—</span></h2>
@@ -862,7 +758,7 @@
 </div>
 
   <script src="wa-helper.js?v=1"></script>
-<script src="home.js?v=50"></script>
+<script src="home.js?v=52"></script>
 <script src="bulk.js?v=9"></script>
 <script src="sellers-admin.js?v=2"></script>
 
@@ -1018,10 +914,6 @@
     <span class="nav-icon">🏪</span>
     <span class="nav-label">Vendedores</span>
     <span id="sellersBadge" class="nav-badge hidden">0</span>
-  </button>
-  <button class="nav-item" data-view="import" style="display:none !important;">
-    <span class="nav-icon">🌐</span>
-    <span class="nav-label">Importar</span>
   </button>
   <button class="nav-item" data-view="pedidos">
     <span class="nav-icon">🛒</span>

@@ -68,7 +68,17 @@ async function asegurarLogin() {
   return false;
 }
 
-const $ = id => document.getElementById(id);
+const _dummy = {
+  textContent: '', innerHTML: '', value: '', className: '',
+  style: {}, dataset: {}, onclick: null, oninput: null,
+  classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+  addEventListener: () => {}, removeEventListener: () => {},
+  setAttribute: () => {}, removeAttribute: () => {}, getAttribute: () => null,
+  appendChild: () => {}, insertBefore: () => {}, removeChild: () => {},
+  querySelector: () => null, querySelectorAll: () => [], closest: () => null,
+  focus: () => {}, blur: () => {}, click: () => {},
+};
+const $ = id => document.getElementById(id) || _dummy;
 const fmtMoney = n => '$' + Number(n).toFixed(2);
 
 function toast(msg, kind='') {
