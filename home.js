@@ -5027,7 +5027,7 @@ if (window.comdiazTrack) window.comdiazTrack.share();
 // PANEL DE CATÁLOGO — Progreso visual
 // ═══════════════════════════════════════════════════════
 (function comdiaz_catalog_panel_v1(){
-  const $C = id => document.getElementById(id);
+  const $C = id => document.getElementById(id) || _dummy;
   
   function proximaBusqueda(tipo) {
     const now = new Date();

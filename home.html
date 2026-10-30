@@ -44,50 +44,6 @@
       </div>
       </section>
 
-    <section class="card collapsible" data-card="catalog" data-view="home" data-default="open" id="catalogCard">
-      <div class="card-head">
-        <h2>📊 Catálogo</h2>
-        <span class="badge" id="catalogBadge">—</span>
-      </div>
-      <div class="card-body">
-        <div class="catalog-progress-wrap">
-          <div class="catalog-progress-bar">
-            <div id="catalogProgressFill" class="catalog-progress-fill" style="width:0%"></div>
-          </div>
-          <div class="catalog-progress-text">
-            <span id="catalogCount">0 / 10,000</span>
-            <span id="catalogPercent">0%</span>
-          </div>
-        </div>
-
-        <div id="catalogStatusMsg" class="catalog-status-msg">Cargando...</div>
-
-        <div class="catalog-metrics">
-          <div class="catalog-metric">
-            <div class="catalog-metric-num" id="catalogConIA">—</div>
-            <div class="catalog-metric-lbl">✅ Con IA</div>
-          </div>
-          <div class="catalog-metric">
-            <div class="catalog-metric-num" id="catalogSinIA">—</div>
-            <div class="catalog-metric-lbl">⏳ Pendientes</div>
-          </div>
-          <div class="catalog-metric">
-            <div class="catalog-metric-num" id="catalogDisponibles">—</div>
-            <div class="catalog-metric-lbl">💰 Disponibles</div>
-          </div>
-        </div>
-
-        <div class="catalog-next-runs">
-          <div class="catalog-next-title">Próximas búsquedas:</div>
-          <div class="catalog-next-item"><span>📆 Diaria</span><span id="nextDaily">—</span></div>
-          <div class="catalog-next-item"><span>📅 Semanal</span><span id="nextWeekly">—</span></div>
-          <div class="catalog-next-item"><span>🗓️ Mensual</span><span id="nextMonthly">—</span></div>
-        </div>
-
-        <button id="catalogRefreshBtn" class="btn-ghost" style="width:100%;margin-top:12px">🔄 Actualizar</button>
-      </div>
-    </section>
-
     <section class="card collapsible" data-card="cats" data-view="productos" data-default="closed">
       <div class="card-head">
         <h2>Categorías</h2>
@@ -109,21 +65,7 @@
     </section>
 
   
-        <section class="card collapsible" data-card="hours" data-view="analisis" data-default="closed">
-      <div class="card-head">
-        <h2>Horarios de publicación</h2>
-        <button id="toggleHours" class="btn-mini">Editar</button>
-      </div>
-      <div id="hoursList" class="chips"></div>
-      <div id="addHourBox" class="add-cat hidden">
-        <input id="newHourInput" type="time" step="60">
-        <button id="addHourBtn">Agregar</button>
-      </div>
-      <div class="margin-hint">Próximas ejecuciones: <span id="nextRuns">—</span></div>
-    </section>
-
-  
-    <section class="card collapsible" data-card="analysis" data-view="analisis" data-default="closed" id="analysisCard">
+        <section class="card collapsible" data-card="analysis" data-view="analisis" data-default="closed" id="analysisCard">
       <div class="card-head">
         <h2>Análisis y estadísticas</h2>
         <button id="resetStats" class="btn-mini">Reiniciar</button>
@@ -753,7 +695,7 @@
 </div>
 
   <script src="wa-helper.js?v=1"></script>
-<script src="home.js?v=54"></script>
+<script src="home.js?v=56"></script>
 <script src="bulk.js?v=9"></script>
 <script src="sellers-admin.js?v=2"></script>
 
