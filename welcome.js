@@ -9,7 +9,7 @@ const KEY_API     = 'comdiaz_api_key';
 
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:3000'
-  : 'https://com-diaz.onrender.com';
+  : 'https://com-diaz-ty2b.onrender.com';
 
 const $ = id => document.getElementById(id);
 let buffer = '';
