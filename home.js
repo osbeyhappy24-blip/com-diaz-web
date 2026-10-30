@@ -129,7 +129,7 @@ function renderMeta() {
     $('countProducts').textContent = (state.results || []).length;
     $('countCats').textContent = (state.categories || []).length;
   }
-  $('lastRun').textContent = timeAgo(state.automation.lastRun);
+  // lastRun eliminado en L1
 }
 
 function renderMargin() {
