@@ -3866,4 +3866,5 @@ body {
   .admin-tab { min-width: 80px; font-size: 11px; padding: 8px 6px; }
 }
 
-/* Restructuración Fase A — secciones ocultas (reversible) */
+/* Restructuración Fase A — secciones ocultas */
+.hidden-section { display: none !important; }
