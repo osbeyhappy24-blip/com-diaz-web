@@ -32,7 +32,7 @@
   <main class="container">
 
     <section class="hero-card collapsible" data-card="hero" data-view="home" data-default="open">
-      <div class="play-row">
+      <div class="play-row hidden-section">
         <button id="toggleBtn" class="toggle-btn paused">
           <span class="icon" id="toggleIcon">▶</span>
           <span class="label" id="toggleLabel">Iniciar automatización</span>
@@ -53,7 +53,7 @@
           <div class="meta-lbl">última búsqueda</div>
         </div>
       </div>
-      <button id="searchNow" class="btn-ghost">🔍 Buscar ahora</button>
+      <button id="searchNow" class="btn-ghost hidden-section">🔍 Buscar ahora</button>
       <button id="shareBtn" class="btn-ghost primary">📤 Compartir resumen</button>
     </section>
 
@@ -101,7 +101,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" data-card="margin" data-view="productos" data-default="closed">
+    <section class="card collapsible hidden-section" data-card="margin" data-view="productos" data-default="closed">
       <h2>Margen de ganancia</h2>
       <div class="margin-row">
         <button id="lockMargin" class="lock-btn" title="Bloquear/Desbloquear margen">🔓</button>
@@ -132,7 +132,7 @@
     </section>
 
   
-        <section class="card collapsible" data-card="sources" data-view="productos" data-default="closed" id="sourcesCard">
+        <section class="card collapsible hidden-section" data-card="sources" data-view="productos" data-default="closed" id="sourcesCard">
       <div class="card-head">
         <h2>Fuentes de productos</h2>
         <button id="toggleSources" class="btn-mini">Configurar</button>
@@ -492,7 +492,7 @@
   
 
 
-    <section class="card collapsible" data-card="importhub" data-view="import" data-default="closed" id="importHubCard">
+    <section class="card collapsible hidden-section" data-card="importhub" data-view="import" data-default="closed" id="importHubCard">
       <div class="card-head">
         <h2>🌐 Import Hub <span id="importHubStatus" class="pedidos-badge">Listo</span></h2>
         <button id="importHubRefresh" class="btn-mini">🔄</button>
