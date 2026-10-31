@@ -2570,7 +2570,7 @@ async function renderTiendas() {
   
   if (!grid) return;
   
-  // Ocultar otros contenedores
+  // [FIX] Ocultar SIEMPRE otros contenedores
   if (productsGrid) productsGrid.classList.add('hidden');
   if (empty) empty.classList.add('hidden');
   if (vendedoresEmpty) vendedoresEmpty.classList.add('hidden');
