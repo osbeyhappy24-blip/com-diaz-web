@@ -175,6 +175,16 @@ let state = {
 // Helper: etiqueta y clase de badge segun source
 function getSourceBadge(p) {
   const src = String((p && p.source) || '').toLowerCase();
+  
+  // Seller CON tienda
+  if (p && p.is_seller && p.tienda_slug) {
+    return { label: '🏪 ' + (p.tienda_nombre || 'Tienda'), cls: 'seller-tienda' };
+  }
+  // Seller ANÓNIMO
+  if (src === 'seller' || (p && p.is_seller)) {
+    return { label: '🏷️ Vendedor', cls: 'seller' };
+  }
+  
   if (src === 'manual' || src === 'local') return { label: 'Local', cls: 'local' };
   if (src === 'temu') return { label: 'Temu', cls: 'temu' };
   if (src === 'amazon') return { label: 'Amazon', cls: 'amazon' };
@@ -295,12 +305,17 @@ function renderCategorias() {
 
 // ─── Aplicar filtros (tab + categoria + busqueda) ───
 function aplicarFiltros() {
-  // Si el tab activo es "tiendas", renderizar tiendas en vez de productos
+  // Si el tab activo es "tiendas", renderizar tiendas
   if (state.currentTab === 'tiendas') {
     renderTiendas();
     return;
   }
-  // Si el tab activo es "vendedores", solo mostrar productos sin tienda
+  
+  // Si es vendedores, ocultar contenedor de tiendas antes de filtrar
+  if (state.currentTab === 'vendedores') {
+    const tiendasContainer = document.getElementById('tiendasContainer');
+    if (tiendasContainer) tiendasContainer.classList.add('hidden');
+  }
   
   // Si tab=local, usar state.locales
   const esLocal = state.currentTab === 'local';

@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=40">
+<link rel="stylesheet" href="shop.css?v=41">
 <link rel="icon" type="image/png" href="favicon-shop.png">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -190,15 +190,17 @@
     <div id="featuredProducts" class="products-grid"></div>
   </div>
 
-  <div id="products" class="products-grid hidden"></div>
-
-  <!-- 🏪 GRID DE TIENDAS (nuevo) -->
   <div id="tiendasContainer" class="tiendas-grid hidden"></div>
 
-  <!-- 🏷️ EMPTY STATE para Vendedores sin tienda -->
   <div id="vendedoresEmpty" class="vendedores-empty hidden">
-    <div style="font-size:48px;margin-bottom:12px">🏷️</div>
-    <h3 style="color:#1e293b;font-size:18px;margin-bottom:8px">No hay productos de vendedores anónimos</h3>
+    <div class="vendedores-empty-icon">🏷️</div>
+    <h3>No hay productos de vendedores anónimos</h3>
+    <p>Todos los productos disponibles están en tiendas verificadas. Explora el tab 🏪 Tiendas.</p>
+    <a href="seller.html" class="vendedores-empty-cta">🏪 Crear mi tienda</a>
+  </div>
+
+  <div id="products" class="products-grid hidden"></div>
+<h3 style="color:#1e293b;font-size:18px;margin-bottom:8px">No hay productos de vendedores anónimos</h3>
     <p style="color:#64748b;font-size:14px">Todos los productos disponibles están en tiendas verificadas. Explora el tab 🏪 Tiendas.</p>
   </div>
 
@@ -276,7 +278,7 @@
 <div id="toast" class="toast"></div>
 
 <script src="wa-helper.js?v=2"></script>
-<script src="shop.js?v=49"></script>
+<script src="shop.js?v=50"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
