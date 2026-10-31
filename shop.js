@@ -372,6 +372,14 @@ function renderProductos() {
   if (tiendasContainer) tiendasContainer.classList.add('hidden');
   if (vendedoresEmpty) vendedoresEmpty.classList.add('hidden');
 
+  // [FIX] vendedoresEmpty solo si tab=vendedores Y sin productos
+  if (state.currentTab === 'vendedores' && state.filtered.length === 0) {
+    grid.classList.add('hidden');
+    empty.classList.add('hidden');
+    if (vendedoresEmpty) vendedoresEmpty.classList.remove('hidden');
+    return;
+  }
+
   if (!state.filtered.length) {
     grid.classList.add('hidden');
     empty.classList.remove('hidden');
