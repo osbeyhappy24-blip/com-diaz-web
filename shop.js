@@ -366,6 +366,12 @@ function renderProductos() {
 
   loading.classList.add('hidden');
 
+  // [FIX] Ocultar contenedores de tiendas al renderizar productos
+  const tiendasContainer = document.getElementById('tiendasContainer');
+  const vendedoresEmpty = document.getElementById('vendedoresEmpty');
+  if (tiendasContainer) tiendasContainer.classList.add('hidden');
+  if (vendedoresEmpty) vendedoresEmpty.classList.add('hidden');
+
   if (!state.filtered.length) {
     grid.classList.add('hidden');
     empty.classList.remove('hidden');
