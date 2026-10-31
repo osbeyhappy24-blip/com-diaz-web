@@ -3029,3 +3029,214 @@ html{scroll-behavior:smooth}
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   TIENDAS — Cards de tiendas virtuales (Fase C)
+   ═══════════════════════════════════════════════════════ */
+
+.tiendas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .tiendas-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+}
+
+.tienda-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  text-decoration: none;
+  color: inherit;
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.tienda-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+}
+
+.tienda-banner-mini {
+  height: 90px;
+  background-size: cover;
+  background-position: center;
+  background-color: #003f7f;
+  position: relative;
+}
+
+.tienda-header-mini {
+  padding: 0 16px;
+  margin-top: -36px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.tienda-logo-mini {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: #003f7f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.tienda-logo-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tienda-info-mini {
+  flex: 1;
+  padding-bottom: 4px;
+  min-width: 0;
+}
+
+.tienda-nombre-mini {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 3px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tienda-stats-mini {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.tienda-body-mini {
+  padding: 0 16px 16px;
+}
+
+.tienda-desc-mini {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tienda-cta-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #003f7f, #7c3aed);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: box-shadow .2s;
+}
+
+.tienda-card:hover .tienda-cta-mini {
+  box-shadow: 0 4px 12px rgba(124,58,237,.4);
+}
+
+/* ═══ Empty states ═══ */
+.tiendas-empty,
+.vendedores-empty {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.tiendas-empty {
+  grid-column: 1 / -1;
+}
+
+.tiendas-empty-icon,
+.vendedores-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.tiendas-empty h3,
+.vendedores-empty h3 {
+  color: #1e293b;
+  font-size: 20px;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.tiendas-empty p,
+.vendedores-empty p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.tiendas-empty-cta,
+.vendedores-empty-cta {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #003f7f, #7c3aed);
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.tiendas-empty-cta:hover,
+.vendedores-empty-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124,58,237,.35);
+}
+
+/* ═══ Badge de tienda en cards de productos (si no existe) ═══ */
+.product-tienda-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: rgba(0,63,127,.1);
+  color: #003f7f;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.product-tienda-badge:hover {
+  background: rgba(0,63,127,.2);
+}

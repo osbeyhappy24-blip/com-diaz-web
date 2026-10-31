@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://com-diaz-ty2b.onrender.com https://com-diaz-ty2b.onrender.com https://com-diaz-ty2b.onrender.com https://osbeyhappy24-blip.github.io https://*.trycloudflare.com https://www.google-analytics.com https://region1.google-analytics.com https://wsrv.nl; worker-src 'self' blob:; manifest-src 'self'; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://com-diaz-ty2b.onrender.com https://osbeyhappy24-blip.github.io https://*.trycloudflare.com https://www.google-analytics.com https://region1.google-analytics.com https://wsrv.nl; worker-src 'self' blob:; manifest-src 'self'; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 <meta charset="utf-8">
@@ -17,7 +17,7 @@
   <meta property="og:title" content="Comdiaz Shop 🇨🇺 · Productos cubanos e importados">
   <meta property="og:description" content="Compra fácil por WhatsApp. Productos locales e importados con envío a Cuba.">
   <meta property="og:image" content="https://com-diaz-ty2b.onrender.com/icon-shop-512.png">
-  <meta property="og:url" content="https://com-diaz-ty2b.onrender.com/shop.html">
+  <meta property="og:url" content="https://osbeyhappy24-blip.github.io/com-diaz-web/shop.html">
   <meta property="og:site_name" content="Comdiaz Shop">
   <meta property="og:locale" content="es_CU">
   
@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=39">
+<link rel="stylesheet" href="shop.css?v=40">
 <link rel="icon" type="image/png" href="favicon-shop.png">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -94,9 +94,9 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="all">🌎 Todo</button>
-    <button class="tab" data-tab="local">🇨🇺 Locales</button>
-    <button class="tab" data-tab="ebay">🌐 Importados</button>
+    <button class="tab active" data-tab="all">🛍️ Todo</button>
+    <button class="tab" data-tab="tiendas">🏪 Tiendas</button>
+    <button class="tab" data-tab="vendedores">🏷️ Vendedores</button>
   </div>
 
   <div id="categoriesBar" class="categories-bar"></div>
@@ -192,6 +192,16 @@
 
   <div id="products" class="products-grid hidden"></div>
 
+  <!-- 🏪 GRID DE TIENDAS (nuevo) -->
+  <div id="tiendasContainer" class="tiendas-grid hidden"></div>
+
+  <!-- 🏷️ EMPTY STATE para Vendedores sin tienda -->
+  <div id="vendedoresEmpty" class="vendedores-empty hidden">
+    <div style="font-size:48px;margin-bottom:12px">🏷️</div>
+    <h3 style="color:#1e293b;font-size:18px;margin-bottom:8px">No hay productos de vendedores anónimos</h3>
+    <p style="color:#64748b;font-size:14px">Todos los productos disponibles están en tiendas verificadas. Explora el tab 🏪 Tiendas.</p>
+  </div>
+
   <div id="loadMoreWrap" class="load-more-wrap hidden">
     <button id="loadMoreBtn" class="load-more-btn">Ver más productos</button>
     <p id="loadMoreInfo" class="load-more-info"></p>
@@ -266,7 +276,7 @@
 <div id="toast" class="toast"></div>
 
 <script src="wa-helper.js?v=2"></script>
-<script src="shop.js?v=48"></script>
+<script src="shop.js?v=49"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

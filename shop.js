@@ -295,13 +295,23 @@ function renderCategorias() {
 
 // ─── Aplicar filtros (tab + categoria + busqueda) ───
 function aplicarFiltros() {
+  // Si el tab activo es "tiendas", renderizar tiendas en vez de productos
+  if (state.currentTab === 'tiendas') {
+    renderTiendas();
+    return;
+  }
+  // Si el tab activo es "vendedores", solo mostrar productos sin tienda
+  
   // Si tab=local, usar state.locales
   const esLocal = state.currentTab === 'local';
   let filtered = esLocal ? [...state.locales] : [...state.products];
 
   // Tab
   const tab = state.currentTab;
-  if (tab === 'local') {
+  if (tab === 'vendedores') {
+    // Solo productos de sellers SIN tienda (anónimos)
+    filtered = filtered.filter(p => p.is_seller && !p.tienda_slug);
+  } else if (tab === 'local') {
     // Ya están filtrados arriba (state.locales)
   } else if (tab === 'imported') {
     filtered = filtered.filter(p => p.source && p.source !== 'manual' && p.source !== 'local');
@@ -2525,3 +2535,91 @@ cargarCatalogo();
 
   console.log('✅ Badges de producto listos');
 })();
+
+// ═══════════════════════════════════════════════════════
+// RENDER TIENDAS (Fase C)
+// ═══════════════════════════════════════════════════════
+async function renderTiendas() {
+  const grid = document.getElementById('tiendasContainer');
+  const productsGrid = document.getElementById('products');
+  const empty = document.getElementById('empty');
+  const vendedoresEmpty = document.getElementById('vendedoresEmpty');
+  const featured = document.getElementById('featuredSection');
+  const loadMore = document.getElementById('loadMoreWrap');
+  
+  if (!grid) return;
+  
+  // Ocultar otros contenedores
+  if (productsGrid) productsGrid.classList.add('hidden');
+  if (empty) empty.classList.add('hidden');
+  if (vendedoresEmpty) vendedoresEmpty.classList.add('hidden');
+  if (featured) featured.classList.add('hidden');
+  if (loadMore) loadMore.classList.add('hidden');
+  
+  // Mostrar grid de tiendas
+  grid.classList.remove('hidden');
+  
+  // Loading
+  grid.innerHTML = '<div style="text-align:center;padding:40px;grid-column:1/-1;color:#64748b;">🏪 Cargando tiendas...</div>';
+  
+  try {
+    const r = await fetch(API_BASE + '/api/public/tiendas');
+    const d = await r.json();
+    
+    if (!d.ok || !d.tiendas || d.tiendas.length === 0) {
+      grid.innerHTML = `
+        <div class="tiendas-empty">
+          <span class="tiendas-empty-icon">🏪</span>
+          <h3>Aún no hay tiendas creadas</h3>
+          <p>Sé el primero en crear tu tienda en Comdiaz y vende tus productos con marca propia.</p>
+          <a href="seller.html" class="tiendas-empty-cta">🏪 Crear mi tienda</a>
+        </div>
+      `;
+      return;
+    }
+    
+    grid.innerHTML = d.tiendas.map(t => {
+      const color = t.color || '#003f7f';
+      const bannerStyle = t.banner 
+        ? `background-image:url('${escapeHtml(t.banner)}');` 
+        : `background:linear-gradient(135deg, ${color} 0%, ${color}dd 100%);`;
+      const logoHTML = t.logo 
+        ? `<img src="${escapeHtml(t.logo)}" alt="${escapeHtml(t.nombre)}">` 
+        : escapeHtml(t.nombre.charAt(0).toUpperCase());
+      
+      return `
+        <a href="tienda.html?slug=${encodeURIComponent(t.slug)}" class="tienda-card">
+          <div class="tienda-banner-mini" style="${bannerStyle}"></div>
+          <div class="tienda-header-mini">
+            <div class="tienda-logo-mini" style="background:${color}">${logoHTML}</div>
+            <div class="tienda-info-mini">
+              <div class="tienda-nombre-mini">${escapeHtml(t.nombre)}</div>
+              <div class="tienda-stats-mini">📦 ${t.numProductos} producto${t.numProductos !== 1 ? 's' : ''}</div>
+            </div>
+          </div>
+          <div class="tienda-body-mini">
+            ${t.descripcion ? `<div class="tienda-desc-mini">${escapeHtml(t.descripcion)}</div>` : ''}
+            <span class="tienda-cta-mini">Ver tienda →</span>
+          </div>
+        </a>
+      `;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = `
+      <div class="tiendas-empty">
+        <span class="tiendas-empty-icon">⚠️</span>
+        <h3>Error al cargar tiendas</h3>
+        <p>Verifica tu conexión e intenta de nuevo.</p>
+        <button onclick="renderTiendas()" class="tiendas-empty-cta" style="border:none;cursor:pointer">Reintentar</button>
+      </div>
+    `;
+  }
+}
+
+// Helper para escapar HTML (si no existe ya)
+if (typeof escapeHtml === 'undefined') {
+  window.escapeHtml = function(s) {
+    return String(s || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+  };
+}
+
