@@ -526,7 +526,7 @@
 </div>
 
   <script src="wa-helper.js?v=2"></script>
-<script src="home.js?v=61"></script>
+<script src="home.js?v=62"></script>
 <script src="bulk.js?v=10"></script>
 <script src="sellers-admin.js?v=3"></script>
 
@@ -1086,9 +1086,11 @@
     list.innerHTML = '<div class="act-empty">Cargando...</div>';
 
     try {
-      var r = await fetch(API + '/api/admin/referrals', {
-        headers: {}
-      });
+      // [FIX] API_BASE explícito + PIN en URL (evita problemas de scope y preflight)
+      var API_BASE = 'https://com-diaz-ty2b.onrender.com';
+      var adminKey = ADMIN_KEY() || '321302';
+      var url = API_BASE + '/api/admin/referrals?k=' + encodeURIComponent(adminKey);
+      var r = await fetch(url);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       var d = await r.json();
       var refs = d.referrals || [];
