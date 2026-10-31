@@ -6,7 +6,7 @@
   const $S = id => document.getElementById(id);
   const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:3000'
-    : 'https://com-diaz.onrender.com';
+    : 'https://com-diaz-ty2b.onrender.com';
   const KEY = () => localStorage.getItem('comdiaz_api_key') || '';
 
   let estadoActual = 'pendiente';
