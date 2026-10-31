@@ -194,24 +194,32 @@
       let seleccion = planActual || 'basico';
       container.innerHTML = '<div class="planes-grid">' + renderizar(d.plans, modo, seleccion, onSelect) + '</div>';
 
-      // Bind clicks
-      container.querySelectorAll('[data-plan-id]').forEach(el => {
-        el.onclick = (e) => {
-          e.preventDefault();
-          const id = el.getAttribute('data-plan-id');
-          if (modo === 'register') {
-            seleccion = id;
-            container.innerHTML = '<div class="planes-grid">' + renderizar(d.plans, modo, seleccion, onSelect) + '</div>';
-            // Rebind
-            container.querySelectorAll('[data-plan-id]').forEach(el2 => {
-              el2.onclick = el.onclick;
-            });
-            if (onSelect) onSelect(id, d.plans.find(p => p.id === id));
-          } else if (modo === 'upgrade' && onSelect) {
-            onSelect(id, d.plans.find(p => p.id === id));
-          }
-        };
-      });
+      // [FIX] Delegación de eventos — una sola vez, sin rebind
+      // Eliminar listener previo si existe (por cargas repetidas)
+      if (container._planClickHandler) {
+        container.removeEventListener('click', container._planClickHandler);
+      }
+      
+      container._planClickHandler = function(e) {
+        const el = e.target.closest('[data-plan-id]');
+        if (!el) return;
+        if (!el.classList.contains('plan-btn') && !el.classList.contains('plan-card')) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const id = el.getAttribute('data-plan-id');
+        if (!id) return;
+        
+        if (modo === 'register') {
+          seleccion = id;
+          container.innerHTML = '<div class="planes-grid">' + renderizar(d.plans, modo, seleccion, onSelect) + '</div>';
+          if (onSelect) onSelect(id, d.plans.find(p => p.id === id));
+        } else if (modo === 'upgrade' && onSelect) {
+          onSelect(id, d.plans.find(p => p.id === id));
+        }
+      };
+      
+      container.addEventListener('click', container._planClickHandler);
 
       // Default selection callback
       if (onSelect && modo === 'register') {
