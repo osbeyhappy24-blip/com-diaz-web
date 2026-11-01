@@ -153,7 +153,7 @@
           </span>
         </span>
       </h1>
-        <p id="shopSubtitle">Productos importados y locales</p>
+        <p id="shopSubtitle">Productos locales e importados · ProfitToLife</p>
       </div>
     </div>
 
@@ -481,5 +481,144 @@
 </div>
 </div>
 </div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ProfitToLife Runtime Theme Injector
+// Garantiza que el tema PTL se aplique DESPUÉS de style.css
+// y limpia cualquier "Comdiaz" residual del DOM.
+// ═══════════════════════════════════════════════════════════
+(function(){
+  // 1) CSS hard-injected al final del body
+  var css = document.createElement('style');
+  css.id = 'ptl-runtime-theme';
+  css.textContent = `
+    /* ═══ PROFITTOLIFE RUNTIME THEME ═══ */
+    html, body { background: #0A0E1A !important; color: #F1F5F9 !important; }
+    body { background-image: none !important; }
+
+    /* Header */
+    header, .header, .shop-header, .topbar, nav.navbar {
+      background: #131A2E !important;
+      border-color: #1F2A44 !important;
+      color: #F1F5F9 !important;
+    }
+    header *, .header *, .shop-header * { color: #F1F5F9 !important; }
+    header a, .header a { color: #22C55E !important; }
+
+    /* Hero banner */
+    .shop-hero, .hero-banner, .hero {
+      background: linear-gradient(135deg,#0A0E1A 0%,#131A2E 100%) !important;
+    }
+    .shop-hero-badge {
+      background: rgba(34,197,94,0.15) !important;
+      color: #22C55E !important;
+      border: 1px solid rgba(34,197,94,0.3) !important;
+    }
+
+    /* Search */
+    input, textarea, select, .search-input, #searchInput {
+      background: #131A2E !important;
+      color: #F1F5F9 !important;
+      border-color: #1F2A44 !important;
+    }
+    input:focus, textarea:focus { border-color: #22C55E !important; box-shadow: 0 0 0 3px rgba(34,197,94,0.15) !important; }
+    input::placeholder { color: #64748B !important; }
+
+    /* Tabs / filtros / chips */
+    .tab, .admin-tab, .chip, .filter-btn, [role="tab"] {
+      background: #131A2E !important;
+      color: #94A3B8 !important;
+      border: 1px solid #1F2A44 !important;
+    }
+    .tab.active, .admin-tab.active, .chip.active, .filter-btn.active, [role="tab"][aria-selected="true"] {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+      border-color: #22C55E !important;
+    }
+
+    /* Cards */
+    .product-card, .prod-card, .card, .shop-card {
+      background: #131A2E !important;
+      border: 1px solid #1F2A44 !important;
+      color: #F1F5F9 !important;
+    }
+    .product-card:hover, .prod-card:hover { border-color: rgba(34,197,94,0.4) !important; }
+    .product-title, .prod-title, .card-title { color: #F1F5F9 !important; }
+    .product-price, .prod-price, .price { color: #22C55E !important; font-weight: 900 !important; }
+
+    /* Botones CTA */
+    button.btn-primary, .btn-primary, .btn-wa, .btn-add, .btn-buy, [class*="btn-cta"] {
+      background: #22C55E !important; color: #0A0E1A !important;
+      border: none !important; font-weight: 800 !important;
+    }
+    .btn-secondary, .btn-share {
+      background: #131A2E !important; color: #F1F5F9 !important; border: 1px solid #1F2A44 !important;
+    }
+
+    /* Stats */
+    .stat, .shop-stat, [class*="stat-"] { background: #131A2E !important; border-color: #1F2A44 !important; }
+    [class*="stat-num"], [class*="stat-value"] { color: #22C55E !important; }
+
+    /* Footer */
+    footer, .footer { background: #0A0E1A !important; color: #94A3B8 !important; border-top: 1px solid #1F2A44 !important; }
+    footer * { color: #94A3B8 !important; }
+    footer a { color: #22C55E !important; }
+
+    /* Texto secundario */
+    .muted, .text-muted, small { color: #94A3B8 !important; }
+
+    /* Headers */
+    h1, h2, h3, h4, h5 { color: #FFFFFF !important; }
+
+    /* Fix cualquier fondo blanco residual */
+    section, main, .container, .wrapper {
+      background: transparent !important;
+    }
+    section.bg-white, .bg-white, .bg-light { background: #0A0E1A !important; }
+  `;
+  document.body.appendChild(css);
+
+  // 2) Limpieza de texto residual "Comdiaz" en el DOM
+  function fixTexts() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node;
+    var reemplazos = [
+      ['Comdiaz Shop', 'ProfitToLife Marketplace'],
+      ['Comdiaz.com', 'ProfitToLife.com'],
+      ['comdiaz.shop', 'profittolife.com'],
+      ['Comdiaz', 'ProfitToLife'],
+      ['Productos importados y locales', 'Productos locales e importados']
+    ];
+    var nodosModificados = 0;
+    while (node = walker.nextNode()) {
+      var orig = node.nodeValue;
+      var t = orig;
+      for (var i = 0; i < reemplazos.length; i++) {
+        t = t.split(reemplazos[i][0]).join(reemplazos[i][1]);
+      }
+      if (t !== orig) {
+        node.nodeValue = t;
+        nodosModificados++;
+      }
+    }
+    return nodosModificados;
+  }
+  // Ejecutar varias veces para capturar renderizados dinámicos
+  fixTexts();
+  setTimeout(fixTexts, 500);
+  setTimeout(fixTexts, 1500);
+  setTimeout(fixTexts, 3000);
+
+  // 3) También actualizar el <title> si tiene "Comdiaz"
+  if (document.title.indexOf('Comdiaz') >= 0) {
+    document.title = document.title.replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace').replace(/Comdiaz/g, 'ProfitToLife');
+  }
+
+  console.log('✅ [PTL] Tema ProfitToLife aplicado');
+})();
+</script>
+
 </body>
 </html>
