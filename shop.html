@@ -608,6 +608,55 @@
       color: #F1F5F9 !important;
       border: 1px solid #1F2A44 !important;
     }
+
+    /* 🔧 HEADER FIX: ocultar bolso viejo + comprimir brand */
+    .header .logo,
+    .header .logo-icon,
+    .header .brand-logo,
+    .header > div:first-child img,
+    .header > a:first-child img,
+    header img[src*="logo"],
+    header img[src*="bag"],
+    header img[src*="shop-icon"] {
+      display: none !important;
+    }
+
+    /* Reducir tamaño del brand para liberar espacio a botones */
+    #shopTitle {
+      font-size: 15px !important;
+      gap: 8px !important;
+      min-width: 0 !important;
+      flex: 1 1 auto !important;
+      overflow: hidden;
+    }
+    #shopTitle > span:first-child {
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 16px !important;
+      flex-shrink: 0 !important;
+    }
+    #shopTitle > span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #shopTitle > span:last-child > span:first-child {
+      font-size: 14px !important;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #shopTitle > span:last-child > span:last-child {
+      font-size: 9px !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Botones del header (home, bell, cart) - fijos, no se comprimen */
+    .header .icon-btn, .header .nav-btn, .header button {
+      flex-shrink: 0 !important;
+    }
   `;
   document.body.appendChild(css);
 
