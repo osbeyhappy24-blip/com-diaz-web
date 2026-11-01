@@ -6,29 +6,29 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Comdiaz Shop 🇨🇺 · Productos locales e importados con envío a Cuba</title>
-  <meta name="description" content="Compra fácil por WhatsApp. Productos locales de Cuba e importados de eBay con envío directo. Comdiaz Shop, la tienda auténtica cubana.">
+<title>ProfitToLife Marketplace 🇨🇺 · Productos locales e importados con envío a Cuba</title>
+  <meta name="description" content="Compra fácil por WhatsApp. Productos locales de Cuba e importados de eBay con envío directo. ProfitToLife Marketplace, la tienda auténtica cubana.">
   <meta name="theme-color" content="#003f7f">
-  <meta name="author" content="Comdiaz Shop">
+  <meta name="author" content="ProfitToLife">
   <meta name="keywords" content="cuba, tienda, productos, locales, importados, ebay, envio, whatsapp, comdiaz">
   
   <!-- Open Graph (Facebook, WhatsApp) -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Comdiaz Shop 🇨🇺 · Productos cubanos e importados">
+  <meta property="og:title" content="ProfitToLife Marketplace 🇨🇺 · Productos cubanos e importados">
   <meta property="og:description" content="Compra fácil por WhatsApp. Productos locales e importados con envío a Cuba.">
   <meta property="og:image" content="https://com-diaz-ty2b.onrender.com/icon-shop-512.png">
   <meta property="og:url" content="https://osbeyhappy24-blip.github.io/com-diaz-web/shop.html">
-  <meta property="og:site_name" content="Comdiaz Shop">
+  <meta property="og:site_name" content="ProfitToLife Marketplace">
   <meta property="og:locale" content="es_CU">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Comdiaz Shop 🇨🇺 · Productos cubanos e importados">
+  <meta name="twitter:title" content="ProfitToLife Marketplace 🇨🇺 · Productos cubanos e importados">
   <meta name="twitter:description" content="Compra fácil por WhatsApp. Productos locales e importados con envío a Cuba.">
   <meta name="twitter:image" content="https://com-diaz-ty2b.onrender.com/icon-shop-512.png">
   
   <!-- Apple / PWA -->
-  <meta name="apple-mobile-web-app-title" content="Comdiaz Shop">
+  <meta name="apple-mobile-web-app-title" content="ProfitToLife">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,6 +47,86 @@
     gtag('js', new Date());
     gtag('config', 'G-MZ0TN9RHLX');
   </script>
+  <link rel="stylesheet" href="brand-ptl.css">
+
+  <!-- ═══ Overrides ProfitToLife (específicos shop.html) ═══ -->
+  <style>
+    /* Fondo general */
+    body { background: #0A0E1A !important; color: #F1F5F9 !important; }
+
+    /* Header / nav */
+    header, .header, .shop-header { background: #131A2E !important; border-color: #1F2A44 !important; }
+    header h1, .header h1 { color: #FFFFFF !important; }
+
+    /* Hero banner */
+    .shop-hero, .hero-banner { background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%) !important; }
+    .shop-hero-badge { background: rgba(34,197,94,0.15) !important; color: #22C55E !important; border: 1px solid rgba(34,197,94,0.3) !important; }
+
+    /* Search box */
+    input[type="search"], input[type="text"], .search-input, #searchInput {
+      background: #131A2E !important; color: #F1F5F9 !important;
+      border-color: #1F2A44 !important;
+    }
+    input[type="search"]:focus, input[type="text"]:focus, .search-input:focus, #searchInput:focus {
+      border-color: #22C55E !important;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.15) !important;
+    }
+
+    /* Tabs */
+    .shop-tabs .tab, .tabs .tab, .admin-tab {
+      background: #131A2E !important; color: #94A3B8 !important; border-color: #1F2A44 !important;
+    }
+    .shop-tabs .tab.active, .tabs .tab.active, .admin-tab.active {
+      background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important;
+    }
+
+    /* Filtros */
+    .filter-btn, .chip {
+      background: #131A2E !important; color: #94A3B8 !important; border: 1px solid #1F2A44 !important;
+    }
+    .filter-btn.active, .chip.active {
+      background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important; border-color: #22C55E !important;
+    }
+
+    /* Cards de producto */
+    .product-card, .prod-card, .card {
+      background: #131A2E !important; border: 1px solid #1F2A44 !important;
+      color: #F1F5F9 !important;
+    }
+    .product-card:hover, .prod-card:hover {
+      border-color: rgba(34,197,94,0.4) !important;
+      box-shadow: 0 4px 16px rgba(34,197,94,0.15) !important;
+    }
+    .product-title, .prod-title { color: #F1F5F9 !important; }
+    .product-price, .prod-price, .price { color: #22C55E !important; font-weight: 900 !important; }
+
+    /* Botones primarios (CTA, WhatsApp, Agregar) */
+    .btn-primary, .btn-wa, .btn-add, .btn-buy {
+      background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important;
+      border: none !important;
+    }
+    .btn-secondary, .btn-share {
+      background: #131A2E !important; color: #F1F5F9 !important; border: 1px solid #1F2A44 !important;
+    }
+
+    /* Stats */
+    .shop-stat, .stat { background: #131A2E !important; border: 1px solid #1F2A44 !important; }
+    .shop-stat-num, .stat-num { color: #22C55E !important; }
+
+    /* Footer */
+    footer, .footer { background: #0A0E1A !important; border-top: 1px solid #1F2A44 !important; color: #94A3B8 !important; }
+    footer p, .footer p { color: #94A3B8 !important; }
+
+    /* Textos varios */
+    .muted, .text-muted { color: #94A3B8 !important; }
+    h1, h2, h3, h4 { color: #F1F5F9 !important; }
+
+    /* Scrollbar dark */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0A0E1A; }
+    ::-webkit-scrollbar-thumb { background: #1F2A44; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #22C55E; }
+  </style>
 </head>
 <body>
 
@@ -62,7 +142,17 @@
         </svg>
       </div>
       <div class="brand-info">
-        <h1 id="shopTitle">Comdiaz Shop</h1>
+        <h1 id="shopTitle" style="display:flex;align-items:center;gap:12px;font-size:20px;font-weight:900">
+        <span class="ptl-logo" style="width:36px;height:36px;font-size:20px;border-radius:10px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.3)">P</span>
+        <span>
+          <span style="color:#FFFFFF">ProfitToLife</span>
+          <span style="font-size:11px;font-weight:600;display:block;margin-top:-2px">
+            <span style="color:#FCD34D">Ganancia</span>
+            <span style="color:#FFF"> para </span>
+            <span style="color:#22C55E">la vida</span>
+          </span>
+        </span>
+      </h1>
         <p id="shopSubtitle">Productos importados y locales</p>
       </div>
     </div>
@@ -110,7 +200,7 @@
 <!-- 🇨🇺 HERO BANNER CUBANO -->
 <section class="shop-hero" id="shopHero">
   <div class="shop-hero-inner">
-    <div class="shop-hero-badge">🇨🇺 Comdiaz Shop · Cuba</div>
+    <div class="shop-hero-badge">🇨🇺 ProfitToLife Marketplace · Cuba</div>
     <h2 class="shop-hero-title">Lo que buscas, <span>más cerca</span> que nunca</h2>
     <p class="shop-hero-subtitle">
       Productos locales de Cuba e importados de eBay, con envío directo. Compra fácil por WhatsApp.
@@ -224,7 +314,7 @@
 </main>
 
 <footer class="shop-footer">
-  <p>Comdiaz Shop</p>
+  <p>ProfitToLife Marketplace</p>
   <p class="footer-sub">Compra facil por WhatsApp</p>
 </footer>
 
@@ -382,7 +472,7 @@
 <div id="waInfoPanel" class="wa-info hidden">
 <div class="wa-info-backdrop"></div>
 <div class="wa-info-card">
-<div class="wa-info-head"><h3>Contacto Comdiaz Shop</h3><button id="waInfoClose" class="wa-info-close">&times;</button></div>
+<div class="wa-info-head"><h3>Contacto ProfitToLife</h3><button id="waInfoClose" class="wa-info-close">&times;</button></div>
 <div class="wa-info-body">
 <div class="wa-info-line"><span class="wa-info-ico">🕐</span><div><div class="wa-info-label">Horario de atencion</div><div class="wa-info-value" id="waInfoHorario">Lun-Sab 9:00am - 9:00pm</div></div></div>
 <div class="wa-info-line"><span class="wa-info-ico">💬</span><div><div class="wa-info-label">Atencion</div><div class="wa-info-value">Personalizada por WhatsApp</div></div></div>
