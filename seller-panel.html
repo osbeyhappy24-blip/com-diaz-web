@@ -1789,6 +1789,9 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
         </div>
 
         <div style="display:flex;gap:8px;margin-top:14px">
+          <a id="miTiendaVerBtn" href="#" target="_blank" rel="noopener" style="flex:1;padding:10px;background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px">
+            👁️ Ver
+          </a>
           <button onclick="abrirModalTienda(true)" style="flex:1;padding:10px;background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
             ✏️ Editar
           </button>
@@ -4727,12 +4730,22 @@ console.log('[IDB] IndexedDB listo');
     urlEl.href = url;
     document.getElementById('miTiendaUrlText').textContent = 'comdiaz.shop/tienda/' + t.slug;
 
-    // Stats (se actualizarán cuando el panel cargue productos)
+    // Botón explícito "Ver mi tienda"
+    var verBtn = document.getElementById('miTiendaVerBtn');
+    if (verBtn) verBtn.href = url;
+
+    // Stats (solo productos PUBLICADOS, no ocultos)
     setTimeout(function() {
       var prodList = document.getElementById('productsList');
       if (prodList) {
-        var prods = prodList.querySelectorAll('.product-item, .product-card');
-        document.getElementById('miTiendaProdCount').textContent = prods.length;
+        var cards = prodList.querySelectorAll('.product-item, .product-card');
+        var publicados = 0;
+        cards.forEach(function(card) {
+          var txt = card.textContent || '';
+          // "Publicado" y NO "Oculto" = cuenta
+          if (/Publicado/i.test(txt) && !/Oculto/i.test(txt)) publicados++;
+        });
+        document.getElementById('miTiendaProdCount').textContent = publicados;
       }
     }, 1500);
   }
