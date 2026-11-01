@@ -4677,7 +4677,23 @@ console.log('[IDB] IndexedDB listo');
 
       section.style.display = 'block';
 
+      // 🏆 Badge Fundador
+      if (d.esFundador && !document.getElementById('fundadorBadge')) {
+        var nameEl = document.getElementById('sellerName');
+        if (nameEl) {
+          var b = document.createElement('span');
+          b.id = 'fundadorBadge';
+          b.style.cssText = 'background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:900;margin-left:8px;vertical-align:middle;display:inline-block';
+          b.textContent = '🏆 Fundador #' + (d.posicionFundador || '?');
+          b.title = 'Estás entre los primeros 100 vendedores';
+          nameEl.parentNode.insertBefore(b, nameEl.nextSibling);
+        }
+      }
+
       if (tiendaActual) {
+        // 📊 Visitas reales
+        var vEl = document.getElementById('miTiendaVisitas');
+        if (vEl) vEl.textContent = d.visitas || tiendaActual.visitas || 0;
         mostrarTiendaCreada(tiendaActual);
       } else {
         mostrarSinTienda();

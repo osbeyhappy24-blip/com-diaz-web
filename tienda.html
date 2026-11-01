@@ -114,6 +114,8 @@ async function cargarTienda() {
     tienda = d.tienda;
     productos = d.productos || [];
     renderTienda(d.stats);
+    // 📊 Registrar visita
+    fetch(API + '/api/public/tienda/' + encodeURIComponent(slug) + '/visita', { method: 'POST' }).catch(function(){});
   } catch(e) {
     showError('Error de conexión. Verifica tu internet.', 'Error de red');
   }

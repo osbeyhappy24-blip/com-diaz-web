@@ -133,7 +133,7 @@ function renderProducto(p) {
   // Badge de tienda o anónimo
   let tiendaHtml = '';
   if (p.tienda_slug && p.tienda_nombre) {
-    tiendaHtml = `<a href="tienda.html?slug=${esc(p.tienda_slug)}" class="tienda-badge">🏪 ${esc(p.tienda_nombre)}</a>`;
+    tiendaHtml = `<a href="tienda.html?slug=${esc(p.tienda_slug)}" class="tienda-badge">🏪 ${esc(p.tienda_nombre)}</a> <button onclick="compartirProducto()" style="padding:10px 18px;background:rgba(37,211,102,.15);color:#25D366;border:1px solid rgba(37,211,102,.4);border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;margin-left:8px">📤 Compartir</button>`;
   } else if (p.seller_nombre) {
     tiendaHtml = `<span class="tienda-badge anonimo">🏷️ ${esc(p.seller_nombre)}</span>`;
   }
@@ -196,6 +196,16 @@ function renderProducto(p) {
 }
 
 cargarProducto();
+
+function compartirProducto() {
+  var url = location.href;
+  var t = (window._productoActual && window._productoActual.titulo) || 'Producto';
+  var texto = 'Mira esto en Comdiaz Shop:\n\n*' + t + '*\n' + url;
+  if (navigator.share) { navigator.share({ title: t, text: texto, url: url }).catch(function(){}); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(texto).then(function(){ alert('✅ Link copiado'); }).catch(function(){ prompt('Copia:', url); });
+  } else { prompt('Copia:', url); }
+}
 </script>
 </body>
 </html>
