@@ -577,6 +577,37 @@
       background: transparent !important;
     }
     section.bg-white, .bg-white, .bg-light { background: #0A0E1A !important; }
+
+    /* 🔧 Chips de filtro (Hogar/Local/Motos/etc) - inactive state */
+    .category-chip, .cat-chip, .chip-inactive, [class*="chip"]:not(.active):not(.chip-active),
+    [class*="category"]:not([class*="active"]), [class*="filter"]:not(.active) {
+      background: #131A2E !important;
+      color: #94A3B8 !important;
+      border: 1px solid #1F2A44 !important;
+    }
+
+    /* Todos los botones pill que no son CTA primario */
+    button:not(.btn-primary):not(.btn-wa):not(.btn-buy):not(.btn-add):not([class*="cta"]):not([class*="primary"]),
+    .btn:not(.btn-primary):not(.btn-wa):not([class*="cta"]) {
+      background: #131A2E !important;
+      color: #F1F5F9 !important;
+      border-color: #1F2A44 !important;
+    }
+
+    /* Botón Buscar → verde PTL (en vez de amarillo) */
+    button[type="submit"], .btn-search, #btnSearch, [class*="search-btn"] {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      border: none !important;
+      font-weight: 800 !important;
+    }
+
+    /* Select / dropdown ordenar */
+    select, .sort-select, [class*="sort"] {
+      background: #131A2E !important;
+      color: #F1F5F9 !important;
+      border: 1px solid #1F2A44 !important;
+    }
   `;
   document.body.appendChild(css);
 
