@@ -1457,6 +1457,209 @@ textarea { min-height: 60px; resize: vertical; }
   to { transform: translate(-50%, 0); opacity: 1; }
 }
 
+
+/* ═══ MI TIENDA (card) ═══ */
+.tienda-section {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px;
+  border: 1px solid #334155;
+}
+.tienda-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.tienda-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg,#003f7f,#7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.tienda-header-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+.tienda-header-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* Preview de la tienda creada */
+.tienda-preview {
+  background: #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.tienda-banner-mini {
+  height: 70px;
+  background: linear-gradient(135deg,#003f7f,#001a35);
+  background-size: cover;
+  background-position: center;
+}
+.tienda-logo-wrapper {
+  display: flex;
+  padding: 0 12px;
+  margin-top: -22px;
+  align-items: flex-end;
+}
+.tienda-logo-big {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid #1e293b;
+  background: #003f7f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.tienda-logo-big img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tienda-nombre-big {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tienda-url {
+  font-size: 11px;
+  color: #a78bfa;
+  text-decoration: none;
+  display: inline-block;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tienda-url:hover { text-decoration: underline; }
+
+/* Stats mini */
+.tienda-stats-mini {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tienda-stat-mini {
+  background: rgba(255,255,255,.03);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+.tienda-stat-num {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fbbf24;
+}
+.tienda-stat-lbl {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+/* ═══ MODAL TIENDA ═══ */
+.tienda-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+@media (min-width: 640px) {
+  .tienda-modal-overlay { align-items: center; padding: 20px; }
+}
+.tienda-modal {
+  background: #1e293b;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp .3s cubic-bezier(.4,0,.2,1);
+}
+@media (min-width: 640px) {
+  .tienda-modal { border-radius: 20px; }
+}
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: .5; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.tienda-modal-head {
+  position: sticky;
+  top: 0;
+  background: #1e293b;
+  padding: 16px 20px;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1;
+}
+.tienda-modal-head h3 {
+  font-size: 17px;
+  color: #f1f5f9;
+  font-weight: 800;
+}
+.tienda-modal-body {
+  padding: 20px;
+}
+.tienda-label {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.tienda-label:first-child { margin-top: 0; }
+.tienda-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #0f172a;
+  border: 1.5px solid #334155;
+  border-radius: 10px;
+  color: #f1f5f9;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all .2s;
+}
+.tienda-input::placeholder { color: #475569; }
+.tienda-input:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+}
 </style>
 
 <script>
@@ -1533,6 +1736,69 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
 
   
     <!-- 🎁 Referidos (MOVIDO ARRIBA) -->
+    <!-- 🏪 CARD MI TIENDA -->
+    <div class="tienda-section" id="tiendaSection" style="display:none">
+      <div class="tienda-header">
+        <div class="tienda-header-icon">🏪</div>
+        <div style="flex:1">
+          <div class="tienda-header-title">Mi tienda virtual</div>
+          <div class="tienda-header-sub" id="tiendaHeaderSub">Vende con tu marca propia</div>
+        </div>
+      </div>
+
+      <!-- Estado 1: SIN tienda -->
+      <div id="tiendaNoCreada" style="padding:16px 0">
+        <div style="font-size:14px;color:#cbd5e1;margin-bottom:14px;line-height:1.5">
+          Aún no has creado tu tienda. Con tu tienda tendrás:
+          <ul style="margin:10px 0 0 20px;padding:0;font-size:13px;color:#94a3b8;line-height:1.8">
+            <li>🏷️ Marca propia con logo y banner</li>
+            <li>🔗 Link único para compartir</li>
+            <li>📦 Todos tus productos en un solo lugar</li>
+            <li>📱 Página web propia (<span id="tuSlugEjemplo" style="color:#a78bfa">comdiaz.shop/tienda/tu-nombre</span>)</li>
+          </ul>
+        </div>
+        <button onclick="abrirModalTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#003f7f,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">
+          🏪 Crear mi tienda
+        </button>
+      </div>
+
+      <!-- Estado 2: CON tienda -->
+      <div id="tiendaCreada" style="display:none">
+        <div class="tienda-preview">
+          <div class="tienda-banner-mini" id="miTiendaBanner"></div>
+          <div class="tienda-logo-wrapper">
+            <div class="tienda-logo-big" id="miTiendaLogo"></div>
+            <div style="flex:1;padding-left:12px;padding-top:8px">
+              <div class="tienda-nombre-big" id="miTiendaNombre">—</div>
+              <a id="miTiendaUrl" href="#" target="_blank" class="tienda-url">
+                <span id="miTiendaUrlText">—</span> ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="tienda-stats-mini">
+          <div class="tienda-stat-mini">
+            <div class="tienda-stat-num" id="miTiendaProdCount">0</div>
+            <div class="tienda-stat-lbl">Productos</div>
+          </div>
+          <div class="tienda-stat-mini">
+            <div class="tienda-stat-num" id="miTiendaVisitas">0</div>
+            <div class="tienda-stat-lbl">Visitas</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button onclick="abrirModalTienda(true)" style="flex:1;padding:10px;background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
+            ✏️ Editar
+          </button>
+          <button onclick="compartirTienda()" style="flex:1;padding:10px;background:rgba(37,211,102,.15);color:#25D366;border:1px solid rgba(37,211,102,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
+            📤 Compartir
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="referral-section" id="referralSection" style="display:none">
       <div class="referral-header">
         <div class="referral-header-icon">🎁</div>
@@ -4329,6 +4595,355 @@ console.log('[IDB] IndexedDB listo');
   });
 
   console.log('[PENDING] Cola de sincronización lista');
+})();
+</script>
+
+
+<!-- 🏪 MODAL CREAR/EDITAR TIENDA -->
+<div class="tienda-modal-overlay" id="tiendaModal" style="display:none">
+  <div class="tienda-modal">
+    <div class="tienda-modal-head">
+      <h3 id="tiendaModalTitle">Crear mi tienda</h3>
+      <button onclick="cerrarModalTienda()" style="background:transparent;border:none;color:#94a3b8;font-size:22px;cursor:pointer">✕</button>
+    </div>
+    <div class="tienda-modal-body">
+      <label class="tienda-label">Nombre de tu tienda *</label>
+      <input type="text" id="tiendaNombreInput" class="tienda-input" placeholder="Ej: Electrónica Osbey" maxlength="60" oninput="actualizarSlugPreview()">
+      <div style="font-size:11px;color:#94a3b8;margin-top:4px">Este será el nombre visible en tu tienda</div>
+
+      <label class="tienda-label">Tu link único *</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="color:#64748b;font-size:12px">comdiaz.shop/tienda/</span>
+        <input type="text" id="tiendaSlugInput" class="tienda-input" placeholder="electronica-osbey" maxlength="40" style="flex:1" oninput="validarSlug(this.value)">
+      </div>
+      <div id="slugStatus" style="font-size:11px;margin-top:4px;color:#94a3b8">Solo letras, números y guiones</div>
+
+      <label class="tienda-label">Descripción corta</label>
+      <textarea id="tiendaDescInput" class="tienda-input" placeholder="Ej: Los mejores gadgets y accesorios de Cuba" maxlength="200" rows="2" style="resize:vertical"></textarea>
+
+      <label class="tienda-label">Logo (URL de imagen)</label>
+      <input type="url" id="tiendaLogoInput" class="tienda-input" placeholder="https://i.ibb.co/...">
+
+      <label class="tienda-label">Banner de fondo (URL, opcional)</label>
+      <input type="url" id="tiendaBannerInput" class="tienda-input" placeholder="https://i.ibb.co/...">
+
+      <label class="tienda-label">Color principal</label>
+      <input type="color" id="tiendaColorInput" value="#003f7f" class="tienda-input" style="padding:4px;height:44px;width:80px;cursor:pointer">
+
+      <label class="tienda-label">WhatsApp de contacto</label>
+      <input type="tel" id="tiendaWaInput" class="tienda-input" placeholder="5358980267" maxlength="20">
+
+      <div id="tiendaError" style="margin-top:12px;padding:10px;background:rgba(220,38,38,.15);border-left:3px solid #dc2626;border-radius:6px;color:#fca5a5;font-size:13px;display:none"></div>
+
+      <button id="btnGuardarTienda" onclick="guardarTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#003f7f,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:16px">
+        🏪 Crear tienda
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════
+// MÓDULO MI TIENDA
+// ═══════════════════════════════════════════════════════
+(function() {
+  var API_BASE = 'https://com-diaz-ty2b.onrender.com';
+  var tiendaActual = null;
+
+  function getToken() {
+    return localStorage.getItem('comdiaz_seller_token') || '';
+  }
+
+  // ─── Cargar tienda del seller ───
+  window.cargarMiTienda = async function() {
+    var section = document.getElementById('tiendaSection');
+    if (!section) return;
+
+    var token = getToken();
+    if (!token) return;  // no logueado
+
+    try {
+      var r = await fetch(API_BASE + '/api/seller/mi-tienda', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var d = await r.json();
+
+      tiendaActual = d.tienda || null;
+
+      section.style.display = 'block';
+
+      if (tiendaActual) {
+        mostrarTiendaCreada(tiendaActual);
+      } else {
+        mostrarSinTienda();
+      }
+    } catch(e) {
+      console.warn('[TIENDA] Error cargando:', e.message);
+    }
+  };
+
+  function mostrarSinTienda() {
+    document.getElementById('tiendaNoCreada').style.display = 'block';
+    document.getElementById('tiendaCreada').style.display = 'none';
+    document.getElementById('tiendaHeaderSub').textContent = 'Vende con tu marca propia';
+
+    // Preview del slug basado en el nombre actual del seller
+    var sellerName = document.getElementById('sellerName').textContent || '';
+    var slugEj = generarSlug(sellerName) || 'tu-nombre';
+    var el = document.getElementById('tuSlugEjemplo');
+    if (el) el.textContent = 'comdiaz.shop/tienda/' + slugEj;
+  }
+
+  function mostrarTiendaCreada(t) {
+    document.getElementById('tiendaNoCreada').style.display = 'none';
+    document.getElementById('tiendaCreada').style.display = 'block';
+    document.getElementById('tiendaHeaderSub').textContent = 'Tu tienda está activa';
+
+    // Banner
+    var banner = document.getElementById('miTiendaBanner');
+    if (t.banner) {
+      banner.style.backgroundImage = "url('" + t.banner + "')";
+    } else {
+      banner.style.background = 'linear-gradient(135deg,' + (t.color || '#003f7f') + ',#001a35)';
+    }
+
+    // Logo
+    var logo = document.getElementById('miTiendaLogo');
+    if (t.logo) {
+      logo.innerHTML = '<img src="' + t.logo + '" alt="">';
+    } else {
+      logo.textContent = (t.nombre || 'T').charAt(0).toUpperCase();
+    }
+    logo.style.background = t.color || '#003f7f';
+
+    // Nombre
+    document.getElementById('miTiendaNombre').textContent = t.nombre || '—';
+
+    // URL
+    var url = window.location.origin + window.location.pathname.replace('seller-panel.html', 'tienda.html') + '?slug=' + encodeURIComponent(t.slug);
+    var urlEl = document.getElementById('miTiendaUrl');
+    urlEl.href = url;
+    document.getElementById('miTiendaUrlText').textContent = 'comdiaz.shop/tienda/' + t.slug;
+
+    // Stats (se actualizarán cuando el panel cargue productos)
+    setTimeout(function() {
+      var prodList = document.getElementById('productsList');
+      if (prodList) {
+        var prods = prodList.querySelectorAll('.product-item, .product-card');
+        document.getElementById('miTiendaProdCount').textContent = prods.length;
+      }
+    }, 1500);
+  }
+
+  // ─── Generar slug ───
+  function generarSlug(str) {
+    return String(str || '')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 40);
+  }
+
+  // ─── Actualizar preview del slug mientras escriben el nombre ───
+  window.actualizarSlugPreview = function() {
+    var nombre = document.getElementById('tiendaNombreInput').value;
+    var slugInput = document.getElementById('tiendaSlugInput');
+    // Solo auto-llenar si el slug está vacío o si fue auto-generado antes
+    if (!slugInput.value || slugInput.dataset.auto === '1') {
+      slugInput.value = generarSlug(nombre);
+      slugInput.dataset.auto = '1';
+      validarSlug(slugInput.value);
+    }
+  };
+
+  // ─── Validar slug ───
+  window.validarSlug = function(slug) {
+    var slugInput = document.getElementById('tiendaSlugInput');
+    // Si el usuario escribe manualmente, desmarcar auto
+    if (slugInput.dataset.auto === '1' && slug !== generarSlug(document.getElementById('tiendaNombreInput').value)) {
+      slugInput.dataset.auto = '0';
+    }
+
+    var status = document.getElementById('slugStatus');
+    if (!slug) {
+      status.textContent = 'Solo letras, números y guiones';
+      status.style.color = '#94a3b8';
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      status.textContent = '❌ Solo letras minúsculas, números y guiones';
+      status.style.color = '#f87171';
+      return;
+    }
+    if (slug.length < 3) {
+      status.textContent = '❌ Mínimo 3 caracteres';
+      status.style.color = '#f87171';
+      return;
+    }
+    status.textContent = '✅ Formato válido (se verifica al guardar)'
+    status.style.color = '#10b981';
+  };
+
+  // ─── Abrir modal ───
+  window.abrirModalTienda = function(esEditar) {
+    var modal = document.getElementById('tiendaModal');
+    var titulo = document.getElementById('tiendaModalTitle');
+    var btn = document.getElementById('btnGuardarTienda');
+
+    if (esEditar && tiendaActual) {
+      titulo.textContent = 'Editar mi tienda';
+      btn.textContent = '💾 Guardar cambios';
+      document.getElementById('tiendaNombreInput').value = tiendaActual.nombre || '';
+      document.getElementById('tiendaSlugInput').value = tiendaActual.slug || '';
+      document.getElementById('tiendaSlugInput').readOnly = true;
+      document.getElementById('tiendaSlugInput').style.opacity = '.6';
+      document.getElementById('tiendaDescInput').value = tiendaActual.descripcion || '';
+      document.getElementById('tiendaLogoInput').value = tiendaActual.logo || '';
+      document.getElementById('tiendaBannerInput').value = tiendaActual.banner || '';
+      document.getElementById('tiendaColorInput').value = tiendaActual.color || '#003f7f';
+      document.getElementById('tiendaWaInput').value = tiendaActual.whatsapp || '';
+    } else {
+      titulo.textContent = 'Crear mi tienda';
+      btn.textContent = '🏪 Crear tienda';
+      // Limpiar campos
+      ['tiendaNombreInput','tiendaDescInput','tiendaLogoInput','tiendaBannerInput','tiendaWaInput'].forEach(function(id) {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('tiendaSlugInput').value = '';
+      document.getElementById('tiendaSlugInput').readOnly = false;
+      document.getElementById('tiendaSlugInput').style.opacity = '1';
+      document.getElementById('tiendaSlugInput').dataset.auto = '1';
+      document.getElementById('tiendaColorInput').value = '#003f7f';
+      document.getElementById('tiendaWaInput').value = '5358980267';
+    }
+
+    document.getElementById('tiendaError').style.display = 'none';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.cerrarModalTienda = function() {
+    document.getElementById('tiendaModal').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  // ─── Guardar tienda ───
+  window.guardarTienda = async function() {
+    var btn = document.getElementById('btnGuardarTienda');
+    var errBox = document.getElementById('tiendaError');
+
+    var esEditar = !!tiendaActual;
+    var nombre = document.getElementById('tiendaNombreInput').value.trim();
+    var slug = document.getElementById('tiendaSlugInput').value.trim();
+    var descripcion = document.getElementById('tiendaDescInput').value.trim();
+    var logo = document.getElementById('tiendaLogoInput').value.trim();
+    var banner = document.getElementById('tiendaBannerInput').value.trim();
+    var color = document.getElementById('tiendaColorInput').value;
+    var whatsapp = document.getElementById('tiendaWaInput').value.trim();
+
+    function showError(msg) {
+      errBox.textContent = msg;
+      errBox.style.display = 'block';
+    }
+
+    if (!nombre || nombre.length < 3) return showError('El nombre debe tener al menos 3 caracteres');
+    if (!esEditar && (!slug || !/^[a-z0-9-]+$/.test(slug) || slug.length < 3)) {
+      return showError('El slug debe tener al menos 3 caracteres (letras, números y guiones)');
+    }
+
+    var token = getToken();
+    if (!token) return showError('Tu sesión expiró. Vuelve a entrar al panel.');
+
+    errBox.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    try {
+      var url = esEditar ? API_BASE + '/api/seller/mi-tienda' : API_BASE + '/api/seller/crear-tienda';
+      var method = esEditar ? 'PUT' : 'POST';
+      var body = esEditar
+        ? { nombre: nombre, descripcion: descripcion, logo: logo, banner: banner, color: color, whatsapp: whatsapp }
+        : { nombre: nombre, slug: slug, descripcion: descripcion, logo: logo, banner: banner, color: color, whatsapp: whatsapp };
+
+      var r = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      var d = await r.json();
+
+      if (!d.ok) {
+        showError(d.error || 'Error al guardar');
+        btn.disabled = false;
+        btn.textContent = esEditar ? '💾 Guardar cambios' : '🏪 Crear tienda';
+        return;
+      }
+
+      tiendaActual = d.tienda;
+      cerrarModalTienda();
+      mostrarTiendaCreada(tiendaActual);
+      if (typeof toast === 'function') toast('✅ Tienda ' + (esEditar ? 'actualizada' : 'creada'), 'ok');
+      else alert('✅ Tienda ' + (esEditar ? 'actualizada' : 'creada'));
+    } catch(e) {
+      showError('Error de conexión: ' + e.message);
+    }
+
+    btn.disabled = false;
+    btn.textContent = esEditar ? '💾 Guardar cambios' : '🏪 Crear tienda';
+  };
+
+  // ─── Compartir tienda ───
+  window.compartirTienda = async function() {
+    if (!tiendaActual) return;
+    var base = window.location.origin + window.location.pathname.replace('seller-panel.html', 'tienda.html');
+    var url = base + '?slug=' + encodeURIComponent(tiendaActual.slug);
+    var texto = 'Mira mi tienda *' + tiendaActual.nombre + '* en Comdiaz Shop:\n\n' + url + '\n\n🛍️ Compra directo por WhatsApp';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: tiendaActual.nombre, text: texto, url: url });
+        return;
+      } catch(e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(texto);
+      alert('✅ Link copiado. Pégalo en WhatsApp o donde quieras.');
+    } catch(e) {
+      prompt('Copia el link:', url);
+    }
+  };
+
+  // ─── Cerrar con Escape ───
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarModalTienda();
+  });
+
+  // ─── Inicializar cuando el panel esté listo ───
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(cargarMiTienda, 2000);  // esperar a que el seller esté cargado
+  });
+
+  // También reintentar cuando el nombre del seller aparezca
+  var intentos = 0;
+  var timer = setInterval(function() {
+    intentos++;
+    var name = document.getElementById('sellerName');
+    if (name && name.textContent && name.textContent !== 'Cargando...') {
+      clearInterval(timer);
+      cargarMiTienda();
+    }
+    if (intentos > 20) clearInterval(timer);
+  }, 500);
+
+  console.log('✅ Módulo tienda listo');
 })();
 </script>
 
