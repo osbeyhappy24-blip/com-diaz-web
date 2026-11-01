@@ -2,7 +2,7 @@
 <!-- deploy-trigger: 1793385536 -->
 <html lang="es">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://com-diaz-ty2b.onrender.com https://com-diaz-ty2b.onrender.com https://com-diaz-ty2b.onrender.com https://osbeyhappy24-blip.github.io https://*.trycloudflare.com https://www.google-analytics.com https://region1.google-analytics.com https://wsrv.nl; worker-src 'self' blob:; manifest-src 'self'; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://com-diaz-ty2b.onrender.com https://com-diaz-ty2b.onrender.com https://com-diaz-ty2b.onrender.com https://osbeyhappy24-blip.github.io https://*.trycloudflare.com https://www.google-analytics.com https://region1.google-analytics.com https://wsrv.nl; worker-src 'self' blob:; manifest-src 'self'; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 <meta charset="utf-8">
@@ -258,6 +258,25 @@
             <div class="admin-stat-num" id="statProductos">0</div>
             <div class="admin-stat-lbl">📦 Productos</div>
           </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statTiendas">0</div>
+            <div class="admin-stat-lbl">🏪 Tiendas</div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statTiendasActivas">0</div>
+            <div class="admin-stat-lbl">✅ Tiendas activas</div>
+          </div>
+          <div class="admin-stat-box">
+            <div class="admin-stat-num" id="statTiendasVisitas">0</div>
+            <div class="admin-stat-lbl">👁️ Visitas</div>
+          </div>
+        </div>
+
+        <div style="margin:12px 0;padding:10px 14px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px;display:flex;align-items:center;gap:10px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#60a5fa;font-weight:600">
+            <input type="checkbox" id="filtroConTienda" style="width:16px;height:16px;cursor:pointer">
+            🏪 Solo vendedores con tienda creada
+          </label>
         </div>
 
         <div class="admin-tabs" id="sellersTabs">

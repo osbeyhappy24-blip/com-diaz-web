@@ -38,6 +38,10 @@
       $S('statPendientes').textContent = d.sellers?.pendientes || 0;
       $S('statAprobados').textContent = d.sellers?.aprobados || 0;
       $S('statSuspendidos').textContent = d.sellers?.suspendidos || 0;
+      // 🆕 Stats de tiendas
+      if ($S('statTiendas')) $S('statTiendas').textContent = d.tiendas?.total || 0;
+      if ($S('statTiendasActivas')) $S('statTiendasActivas').textContent = d.tiendas?.activas || 0;
+      if ($S('statTiendasVisitas')) $S('statTiendasVisitas').textContent = d.tiendas?.visitas || 0;
       $S('statProductos').textContent = d.productos?.totalActivos || 0;
 
       // Badge en el nav
@@ -87,7 +91,16 @@
       return;
     }
 
-    list.innerHTML = sellersCache.map(s => {
+    // Filtro "solo con tienda" (checkbox en home.html)
+    const soloConTienda = document.getElementById('filtroConTienda')?.checked;
+    const filtrados = soloConTienda ? sellersCache.filter(s => s.tienda) : sellersCache;
+
+    if (filtrados.length === 0 && sellersCache.length > 0) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;font-size:14px">No hay vendedores que coincidan con el filtro</div>';
+      return;
+    }
+
+    list.innerHTML = filtrados.map(s => {
       const estado = s.estado || 'pendiente';
       const plan = s.plan_id || 'basico';
       const fecha = s.created_at ? new Date(s.created_at).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
@@ -118,6 +131,25 @@
             <span>📍 ${ubic}</span>
             <span>💼 Plan: <b>${plan}</b></span>
           </div>
+          ${s.tienda ? `
+            <div class="seller-card-tienda" style="margin-top:10px;padding:10px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#60a5fa;font-weight:700;margin-bottom:6px">
+                🏪 ${(s.tienda.nombre||'').replace(/</g,'&lt;')}
+                ${s.tienda.activa ? '<span style="color:#10b981;font-size:11px;font-weight:600">✅ activa</span>' : '<span style="color:#f87171;font-size:11px;font-weight:600">🚫 inactiva</span>'}
+              </div>
+              <div style="font-size:12px;color:#94a3b8;margin-bottom:6px">
+                <code style="color:#a78bfa">/${(s.tienda.slug||'').replace(/</g,'&lt;')}</code>
+                · 👁️ ${s.tienda.visitas || 0} visitas
+              </div>
+              <a href="${s.tienda.url}" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3);border-radius:6px;font-size:12px;font-weight:700;text-decoration:none">
+                🔗 Ver tienda pública ↗
+              </a>
+            </div>
+          ` : `
+            <div style="margin-top:10px;padding:8px 12px;background:rgba(148,163,184,.06);border:1px dashed rgba(148,163,184,.25);border-radius:8px;font-size:12px;color:#64748b;text-align:center">
+              🕳️ Sin tienda creada
+            </div>
+          `}
           <div class="seller-card-actions">
             ${acciones.join('')}
           </div>
@@ -129,6 +161,13 @@
     list.querySelectorAll('button[data-action]').forEach(btn => {
       btn.onclick = () => manejarAccion(btn.dataset.action, btn.dataset.id);
     });
+
+    // 🆕 Bind filtro "solo con tienda"
+    const chkFiltro = document.getElementById('filtroConTienda');
+    if (chkFiltro && !chkFiltro.dataset.bound) {
+      chkFiltro.dataset.bound = '1';
+      chkFiltro.addEventListener('change', () => renderSellers());
+    }
   }
 
   // ═══ ACCIONES ═══
