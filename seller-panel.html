@@ -4629,7 +4629,14 @@ console.log('[IDB] IndexedDB listo');
       <textarea id="tiendaDescInput" class="tienda-input" placeholder="Ej: Los mejores gadgets y accesorios de Cuba" maxlength="200" rows="2" style="resize:vertical"></textarea>
 
       <label class="tienda-label">Logo (URL de imagen)</label>
-      <input type="url" id="tiendaLogoInput" class="tienda-input" placeholder="https://i.ibb.co/...">
+      
+<div style="display:flex;gap:10px;align-items:center">
+  <input type="file" id="tiendaLogoFile" accept="image/*" style="display:none" onchange="procesarLogo(this)">
+  <button type="button" class="tienda-input" style="cursor:pointer;text-align:left" onclick="document.getElementById('tiendaLogoFile').click()">📁 Subir Logo (imagen)</button>
+  <input type="hidden" id="tiendaLogoInput" value="">
+</div>
+<img id="previewLogo" style="display:none;width:60px;height:60px;border-radius:50%;object-fit:cover;margin-top:10px;border:2px solid #22C55E">
+
 
       <label class="tienda-label">Banner de fondo (URL, opcional)</label>
       <input type="url" id="tiendaBannerInput" class="tienda-input" placeholder="https://i.ibb.co/...">
