@@ -657,6 +657,40 @@
     .header .icon-btn, .header .nav-btn, .header button {
       flex-shrink: 0 !important;
     }
+
+    /* 🔧 v2: OCULTAR COMPLETAMENTE el bolso/logo viejo (todos los formatos) */
+    .header > *:first-child:not(#shopTitle):not(h1):not(.brand-ptl),
+    .header > div:first-of-type:not(#shopTitle),
+    .header [class*="logo"]:not(.ptl-logo):not(#shopTitle),
+    .header [class*="brand"]:not(#shopTitle):not(.brand-ptl),
+    .header [id*="logo"]:not(.ptl-logo),
+    .header > a:first-child:not([href*="home"]) {
+      display: none !important;
+    }
+
+    /* 🔧 v2: íconos del header → todos navy/verde PTL */
+    .header .icon-btn,
+    .header .nav-btn,
+    .header > button,
+    .header > a.btn-icon,
+    .header [class*="btn"]:not(.ptl-btn):not([class*="brand"]) {
+      background: #131A2E !important;
+      color: #22C55E !important;
+      border: 1px solid #1F2A44 !important;
+      box-shadow: none !important;
+    }
+    .header .icon-btn:hover,
+    .header .nav-btn:hover {
+      background: rgba(34,197,94,.15) !important;
+      border-color: rgba(34,197,94,.4) !important;
+    }
+
+    /* Forzar que el brand name se vea bien */
+    #shopTitle {
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      max-width: 60% !important;
+    }
   `;
   document.body.appendChild(css);
 
