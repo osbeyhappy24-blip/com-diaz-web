@@ -4742,9 +4742,9 @@ console.log('[IDB] IndexedDB listo');
     // Logo
     var logo = document.getElementById('miTiendaLogo');
     if (t.logo) {
-      logo.innerHTML = '<img src="' + t.logo + '" alt="">';
+      logo.innerHTML = '<img src="' + t.logo + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
     } else {
-      logo.textContent = (t.nombre || 'T').charAt(0).toUpperCase();
+      logo.innerHTML = '<span style="font-size:24px;font-weight:900">' + (t.nombre || 'T').charAt(0).toUpperCase() + '</span>';
     }
     logo.style.background = t.color || '#22C55E';
 
