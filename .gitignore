@@ -2,3 +2,8 @@
 *.bak-*
 node_modules/
 .DS_Store
+
+# Folders temporales de consolidación de zips (contienen secrets)
+extract-*/
+*.tar.gz
+comdiaz-archive/
