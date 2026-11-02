@@ -37,20 +37,7 @@ body {
   height: 4px;
   background: linear-gradient(90deg, #22C55E 0%, #FCD34D 50%, #22C55E 100%);
 }
-.header-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: #fbbf24;
-  color: #22C55E;
-  font-size: 32px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.3);
-}
+
 .header h1 {
   font-size: 24px;
   margin-bottom: 6px;
@@ -339,7 +326,7 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 
 
 <div class="header">
-  <div class="header-logo">C</div>
+  
   <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
       <span class="ptl-logo" style="width:48px;height:48px;font-size:26px;border-radius:14px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(34,197,94,0.4)">P</span>
       <h1 style="font-size:26px;font-weight:900;margin:0">Vende en <span style="color:#22C55E">ProfitToLife</span></h1>
@@ -667,6 +654,28 @@ document.addEventListener('DOMContentLoaded', () => {
       background: transparent !important;
       color: #22C55E !important;
       border: 1px solid #22C55E !important;
+    }
+
+    /* 🔧 v3: ocultar CUALQUIER logo viejo que quede (C, círculos, imágenes viejas) */
+    .header-logo:not(.ptl-logo),
+    .logo-badge:not(.ptl-logo),
+    .brand .logo:not(.ptl-logo),
+    [class*="logo"]:not(.ptl-logo):not(.logo-ptl),
+    .header > img,
+    .header > svg,
+    .header > .icon-badge {
+      display: none !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+    }
+
+    /* Asegurar que solo la P se vea */
+    .ptl-logo {
+      display: inline-flex !important;
+      visibility: visible !important;
     }
 
     /* Barra de "MÁS POPULAR" */
