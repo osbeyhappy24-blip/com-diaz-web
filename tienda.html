@@ -192,7 +192,13 @@ function renderTienda(stats) {
     </div>
     <div class="container">
       ${filtrosHTML}
-      <div class="products-grid" id="productsGrid"></div>
+      
+    <div style="margin-bottom: 16px;">
+      <input type="text" id="buscadorTienda" placeholder="🔍 Buscar en esta tienda..." 
+             style="width:100%; padding:12px; border-radius:10px; border:1px solid #1F2A44; background:#131A2E; color:#F1F5F9; font-size:14px;"
+             oninput="filtrarTienda(this.value)">
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
     </div>
   `;
   
