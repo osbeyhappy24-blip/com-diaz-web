@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mi panel · Comdiaz Shop</title>
+<title>Mi panel · ProfitToLife Marketplace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="favicon-shop.png">
@@ -12,14 +12,14 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Inter', sans-serif;
-  background: #0b0f1a;
+  background: #0A0E1A;
   color: #e5e7eb;
   min-height: 100vh;
   padding-bottom: 80px;
 }
 
 .header {
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%);
   padding: 20px 16px;
   display: flex;
   justify-content: space-between;
@@ -47,7 +47,7 @@ body {
 /* Card de info del vendedor */
 .info-card {
   background: rgba(255,255,255,.03);
-  border: 1px solid #243049;
+  border: 1px solid #1F2A44;
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 16px;
@@ -99,7 +99,7 @@ body {
 .badge.aprobado { background: rgba(16,185,129,.2); color: #34d399; }
 .badge.pendiente { background: rgba(245,158,11,.2); color: #fbbf24; }
 .badge.suspendido { background: rgba(239,68,68,.2); color: #f87171; }
-.badge.publicado { background: rgba(124,58,237,.2); color: #a78bfa; }
+.badge.publicado { background: rgba(124,58,237,.2); color: #4ADE80; }
 .badge.oculto { background: rgba(148,163,184,.2); color: #94a3b8; }
 
 /* Botón añadir producto */
@@ -108,7 +108,7 @@ body {
   padding: 16px;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  background: linear-gradient(135deg, #22C55E, #FCD34D);
   color: #fff;
   font-size: 15px;
   font-weight: 800;
@@ -130,7 +130,7 @@ body {
   display: flex;
   gap: 12px;
   background: rgba(255,255,255,.03);
-  border: 1px solid #243049;
+  border: 1px solid #1F2A44;
   border-radius: 12px;
   padding: 10px;
 }
@@ -176,20 +176,20 @@ body {
 .product-actions button {
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #243049;
+  border: 1px solid #1F2A44;
   background: transparent;
   color: #e5e7eb;
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
 }
-.product-actions .btn-edit { color: #a78bfa; border-color: rgba(167,139,250,.3); }
+.product-actions .btn-edit { color: #4ADE80; border-color: rgba(167,139,250,.3); }
 .product-actions .btn-del { color: #f87171; border-color: rgba(248,113,113,.3); }
 
 .empty {
   text-align: center;
   padding: 40px 20px;
-  color: #64748b;
+  color: #94A3B8;
   font-size: 14px;
 }
 
@@ -212,11 +212,11 @@ body {
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid #243049;
+  border: 1px solid #1F2A44;
 }
 .modal-head {
   padding: 16px;
-  border-bottom: 1px solid #243049;
+  border-bottom: 1px solid #1F2A44;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -246,14 +246,14 @@ input, select, textarea {
   width: 100%;
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1.5px solid #243049;
+  border: 1.5px solid #1F2A44;
   background: #111827;
   color: #e5e7eb;
   font-size: 14px;
   font-family: inherit;
   outline: none;
 }
-input:focus, select:focus, textarea:focus { border-color: #7c3aed; }
+input:focus, select:focus, textarea:focus { border-color: #22C55E; }
 textarea { min-height: 60px; resize: vertical; }
 
 .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -263,7 +263,7 @@ textarea { min-height: 60px; resize: vertical; }
   padding: 14px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  background: linear-gradient(135deg, #22C55E, #FCD34D);
   color: #fff;
   font-size: 14px;
   font-weight: 800;
@@ -308,8 +308,8 @@ textarea { min-height: 60px; resize: vertical; }
   position: relative;
   width: 40px; height: 40px;
   border-radius: 50%;
-  background: #1e293b;
-  border: 1.5px solid #334155;
+  background: #131A2E;
+  border: 1.5px solid #1F2A44;
   color: #f1f5f9;
   font-size: 18px;
   display: inline-flex;
@@ -319,7 +319,7 @@ textarea { min-height: 60px; resize: vertical; }
   transition: all .2s;
   padding: 0;
 }
-.notif-bell:hover { background: #334155; transform: scale(1.06); }
+.notif-bell:hover { background: #1F2A44; transform: scale(1.06); }
 .notif-bell.pulse { animation: pulseBell 1.8s ease-in-out infinite; }
 @keyframes pulseBell {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.5); }
@@ -337,7 +337,7 @@ textarea { min-height: 60px; resize: vertical; }
   min-width: 16px;
   text-align: center;
   display: none;
-  border: 1.5px solid #0f172a;
+  border: 1.5px solid #0A0E1A;
 }
 .notif-badge.show { display: block; }
 
@@ -358,8 +358,8 @@ textarea { min-height: 60px; resize: vertical; }
   width: calc(100% - 24px);
   max-width: 380px;
   max-height: 70vh;
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #0A0E1A;
+  border: 1px solid #1F2A44;
   border-radius: 16px;
   z-index: 999;
   box-shadow: 0 20px 60px rgba(0,0,0,.7);
@@ -374,7 +374,7 @@ textarea { min-height: 60px; resize: vertical; }
 
 .notif-header {
   padding: 14px 16px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #131A2E;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -401,13 +401,13 @@ textarea { min-height: 60px; resize: vertical; }
 
 .notif-item {
   padding: 12px 40px 12px 52px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #131A2E;
   cursor: pointer;
   transition: background .15s, transform .25s;
   position: relative;
   overflow: hidden;
 }
-.notif-item:hover { background: #1e293b; }
+.notif-item:hover { background: #131A2E; }
 .notif-item.no-leida { background: rgba(59,130,246,.06); }
 .notif-item.no-leida::before {
   content: '';
@@ -436,7 +436,7 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .notif-fecha {
   font-size: 10px;
-  color: #64748b;
+  color: #94A3B8;
   font-weight: 500;
 }
 .notif-dismiss {
@@ -461,7 +461,7 @@ textarea { min-height: 60px; resize: vertical; }
 .notif-empty {
   padding: 48px 24px;
   text-align: center;
-  color: #64748b;
+  color: #94A3B8;
   font-size: 13px;
 }
 .notif-empty-icon { font-size: 40px; margin-bottom: 10px; opacity: .7; }
@@ -592,7 +592,7 @@ textarea { min-height: 60px; resize: vertical; }
   border-radius: 10px;
   font-size: 10px;
   font-weight: 800;
-  background: #334155;
+  background: #1F2A44;
   color: #cbd5e1;
   vertical-align: middle;
 }
@@ -604,7 +604,7 @@ textarea { min-height: 60px; resize: vertical; }
 .plan-suspended-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(160deg, #0f172a 0%, #450a0a 100%);
+  background: linear-gradient(160deg, #0A0E1A 0%, #450a0a 100%);
   z-index: 99999;
   display: none;
   align-items: center;
@@ -613,7 +613,7 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .plan-suspended-overlay.show { display: flex; }
 .plan-suspended-card {
-  background: #0f172a;
+  background: #0A0E1A;
   border: 2px solid #ef4444;
   border-radius: 20px;
   padding: 32px 24px;
@@ -655,7 +655,7 @@ textarea { min-height: 60px; resize: vertical; }
   padding: 12px;
   background: transparent;
   color: #94a3b8;
-  border: 1px solid #334155;
+  border: 1px solid #1F2A44;
   border-radius: 10px;
   font-size: 13px;
   cursor: pointer;
@@ -679,8 +679,8 @@ textarea { min-height: 60px; resize: vertical; }
 /* Forzar visibilidad si se usa la clase 'show' en el overlay */
 .payment-modal-overlay.show { opacity: 1 !important; visibility: visible !important; }
 .payment-modal {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #0A0E1A;
+  border: 1px solid #1F2A44;
   border-radius: 20px;
   max-width: 440px;
   width: 100%;
@@ -695,7 +695,7 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .payment-modal-head {
   padding: 20px 20px 16px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #131A2E;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -727,7 +727,7 @@ textarea { min-height: 60px; resize: vertical; }
   justify-content: center;
   flex-shrink: 0;
 }
-.payment-modal-close:hover { background: #1e293b; color: #f1f5f9; }
+.payment-modal-close:hover { background: #131A2E; color: #f1f5f9; }
 
 .payment-modal-body {
   padding: 16px 20px 20px;
@@ -772,8 +772,8 @@ textarea { min-height: 60px; resize: vertical; }
   margin-bottom: 10px;
 }
 .payment-method-card {
-  background: #1e293b;
-  border: 1.5px solid #334155;
+  background: #131A2E;
+  border: 1.5px solid #1F2A44;
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 10px;
@@ -804,7 +804,7 @@ textarea { min-height: 60px; resize: vertical; }
   flex: 1;
 }
 .payment-method-datos {
-  background: #0f172a;
+  background: #0A0E1A;
   border-radius: 8px;
   padding: 8px 10px;
   font-family: monospace;
@@ -845,14 +845,14 @@ textarea { min-height: 60px; resize: vertical; }
   padding: 12px;
   background: transparent;
   color: #94a3b8;
-  border: 1px solid #334155;
+  border: 1px solid #1F2A44;
   border-radius: 10px;
   font-size: 13px;
   cursor: pointer;
   margin-top: 8px;
 }
 .payment-btn-secondary:hover {
-  background: #1e293b;
+  background: #131A2E;
   color: #f1f5f9;
 }
 
@@ -922,8 +922,8 @@ textarea { min-height: 60px; resize: vertical; }
   margin-top: 2px;
 }
 .referral-link-box {
-  background: #0f172a;
-  border: 1px dashed #334155;
+  background: #0A0E1A;
+  border: 1px dashed #1F2A44;
   border-radius: 10px;
   padding: 10px 12px;
   font-family: monospace;
@@ -949,10 +949,10 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .referral-btn:active { transform: scale(.96); }
 .referral-btn-copy {
-  background: #334155;
+  background: #1F2A44;
   color: #f1f5f9;
 }
-.referral-btn-copy:hover { background: #475569; }
+.referral-btn-copy:hover { background: #94A3B8; }
 .referral-btn-share {
   background: linear-gradient(135deg, #25d366, #1eb954);
   color: #fff;
@@ -975,13 +975,13 @@ textarea { min-height: 60px; resize: vertical; }
 /* ── Photo uploader ── */
 .photo-upload { margin: 8px 0 16px; }
 .photo-empty {
-  border: 2px dashed #334155; border-radius: 12px; padding: 24px 12px;
+  border: 2px dashed #1F2A44; border-radius: 12px; padding: 24px 12px;
   text-align: center; cursor: pointer; transition: all .2s; background: #0b1220;
 }
 .photo-empty:hover { border-color: #3b82f6; background: #0f1a2e; }
 .photo-icon { font-size: 32px; margin-bottom: 6px; }
 .photo-text { font-size: 14px; color: #94a3b8; font-weight: 600; }
-.photo-hint { font-size: 11px; color: #64748b; margin-top: 4px; }
+.photo-hint { font-size: 11px; color: #94A3B8; margin-top: 4px; }
 .photo-preview-wrap { position: relative; border-radius: 12px; overflow: hidden; background: #0b1220; }
 .photo-preview { width: 100%; max-height: 320px; object-fit: contain; display: block; }
 .photo-remove {
@@ -1071,8 +1071,8 @@ textarea { min-height: 60px; resize: vertical; }
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #0A0E1A;
+  border: 1px solid #1F2A44;
   border-radius: 14px;
   padding: 12px 16px;
   margin-bottom: 12px;
@@ -1128,8 +1128,8 @@ textarea { min-height: 60px; resize: vertical; }
   margin-bottom: 8px;
 }
 .bulk-global-row input {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #0A0E1A;
+  border: 1px solid #1F2A44;
   border-radius: 8px;
   padding: 10px;
   font-size: 13px;
@@ -1143,7 +1143,7 @@ textarea { min-height: 60px; resize: vertical; }
 .bulk-apply-all-btn {
   width: 100%;
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #0f172a;
+  color: #0A0E1A;
   border: none;
   padding: 10px;
   border-radius: 8px;
@@ -1156,8 +1156,8 @@ textarea { min-height: 60px; resize: vertical; }
 
 /* Formulario por foto */
 .bulk-form-card {
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #0A0E1A;
+  border: 1px solid #1F2A44;
   border-radius: 14px;
   padding: 14px;
   margin-bottom: 16px;
@@ -1200,7 +1200,7 @@ textarea { min-height: 60px; resize: vertical; }
   object-fit: cover;
   border-radius: 10px;
   margin-bottom: 10px;
-  background: #1e293b;
+  background: #131A2E;
   display: block;
 }
 .bulk-form-field {
@@ -1218,8 +1218,8 @@ textarea { min-height: 60px; resize: vertical; }
 .bulk-form-field select,
 .bulk-form-field textarea {
   width: 100%;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #131A2E;
+  border: 1px solid #1F2A44;
   border-radius: 8px;
   padding: 9px 10px;
   font-size: 13px;
@@ -1242,8 +1242,8 @@ textarea { min-height: 60px; resize: vertical; }
 .bulk-footer {
   /* Ya no fixed: es hijo de flex column y queda abajo naturalmente */
   flex-shrink: 0;
-  background: #0f172a;
-  border-top: 1px solid #334155;
+  background: #0A0E1A;
+  border-top: 1px solid #1F2A44;
   padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
   box-shadow: 0 -4px 20px rgba(0,0,0,.4);
 }
@@ -1272,7 +1272,7 @@ textarea { min-height: 60px; resize: vertical; }
 .recover-draft-banner {
   margin: 0 12px 12px;
   padding: 14px 16px;
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  background: linear-gradient(135deg, #22C55E, #a855f7);
   border: 1px solid #a855f7;
   border-radius: 14px;
   color: #fff;
@@ -1326,7 +1326,7 @@ textarea { min-height: 60px; resize: vertical; }
 .recover-draft-btn:active { transform: scale(.95); }
 .recover-draft-btn-recover {
   background: #fff;
-  color: #7c3aed;
+  color: #22C55E;
 }
 .recover-draft-btn-discard {
   background: rgba(0,0,0,.2);
@@ -1436,7 +1436,7 @@ textarea { min-height: 60px; resize: vertical; }
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #0f172a;
+  background: #0A0E1A;
   border: 1px solid #ef4444;
   border-radius: 10px;
   padding: 12px 18px;
@@ -1460,11 +1460,11 @@ textarea { min-height: 60px; resize: vertical; }
 
 /* ═══ MI TIENDA (card) ═══ */
 .tienda-section {
-  background: #1e293b;
+  background: #131A2E;
   border-radius: 16px;
   padding: 16px;
   margin: 12px;
-  border: 1px solid #334155;
+  border: 1px solid #1F2A44;
 }
 .tienda-header {
   display: flex;
@@ -1476,7 +1476,7 @@ textarea { min-height: 60px; resize: vertical; }
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg,#003f7f,#7c3aed);
+  background: linear-gradient(135deg,#22C55E,#22C55E);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1496,14 +1496,14 @@ textarea { min-height: 60px; resize: vertical; }
 
 /* Preview de la tienda creada */
 .tienda-preview {
-  background: #0f172a;
+  background: #0A0E1A;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 12px;
 }
 .tienda-banner-mini {
   height: 70px;
-  background: linear-gradient(135deg,#003f7f,#001a35);
+  background: linear-gradient(135deg,#22C55E,#001a35);
   background-size: cover;
   background-position: center;
 }
@@ -1517,8 +1517,8 @@ textarea { min-height: 60px; resize: vertical; }
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 3px solid #1e293b;
-  background: #003f7f;
+  border: 3px solid #131A2E;
+  background: #22C55E;
   color: #fff;
   display: flex;
   align-items: center;
@@ -1544,7 +1544,7 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .tienda-url {
   font-size: 11px;
-  color: #a78bfa;
+  color: #4ADE80;
   text-decoration: none;
   display: inline-block;
   max-width: 200px;
@@ -1563,7 +1563,7 @@ textarea { min-height: 60px; resize: vertical; }
 }
 .tienda-stat-mini {
   background: rgba(255,255,255,.03);
-  border: 1px solid #334155;
+  border: 1px solid #1F2A44;
   border-radius: 10px;
   padding: 10px;
   text-align: center;
@@ -1598,7 +1598,7 @@ textarea { min-height: 60px; resize: vertical; }
   .tienda-modal-overlay { align-items: center; padding: 20px; }
 }
 .tienda-modal {
-  background: #1e293b;
+  background: #131A2E;
   border-radius: 20px 20px 0 0;
   width: 100%;
   max-width: 480px;
@@ -1616,9 +1616,9 @@ textarea { min-height: 60px; resize: vertical; }
 .tienda-modal-head {
   position: sticky;
   top: 0;
-  background: #1e293b;
+  background: #131A2E;
   padding: 16px 20px;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #1F2A44;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1646,18 +1646,18 @@ textarea { min-height: 60px; resize: vertical; }
 .tienda-input {
   width: 100%;
   padding: 12px 14px;
-  background: #0f172a;
-  border: 1.5px solid #334155;
+  background: #0A0E1A;
+  border: 1.5px solid #1F2A44;
   border-radius: 10px;
   color: #f1f5f9;
   font-size: 14px;
   font-family: inherit;
   transition: all .2s;
 }
-.tienda-input::placeholder { color: #475569; }
+.tienda-input::placeholder { color: #94A3B8; }
 .tienda-input:focus {
   outline: none;
-  border-color: #7c3aed;
+  border-color: #22C55E;
   box-shadow: 0 0 0 3px rgba(124,58,237,.15);
 }
 </style>
@@ -1671,12 +1671,16 @@ window.addEventListener('unhandledrejection', e => {
 });
 console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,100); };
 </script>
+  <link rel="stylesheet" href="brand-ptl.css">
 </head>
 <body>
 
 <div class="header">
   <div>
-    <h1>Mi panel</h1>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <span class="ptl-logo" style="width:32px;height:32px;font-size:16px;border-radius:9px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.3);flex-shrink:0">P</span>
+        <h1 style="font-size:16px;margin:0">Mi panel</h1>
+      </div>
     <p id="sellerName">Cargando...</p>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
@@ -1754,10 +1758,10 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
             <li>🏷️ Marca propia con logo y banner</li>
             <li>🔗 Link único para compartir</li>
             <li>📦 Todos tus productos en un solo lugar</li>
-            <li>📱 Página web propia (<span id="tuSlugEjemplo" style="color:#a78bfa">comdiaz.shop/tienda/tu-nombre</span>)</li>
+            <li>📱 Página web propia (<span id="tuSlugEjemplo" style="color:#4ADE80">market.profittolife.com/tienda/tu-nombre</span>)</li>
           </ul>
         </div>
-        <button onclick="abrirModalTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#003f7f,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">
+        <button onclick="abrirModalTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22C55E,#22C55E);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">
           🏪 Crear mi tienda
         </button>
       </div>
@@ -1792,7 +1796,7 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
           <a id="miTiendaVerBtn" href="#" target="_blank" rel="noopener" style="flex:1;padding:10px;background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px">
             👁️ Ver
           </a>
-          <button onclick="abrirModalTienda(true)" style="flex:1;padding:10px;background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
+          <button onclick="abrirModalTienda(true)" style="flex:1;padding:10px;background:rgba(124,58,237,.15);color:#4ADE80;border:1px solid rgba(124,58,237,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
             ✏️ Editar
           </button>
           <button onclick="compartirTienda()" style="flex:1;padding:10px;background:rgba(37,211,102,.15);color:#25D366;border:1px solid rgba(37,211,102,.4);border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
@@ -2606,7 +2610,7 @@ console.log('✅ Photo uploader + quota cache ready');
       Cargando...
     </div>
   </div>
-  <div style="padding:10px;border-top:1px solid #1e293b;background:#0b1220;text-align:center">
+  <div style="padding:10px;border-top:1px solid #131A2E;background:#0b1220;text-align:center">
     <button onclick="forceRegisterPush()" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;width:100%">
       🔄 Conectar notificaciones push
     </button>
@@ -2978,7 +2982,7 @@ console.log('✅ Photo uploader + quota cache ready');
     if (!panel) {
       panel = document.createElement('div');
       panel.id = 'pushDebugPanel';
-      panel.style.cssText = 'position:fixed;top:60px;left:8px;right:8px;background:#0f172a;color:#f1f5f9;padding:14px;border-radius:12px;border:2px solid #3b82f6;z-index:10001;font-size:12px;font-family:monospace;max-height:60vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.5';
+      panel.style.cssText = 'position:fixed;top:60px;left:8px;right:8px;background:#0A0E1A;color:#f1f5f9;padding:14px;border-radius:12px;border:2px solid #3b82f6;z-index:10001;font-size:12px;font-family:monospace;max-height:60vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.5';
       document.body.appendChild(panel);
     }
     panel.innerHTML = '<div style="font-weight:bold;color:#fbbf24;margin-bottom:8px">' + titulo + '</div>' +
@@ -3024,7 +3028,7 @@ console.log('✅ Photo uploader + quota cache ready');
       if (btn) {
         btn.style.display = 'inline-flex';
         btn.textContent = '⚙️ Revisar';
-        btn.style.background = 'linear-gradient(135deg,#64748b,#475569)';
+        btn.style.background = 'linear-gradient(135deg,#94A3B8,#94A3B8)';
       }
       return;
     }
@@ -3047,7 +3051,7 @@ console.log('✅ Photo uploader + quota cache ready');
 
     if (Notification.permission === 'denied') {
       showDebugPanel('🔕 Notificaciones bloqueadas', [
-        'Abre Ajustes de Android → Comdiaz Shop → Notificaciones → Permitir.',
+        'Abre Ajustes de Android → ProfitToLife Marketplace → Notificaciones → Permitir.',
         'Después vuelve aquí y toca el botón.'
       ]);
       return;
@@ -3335,7 +3339,7 @@ window.forceRegisterPush = async function() {
 
   window.renovarPlan = function() {
     const planActual = document.getElementById('sellerPlan')?.textContent || 'tu plan';
-    const mensaje = 'Hola, quiero renovar mi plan ' + planActual + ' en Comdiaz Shop. Mi teléfono de vendedor es ' + (typeof sellerData !== 'undefined' && sellerData ? sellerData.telefono : '') + '.';
+    const mensaje = 'Hola, quiero renovar mi plan ' + planActual + ' en ProfitToLife Marketplace. Mi teléfono de vendedor es ' + (typeof sellerData !== 'undefined' && sellerData ? sellerData.telefono : '') + '.';
     const url = 'https://wa.me/' + WA_ADMIN + '?text=' + encodeURIComponent(mensaje);
     window.open(url, '_blank');
   };
@@ -3572,7 +3576,7 @@ window.forceRegisterPush = async function() {
       // 2. Abrir WhatsApp con mensaje prellenado
       const seller = typeof sellerData !== 'undefined' && sellerData ? sellerData : {};
       const msg = 'Hola, quiero renovar mi plan ' + (_planInfo?.plan?.nombre || 'Pro') +
-        ' ($' + (_planInfo?.plan?.precio_usd || 5) + ' USD) en Comdiaz Shop.' +
+        ' ($' + (_planInfo?.plan?.precio_usd || 5) + ' USD) en ProfitToLife Marketplace.' +
         '\n\nMi nombre: ' + (seller.nombre || '') +
         '\nMi teléfono: ' + (seller.telefono || '') +
         '\nMétodo de pago: ' + metodo.nombre +
@@ -3672,7 +3676,7 @@ window.forceRegisterPush = async function() {
 
   window.compartirWA = async function() {
     if (!_refWA) return;
-    var mensaje = 'Hola! Te invito a vender en Comdiaz Shop, la tienda cubana.' + NL + NL +
+    var mensaje = 'Hola! Te invito a vender en ProfitToLife Marketplace, la tienda cubana.' + NL + NL +
       'Registrate con mi link:' + NL + _refWA + NL + NL +
       'Tendras hasta 200 productos para vender, envio por WhatsApp y notificaciones automaticas.';
 
@@ -3680,7 +3684,7 @@ window.forceRegisterPush = async function() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Comdiaz Shop - Te invito a vender',
+          title: 'ProfitToLife Marketplace - Te invito a vender',
           text: mensaje,
           url: _refWA
         });
@@ -4616,7 +4620,7 @@ console.log('[IDB] IndexedDB listo');
 
       <label class="tienda-label">Tu link único *</label>
       <div style="display:flex;gap:6px;align-items:center">
-        <span style="color:#64748b;font-size:12px">comdiaz.shop/tienda/</span>
+        <span style="color:#94A3B8;font-size:12px">market.profittolife.com/tienda/</span>
         <input type="text" id="tiendaSlugInput" class="tienda-input" placeholder="electronica-osbey" maxlength="40" style="flex:1" oninput="validarSlug(this.value)">
       </div>
       <div id="slugStatus" style="font-size:11px;margin-top:4px;color:#94a3b8">Solo letras, números y guiones</div>
@@ -4631,14 +4635,14 @@ console.log('[IDB] IndexedDB listo');
       <input type="url" id="tiendaBannerInput" class="tienda-input" placeholder="https://i.ibb.co/...">
 
       <label class="tienda-label">Color principal</label>
-      <input type="color" id="tiendaColorInput" value="#003f7f" class="tienda-input" style="padding:4px;height:44px;width:80px;cursor:pointer">
+      <input type="color" id="tiendaColorInput" value="#22C55E" class="tienda-input" style="padding:4px;height:44px;width:80px;cursor:pointer">
 
       <label class="tienda-label">WhatsApp de contacto</label>
       <input type="tel" id="tiendaWaInput" class="tienda-input" placeholder="5358980267" maxlength="20">
 
       <div id="tiendaError" style="margin-top:12px;padding:10px;background:rgba(220,38,38,.15);border-left:3px solid #dc2626;border-radius:6px;color:#fca5a5;font-size:13px;display:none"></div>
 
-      <button id="btnGuardarTienda" onclick="guardarTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#003f7f,#7c3aed);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:16px">
+      <button id="btnGuardarTienda" onclick="guardarTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22C55E,#22C55E);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:16px">
         🏪 Crear tienda
       </button>
     </div>
@@ -4712,7 +4716,7 @@ console.log('[IDB] IndexedDB listo');
     var sellerName = document.getElementById('sellerName').textContent || '';
     var slugEj = generarSlug(sellerName) || 'tu-nombre';
     var el = document.getElementById('tuSlugEjemplo');
-    if (el) el.textContent = 'comdiaz.shop/tienda/' + slugEj;
+    if (el) el.textContent = 'market.profittolife.com/tienda/' + slugEj;
   }
 
   function mostrarTiendaCreada(t) {
@@ -4725,7 +4729,7 @@ console.log('[IDB] IndexedDB listo');
     if (t.banner) {
       banner.style.backgroundImage = "url('" + t.banner + "')";
     } else {
-      banner.style.background = 'linear-gradient(135deg,' + (t.color || '#003f7f') + ',#001a35)';
+      banner.style.background = 'linear-gradient(135deg,' + (t.color || '#22C55E') + ',#001a35)';
     }
 
     // Logo
@@ -4735,7 +4739,7 @@ console.log('[IDB] IndexedDB listo');
     } else {
       logo.textContent = (t.nombre || 'T').charAt(0).toUpperCase();
     }
-    logo.style.background = t.color || '#003f7f';
+    logo.style.background = t.color || '#22C55E';
 
     // Nombre
     document.getElementById('miTiendaNombre').textContent = t.nombre || '—';
@@ -4744,7 +4748,7 @@ console.log('[IDB] IndexedDB listo');
     var url = window.location.origin + window.location.pathname.replace('seller-panel.html', 'tienda.html') + '?slug=' + encodeURIComponent(t.slug);
     var urlEl = document.getElementById('miTiendaUrl');
     urlEl.href = url;
-    document.getElementById('miTiendaUrlText').textContent = 'comdiaz.shop/tienda/' + t.slug;
+    document.getElementById('miTiendaUrlText').textContent = 'market.profittolife.com/tienda/' + t.slug;
 
     // Botón explícito "Ver mi tienda"
     var verBtn = document.getElementById('miTiendaVerBtn');
@@ -4832,7 +4836,7 @@ console.log('[IDB] IndexedDB listo');
       document.getElementById('tiendaDescInput').value = tiendaActual.descripcion || '';
       document.getElementById('tiendaLogoInput').value = tiendaActual.logo || '';
       document.getElementById('tiendaBannerInput').value = tiendaActual.banner || '';
-      document.getElementById('tiendaColorInput').value = tiendaActual.color || '#003f7f';
+      document.getElementById('tiendaColorInput').value = tiendaActual.color || '#22C55E';
       document.getElementById('tiendaWaInput').value = tiendaActual.whatsapp || '';
     } else {
       titulo.textContent = 'Crear mi tienda';
@@ -4845,7 +4849,7 @@ console.log('[IDB] IndexedDB listo');
       document.getElementById('tiendaSlugInput').readOnly = false;
       document.getElementById('tiendaSlugInput').style.opacity = '1';
       document.getElementById('tiendaSlugInput').dataset.auto = '1';
-      document.getElementById('tiendaColorInput').value = '#003f7f';
+      document.getElementById('tiendaColorInput').value = '#22C55E';
       document.getElementById('tiendaWaInput').value = '5358980267';
     }
 
@@ -4932,7 +4936,7 @@ console.log('[IDB] IndexedDB listo');
     if (!tiendaActual) return;
     var base = window.location.origin + window.location.pathname.replace('seller-panel.html', 'tienda.html');
     var url = base + '?slug=' + encodeURIComponent(tiendaActual.slug);
-    var texto = 'Mira mi tienda *' + tiendaActual.nombre + '* en Comdiaz Shop:\n\n' + url + '\n\n🛍️ Compra directo por WhatsApp';
+    var texto = 'Mira mi tienda *' + tiendaActual.nombre + '* en ProfitToLife Marketplace:\n\n' + url + '\n\n🛍️ Compra directo por WhatsApp';
 
     if (navigator.share) {
       try {
@@ -4973,6 +4977,120 @@ console.log('[IDB] IndexedDB listo');
   }, 500);
 
   console.log('✅ Módulo tienda listo');
+})();
+</script>
+
+
+<script>
+// ═══ ProfitToLife Runtime Theme (seller-panel.html) ═══
+(function(){
+  var css = document.createElement('style');
+  css.textContent = `
+    html, body {
+      background: #0A0E1A !important;
+      color: #F1F5F9 !important;
+    }
+    .header {
+      background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%) !important;
+      border-bottom: 1px solid #1F2A44 !important;
+    }
+    .header h1, .header h2, h1, h2, h3 {
+      color: #FFFFFF !important;
+    }
+    
+    /* Cards */
+    .info-card, .plan-banner, .tienda-section, .referral-section, [class*="card"] {
+      background: #131A2E !important;
+      border-color: #1F2A44 !important;
+      color: #F1F5F9 !important;
+    }
+    
+    /* Botones */
+    .add-btn, .logout-btn, button.btn-primary, button[type="submit"] {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+      border: none !important;
+    }
+    .add-btn:hover, button[type="submit"]:hover {
+      background: #16A34A !important;
+    }
+    .logout-btn {
+      background: rgba(0,0,0,.3) !important;
+      color: #F1F5F9 !important;
+      border: 1px solid #1F2A44 !important;
+    }
+    
+    /* Notif bell */
+    .notif-bell {
+      background: #131A2E !important;
+      border: 1px solid #1F2A44 !important;
+      color: #22C55E !important;
+    }
+    .notif-bell:hover {
+      background: rgba(34,197,94,.15) !important;
+    }
+    
+    /* Inputs */
+    input, textarea, select {
+      background: #131A2E !important;
+      color: #F1F5F9 !important;
+      border-color: #1F2A44 !important;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #22C55E !important;
+      box-shadow: 0 0 0 3px rgba(34,197,94,.15) !important;
+    }
+    
+    /* Precios, stats, acentos */
+    [class*="price"], [class*="stat-num"], .referral-stat-num, .tienda-stat-num {
+      color: #22C55E !important;
+    }
+    [class*="founder"], .fundador {
+      background: linear-gradient(135deg, #FCD34D, #F59E0B) !important;
+      color: #0A0E1A !important;
+      font-weight: 900 !important;
+    }
+    
+    /* Texto muted */
+    .muted, small, [class*="text-muted"] {
+      color: #94A3B8 !important;
+    }
+    
+    /* Tienda preview */
+    .tienda-url, .tienda-stat-num {
+      color: #22C55E !important;
+    }
+    
+    /* Header del logo */
+    .ptl-logo {
+      flex-shrink: 0 !important;
+    }
+  `;
+  document.head.appendChild(css);
+
+  // Barrido de strings Comdiaz
+  function fixTexts() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.indexOf('Comdiaz') >= 0) {
+        node.nodeValue = node.nodeValue
+          .replace(/comdiaz\.shop\/tienda\//g, 'market.profittolife.com/tienda/')
+          .replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace')
+          .replace(/Comdiaz/g, 'ProfitToLife');
+      }
+    }
+  }
+  fixTexts();
+  setTimeout(fixTexts, 500);
+  setTimeout(fixTexts, 1500);
+  setTimeout(fixTexts, 3000);
+
+  if (document.title.indexOf('Comdiaz') >= 0) {
+    document.title = document.title.replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace').replace(/Comdiaz/g, 'ProfitToLife');
+  }
+  console.log('✅ [PTL] Tema seller-panel.html aplicado');
 })();
 </script>
 
