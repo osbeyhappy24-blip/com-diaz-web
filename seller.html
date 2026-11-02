@@ -340,7 +340,10 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 
 <div class="header">
   <div class="header-logo">C</div>
-  <h1>Vende en <span style="color:#22C55E">ProfitToLife</span></h1>
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+      <span class="ptl-logo" style="width:48px;height:48px;font-size:26px;border-radius:14px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(34,197,94,0.4)">P</span>
+      <h1 style="font-size:26px;font-weight:900;margin:0">Vende en <span style="color:#22C55E">ProfitToLife</span></h1>
+    </div>
   <p>Tu negocio al alcance de toda Cuba 🇨🇺</p>
   <div class="header-badges">
     <span>✅ Gratis para empezar</span>
@@ -635,6 +638,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     footer a { color: #22C55E !important; }
     
+    /* 🔧 v2: forzar botones de planes a verde PTL */
+    .plan-btn, .btn-plan, .btn-choose,
+    button[class*="plan"]:not(.plan-btn-selected),
+    [class*="plan"] button:not(.btn-secondary) {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      border: none !important;
+      font-weight: 800 !important;
+    }
+    .plan-btn:hover, button[class*="plan"]:hover {
+      background: #16A34A !important;
+    }
+    
+    /* Botón "Registrarme" */
+    .btn-primary, .btn-registrarme, button[type="submit"] {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+      border: none !important;
+    }
+    .btn-primary:hover, button[type="submit"]:hover {
+      background: #16A34A !important;
+    }
+    
+    /* "Ya tengo cuenta" / botones secundarios */
+    .btn-secondary, .btn-outline {
+      background: transparent !important;
+      color: #22C55E !important;
+      border: 1px solid #22C55E !important;
+    }
+
     /* Barra de "MÁS POPULAR" */
     .popular, .badge-popular, [class*="popular"] {
       background: linear-gradient(135deg, #FCD34D, #F59E0B) !important;
