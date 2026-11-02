@@ -5126,51 +5126,69 @@ console.log('[IDB] IndexedDB listo');
 </script>
 
 
+
 <script>
-// ═══ LÓGICA DEL BANNER DE IA ═══
+// ═══ LÓGICA DEL BANNER DE IA (FIX) ═══
+const API_IA = 'https://com-diaz-ty2b.onrender.com';
 let iaPollTimer = null;
-let iaBannerVisible = false;
 
 async function checkIAStatus() {
   const token = localStorage.getItem('comdiaz_seller_token');
   if (!token) return;
+
+  const banner = document.getElementById('iaBanner');
+  if (!banner) return;
+
   try {
-    const res = await fetch(API_BASE + '/api/seller/estado-mejora-ia', {
+    const res = await fetch(API_IA + '/api/seller/estado-mejora-ia', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
-    if (!data.ok) return;
-
-    if (data.job) {
+    
+    if (data.ok && data.job) {
+      banner.style.display = 'block';
       renderIABanner(data.job);
+      
       if (data.job.estado === 'procesando' || data.job.estado === 'en_cola') {
         iaPollTimer = setTimeout(checkIAStatus, 3000);
       } else if (data.job.estado === 'completado') {
-        setTimeout(() => {
-          const b = document.getElementById('iaBanner');
-          if (b) b.style.display = 'none';
-        }, 8000);
+        setTimeout(() => { banner.style.display = 'none'; }, 8000);
       }
     } else {
-      iniciarIA();
+      // Si no hay trabajo, intentar iniciar uno
+      iniciarIA(token);
     }
-  } catch(e) {}
+  } catch(e) {
+    console.log('[IA-BANNER] Error de conexión:', e.message);
+  }
 }
 
-async function iniciarIA() {
-  const token = localStorage.getItem('comdiaz_seller_token');
-  if (!token) return;
+async function iniciarIA(token) {
   try {
-    const res = await fetch(API_BASE + '/api/seller/iniciar-mejora-ia', {
+    // Mostrar banner en estado "Conectando..." mientras responde el backend
+    const banner = document.getElementById('iaBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('iaTitle').textContent = 'Conectando con la IA...';
+      document.getElementById('iaSub').textContent = 'Analizando tu tienda...';
+    }
+
+    const res = await fetch(API_IA + '/api/seller/iniciar-mejora-ia', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
+    
     if (data.ok && data.job) {
       renderIABanner(data.job);
       iaPollTimer = setTimeout(checkIAStatus, 3000);
+    } else {
+      // Si no hay productos o ya se procesaron, ocultar
+      if (banner) banner.style.display = 'none';
     }
-  } catch(e) {}
+  } catch(e) {
+    console.log('[IA-BANNER] Error al iniciar:', e.message);
+  }
 }
 
 function renderIABanner(job) {
@@ -5179,11 +5197,13 @@ function renderIABanner(job) {
   banner.style.display = 'block';
   
   const pct = job.total > 0 ? Math.round((job.procesados / job.total) * 100) : 0;
-  document.getElementById('iaBadge').textContent = job.procesados + '/' + job.total;
-  document.getElementById('iaProgress').style.width = pct + '%';
-  
+  const badge = document.getElementById('iaBadge');
+  const progress = document.getElementById('iaProgress');
   const title = document.getElementById('iaTitle');
   const sub = document.getElementById('iaSub');
+
+  if (badge) badge.textContent = job.procesados + '/' + job.total;
+  if (progress) progress.style.width = pct + '%';
 
   if (job.estado === 'en_cola') {
     title.textContent = 'Preparando optimización con IA';
@@ -5196,14 +5216,16 @@ function renderIABanner(job) {
   } else if (job.estado === 'completado') {
     title.textContent = '¡Tus productos están listos! ✅';
     sub.textContent = 'Los compradores te encontrarán más fácil en el marketplace.';
+    if (progress) progress.style.width = '100%';
   }
 }
 
-// Iniciar al cargar el panel
+// Iniciar apenas cargue la página
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(checkIAStatus, 2000);
+  setTimeout(checkIAStatus, 1500);
 });
 </script>
+
 
 </body>
 </html>
