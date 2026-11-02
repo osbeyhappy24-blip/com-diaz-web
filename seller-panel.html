@@ -1675,6 +1675,30 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
 </head>
 <body>
 
+<!-- ═══ BANNER DE IA AUTOMÁTICO ═══ -->
+<div id="iaBanner" style="display:none; margin:12px; padding:18px; border-radius:16px; background:linear-gradient(135deg,#7C3AED 0%,#DB2777 100%); color:#fff; position:relative; overflow:hidden; box-shadow:0 10px 30px rgba(124,58,237,0.4);">
+  <style>
+    .ia-glow { position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 60%); animation:iaRotate 6s linear infinite; pointer-events:none; }
+    @keyframes iaRotate { to { transform:rotate(360deg); } }
+    .ia-icon { font-size:36px; animation:iaPulse 2s ease-in-out infinite; }
+    @keyframes iaPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    .ia-progress-bg { height:8px; background:rgba(255,255,255,0.25); border-radius:4px; overflow:hidden; margin-top:14px; }
+    .ia-progress-fill { height:100%; background:#fff; border-radius:4px; transition:width 0.6s ease; width:0%; }
+    .ia-badge { background:rgba(255,255,255,0.25); padding:6px 12px; border-radius:999px; font-size:12px; font-weight:800; }
+  </style>
+  <div class="ia-glow"></div>
+  <div style="display:flex;align-items:center;gap:12px;position:relative;z-index:1;">
+    <div class="ia-icon">✨</div>
+    <div style="flex:1;">
+      <div id="iaTitle" style="font-weight:800;font-size:15px;">Optimizando tu tienda con IA</div>
+      <div id="iaSub" style="font-size:12px;opacity:0.9;margin-top:2px;">Preparando tus productos...</div>
+    </div>
+    <div class="ia-badge" id="iaBadge">0/0</div>
+  </div>
+  <div class="ia-progress-bg"><div class="ia-progress-fill" id="iaProgress"></div></div>
+</div>
+
+
 <div class="header">
   <div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
@@ -5099,6 +5123,86 @@ console.log('[IDB] IndexedDB listo');
   }
   console.log('✅ [PTL] Tema seller-panel.html aplicado');
 })();
+</script>
+
+
+<script>
+// ═══ LÓGICA DEL BANNER DE IA ═══
+let iaPollTimer = null;
+let iaBannerVisible = false;
+
+async function checkIAStatus() {
+  const token = localStorage.getItem('comdiaz_seller_token');
+  if (!token) return;
+  try {
+    const res = await fetch(API_BASE + '/api/seller/estado-mejora-ia', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (!data.ok) return;
+
+    if (data.job) {
+      renderIABanner(data.job);
+      if (data.job.estado === 'procesando' || data.job.estado === 'en_cola') {
+        iaPollTimer = setTimeout(checkIAStatus, 3000);
+      } else if (data.job.estado === 'completado') {
+        setTimeout(() => {
+          const b = document.getElementById('iaBanner');
+          if (b) b.style.display = 'none';
+        }, 8000);
+      }
+    } else {
+      iniciarIA();
+    }
+  } catch(e) {}
+}
+
+async function iniciarIA() {
+  const token = localStorage.getItem('comdiaz_seller_token');
+  if (!token) return;
+  try {
+    const res = await fetch(API_BASE + '/api/seller/iniciar-mejora-ia', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (data.ok && data.job) {
+      renderIABanner(data.job);
+      iaPollTimer = setTimeout(checkIAStatus, 3000);
+    }
+  } catch(e) {}
+}
+
+function renderIABanner(job) {
+  const banner = document.getElementById('iaBanner');
+  if (!banner) return;
+  banner.style.display = 'block';
+  
+  const pct = job.total > 0 ? Math.round((job.procesados / job.total) * 100) : 0;
+  document.getElementById('iaBadge').textContent = job.procesados + '/' + job.total;
+  document.getElementById('iaProgress').style.width = pct + '%';
+  
+  const title = document.getElementById('iaTitle');
+  const sub = document.getElementById('iaSub');
+
+  if (job.estado === 'en_cola') {
+    title.textContent = 'Preparando optimización con IA';
+    sub.textContent = 'En cola, empezaremos en un momento...';
+  } else if (job.estado === 'procesando') {
+    title.textContent = 'Optimizando tus productos ✨';
+    sub.textContent = job.ultimoProducto 
+      ? 'Procesando: ' + job.ultimoProducto.slice(0, 40) + '...' 
+      : 'Mejorando títulos, descripciones y categorías...';
+  } else if (job.estado === 'completado') {
+    title.textContent = '¡Tus productos están listos! ✅';
+    sub.textContent = 'Los compradores te encontrarán más fácil en el marketplace.';
+  }
+}
+
+// Iniciar al cargar el panel
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(checkIAStatus, 2000);
+});
 </script>
 
 </body>
