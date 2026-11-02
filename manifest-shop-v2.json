@@ -1,20 +1,27 @@
 {
-  "name": "Comdiaz Shop",
-  "short_name": "Comdiaz",
-  "description": "Productos importados y locales con envío a Cuba",
+  "name": "ProfitToLife Marketplace",
+  "short_name": "PTL Market",
+  "description": "Productos importados y locales con env\u00edo a Cuba",
   "start_url": "./shop.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
-  "background_color": "#0f172a",
-  "theme_color": "#003f7f",
+  "background_color": "#0A0E1A",
+  "theme_color": "#0A0E1A",
   "lang": "es",
-  "categories": ["shopping"],
+  "categories": [
+    "shopping"
+  ],
   "icons": [
-    { "src": "icon-shop-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-shop-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-shop-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "icon-shop-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-ptl.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }
