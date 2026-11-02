@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Vender en Comdiaz · Comdiaz Shop</title>
+<title>Vender en ProfitToLife · ProfitToLife Marketplace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #0b1221 0%, #0f172a 100%);
+  background: #0A0E1A;
   color: #e5e7eb;
   min-height: 100vh;
   display: flex;
@@ -22,7 +22,7 @@ body {
 
 /* ═══ HEADER LLAMATIVO ═══ */
 .header {
-  background: linear-gradient(135deg, #003f7f 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%);
   padding: 32px 16px 24px;
   text-align: center;
   position: relative;
@@ -35,14 +35,14 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #dc2626 0%, #fbbf24 50%, #dc2626 100%);
+  background: linear-gradient(90deg, #22C55E 0%, #FCD34D 50%, #22C55E 100%);
 }
 .header-logo {
   width: 64px;
   height: 64px;
   border-radius: 50%;
   background: #fbbf24;
-  color: #003f7f;
+  color: #22C55E;
   font-size: 32px;
   font-weight: 900;
   display: flex;
@@ -109,7 +109,7 @@ body {
   color: #94a3b8;
 }
 .tab.active {
-  background: linear-gradient(135deg, #003f7f, #7c3aed);
+  background: linear-gradient(135deg, #22C55E, #22C55E);
   color: #fff;
   box-shadow: 0 4px 12px rgba(124,58,237,.35);
 }
@@ -133,7 +133,7 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #003f7f, #7c3aed);
+  background: linear-gradient(135deg, #22C55E, #22C55E);
   color: #fff;
   display: flex;
   align-items: center;
@@ -187,7 +187,7 @@ input, select {
 }
 input::placeholder { color: #64748b; }
 input:focus, select:focus {
-  border-color: #7c3aed;
+  border-color: #22C55E;
   box-shadow: 0 0 0 4px rgba(124,58,237,.15);
   background: rgba(15,23,42,.9);
 }
@@ -213,7 +213,7 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 .btn {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #003f7f 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%);
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -314,7 +314,7 @@ select:disabled { opacity: .5; cursor: not-allowed; }
   font-size: 12px;
 }
 .footer a {
-  color: #7c3aed;
+  color: #22C55E;
   text-decoration: none;
   font-weight: 600;
 }
@@ -333,13 +333,14 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 })();
 </script>
 
+  <link rel="stylesheet" href="brand-ptl.css">
 </head>
 <body>
 
 
 <div class="header">
   <div class="header-logo">C</div>
-  <h1>Vende en <span>Comdiaz</span></h1>
+  <h1>Vende en <span style="color:#22C55E">ProfitToLife</span></h1>
   <p>Tu negocio al alcance de toda Cuba 🇨🇺</p>
   <div class="header-badges">
     <span>✅ Gratis para empezar</span>
@@ -418,7 +419,7 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 </div>
 
 <div class="footer">
-  Comdiaz Shop · Compra cubano, compra cerca 🇨🇺<br>
+  ProfitToLife Marketplace · Compra cubano, compra cerca 🇨🇺<br>
   <a href="shop.html">← Volver a la tienda</a>
 </div>
 
@@ -569,6 +570,104 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+
+<script>
+// ═══ ProfitToLife Runtime Theme (seller.html) ═══
+(function(){
+  var css = document.createElement('style');
+  css.textContent = `
+    html, body { background: #0A0E1A !important; color: #F1F5F9 !important; }
+    .header { background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%) !important; }
+    .header h1, .header h2, h1, h2, h3 { color: #FFFFFF !important; }
+    h1 span, h2 span, .highlight { color: #22C55E !important; }
+    
+    /* Cards de planes */
+    .plan-card, .plan, .card, [class*="plan"] {
+      background: #131A2E !important;
+      border: 1px solid #1F2A44 !important;
+      color: #F1F5F9 !important;
+    }
+    .plan-card:hover, .plan.selected, [class*="plan"][class*="active"] {
+      border-color: #22C55E !important;
+      box-shadow: 0 0 0 2px rgba(34,197,94,.3) !important;
+    }
+    [class*="plan"] button, .btn-plan, .btn-choose {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+      border: none !important;
+    }
+    
+    /* Formulario */
+    input, textarea, select, .form-input {
+      background: #131A2E !important;
+      color: #F1F5F9 !important;
+      border-color: #1F2A44 !important;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #22C55E !important;
+      box-shadow: 0 0 0 3px rgba(34,197,94,.15) !important;
+    }
+    input::placeholder { color: #64748B !important; }
+    
+    /* Botón principal de registro */
+    button[type="submit"], .btn-primary, .btn-submit, .btn-registrarme {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+    }
+    
+    /* Botón "Ya tengo cuenta" o secundarios */
+    .btn-secondary, .btn-link {
+      background: #131A2E !important;
+      color: #22C55E !important;
+      border: 1px solid #22C55E !important;
+    }
+    
+    /* Textos muted */
+    .muted, .text-muted, small, p { color: #94A3B8 !important; }
+    
+    /* Footer */
+    footer, .footer {
+      background: #0A0E1A !important;
+      color: #94A3B8 !important;
+      border-top: 1px solid #1F2A44 !important;
+    }
+    footer a { color: #22C55E !important; }
+    
+    /* Barra de "MÁS POPULAR" */
+    .popular, .badge-popular, [class*="popular"] {
+      background: linear-gradient(135deg, #FCD34D, #F59E0B) !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+    }
+  `;
+  document.head.appendChild(css);
+
+  // Limpieza de textos Comdiaz
+  function fixTexts() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.indexOf('Comdiaz') >= 0) {
+        node.nodeValue = node.nodeValue
+          .replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace')
+          .replace(/Comdiaz/g, 'ProfitToLife');
+      }
+    }
+  }
+  fixTexts();
+  setTimeout(fixTexts, 500);
+  setTimeout(fixTexts, 1500);
+  setTimeout(fixTexts, 3000);
+
+  if (document.title.indexOf('Comdiaz') >= 0) {
+    document.title = document.title.replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace').replace(/Comdiaz/g, 'ProfitToLife');
+  }
+  console.log('✅ [PTL] Tema seller.html aplicado');
+})();
+</script>
+
 </body>
 </html>
 
