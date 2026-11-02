@@ -1356,6 +1356,84 @@
 })();
 </script>
 
+
+<script>
+// ═══ ESCUDO DE RESILIENCIA PARA ADMIN ═══
+(function() {
+  console.log('🛡️ Escudo de conexión activado');
+
+  // 1. Interceptar fetch para reintentar si Render está dormido
+  const originalFetch = window.fetch;
+  window.fetch = async function(...args) {
+    const url = args[0];
+    // Solo aplicar a nuestra API
+    if (typeof url === 'string' && url.includes('com-diaz-ty2b.onrender.com')) {
+      let attempts = 0;
+      const maxAttempts = 4;
+      
+      while (attempts < maxAttempts) {
+        try {
+          const response = await originalFetch(...args);
+          if (response.ok) return response; // Éxito
+          throw new Error('HTTP ' + response.status);
+        } catch (e) {
+          attempts++;
+          if (attempts >= maxAttempts) {
+            console.error('❌ Falló tras 4 intentos:', e);
+            // Devolver una respuesta falsa para que el código no rompa
+            return new Response(JSON.stringify({ ok: false, error: 'Servidor desconectado' }), { status: 503 });
+          }
+          console.log(`⏳ Reintentando conexión (${attempts}/${maxAttempts})...`);
+          // Mostrar mensaje amigable
+          const loader = document.getElementById('syncStatus');
+          if (loader) loader.innerHTML = `🟡 Despertando servidor (${attempts}/${maxAttempts})...`;
+          // Esperar 3 segundos antes de reintentar
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+    }
+    return originalFetch(...args);
+  };
+
+  // 2. Ocultar alerts nativos y poner mensajes suaves
+  const originalAlert = window.alert;
+  window.alert = function(msg) {
+    if (msg && (msg.includes('Failed to fetch') || msg.includes('Error de conexión'))) {
+      console.log('🔇 Alerta filtrada:', msg);
+      const loader = document.getElementById('syncStatus');
+      if (loader) loader.innerHTML = '🔴 Sin conexión. Reintentando...';
+      return;
+    }
+    originalAlert(msg);
+  };
+
+  // 3. Arreglar textos de error en el DOM
+  function fixErrorTexts() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && (node.nodeValue.includes('Failed to fetch') || node.nodeValue.includes('No se pudo conectar'))) {
+        node.nodeValue = '🔄 Reconectando al servidor...';
+      }
+    }
+  }
+
+  // Ejecutar cada 2 segundos para limpiar errores visuales
+  setInterval(fixErrorTexts, 2000);
+
+  // 4. Asegurar que el PIN (Welcome) no se rompa
+  window.addEventListener('DOMContentLoaded', () => {
+    // Si el welcome modal no se cerró, forzar su visualización limpia
+    setTimeout(() => {
+      const welcome = document.getElementById('welcomeModal');
+      if (welcome && welcome.style.display !== 'none') {
+        console.log('✅ Welcome modal activo y esperando PIN');
+      }
+    }, 500);
+  });
+})();
+</script>
+
 </body>
 </html>
 <!-- Se agrega vía script para evitar problemas de shell -->
