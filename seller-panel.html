@@ -5214,8 +5214,13 @@ function renderIABanner(job) {
       ? 'Procesando: ' + job.ultimoProducto.slice(0, 40) + '...' 
       : 'Mejorando títulos, descripciones y categorías...';
   } else if (job.estado === 'completado') {
-    title.textContent = '¡Tus productos están listos! ✅';
-    sub.textContent = 'Los compradores te encontrarán más fácil en el marketplace.';
+    if (job.errores && job.errores.length > 0) {
+      title.textContent = '⚠️ Algunos productos no se procesaron';
+      sub.textContent = 'La IA falló en ' + job.errores.length + ' productos. Revisa la consola.';
+    } else {
+      title.textContent = '¡Tus productos están listos! ✅';
+      sub.textContent = 'Los compradores te encontrarán más fácil en el marketplace.';
+    }
     if (progress) progress.style.width = '100%';
   }
 }
