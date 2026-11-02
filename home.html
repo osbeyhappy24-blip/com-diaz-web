@@ -7,19 +7,20 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Comdiaz · Home</title>
+<title>ProfitToLife · Home</title>
 <link rel="stylesheet" href="style.css?v=36">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#7c3aed">
+  <meta name="theme-color" content="#22C55E">
+  <link rel="stylesheet" href="brand-ptl.css">
 </head>
 <body>
 <header class="topbar">
     <div class="brand">
       <div class="logo-badge small">C</div>
       <div>
-        <div class="brand-name">Comdiaz</div>
+        <div class="brand-name">ProfitToLife</div>
         <div class="brand-sub">Panel de administración</div>
       </div>
     </div>
@@ -27,7 +28,8 @@
       <button id="changePinBtn" class="btn-mini" title="Cambiar PIN">🔑</button>
       <button id="logoutBtn" class="btn-mini" title="Cerrar sesión">⎋</button>
     </div>
-  </header>
+  <a href="shop.html" target="_blank" rel="noopener" style="background:#22C55E;color:#0A0E1A;padding:8px 14px;border-radius:8px;font-weight:800;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-left:auto;white-space:nowrap">🚀 Marketplace</a>
+    </header>
 
   <main class="container">
 
@@ -99,7 +101,7 @@
   
     <section class="card collapsible" data-card="public" data-view="productos" data-default="closed" id="publicCatalogCard">
       <div class="card-head">
-        <h2>Catálogo público (Comdiaz Shop)</h2>
+        <h2>Catálogo público (ProfitToLife Marketplace)</h2>
         <span class="badge" id="publishedCount">0</span>
       </div>
       <div class="card-body">
@@ -113,7 +115,7 @@
         <div class="shop-config-form" id="shopConfigForm">
           <label>
             <span>Nombre de la tienda</span>
-            <input id="shopTitulo" type="text" maxlength="40" placeholder="Comdiaz Shop">
+            <input id="shopTitulo" type="text" maxlength="40" placeholder="ProfitToLife Marketplace">
           </label>
           <label>
             <span>Subtítulo</span>
@@ -129,7 +131,7 @@
           </label>
 
           <label style="flex-direction:row;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;margin-top:4px">
-            <input id="shopBannerActiv" type="checkbox" style="width:auto;margin:0;accent-color:#7c3aed">
+            <input id="shopBannerActiv" type="checkbox" style="width:auto;margin:0;accent-color:#22C55E">
             <span style="text-transform:none;letter-spacing:0">Activar banner de promociones</span>
           </label>
 
@@ -178,7 +180,7 @@
         </div>
 
         <div class="shop-actions">
-          <a id="openShopBtn" class="btn-ghost primary" href="shop.html">🛍 Abrir Comdiaz Shop</a>
+          <a id="openShopBtn" class="btn-ghost primary" href="shop.html">🛍 Abrir ProfitToLife Marketplace</a>
         </div>
 
         </div>
@@ -191,7 +193,7 @@
         <span class="badge" id="manualCount">0</span>
       </div>
       <div class="card-body">
-        <p class="manual-hint">Sube productos que tengas en casa con foto, precio y cantidad. Aparecerán automáticamente en Comdiaz Shop.</p>
+        <p class="manual-hint">Sube productos que tengas en casa con foto, precio y cantidad. Aparecerán automáticamente en ProfitToLife Marketplace.</p>
         <button id="addManualBtn" class="btn-ghost primary">➕ Agregar producto</button>
         <div id="manualList" class="manual-list"></div>
       </div>
@@ -505,7 +507,59 @@
       </div>
     </section>
 
-  </main>
+  
+    <!-- ═══ PROFITTOLIFE: Tiendas ═══ -->
+    <section class="card collapsible" data-card="tiendas" data-view="tiendas" data-default="closed" id="tiendasCard" style="display:none">
+      <div class="card-head">
+        <h2>🏪 Tiendas</h2>
+        <span class="badge" id="tiendasCount">0</span>
+      </div>
+      <div class="card-body">
+        <div class="admin-stats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+          <div class="admin-stat-box"><div class="admin-stat-num" id="statTiendas">0</div><div class="admin-stat-lbl">Total</div></div>
+          <div class="admin-stat-box"><div class="admin-stat-num" id="statTiendasActivas">0</div><div class="admin-stat-lbl">Activas</div></div>
+          <div class="admin-stat-box"><div class="admin-stat-num" id="statTiendasVisitas">0</div><div class="admin-stat-lbl">Visitas</div></div>
+        </div>
+        <div id="tiendasLista" style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:20px;text-align:center;color:#64748B">Cargando tiendas...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PROFITTOLIFE: Fundadores ═══ -->
+    <section class="card collapsible" data-card="fundadores" data-view="fundadores" data-default="closed" id="fundadoresCard" style="display:none">
+      <div class="card-head">
+        <h2>🏆 Fundadores</h2>
+        <span class="badge" id="fundadoresCount">0</span>
+      </div>
+      <div class="card-body">
+        <p class="manual-hint">Top 100 vendedores aprobados. Los primeros 3 tienen badge dorado.</p>
+        <div id="fundadoresLista" style="display:flex;flex-direction:column;gap:4px">
+          <div style="padding:20px;text-align:center;color:#64748B">Cargando fundadores...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PROFITTOLIFE: Productos ═══ -->
+    <section class="card collapsible" data-card="productos" data-view="productos" data-default="closed" id="productosCard" style="display:none">
+      <div class="card-head">
+        <h2>📦 Productos</h2>
+        <span class="badge" id="productosCount">0</span>
+      </div>
+      <div class="card-body">
+        <p class="manual-hint">Todos los productos de todos los sellers. Filtra por tienda o estado.</p>
+        <select id="filtroProductos" style="width:100%;padding:10px;margin-bottom:12px;background:#131A2E;color:#F1F5F9;border:1px solid #1F2A44;border-radius:8px">
+          <option value="">Todos los productos</option>
+          <option value="publicado">Solo publicados</option>
+          <option value="oculto">Solo ocultos</option>
+        </select>
+        <div id="productosLista" style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:20px;text-align:center;color:#64748B">Cargando productos...</div>
+        </div>
+      </div>
+    </section>
+
+</main>
 
   <div id="toast" class="toast"></div>
 
@@ -676,7 +730,7 @@
 
     <div class="modal-foot" style="grid-template-columns:1fr">
       <button id="guardarPedido" class="btn-primary">💾 Guardar cambios</button>
-      <button id="avanzarNotificar" class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">🚀 Avanzar estado y notificar</button>
+      <button id="avanzarNotificar" class="btn-primary" style="background:linear-gradient(135deg,#22C55E,#FCD34D)">🚀 Avanzar estado y notificar</button>
       <a id="notificarWA" class="btn-primary wa" target="_blank">💬 Solo notificar (WhatsApp)</a>
       <button id="eliminarPedido" class="btn-secondary danger" style="background:#1a1f2e;color:#ef4444;border:1px solid rgba(239,68,68,.3);width:100%">🗑️ Eliminar pedido</button>
     </div>
@@ -1152,6 +1206,155 @@
 
   setTimeout(cargarRankingReferidos, 5000);
   console.log('Admin referrals listo');
+})();
+</script>
+
+
+<script>
+// ═══ ProfitToLife Admin Runtime ═══
+(function(){
+  // 1) Tema PTL
+  var css = document.createElement('style');
+  css.textContent = `
+    html, body { background: #0A0E1A !important; color: #F1F5F9 !important; }
+    .topbar { background: #131A2E !important; border-bottom: 1px solid #1F2A44 !important; }
+    .topbar h1, h1, h2, h3 { color: #FFFFFF !important; }
+    .card, .hero-card, section.card { background: #131A2E !important; border-color: #1F2A44 !important; }
+    .admin-tab { background: #131A2E !important; color: #94A3B8 !important; border: 1px solid #1F2A44 !important; }
+    .admin-tab.active { background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important; }
+    button.btn-primary, .add-btn, button[type="submit"] { background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important; border: none !important; }
+    .admin-stat-num, [class*="stat-num"] { color: #22C55E !important; }
+    .admin-stat-lbl, [class*="stat-lbl"] { color: #94A3B8 !important; }
+    .bottom-nav { background: #131A2E !important; border-top: 1px solid #1F2A44 !important; }
+    .bottom-nav a, .bottom-nav button { color: #94A3B8 !important; }
+    .bottom-nav a.active, .bottom-nav button.active { color: #22C55E !important; }
+    input, textarea, select { background: #131A2E !important; color: #F1F5F9 !important; border-color: #1F2A44 !important; }
+    .ptl-logo { flex-shrink: 0 !important; }
+  `;
+  document.head.appendChild(css);
+
+  // 2) Fix textos Comdiaz residuales
+  function fixTexts() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.indexOf('Comdiaz') >= 0) {
+        node.nodeValue = node.nodeValue
+          .replace(/comdiaz\.shop/g, 'market.profittolife.com')
+          .replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace')
+          .replace(/Comdiaz/g, 'ProfitToLife');
+      }
+    }
+  }
+  fixTexts();
+  setTimeout(fixTexts, 500);
+  setTimeout(fixTexts, 1500);
+
+  // 3) Cargar datos
+  const API = 'https://com-diaz-ty2b.onrender.com';
+  const KEY = localStorage.getItem('comdiaz_api_key') || '';
+
+  async function cargarStats() {
+    try {
+      const r = await fetch(API + '/api/admin/stats', { headers: { 'X-Comdiaz-Key': KEY } });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.ok) return;
+      if (d.tiendas) {
+        ['statTiendas','statTiendasActivas','statTiendasVisitas'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = id === 'statTiendas' ? (d.tiendas.total||0) : id === 'statTiendasActivas' ? (d.tiendas.activas||0) : (d.tiendas.visitas||0);
+        });
+        const c = document.getElementById('tiendasCount');
+        if (c) c.textContent = d.tiendas.total || 0;
+      }
+    } catch(e) {}
+  }
+
+  async function cargarTiendas() {
+    try {
+      const r = await fetch(API + '/api/admin/tiendas', { headers: { 'X-Comdiaz-Key': KEY } });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.ok) return;
+      const cont = document.getElementById('tiendasLista');
+      if (!cont) return;
+      cont.innerHTML = (d.tiendas||[]).map(t => `
+        <div style="padding:12px;background:#0A0E1A;border:1px solid #1F2A44;border-radius:10px">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:10px">
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:800;color:#F1F5F9;font-size:14px">${t.nombre}</div>
+              <div style="color:#94A3B8;font-size:12px;margin-top:2px">/${t.slug} · ${t.seller_nombre}</div>
+              <div style="color:#22C55E;font-size:11px;margin-top:4px">👁️ ${t.visitas||0} visitas · ${t.activa ? '✅ activa' : '🚫 inactiva'}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <a href="tienda.html?slug=${encodeURIComponent(t.slug)}" target="_blank" style="padding:6px 10px;background:rgba(34,197,94,.15);color:#22C55E;border:1px solid rgba(34,197,94,.3);border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;text-align:center">Ver ↗</a>
+              <button onclick="window._toggleTienda('${t.id}',${!t.activa})" style="padding:6px 10px;background:rgba(239,68,68,.15);color:#F87171;border:1px solid rgba(239,68,68,.3);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">${t.activa ? '🚫' : '✅'}</button>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="padding:20px;text-align:center;color:#64748B">Sin tiendas aún</div>';
+    } catch(e) {}
+  }
+
+  async function cargarFundadores() {
+    try {
+      const r = await fetch(API + '/api/admin/fundadores', { headers: { 'X-Comdiaz-Key': KEY } });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.ok) return;
+      const cont = document.getElementById('fundadoresLista');
+      if (!cont) return;
+      const c = document.getElementById('fundadoresCount');
+      if (c) c.textContent = (d.fundadores||[]).length;
+      cont.innerHTML = (d.fundadores||[]).map(f => `
+        <div style="padding:10px;border-bottom:1px solid #1F2A44;display:flex;align-items:center;gap:10px">
+          <span style="background:${f.posicion <= 3 ? 'linear-gradient(135deg,#FCD34D,#F59E0B)' : '#1F2A44'};color:${f.posicion <= 3 ? '#0A0E1A' : '#94A3B8'};padding:4px 10px;border-radius:6px;font-weight:900;font-size:12px;min-width:40px;text-align:center">#${f.posicion}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;color:#F1F5F9;font-size:13px">${f.nombre}</div>
+            <div style="color:#94A3B8;font-size:11px">📱 ${f.telefono}${f.tienda_slug ? ' · 🏪 /' + f.tienda_slug : ' · Sin tienda'}</div>
+          </div>
+          ${f.tienda_slug ? `<a href="tienda.html?slug=${encodeURIComponent(f.tienda_slug)}" target="_blank" style="color:#22C55E;font-size:11px;text-decoration:none;font-weight:700">Ver ↗</a>` : ''}
+        </div>
+      `).join('') || '<div style="padding:20px;text-align:center;color:#64748B">Sin fundadores</div>';
+    } catch(e) {}
+  }
+
+  async function cargarProductos() {
+    try {
+      const r = await fetch(API + '/api/admin/sellers?estado=aprobado', { headers: { 'X-Comdiaz-Key': KEY } });
+      if (!r.ok) return;
+      const d = await r.json();
+      if (!d.ok) return;
+      const total = (d.sellers||[]).reduce((sum, s) => sum + (s.cuota_max||0), 0);
+      const c = document.getElementById('productosCount');
+      if (c) c.textContent = (d.sellers||[]).length + ' sellers';
+      const cont = document.getElementById('productosLista');
+      if (!cont) return;
+      cont.innerHTML = (d.sellers||[]).map(s => `
+        <div style="padding:10px;background:#0A0E1A;border:1px solid #1F2A44;border-radius:8px">
+          <div style="font-weight:700;color:#F1F5F9;font-size:13px">${s.nombre}</div>
+          <div style="color:#94A3B8;font-size:11px">${s.tienda ? '🏪 /' + s.tienda.slug : '🕳️ Sin tienda'} · Cuota: ${s.cuota_max||0} productos</div>
+        </div>
+      `).join('') || '<div style="padding:20px;text-align:center;color:#64748B">Sin sellers aprobados</div>';
+    } catch(e) {}
+  }
+
+  window._toggleTienda = async function(id, activar) {
+    try {
+      const r = await fetch(API + '/api/admin/tiendas/' + id, {
+        method: 'PATCH',
+        headers: { 'X-Comdiaz-Key': KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activa: activar })
+      });
+      if (r.ok) { cargarTiendas(); cargarStats(); }
+    } catch(e) {}
+  };
+
+  // Cargar cuando el DOM esté listo
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { cargarStats(); cargarTiendas(); cargarFundadores(); cargarProductos(); }, 2000);
+  });
 })();
 </script>
 
