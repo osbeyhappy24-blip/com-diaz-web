@@ -596,10 +596,86 @@
   </div>
 </div>
 
-  <script src="wa-helper.js?v=2"></script>
-<script src="home.js?v=62"></script>
-<script src="bulk.js?v=10"></script>
-<script src="sellers-admin.js?v=3"></script>
+  <script src="wa-helper.js?v=2">
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
+</script>
+<script src="home.js?v=62">
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
+</script>
+<script src="bulk.js?v=10">
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
+</script>
+<script src="sellers-admin.js?v=3">
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
+</script>
 
   
 
@@ -630,7 +706,26 @@
           .catch(e => console.warn('SW error:', e));
       });
     }
-  </script>
+  
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
+</script>
 
 <!-- Modal: agregar/editar producto manual -->
 <div id="manualModal" class="modal hidden">
@@ -1144,6 +1239,25 @@
   setTimeout(cargarPagosPendientes, 3000);
   console.log('✅ Admin payments listo');
 })();
+
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
 </script>
 
 
@@ -1205,6 +1319,25 @@
   setTimeout(cargarRankingReferidos, 5000);
   console.log('Admin referrals listo');
 })();
+
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
 </script>
 
 
@@ -1354,6 +1487,25 @@
     setTimeout(() => { cargarStats(); cargarTiendas(); cargarFundadores(); cargarProductos(); }, 2000);
   });
 })();
+
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
 </script>
 
 
@@ -1432,6 +1584,25 @@
     }, 500);
   });
 })();
+
+window._deleteProduct = async function(id, titulo) {
+  if (!confirm('¿Eliminar el producto "' + titulo + '" permanentemente?')) return;
+  try {
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/admin/products/' + id, {
+      method: 'DELETE',
+      headers: { 'X-Comdiaz-Key': localStorage.getItem('comdiaz_api_key') || '' }
+    });
+    if (res.ok) {
+      alert('✅ Producto eliminado');
+      location.reload();
+    } else {
+      alert('❌ Error al eliminar');
+    }
+  } catch(e) {
+    alert('❌ Error de conexión');
+  }
+};
+
 </script>
 
 </body>
