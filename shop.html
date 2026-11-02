@@ -143,7 +143,7 @@
       </div>
       <div class="brand-info">
         <h1 id="shopTitle" style="display:flex;align-items:center;gap:12px;font-size:20px;font-weight:900">
-        <span class="ptl-logo" style="width:36px;height:36px;font-size:20px;border-radius:10px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.3)">P</span>
+        <span class="ptl-logo" style="width:36px;height:36px;font-size:20px;border-radius:10px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.3)"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="100" height="100" rx="22" fill="#0B132B"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FFFFFF"/></svg></span>
         <span>
           <span style="color:#FFFFFF">ProfitToLife</span>
           <span style="font-size:11px;font-weight:600;display:block;margin-top:-2px">
@@ -205,14 +205,7 @@
     <p class="shop-hero-subtitle">
       Productos locales de Cuba e importados de eBay, con envío directo. Compra fácil por WhatsApp.
     </p>
-    <form class="shop-hero-search" onsubmit="event.preventDefault(); heroBuscar();">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <input id="heroSearchInput" type="search" placeholder="¿Qué estás buscando hoy?" autocomplete="off">
-      <button type="submit">Buscar</button>
-    </form>
+    <!-- hero search eliminado (usar header search) -->
     <div class="shop-hero-ctas">
       <button class="shop-hero-cta primary" onclick="heroVerTodo()">
         🛍 Ver catálogo
