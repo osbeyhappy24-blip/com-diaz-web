@@ -6,16 +6,16 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ProfitToLife Marketplace 🇨🇺 · Productos locales e importados con envío a Cuba</title>
-  <meta name="description" content="Compra fácil por WhatsApp. Productos locales de Cuba e importados de eBay con envío directo. ProfitToLife Marketplace, la tienda auténtica cubana.">
+<title>ProfitToLife Marketplace 🇨🇺 · Productos de vendedores cubanos con envío a Cuba</title>
+  <meta name="description" content="Compra fácil por WhatsApp. Productos de vendedores cubanos con envío directo. ProfitToLife Marketplace, la tienda auténtica cubana.">
   <meta name="theme-color" content="#22C55E">
   <meta name="author" content="ProfitToLife">
-  <meta name="keywords" content="cuba, tienda, productos, locales, importados, ebay, envio, whatsapp, comdiaz">
+  <meta name="keywords" content="cuba, tienda, productos, vendedores, envio, whatsapp, profittolife">
   
   <!-- Open Graph (Facebook, WhatsApp) -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="ProfitToLife Marketplace 🇨🇺 · Productos cubanos e importados">
-  <meta property="og:description" content="Compra fácil por WhatsApp. Productos locales e importados con envío a Cuba.">
+  <meta property="og:description" content="Compra fácil por WhatsApp. Productos de vendedores cubanos con envío a Cuba.">
   <meta property="og:image" content="https://osbeyhappy24-blip.github.io/com-diaz-web/icon-ptl.svg">
   <meta property="og:url" content="https://osbeyhappy24-blip.github.io/com-diaz-web/shop.html">
   <meta property="og:site_name" content="ProfitToLife Marketplace">
@@ -24,7 +24,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ProfitToLife Marketplace 🇨🇺 · Productos cubanos e importados">
-  <meta name="twitter:description" content="Compra fácil por WhatsApp. Productos locales e importados con envío a Cuba.">
+  <meta name="twitter:description" content="Compra fácil por WhatsApp. Productos de vendedores cubanos con envío a Cuba.">
   <meta name="twitter:image" content="https://osbeyhappy24-blip.github.io/com-diaz-web/icon-ptl.svg">
   
   <!-- Apple / PWA -->
@@ -56,7 +56,7 @@
 
     /* Header / nav */
     header, .header, .shop-header { background: #131A2E !important; border-color: #1F2A44 !important; }
-    header h1, .header h1 { color: #FFFFFF !important; }
+    header h1, .header h1 { color: #0A0E1A !important; }
 
     /* Hero banner */
     .shop-hero, .hero-banner { background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%) !important; }
@@ -142,8 +142,14 @@
         </svg>
       </div>
       <div class="brand-info">
-        <h1 id="shopTitle" style="display:flex;align-items:center;font-size:18px;font-weight:900"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="100" height="100" rx="22" fill="#0B132B"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FFFFFF"/></svg> <span>ProfitToLife <span style="font-size:11px;color:#22C55E;display:block;margin-top:-4px">Marketplace</span></span></h1>
-        <p id="shopSubtitle">Productos locales e importados · ProfitToLife</p>
+        <h1 id="shopTitle" style="display:flex;align-items:center;gap:10px;font-size:18px;font-weight:900;flex:1;min-width:0;margin:0">
+        <svg viewBox="0 0 100 100" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="border-radius:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(34,197,94,0.3)"><rect width="100" height="100" rx="22" fill="#0B132B"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FFFFFF"/></svg>
+        <div style="display:flex;flex-direction:column;min-width:0;line-height:1.1">
+          <span style="color:#FFFFFF;font-size:16px;white-space:nowrap">ProfitToLife</span>
+          <span style="color:#22C55E;font-size:11px;font-weight:700">Marketplace</span>
+        </div>
+      </h1>
+        <p id="shopSubtitle" style="display:none">Productos de vendedores cubanos</p>
       </div>
     </div>
 
@@ -193,7 +199,7 @@
     <div class="shop-hero-badge">🇨🇺 ProfitToLife Marketplace · Cuba</div>
     <h2 class="shop-hero-title">Lo que buscas, <span>más cerca</span> que nunca</h2>
     <p class="shop-hero-subtitle">
-      Productos locales de Cuba e importados de eBay, con envío directo. Compra fácil por WhatsApp.
+      Productos de vendedores cubanos, compra directa por WhatsApp.
     </p>
     <!-- hero search eliminado (usar header search) -->
     <div class="shop-hero-ctas">
@@ -206,11 +212,11 @@
     </div>
     <div class="shop-hero-stats">
       <div class="shop-hero-stat">
-        <span class="shop-hero-stat-num" id="heroStatProductos">—</span>
+        <span class="shop-hero-stat-num" id="heroStatProductos">0</span>
         <span class="shop-hero-stat-label">Productos</span>
       </div>
       <div class="shop-hero-stat">
-        <span class="shop-hero-stat-num" id="heroStatLocales">—</span>
+        <span class="shop-hero-stat-num" id="heroStatLocales">0</span>
         <span class="shop-hero-stat-label">Locales</span>
       </div>
       <div class="shop-hero-stat">
@@ -550,7 +556,7 @@
     .muted, .text-muted, small { color: #94A3B8 !important; }
 
     /* Headers */
-    h1, h2, h3, h4, h5 { color: #FFFFFF !important; }
+    h1, h2, h3, h4, h5 { color: #0A0E1A !important; }
 
     /* Fix cualquier fondo blanco residual */
     section, main, .container, .wrapper {
@@ -742,9 +748,9 @@
     var reemplazos = [
       ['Comdiaz Shop', 'ProfitToLife Marketplace'],
       ['Comdiaz.com', 'ProfitToLife.com'],
-      ['comdiaz.shop', 'profittolife.com'],
+      ['profittolife.shop', 'profittolife.com'],
       ['Comdiaz', 'ProfitToLife'],
-      ['Productos importados y locales', 'Productos locales e importados']
+      ['Productos importados y locales', 'Productos de vendedores cubanos']
     ];
     var nodosModificados = 0;
     while (node = walker.nextNode()) {
