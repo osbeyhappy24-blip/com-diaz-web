@@ -114,23 +114,25 @@ async function cargarProducto() {
       return;
     }
     
-    renderProducto(d.producto);
+    renderProducto(d.producto, d.whatsapp_vendedor);
   } catch(e) {
     showError('Error de conexión. Verifica tu internet.', 'Error de red');
   }
 }
 
-function renderProducto(p) {
+function renderProducto(p, whatsappVendedor) {
+  window._productoActual = p;
+  if (whatsappVendedor) window._productoActual.whatsapp_vendedor = whatsappVendedor;
   document.title = p.titulo + ' — ProfitToLife Marketplace';
   headerTitle.textContent = p.titulo;
   
   const imagenes = (p.imagenes && p.imagenes.length > 0) ? p.imagenes : [];
   const imgPrincipal = imagenes[0] || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23f3f4f6" width="100" height="100"/><text x="50" y="55" font-family="sans-serif" font-size="12" fill="%239ca3af" text-anchor="middle">Sin imagen</text></svg>';
   
-  // WhatsApp URL con mensaje
-  const telefono = '5351425691';
+  // WhatsApp URL con mensaje (al dueño del producto, NO al admin)
+  const telefono = (whatsappVendedor || p.whatsapp_vendedor || p.whatsapp || '').replace(/\D/g, '');
   const mensaje = encodeURIComponent(`Hola! Me interesa este producto de ProfitToLife:\n\n*${p.titulo}*\nPrecio: $${fmtPrice(p.precio_usd)}\n\n¿Está disponible?`);
-  const waUrl = 'https://wa.me/' + telefono + '?text=' + mensaje;
+  const waUrl = telefono ? ('https://wa.me/' + telefono + '?text=' + mensaje) : '#';
   
   // Badge de tienda o anónimo
   let tiendaHtml = '';
@@ -177,13 +179,13 @@ function renderProducto(p) {
         ${p.precio_cup ? `<div class="product-price-cup">${Number(p.precio_cup).toLocaleString()} CUP</div>` : ''}
         <div class="product-meta">${metaChips.join('')}</div>
         <div class="product-desc ${!p.descripcion ? 'empty' : ''}">${descripcion}</div>
-        <button onclick="abrirResena()" style="width:100%; margin-top:12px; padding:12px; background:rgba(252,211,77,0.15); color:#FCD34D; border:1px solid rgba(252,211,77,0.4); border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;">
-          ⭐ Dejar Reseña
+        <button onclick="abrirModalVerificar()" style="width:100%; margin-top:12px; padding:12px; background:rgba(252,211,77,0.15); color:#FCD34D; border:1px solid rgba(252,211,77,0.4); border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;">
+          🔍 Verificar compra y dejar reseña
         </button>
         <div class="actions">
-          <a href="${waUrl}" class="btn-primary" target="_blank">
+          <button onclick="crearPedidoYWhatsApp()" id="pedirBtn" class="btn-primary" style="width:100%; padding:14px; background:#22C55E; color:#0A0E1A; border:none; border-radius:10px; font-size:16px; font-weight:800; cursor:pointer;">
             📲 Pedir por WhatsApp
-          </a>
+          </button>
           ${botonTienda}
         </div>
       </div>
@@ -276,6 +278,54 @@ function compartirProducto() {
     <div style="display:flex; gap:8px;">
       <button onclick="cerrarResena()" style="flex:1; padding:12px; background:#1F2A44; color:#94A3B8; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Cancelar</button>
       <button onclick="enviarResena()" style="flex:2; padding:12px; background:#22C55E; color:#0A0E1A; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Publicar Reseña</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ MODAL DE PEDIDO CREADO ═══ -->
+<div id="modalPedido" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#131A2E; border-radius:16px; padding:24px; max-width:420px; width:100%; border:1px solid #1F2A44; text-align:center;">
+    <div style="font-size:48px; margin-bottom:8px;">🎉</div>
+    <h3 style="color:#F1F5F9; font-size:20px; margin-bottom:8px;">Pedido creado</h3>
+    <p style="color:#94A3B8; font-size:13px; margin-bottom:16px;">
+      Se abrirá WhatsApp para contactar al vendedor. Guárdá este código:
+    </p>
+    
+    <div id="codigoPedido" style="background:linear-gradient(135deg,#22C55E,#4ADE80); color:#0A0E1A; padding:16px; border-radius:12px; font-size:22px; font-weight:900; letter-spacing:2px; margin-bottom:16px; user-select:all;">
+      PED-XXXX-XXXX
+    </div>
+    
+    <p style="color:#FCD34D; font-size:12px; margin-bottom:20px; padding:10px; background:rgba(252,211,77,0.1); border-radius:8px;">
+      ⚠️ <b>Importante:</b> Cuando recibas el producto, ingresa este código en "Verificar compra" para poder dejar tu reseña.
+    </p>
+    
+    <button onclick="cerrarModalPedido()" style="width:100%; padding:12px; background:#1F2A44; color:#F1F5F9; border:none; border-radius:10px; font-weight:700; cursor:pointer;">
+      Cerrar
+    </button>
+  </div>
+</div>
+
+<!-- ═══ MODAL DE VERIFICACIÓN DE CÓDIGO ═══ -->
+<div id="modalVerificar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#131A2E; border-radius:16px; padding:24px; max-width:420px; width:100%; border:1px solid #1F2A44;">
+    <h3 style="color:#F1F5F9; font-size:18px; margin-bottom:8px;">Verificar compra</h3>
+    <p style="color:#94A3B8; font-size:13px; margin-bottom:16px;">
+      Ingresa tu código de pedido para poder dejar una reseña
+    </p>
+    
+    <input type="text" id="inputCodigoVerificar" placeholder="PED-XXXX-XXXX" 
+      style="width:100%; padding:14px; background:#0A0E1A; border:2px solid #1F2A44; border-radius:10px; color:#F1F5F9; font-size:16px; font-weight:700; text-align:center; letter-spacing:2px; text-transform:uppercase; margin-bottom:16px;">
+    
+    <div id="verificarMsg" style="display:none; padding:12px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+    
+    <div style="display:flex; gap:8px;">
+      <button onclick="cerrarModalVerificar()" style="flex:1; padding:12px; background:#1F2A44; color:#94A3B8; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+        Cancelar
+      </button>
+      <button onclick="verificarCodigo()" style="flex:2; padding:12px; background:#22C55E; color:#0A0E1A; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
+        Verificar
+      </button>
     </div>
   </div>
 </div>
