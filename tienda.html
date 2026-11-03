@@ -176,7 +176,10 @@ function renderTienda(stats) {
           </div>
           <span class="ptl-badge ptl-badge-green" style="margin-left:auto;font-size:10px">Marketplace</span>
         </div>
-        <h1 class="tienda-name">${esc(tienda.nombre)}</h1>
+        <h1 class="tienda-name">
+          ${esc(tienda.nombre)} 
+          ${tienda.esVerificado ? '<span style="background:#22C55E; color:#0A0E1A; font-size:12px; padding:4px 8px; border-radius:999px; font-weight:800; margin-left:8px; vertical-align:middle; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 8px rgba(34,197,94,0.4);">✅ Verificado</span>' : ''}
+        </h1>
         <div id="reputacionVendedor" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
           <!-- Se llena con JS -->
         </div>
