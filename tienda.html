@@ -293,12 +293,14 @@ cargarTienda();
         const estrellas = '★'.repeat(llenas) + '☆'.repeat(5 - llenas);
 
         container.innerHTML = `
-          <span style="color: #FCD34D; font-size: 16px; letter-spacing: 2px;">${estrellas}</span>
-          <span style="color: #F1F5F9; font-size: 14px; font-weight: 700;">${promedio}</span>
-          <span style="color: #94A3B8; font-size: 12px;">(${total} reseñas)</span>
+          <span style="color: #FCD34D; font-size: 18px; letter-spacing: 2px;">${estrellas}</span>
+          <span style="color: #F1F5F9; font-size: 16px; font-weight: 800;">${promedio}</span>
+          <span style="color: #94A3B8; font-size: 12px;">(${total} ${total === 1 ? 'reseña' : 'reseñas'})</span>
         `;
       } else {
-        container.innerHTML = `<span style="color: #94A3B8; font-size: 13px;">⭐ Nuevo vendedor (Sin reseñas)</span>`;
+        container.innerHTML = `
+          <span style="color: #94A3B8; font-size: 13px;">⭐ Vendedor nuevo · Aún sin reseñas</span>
+        `;
       }
     } catch(e) {
       console.log('Error cargando reputación:', e);
