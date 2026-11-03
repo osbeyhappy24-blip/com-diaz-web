@@ -174,6 +174,9 @@ function renderProducto(p) {
         ${p.precio_cup ? `<div class="product-price-cup">${Number(p.precio_cup).toLocaleString()} CUP</div>` : ''}
         <div class="product-meta">${metaChips.join('')}</div>
         <div class="product-desc ${!p.descripcion ? 'empty' : ''}">${descripcion}</div>
+        <button onclick="abrirResena()" style="width:100%; margin-top:12px; padding:12px; background:rgba(252,211,77,0.15); color:#FCD34D; border:1px solid rgba(252,211,77,0.4); border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;">
+          ⭐ Dejar Reseña
+        </button>
         <div class="actions">
           <a href="${waUrl}" class="btn-primary" target="_blank">
             📲 Pedir por WhatsApp
@@ -249,6 +252,30 @@ function compartirProducto() {
   console.log('✅ [PTL] Tema producto.html aplicado');
 })();
 </script>
+
+
+<!-- ═══ MODAL DE RESEÑA ═══ -->
+<div id="modalResena" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#131A2E; border-radius:16px; padding:24px; max-width:400px; width:100%; border:1px solid #1F2A44;">
+    <h3 style="color:#F1F5F9; font-size:18px; margin-bottom:8px;">Deja tu reseña</h3>
+    <p style="color:#94A3B8; font-size:13px; margin-bottom:16px;">Califica tu experiencia con este vendedor</p>
+    
+    <div id="estrellasResena" style="display:flex; gap:8px; margin-bottom:16px; font-size:32px; cursor:pointer;">
+      <span data-value="1" style="color:#475569;">★</span>
+      <span data-value="2" style="color:#475569;">★</span>
+      <span data-value="3" style="color:#475569;">★</span>
+      <span data-value="4" style="color:#475569;">★</span>
+      <span data-value="5" style="color:#475569;">★</span>
+    </div>
+    
+    <textarea id="comentarioResena" placeholder="Cuenta tu experiencia (opcional)..." style="width:100%; padding:12px; background:#0A0E1A; border:1px solid #1F2A44; border-radius:8px; color:#F1F5F9; font-size:14px; min-height:80px; margin-bottom:16px;"></textarea>
+    
+    <div style="display:flex; gap:8px;">
+      <button onclick="cerrarResena()" style="flex:1; padding:12px; background:#1F2A44; color:#94A3B8; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Cancelar</button>
+      <button onclick="enviarResena()" style="flex:2; padding:12px; background:#22C55E; color:#0A0E1A; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Publicar Reseña</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
