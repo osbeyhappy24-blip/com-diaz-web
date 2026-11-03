@@ -14,7 +14,7 @@
   
   <!-- Open Graph (Facebook, WhatsApp) -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="ProfitToLife Marketplace 🇨🇺 · Productos cubanos e importados">
+  <meta property="og:title" content="ProfitToLife Marketplace 🇨🇺 · Productos de vendedores cubanos">
   <meta property="og:description" content="Compra fácil por WhatsApp. Productos de vendedores cubanos con envío a Cuba.">
   <meta property="og:image" content="https://osbeyhappy24-blip.github.io/com-diaz-web/icon-ptl.svg">
   <meta property="og:url" content="https://osbeyhappy24-blip.github.io/com-diaz-web/shop.html">
@@ -23,7 +23,7 @@
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ProfitToLife Marketplace 🇨🇺 · Productos cubanos e importados">
+  <meta name="twitter:title" content="ProfitToLife Marketplace 🇨🇺 · Productos de vendedores cubanos">
   <meta name="twitter:description" content="Compra fácil por WhatsApp. Productos de vendedores cubanos con envío a Cuba.">
   <meta name="twitter:image" content="https://osbeyhappy24-blip.github.io/com-diaz-web/icon-ptl.svg">
   
@@ -288,9 +288,9 @@
   <div id="liveSearchContainer" class="live-search-container hidden">
     <div class="live-search-info">
       <p>¿No encuentras lo que buscas?</p>
-      <p class="live-search-hint">Busca en eBay directamente con miles de productos</p>
+      <p class="live-search-hint">Busca productos en el marketplace</p>
     </div>
-    <button id="liveSearchBtn" class="live-search-btn">🔍 Buscar <b id="liveQuery"></b> en eBay</button>
+    <button id="liveSearchBtn" class="live-search-btn">🔍 Buscar <b id="liveQuery"></b></button>
     
   </div>
 
@@ -345,7 +345,7 @@
           </svg>
           Compartir producto
         </button>
-        <a id="pmEbayBtn" class="btn-secondary" target="_blank">Ver en eBay</a>
+        <a id="pmEbayBtn" class="btn-secondary" target="_blank" style="display:none">Ver en eBay</a>
       </div>
     </div>
   </div>
@@ -750,7 +750,9 @@
       ['Comdiaz.com', 'ProfitToLife.com'],
       ['profittolife.shop', 'profittolife.com'],
       ['Comdiaz', 'ProfitToLife'],
-      ['Productos importados y locales', 'Productos de vendedores cubanos']
+      ['Productos importados y locales', 'Productos de vendedores cubanos'],
+          ['Productos de vendedores cubanos', 'Productos de vendedores cubanos'],
+          ['importados', '']
     ];
     var nodosModificados = 0;
     while (node = walker.nextNode()) {
