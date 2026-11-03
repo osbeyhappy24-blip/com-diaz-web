@@ -1696,7 +1696,122 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
       };
     })();
     </script>
-    </head>
+    
+<style id="ui-panel-v2">
+  /* Grid compacto para productos */
+  #productsList { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+    padding: 10px;
+    margin-bottom: 80px; /* Espacio para los tabs */
+  }
+  .product-item {
+    background: #131A2E;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1F2A44;
+    display: flex;
+    flex-direction: column;
+  }
+  .product-item img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #0A0E1A;
+  }
+  .product-item .product-info { padding: 8px; }
+  .product-item .product-title {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #F1F5F9;
+  }
+  .product-item .product-price {
+    font-size: 14px;
+    color: #22C55E;
+    font-weight: 900;
+    margin-top: 2px;
+  }
+  .product-item .product-actions {
+    display: flex;
+    gap: 4px;
+    padding: 0 8px 8px 8px;
+  }
+  .product-item .product-actions button {
+    flex: 1;
+    padding: 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .product-item .btn-edit { background: rgba(34,197,94,0.15); color: #22C55E; }
+  .product-item .btn-delete { background: rgba(239,68,68,0.15); color: #F87171; }
+
+  /* Tabs Inferiores */
+  .bottom-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #131A2E;
+    border-top: 1px solid #1F2A44;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 16px 0;
+    z-index: 1000;
+  }
+  .bottom-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #94A3B8;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    background: none;
+    border: none;
+    flex: 1;
+  }
+  .bottom-tab.active { color: #22C55E; }
+  .bottom-tab-icon { font-size: 20px; }
+
+  /* Contenido de Tabs */
+  .tab-content { display: none; padding: 16px; margin-bottom: 80px; }
+  .tab-content.active { display: block; }
+
+  /* Estilos de Planes */
+  .plan-card {
+    background: #131A2E;
+    border: 1px solid #1F2A44;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .plan-card.pro { border-color: #22C55E; box-shadow: 0 4px 12px rgba(34,197,94,0.2); }
+  .plan-card.premium { border-color: #FCD34D; box-shadow: 0 4px 12px rgba(252,211,77,0.2); }
+  .plan-title { font-size: 18px; font-weight: 900; color: #FFF; margin-bottom: 4px; }
+  .plan-price { font-size: 24px; font-weight: 900; color: #22C55E; margin-bottom: 12px; }
+  .plan-price.premium { color: #FCD34D; }
+  .plan-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .plan-btn.primary { background: #22C55E; color: #0A0E1A; }
+  .plan-btn.gold { background: #FCD34D; color: #0A0E1A; }
+</style>
+</head>
 <body>
 
 <!-- ═══ BANNER DE IA AUTOMÁTICO ═══ -->
@@ -5296,6 +5411,92 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
+
+<script>
+// ═══ LÓGICA DE TABS Y PLANES ═══
+document.addEventListener('DOMContentLoaded', () => {
+  // Mover el contenedor de productos real a la pestaña de productos
+  const prodList = document.getElementById('productsList');
+  const tabProd = document.getElementById('tab-productos');
+  if (prodList && tabProd && !tabProd.contains(prodList)) {
+    // Mover el botón de añadir y la lista a la pestaña
+    const addBtn = document.getElementById('addProductBtn');
+    if (addBtn) tabProd.appendChild(addBtn);
+    tabProd.appendChild(prodList);
+  }
+});
+
+function switchTab(tabId, btnElement) {
+  // Ocultar todos los contenidos
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  // Mostrar el seleccionado
+  document.getElementById('tab-' + tabId).classList.add('active');
+  
+  // Actualizar clases de los botones inferiores
+  document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
+  if (btnElement) btnElement.classList.add('active');
+
+  // Cargar datos si es necesario
+  if (tabId === 'historial') cargarHistorial();
+}
+
+async function cargarHistorial() {
+  const token = localStorage.getItem('comdiaz_seller_token');
+  const lista = document.getElementById('historialLista');
+  if (!token || !lista) return;
+
+  lista.innerHTML = '<p style="color:#94A3B8; text-align:center;">Cargando...</p>';
+
+  try {
+    const res = await fetch(API_BASE + '/api/seller/products?deleted=true', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    
+    if (data.ok && data.productos && data.productos.length > 0) {
+      lista.innerHTML = data.productos.map(p => `
+        <div style="background:#0A0E1A; border:1px solid #1F2A44; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="color:#FFF; font-weight:700; font-size:13px;">${p.titulo}</div>
+            <div style="color:#94A3B8; font-size:11px;">$${p.precio_usd} · Eliminado</div>
+          </div>
+          <button onclick="recuperarProducto('${p.id}')" style="padding:8px 12px; background:#22C55E; color:#0A0E1A; border:none; border-radius:6px; font-weight:800; font-size:11px;">Recuperar</button>
+        </div>
+      `).join('');
+    } else {
+      lista.innerHTML = '<p style="color:#94A3B8; text-align:center;">No hay productos en la papelera.</p>';
+    }
+  } catch(e) {
+    lista.innerHTML = '<p style="color:#F87171; text-align:center;">Error al cargar historial.</p>';
+  }
+}
+
+async function recuperarProducto(id) {
+  const token = localStorage.getItem('comdiaz_seller_token');
+  try {
+    const res = await fetch(API_BASE + '/api/seller/products/' + id + '/recuperar', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      alert('✅ Producto recuperado. Recargando...');
+      location.reload();
+    }
+  } catch(e) { alert('Error'); }
+}
+
+function solicitarPlan(plan) {
+  const tienda = window.tiendaActual ? window.tiendaActual.slug : 'mi-tienda';
+  const msg = encodeURIComponent('Hola admin de ProfitToLife, quiero actualizar mi plan a *' + plan + '*. Mi tienda es: ' + tienda);
+  window.open('https://wa.me/5358980267?text=' + msg, '_blank');
+}
+
+function eliminarCuenta() {
+  if (confirm('¿Estás seguro que quieres eliminar tu cuenta? Irá a la papelera por 30 días.')) {
+    alert('Solicitud enviada al administrador. Tu cuenta será eliminada en las próximas 24h.');
+  }
+}
+</script>
 </body>
 </html>
 
