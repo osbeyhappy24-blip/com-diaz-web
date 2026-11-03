@@ -70,9 +70,10 @@
   line-height: 1.1;
   margin-top: 2px;
 }
-.ptl-brand-tagline .ganancia { color: var(--ptl-yellow); }
-.ptl-brand-tagline .para { color: #FFFFFF; }
-.ptl-brand-tagline .vida { color: var(--ptl-green); }
+/* Colores oficiales del tagline ProfitToLife */
+.ptl-brand-tagline .ganancia { color: #FFFFFF; }    /* Blanco (era oscuro en el original, adaptado a tema oscuro) */
+.ptl-brand-tagline .para { color: #F59E0B; }        /* Naranja */
+.ptl-brand-tagline .vida { color: #22C55E; }        /* Verde */
 
 /* Botones */
 .ptl-btn {
