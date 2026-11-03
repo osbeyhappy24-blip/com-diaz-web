@@ -1696,7 +1696,14 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
       };
     })();
     </script>
-    </head>
+    
+<style id="force-visible-fix">
+  /* 🔧 FIX: Forzar container visible */
+  .container { display: block !important; }
+  body { display: block !important; }
+  header.header { display: flex !important; }
+</style>
+</head>
 <body>
 
 <!-- ═══ BANNER DE IA AUTOMÁTICO ═══ -->
