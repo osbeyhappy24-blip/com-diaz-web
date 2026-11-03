@@ -34,15 +34,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .tienda-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(34,197,94,.15); color: #22C55E; border: 1px solid rgba(34,197,94,.3); border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 12px; text-decoration: none; }
 .tienda-badge:hover { background: rgba(34,197,94,.25); }
 .tienda-badge.anonimo { background: #1F2A44; color: #94A3B8; cursor: default; }
-.product-title { font-size: 22px; font-weight: 800; line-height: 1.3; margin-bottom: 12px; color: #FFFFFF; }
+.product-title { font-size: 22px; font-weight: 800; line-height: 1.3; margin-bottom: 12px; color: #0A0E1A; }
 .product-price { font-size: 28px; font-weight: 900; color: #22C55E; margin-bottom: 4px; }
 .product-price-cup { font-size: 14px; color: #94A3B8; margin-bottom: 16px; }
 .product-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .meta-chip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; background: #1F2A44; border-radius: 8px; font-size: 12px; color: #CBD5E1; font-weight: 600; }
-.product-desc { font-size: 14px; color: #475569; line-height: 1.6; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; }
+.product-desc { font-size: 14px; color: #CBD5E1; line-height: 1.6; padding: 16px 0; border-top: 1px solid #e2e8f0; margin-top: 8px; }
 .product-desc.empty { color: #94a3b8; font-style: italic; }
 .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-.btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; text-decoration: none; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 12px rgba(37,211,102,.3); }
+.btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; background: linear-gradient(135deg, #25D366, #128C7E); color: #0A0E1A; text-decoration: none; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 12px rgba(37,211,102,.3); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,211,102,.4); }
 .btn-secondary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: #fff; color: #22C55E; border: 2px solid #22C55E; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s; }
 .btn-secondary:hover { background: #eff6ff; }
@@ -59,7 +59,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <body>
 
 <header class="header">
-  <a href="shop.html" class="header-back">←</a>
+  <button class="header-back" onclick="volverAtras()" style="cursor:pointer;background:none;border:none;color:inherit;font-size:22px;">←</button>
   <span class="ptl-logo" style="width:28px;height:28px;font-size:14px;border-radius:8px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(34,197,94,0.3);flex-shrink:0"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="100" height="100" rx="22" fill="#0B132B"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FFFFFF"/></svg></span>
       <div class="header-title" id="headerTitle">Producto</div>
 </header>
@@ -75,7 +75,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
 <footer class="footer">
   <p>ProfitToLife Marketplace · Compra cubano, compra cerca 🇨🇺</p>
-  <p style="margin-top:8px"><a href="shop.html">← Volver a la tienda</a></p>
+  <p style="margin-top:8px"><a href="javascript:void(0)" onclick="volverAtras()">← Volver a la tienda</a></p>
 </footer>
 
 <script>
@@ -94,7 +94,7 @@ function showError(msg, code) {
     <div class="error-box">
       <h2>❌ ${code || 'Error'}</h2>
       <p>${esc(msg)}</p>
-      <a href="shop.html" class="btn-back">← Volver a la tienda</a>
+      <a href="javascript:void(0)" onclick="volverAtras()" class="btn-back">← Volver a la tienda</a>
     </div>
   `;
 }
@@ -216,6 +216,103 @@ function compartirProducto() {
     navigator.clipboard.writeText(texto).then(function(){ alert('✅ Link copiado'); }).catch(function(){ prompt('Copia:', url); });
   } else { prompt('Copia:', url); }
 }
+
+// ═══ FUNCIÓN: Volver a la tienda correcta ═══
+
+// ═══ PEDIR POR WHATSAPP (abre WA primero, código después) ═══
+async function crearPedidoYWhatsApp() {
+  const producto = window._productoActual;
+  if (!producto || !producto.id) {
+    alert('Error: producto no cargado. Recarga la página.');
+    return;
+  }
+
+  // ═══ 1. ABRIR WHATSAPP INMEDIATAMENTE ═══
+  const telefono = (producto.whatsapp_vendedor || producto.whatsapp || '').replace(/\D/g, '');
+  
+  if (!telefono) {
+    alert('Este producto no tiene WhatsApp registrado.');
+    return;
+  }
+
+  const mensajeBasico = 'Hola! Vengo de ProfitToLife y quiero pedir: *' + producto.titulo + '* ($' + producto.precio_usd + '). ¿Está disponible?';
+  const waUrl = 'https://wa.me/' + telefono + '?text=' + encodeURIComponent(mensajeBasico);
+  
+  // Abrir en nueva pestaña (inmediato, no espera al backend)
+  window.open(waUrl, '_blank');
+  
+  // ═══ 2. CREAR PEDIDO EN BACKGROUND (con timeout) ═══
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    
+    const res = await fetch('https://com-diaz-ty2b.onrender.com/api/pedidos/crear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ producto_id: producto.id }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    
+    if (data.ok && data.codigo) {
+      mostrarToastCodigo(data.codigo);
+    }
+  } catch(e) {
+    // WhatsApp ya se abrió, no pasa nada si el código falla
+    console.log('[PEDIDO] No se pudo crear el código:', e.message);
+  }
+}
+
+// ═══ TOAST con el código de pedido ═══
+function mostrarToastCodigo(codigo) {
+  const viejo = document.getElementById('toastCodigo');
+  if (viejo) viejo.remove();
+  
+  const toast = document.createElement('div');
+  toast.id = 'toastCodigo';
+  toast.style.cssText = 'position:fixed; bottom:20px; left:16px; right:16px; max-width:400px; margin:0 auto; background:linear-gradient(135deg,#0B132B,#131A2E); border:2px solid #22C55E; border-radius:16px; padding:16px; z-index:9999; box-shadow:0 8px 24px rgba(34,197,94,0.4); animation:slideUpToast 0.4s ease;';
+  toast.innerHTML = '<div style="display:flex; align-items:start; gap:12px;">' +
+    '<div style="font-size:24px;">✅</div>' +
+    '<div style="flex:1;">' +
+      '<div style="color:#FFFFFF; font-weight:800; font-size:13px; margin-bottom:4px;">Pedido enviado</div>' +
+      '<div style="color:#CBD5E1; font-size:11px; line-height:1.4; margin-bottom:10px;">Guarda este código para verificar tu compra y dejar reseña:</div>' +
+      '<div style="background:#22C55E; color:#0A0E1A; padding:10px; border-radius:8px; font-family:monospace; font-size:14px; font-weight:800; text-align:center; letter-spacing:1px; user-select:all;">' + codigo + '</div>' +
+    '</div>' +
+    '<button onclick="document.getElementById(\'toastCodigo\').remove()" style="background:transparent; border:none; color:#64748B; font-size:20px; cursor:pointer; padding:0; line-height:1;">×</button>' +
+  '</div>' +
+  '<style>@keyframes slideUpToast { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }</style>';
+  
+  document.body.appendChild(toast);
+  
+  // Auto-cerrar después de 30 segundos
+  setTimeout(() => {
+    if (toast.parentNode) toast.remove();
+  }, 30000);
+}
+
+// ═══ VOLVER A LA TIENDA CORRECTA ═══
+function volverAtras() {
+  const producto = window._productoActual;
+  if (producto && producto.tienda_slug) {
+    window.location.href = 'tienda.html?slug=' + encodeURIComponent(producto.tienda_slug);
+    return;
+  }
+  window.location.href = 'shop.html';
+}
+
+function volverAtras() {
+  // Si el producto tiene tienda, volver a esa tienda específica
+  const producto = window._productoActual;
+  if (producto && producto.tienda_slug) {
+    window.location.href = 'tienda.html?slug=' + encodeURIComponent(producto.tienda_slug);
+    return;
+  }
+  // Si no, volver al marketplace general
+  window.location.href = 'shop.html';
+}
+
 </script>
 
 <script>
