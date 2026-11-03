@@ -1,5 +1,5 @@
 // ═══ PROFITTOLIFE MARKETPLACE - SERVICE WORKER (Offline-First) ═══
-const CACHE_VERSION = 'ptl-market-v4'; // Cambiar versión para forzar actualización
+const CACHE_VERSION = 'ptl-market-v5-202611031804'; // Cambiar versión para forzar actualización
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DYNAMIC_CACHE = CACHE_VERSION + '-dynamic';
 const OFFLINE_URL = 'offline.html';
