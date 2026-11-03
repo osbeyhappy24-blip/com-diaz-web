@@ -1913,6 +1913,32 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
       <input type="text" id="prodTitulo" maxlength="200" placeholder="Ej: Bicicleta rodado 26">
 
       <label>Descripción</label>
+      
+      <!-- GANGA FLASH -->
+      <div style="margin-top:16px; padding:14px; background:rgba(252,211,77,0.08); border:1px solid rgba(252,211,77,0.3); border-radius:10px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:#FCD34D; font-weight:700; font-size:14px;">
+          <input type="checkbox" id="editGangaActiva" onchange="document.getElementById('gangaFields').style.display = this.checked ? 'block' : 'none'" style="width:18px; height:18px; cursor:pointer;">
+          🔥 Activar Ganga Flash (Oferta por tiempo limitado)
+        </label>
+        
+        <div id="gangaFields" style="display:none; margin-top:12px;">
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label style="font-size:11px; color:#94A3B8; text-transform:uppercase;">Precio de Oferta (USD)</label>
+              <input type="number" id="editGangaPrecio" class="tienda-input" placeholder="Ej: 25.00" style="margin-top:4px;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:11px; color:#94A3B8; text-transform:uppercase;">Duración</label>
+              <select id="editGangaHoras" class="tienda-input" style="margin-top:4px;">
+                <option value="6">6 horas</option>
+                <option value="12">12 horas</option>
+                <option value="24" selected>24 horas</option>
+                <option value="48">48 horas</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
       <textarea id="prodDescripcion" maxlength="2000" placeholder="Detalles del producto..."></textarea>
 
       <div class="row-2">
@@ -4024,7 +4050,21 @@ if (rUpload.status === 401) {
           if (!dUpload.ok || !dUpload.url) throw new Error(dUpload.error || 'sin URL');
           item.url = dUpload.url;
         }
+        var gangaActiva = document.getElementById('editGangaActiva')?.checked || false;
+        var gangaPrecio = document.getElementById('editGangaPrecio')?.value || null;
+        var gangaHoras = document.getElementById('editGangaHoras')?.value || 24;
+        
+        var gangaFin = null;
+        if (gangaActiva && gangaPrecio) {
+          var fecha = new Date();
+          fecha.setHours(fecha.getHours() + parseInt(gangaHoras));
+          gangaFin = fecha.toISOString();
+        }
+
         var body = {
+          ganga_activa: gangaActiva,
+          ganga_precio: gangaPrecio,
+          ganga_fin: gangaFin,
           titulo: item.datos.titulo.trim(),
           precio_usd: Number(item.datos.precio_usd),
           precio_cup: item.datos.precio_cup ? Number(item.datos.precio_cup) : null,
