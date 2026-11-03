@@ -1,4 +1,4 @@
-// Comdiaz Shop - Logica del catalogo publico
+// ProfitToLife Marketplace - Logica del catalogo publico
 
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:3000'
@@ -88,7 +88,10 @@ document.addEventListener('click', async (e) => {
   if (!prodId) return;
 
   // Si NO es seller, dejamos el flujo viejo (no prevenimos)
-  if (!String(prodId).startsWith('seller_')) return;
+    // Verificar si es un producto de seller (por _isSeller o seller_id)
+    const _productoDelClic = (state.products || []).find(p => String(p.id) === String(prodId));
+    const _esDeSeller = _productoDelClic && (_productoDelClic._isSeller === true || _productoDelClic.seller_id);
+    if (!_esDeSeller) return;
 
   // Es seller: interceptar
   e.preventDefault();
@@ -99,14 +102,16 @@ document.addEventListener('click', async (e) => {
   btn.textContent = 'Conectando...';
 
   try {
-    const info = await obtenerContactoVendedor(prodId);
+    // Limpiar prefijo 'seller_' si existe
+    const cleanProdId = String(prodId).replace(/^seller_/, '');
+    const info = await obtenerContactoVendedor(cleanProdId);
     if (!info || !info.telefono) {
       alert('El vendedor no está disponible en este momento.');
       btn.disabled = false;
       btn.textContent = textoOriginal;
       return;
     }
-    const mensaje = 'Hola ' + (info.nombre || '') + ', vengo de *Comdiaz Shop* y me interesa: ' + (info.titulo || 'tu producto') + (info.precio_usd ? ' ($' + info.precio_usd + ')' : '');
+    const mensaje = 'Hola ' + (info.nombre || '') + ', vengo de *ProfitToLife Marketplace* y me interesa: ' + (info.titulo || 'tu producto') + (info.precio_usd ? ' ($' + info.precio_usd + ')' : '');
     if (typeof _waUrl === 'function') {
       window.location.href = _waUrl(info.telefono, mensaje);
     } else {
@@ -459,7 +464,7 @@ function generarLinkWhatsApp(producto) {
   const precio = Number(producto.salePrice || 0).toFixed(2);
   const url = producto.url || '';
 
-  let mensaje = `Hola, me interesa este producto de Comdiaz Shop:\n\n`;
+  let mensaje = `Hola, me interesa este producto de ProfitToLife Marketplace:\n\n`;
   mensaje += `*${titulo}*\n`;
   mensaje += `Precio: $${precio}\n`;
   if (url) mensaje += `${url}\n`;
@@ -479,7 +484,7 @@ function pedirPorWhatsApp(producto) {
   const titulo = producto.title || "producto";
   const precio = Number(producto.salePrice || 0).toFixed(2);
   const url = producto.url || "";
-  let mensaje = "Hola, me interesa este producto de Comdiaz Shop:\n\n";
+  let mensaje = "Hola, me interesa este producto de ProfitToLife Marketplace:\n\n";
   mensaje += "*" + titulo + "*\n";
   mensaje += "Precio: $" + precio + "\n";
   if (url) mensaje += url + "\n";
@@ -500,12 +505,12 @@ async function compartirProducto(p) {
   const url = base + '?product=' + encodeURIComponent(id);
   const titulo = p.aiTitulo || p.title || 'Producto';
   const precio = p.salePrice ? ' — Desde $' + Number(p.salePrice).toFixed(2) + ' USD' : '';
-  const texto = 'Mira este producto en Comdiaz: ' + titulo + precio + ' 🇨🇺';
+  const texto = 'Mira este producto en ProfitToLife: ' + titulo + precio + ' 🇨🇺';
 
   // 1) Web Share API nativo (Android / iOS / desktop moderno)
   if (navigator.share) {
     try {
-      await navigator.share({ title: 'Comdiaz Shop', text: texto, url: url });
+      await navigator.share({ title: 'ProfitToLife Marketplace', text: texto, url: url });
       return;
     } catch (err) {
       if (err && err.name === 'AbortError') return;  // usuario canceló
@@ -686,7 +691,7 @@ $('searchInput').oninput = (e) => {
 // ─── WhatsApp flotante ───
 $('waFloat').onclick = () => {
   const wa = state.config.whatsapp || '5351425691';
-  const msg = 'Hola, quiero información sobre los productos de Comdiaz Shop.';
+  const msg = 'Hola, quiero información sobre los productos de ProfitToLife Marketplace.';
   abrirWhatsApp(wa, msg);
 };
 
@@ -727,7 +732,7 @@ cargarCatalogo();
   if (headerBtn) {
     headerBtn.onclick = () => {
       const wa = state.config?.whatsapp || '5351425691';
-      const nombre = state.config?.titulo || 'Comdiaz Shop';
+      const nombre = state.config?.titulo || 'ProfitToLife Marketplace';
       const horario = state.config?.horarioAtencion || '';
       let msg = 'Hola, vengo de *' + nombre + '* y quiero información sobre productos.';
       if (horario) msg += '\n\n(Su horario: ' + horario + ')';
@@ -740,7 +745,7 @@ cargarCatalogo();
   if (footerBtn) {
     footerBtn.onclick = () => {
       const wa = state.config?.whatsapp || '5351425691';
-      const nombre = state.config?.titulo || 'Comdiaz Shop';
+      const nombre = state.config?.titulo || 'ProfitToLife Marketplace';
       const msg = 'Hola, vengo de *' + nombre + '* y quiero hablar con un vendedor.';
       abrirWhatsApp(wa, msg);
     };
@@ -931,7 +936,7 @@ cargarCatalogo();
     }
 
     const wa = state.config?.whatsapp || '5351425691';
-    const tienda = state.config?.titulo || 'Comdiaz Shop';
+    const tienda = state.config?.titulo || 'ProfitToLife Marketplace';
 
     let msg = '🛒 *NUEVO PEDIDO — ' + tienda + '*\n\n';
     msg += '👤 *Cliente:* ' + nombre + '\n\n';
@@ -1062,7 +1067,7 @@ cargarCatalogo();
   var $id = function(id){ return document.getElementById(id); };
   function abrir(){ var p = $id("waInfoPanel"); if(!p) return; var hh = $id("waInfoHorario"); if(hh && state.config && state.config.horarioAtencion) hh.textContent = state.config.horarioAtencion; p.classList.remove("hidden"); }
   function cerrar(){ var p = $id("waInfoPanel"); if(p) p.classList.add("hidden"); }
-  function wa(){ var w = (state.config && state.config.whatsapp) || "5351425691"; var t = (state.config && state.config.titulo) || "Comdiaz Shop"; var m = "Hola, vengo de *" + t + "* y quiero informacion."; abrirWhatsApp(w, m); }
+  function wa(){ var w = (state.config && state.config.whatsapp) || "5351425691"; var t = (state.config && state.config.titulo) || "ProfitToLife Marketplace"; var m = "Hola, vengo de *" + t + "* y quiero informacion."; abrirWhatsApp(w, m); }
   document.addEventListener("click", function(e){
     var t = e.target;
     if (t.closest && t.closest("#headerWaBtn")) { e.preventDefault(); abrir(); return; }
@@ -1598,7 +1603,7 @@ cargarCatalogo();
     const precio = Number(p.salePrice || 0).toFixed(2);
     const shopUrl = 'https://com-diaz-ty2b.onrender.com/shop.html' + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
     const wa = (state && state.config && state.config.whatsapp) || '5351425691';
-    const tienda = (state && state.config && state.config.titulo) || 'Comdiaz Shop';
+    const tienda = (state && state.config && state.config.titulo) || 'ProfitToLife Marketplace';
 
     return '🛍️ Mira este producto en *' + tienda + ':*\n\n' +
            '*_' + titulo + '_*\n\n' +
@@ -2220,7 +2225,7 @@ cargarCatalogo();
 
 
 // ═══════════════════════════════════════════════════════
-// HERO BANNER — Comdiaz Shop
+// HERO BANNER — ProfitToLife Marketplace
 // ═══════════════════════════════════════════════════════
 (function comdiaz_hero_v1() {
   function actualizarStats() {
@@ -2600,7 +2605,7 @@ async function renderTiendas() {
         <div class="tiendas-empty">
           <span class="tiendas-empty-icon">🏪</span>
           <h3>Aún no hay tiendas creadas</h3>
-          <p>Sé el primero en crear tu tienda en Comdiaz y vende tus productos con marca propia.</p>
+          <p>Sé el primero en crear tu tienda en ProfitToLife y vende tus productos con marca propia.</p>
           <a href="seller.html" class="tiendas-empty-cta">🏪 Crear mi tienda</a>
         </div>
       `;
