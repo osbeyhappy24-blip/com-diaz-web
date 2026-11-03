@@ -1672,7 +1672,31 @@ window.addEventListener('unhandledrejection', e => {
 console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,100); };
 </script>
   <link rel="stylesheet" href="brand-ptl.css">
-</head>
+
+    <script>
+    // Fix de resiliencia: Evitar que la UI se quede cargando para siempre
+    (function() {
+      window._originalFetchForTimeout = window.fetch;
+      window.fetch = function(...args) {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => {
+            reject(new Error("Timeout: El servidor tardó demasiado en responder. Revisa tu conexión o intenta de nuevo."));
+          }, 30000); // 30 segundos máximo
+
+          window._originalFetchForTimeout.apply(this, args)
+            .then(res => {
+              clearTimeout(timer);
+              resolve(res);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              reject(err);
+            });
+        });
+      };
+    })();
+    </script>
+    </head>
 <body>
 
 <!-- ═══ BANNER DE IA AUTOMÁTICO ═══ -->
