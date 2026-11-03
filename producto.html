@@ -168,6 +168,9 @@ function renderProducto(p) {
         ${navHtml}
       </div>
       <div class="product-body">
+        <div id="gangaFlashBadge" style="display:none; background:linear-gradient(90deg, #EF4444, #F59E0B); color:#fff; padding:8px 14px; border-radius:10px; font-weight:900; font-size:13px; text-align:center; margin-bottom:12px; animation:pulseGanga 1.5s infinite;">
+          🔥 GANGA FLASH — <span id="gangaTimer">00:00:00</span>
+        </div>
         ${tiendaHtml}
         <h1 class="product-title">${esc(p.titulo)}</h1>
         <div class="product-price">$${fmtPrice(p.precio_usd)} USD</div>
