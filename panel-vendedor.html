@@ -1697,17 +1697,9 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
     })();
     </script>
     
-<style id="force-visible-fix">
-  /* 🔧 FIX: Forzar container visible */
-  .container { display: block !important; }
-  body { display: block !important; }
-  header.header { display: flex !important; }
-</style>
 
-<style id="force-visible-ultra">
-  body, .container, .header { display: block !important; visibility: visible !important; opacity: 1 !important; }
-  .header { display: flex !important; }
-</style>
+
+
 <script>
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
@@ -1746,6 +1738,20 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
 #bottomBar .tab-item.on { color: #22C55E; }
 #bottomBar .tab-icon { font-size: 20px; }
 body { padding-bottom: 100px; }
+</style>
+
+<style id="tab-fix-v2">
+  body.tab-other .container { display: none !important; }
+  body.tab-main .container { display: block !important; }
+  .tab-view { display: none; padding: 16px; padding-bottom: 120px; }
+  .tab-view.visible { display: block; }
+  #bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: #131A2E; border-top: 1px solid #1F2A44; display: flex; justify-content: space-around; padding: 8px 0 20px 0; z-index: 99999; }
+  #bottomBar .tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer; padding: 4px; }
+  #bottomBar .tab-item.on { color: #22C55E; }
+  #bottomBar .tab-icon { font-size: 20px; }
+  body { padding-bottom: 100px; }
+  /* Ocultar productos OCULTOS en la vista principal */
+  body.tab-main #productsList .oculto-item { display: none !important; }
 </style>
 </head>
 <body>
@@ -5480,13 +5486,30 @@ document.addEventListener('DOMContentLoaded', function() {
   </button>
 </div>
 
+
+
 <script>
+// ═══ INICIALIZAR CON CLASE main ═══
+if (document.body && !document.body.classList.contains('tab-main')) {
+  document.body.classList.add('tab-main');
+}
+
 function cambiarTab(name) {
-  var views = document.querySelectorAll('.tab-view');
-  for (var i = 0; i < views.length; i++) { views[i].classList.remove('visible'); }
-  var container = document.querySelector('.container');
-  if (container) { container.style.display = 'none'; }
+  // Cambiar clase en body para que el CSS oculte el container
+  document.body.classList.remove('tab-main', 'tab-other');
+  if (name === 'main') {
+    document.body.classList.add('tab-main');
+  } else {
+    document.body.classList.add('tab-other');
+  }
   
+  // Ocultar todos los tabs
+  var views = document.querySelectorAll('.tab-view');
+  for (var i = 0; i < views.length; i++) {
+    views[i].classList.remove('visible');
+  }
+  
+  // Actualizar botones
   var tabs = ['main', 'inventario', 'historial', 'plan', 'config'];
   for (var j = 0; j < tabs.length; j++) {
     var btn = document.getElementById('btn-' + tabs[j]);
@@ -5495,9 +5518,8 @@ function cambiarTab(name) {
   var activeBtn = document.getElementById('btn-' + name);
   if (activeBtn) activeBtn.classList.add('on');
   
-  if (name === 'main') {
-    if (container) container.style.display = 'block';
-  } else {
+  // Mostrar vista
+  if (name !== 'main') {
     var view = document.getElementById('tab-' + name);
     if (view) view.classList.add('visible');
     if (name === 'inventario') cargarInventario();
@@ -5509,22 +5531,34 @@ function cambiarTab(name) {
 function cargarInventario() {
   var box = document.getElementById('inventarioBox');
   var token = localStorage.getItem('comdiaz_seller_token');
-  if (!box || !token) return;
+  if (!box || !token) { 
+    if (box) box.innerHTML = '<p style="color: #F87171; padding: 20px; text-align: center;">Error: no hay sesion</p>';
+    return; 
+  }
   
-  fetch(window.API_BASE + '/api/seller/products', {
+  box.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 20px;">Cargando...</p>';
+  
+  // Llamar al endpoint que devuelve TODOS los productos (incluyendo ocultos)
+  fetch(window.API_BASE + '/api/seller/products?all=true', {
     headers: { 'Authorization': 'Bearer ' + token }
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (data.ok && data.productos && data.productos.length > 0) {
+    var prods = (data && (data.productos || data.products || data.items)) || [];
+    console.log('Inventario:', prods.length, 'productos');
+    
+    if (prods.length > 0) {
       var html = '';
-      for (var i = 0; i < data.productos.length; i++) {
-        var p = data.productos[i];
-        var estado = p.publicado ? 'Publicado' : 'Oculto';
-        var color = p.publicado ? '#22C55E' : '#94A3B8';
+      for (var i = 0; i < prods.length; i++) {
+        var p = prods[i];
+        var publicado = p.publicado !== false;
+        var estado = publicado ? 'Publicado' : 'Oculto';
+        var color = publicado ? '#22C55E' : '#94A3B8';
         html += '<div style="background: #0A0E1A; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">';
-        html += '<div><div style="color: #FFFFFF; font-weight: 700; font-size: 13px;">' + (p.titulo || 'Sin titulo') + '</div>';
-        html += '<div style="color: ' + color + '; font-size: 11px; font-weight: 700;">' + estado + ' | $' + (p.precio_usd || 0) + '</div></div>';
+        html += '<div style="flex: 1;">';
+        html += '<div style="color: #FFFFFF; font-weight: 700; font-size: 13px;">' + (p.titulo || 'Sin titulo') + '</div>';
+        html += '<div style="color: ' + color + '; font-size: 11px; font-weight: 700;">' + estado + ' | $' + (p.precio_usd || 0) + '</div>';
+        html += '</div>';
         html += '<a href="producto.html?id=' + p.id + '" style="background: rgba(34,197,94,0.15); color: #22C55E; border: 1px solid rgba(34,197,94,0.3); padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 11px; text-decoration: none;">Ver</a>';
         html += '</div>';
       }
@@ -5533,8 +5567,9 @@ function cargarInventario() {
       box.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 20px;">No tienes productos</p>';
     }
   })
-  .catch(function() {
-    box.innerHTML = '<p style="color: #F87171; text-align: center; padding: 20px;">Error al cargar</p>';
+  .catch(function(e) {
+    console.error(e);
+    box.innerHTML = '<p style="color: #F87171; text-align: center; padding: 20px;">Error al cargar: ' + e.message + '</p>';
   });
 }
 
@@ -5543,19 +5578,22 @@ function cargarHistorial() {
   var token = localStorage.getItem('comdiaz_seller_token');
   if (!box || !token) return;
   
+  box.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 20px;">Cargando...</p>';
+  
   fetch(window.API_BASE + '/api/seller/products?deleted=true', {
     headers: { 'Authorization': 'Bearer ' + token }
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    if (data.ok && data.productos && data.productos.length > 0) {
+    var prods = (data && (data.productos || data.products)) || [];
+    if (prods.length > 0) {
       var html = '';
-      for (var i = 0; i < data.productos.length; i++) {
-        var p = data.productos[i];
+      for (var i = 0; i < prods.length; i++) {
+        var p = prods[i];
         html += '<div style="background: #0A0E1A; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">';
-        html += '<div><div style="color: #FFFFFF; font-weight: 700;">' + (p.titulo || 'Sin titulo') + '</div>';
+        html += '<div style="flex: 1;"><div style="color: #FFFFFF; font-weight: 700;">' + (p.titulo || 'Sin titulo') + '</div>';
         html += '<div style="color: #94A3B8; font-size: 12px;">$' + (p.precio_usd || 0) + '</div></div>';
-        html += '<button onclick="recuperar('' + p.id + '')" style="background: #22C55E; color: #0A0E1A; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer;">Recuperar</button>';
+        html += '<button onclick="recuperarProducto(\'' + p.id + '\')" style="background: #22C55E; color: #0A0E1A; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer;">Recuperar</button>';
         html += '</div>';
       }
       box.innerHTML = html;
@@ -5563,12 +5601,12 @@ function cargarHistorial() {
       box.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 20px;">No hay productos eliminados</p>';
     }
   })
-  .catch(function() {
+  .catch(function(e) {
     box.innerHTML = '<p style="color: #F87171; text-align: center; padding: 20px;">Error al cargar</p>';
   });
 }
 
-function recuperar(id) {
+function recuperarProducto(id) {
   var token = localStorage.getItem('comdiaz_seller_token');
   fetch(window.API_BASE + '/api/seller/products/' + id + '/recuperar', {
     method: 'POST',
@@ -5591,16 +5629,19 @@ function cargarPlanActual() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
+    console.log('Plan info:', data);
     var actual = 'basico';
-    if (data.ok) {
-      var p = data.plan_id || 'basico';
+    if (data && data.ok) {
+      var p = data.plan_id || data.planId || '';
+      if (!p && data.seller) p = data.seller.plan_id || '';
+      if (!p && data.plan) p = data.plan.id || data.plan.nombre || '';
       p = String(p).toLowerCase();
       if (p.indexOf('premium') >= 0) actual = 'premium';
       else if (p.indexOf('pro') >= 0) actual = 'pro';
     }
     marcarPlan(actual);
   })
-  .catch(function() {});
+  .catch(function() { marcarPlan('basico'); });
 }
 
 function marcarPlan(actual) {
@@ -5640,13 +5681,35 @@ function borrarCuenta() {
   }
 }
 
+// ═══ FILTRAR productos ocultos en la vista principal ═══
+// Cuando los productos cargan, agregar clase 'oculto-item' a los que tienen "Oculto"
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var obs = new MutationObserver(function() {
+      var items = document.querySelectorAll('#productsList > div');
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].textContent.indexOf('Oculto') >= 0) {
+          items[i].classList.add('oculto-item');
+        }
+      }
+    });
+    var target = document.getElementById('productsList');
+    if (target) obs.observe(target, { childList: true, subtree: true, characterData: true });
+  }, 500);
+});
+
+// Exponer globalmente
 window.cambiarTab = cambiarTab;
 window.cargarInventario = cargarInventario;
 window.cargarHistorial = cargarHistorial;
-window.recuperar = recuperar;
+window.recuperarProducto = recuperarProducto;
 window.cargarPlanActual = cargarPlanActual;
+window.marcarPlan = marcarPlan;
 window.pedirPlan = pedirPlan;
 window.borrarCuenta = borrarCuenta;
+
+// Inicializar con tab main
+if (document.body) document.body.classList.add('tab-main');
 </script>
 </body>
 </html>
