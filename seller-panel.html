@@ -1703,6 +1703,39 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
   body { display: block !important; }
   header.header { display: flex !important; }
 </style>
+
+<style id="force-visible-ultra">
+  body, .container, .header { display: block !important; visibility: visible !important; opacity: 1 !important; }
+  .header { display: flex !important; }
+</style>
+<script>
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Ocultar solo el banner de IA si existe, pero NO el resto
+    var ia = document.getElementById('iaBanner');
+    if (ia) ia.style.display = 'none';
+    
+    // Forzar la visibilidad
+    document.body.style.display = 'block';
+    document.body.style.visibility = 'visible';
+    document.body.style.opacity = '1';
+    
+    var header = document.querySelector('.header');
+    if (header) header.style.display = 'flex';
+    
+    var container = document.querySelector('.container');
+    if (container) container.style.display = 'block';
+    
+    // Mostrar el botón de añadir producto
+    var addBtn = document.getElementById('addProductBtn');
+    if (addBtn) {
+      addBtn.style.display = 'block';
+      addBtn.style.visibility = 'visible';
+      addBtn.style.opacity = '1';
+    }
+  });
+})();
+</script>
 </head>
 <body>
 
