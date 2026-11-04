@@ -5541,6 +5541,51 @@ function eliminarCuenta() {
 }
 </script>
 
+
+<div id="bottomTabs" style="position: fixed; bottom: 0; left: 0; right: 0; background: #131A2E; border-top: 1px solid #1F2A44; display: flex; justify-content: space-around; padding: 8px 0 24px 0; z-index: 99999; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
+  <button class="tab-btn active" onclick="showTab('main')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #22C55E; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer;">
+    <span style="font-size: 20px;">📦</span> Productos
+  </button>
+  <button class="tab-btn" onclick="showTab('historial')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer;">
+    <span style="font-size: 20px;">🗑️</span> Historial
+  </button>
+  <button class="tab-btn" onclick="showTab('plan')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer;">
+    <span style="font-size: 20px;">💳</span> Mi Plan
+  </button>
+  <button class="tab-btn" onclick="showTab('config')" style="display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer;">
+    <span style="font-size: 20px;">⚙️</span> Config
+  </button>
+</div>
+
+<!-- Contenedores de Tabs Ocultos -->
+<div id="tabHistorial" style="display:none; padding:16px; padding-bottom:100px;">
+  <h2 style="color:#FFF; margin-bottom:12px;">🗑️ Papelera de reciclaje</h2>
+  <div id="historialLista"><p style="color:#94A3B8; text-align:center;">Cargando...</p></div>
+</div>
+
+<div id="tabPlan" style="display:none; padding:16px; padding-bottom:100px;">
+  <h2 style="color:#FFF; margin-bottom:16px;">💳 Mi Plan</h2>
+  <div style="background:#131A2E; border:1px solid #1F2A44; border-radius:12px; padding:16px; text-align:center; margin-bottom:12px;">
+    <div style="color:#FFF; font-size:18px; font-weight:900;">Básico</div>
+    <div style="color:#22C55E; font-size:24px; font-weight:900; margin-bottom:12px;">Gratis</div>
+    <button disabled style="width:100%; padding:10px; background:#1F2A44; color:#94A3B8; border:none; border-radius:8px; font-weight:700;">Plan Actual</button>
+  </div>
+  <div style="background:#131A2E; border:1px solid #22C55E; border-radius:12px; padding:16px; text-align:center; margin-bottom:12px;">
+    <div style="color:#FFF; font-size:18px; font-weight:900;">Pro</div>
+    <div style="color:#22C55E; font-size:24px; font-weight:900; margin-bottom:12px;">$5 USD/mes</div>
+    <button onclick="solicitarPlan('Pro')" style="width:100%; padding:10px; background:#22C55E; color:#0A0E1A; border:none; border-radius:8px; font-weight:800;">🚀 Actualizar a Pro</button>
+  </div>
+  <div style="background:#131A2E; border:1px solid #FCD34D; border-radius:12px; padding:16px; text-align:center;">
+    <div style="color:#FFF; font-size:18px; font-weight:900;">Premium</div>
+    <div style="color:#FCD34D; font-size:24px; font-weight:900; margin-bottom:12px;">$15 USD/mes</div>
+    <button onclick="solicitarPlan('Premium')" style="width:100%; padding:10px; background:#FCD34D; color:#0A0E1A; border:none; border-radius:8px; font-weight:800;">👑 Actualizar a Premium</button>
+  </div>
+</div>
+
+<div id="tabConfig" style="display:none; padding:16px; padding-bottom:100px;">
+  <h2 style="color:#FFF; margin-bottom:12px;">⚙️ Configuración</h2>
+  <button onclick="eliminarCuenta()" style="width:100%; padding:14px; background:rgba(239,68,68,0.15); color:#F87171; border:1px solid rgba(239,68,68,0.3); border-radius:10px; font-weight:800;">🗑️ Eliminar mi cuenta</button>
+</div>
 </body>
 </html>
 
