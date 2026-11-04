@@ -5306,6 +5306,49 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
+
+<script>
+// ═══ SCRIPT DE EMERGENCIA: Forzar visibilidad y detectar errores ═══
+window.addEventListener('error', function(e) {
+  console.error('Error JS detectado:', e.message);
+  var errorDiv = document.getElementById('js-error-display');
+  if (!errorDiv) {
+    errorDiv = document.createElement('div');
+    errorDiv.id = 'js-error-display';
+    errorDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ef4444;color:#fff;padding:10px;z-index:99999;font-size:12px;font-family:monospace;';
+    document.body.prepend(errorDiv);
+  }
+  errorDiv.innerHTML = '❌ Error: ' + e.message;
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('✅ DOM cargado. Forzando visibilidad...');
+
+  // Forzar que el header se vea
+  var header = document.querySelector('.header');
+  if (header) header.style.display = 'flex';
+
+  // Forzar que el container se vea
+  var container = document.querySelector('.container');
+  if (container) container.style.display = 'block';
+
+  // Asegurar que el botón de añadir productos esté visible
+  var addBtn = document.getElementById('addProductBtn');
+  if (addBtn) {
+    addBtn.style.display = 'block';
+    addBtn.style.visibility = 'visible';
+    addBtn.style.opacity = '1';
+  }
+
+  // Si después de 3 segundos no hay nombre de vendedor, mostrar algo
+  setTimeout(function() {
+    var nameEl = document.getElementById('sellerName');
+    if (nameEl && nameEl.textContent === 'Cargando...') {
+      nameEl.textContent = 'Vendedor (recargando...)';
+    }
+  }, 3000);
+});
+</script>
 </body>
 </html>
 
