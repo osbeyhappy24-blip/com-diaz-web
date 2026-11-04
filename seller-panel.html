@@ -1697,17 +1697,9 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
     })();
     </script>
     
-<style id="force-visible-fix">
-  /* 🔧 FIX: Forzar container visible */
-  .container { display: block !important; }
-  body { display: block !important; }
-  header.header { display: flex !important; }
-</style>
 
-<style id="force-visible-ultra">
-  body, .container, .header { display: block !important; visibility: visible !important; opacity: 1 !important; }
-  .header { display: flex !important; }
-</style>
+
+
 <script>
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
@@ -1792,7 +1784,7 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
   /* Ajuste para que la barra no tape contenido */
   body { padding-bottom: 100px !important; }
 </style>
-</head>
+<script>window.API_BASE = window.API_BASE || "https://com-diaz-ty2b.onrender.com";</script></head>
 <body>
 
 <!-- ═══ BANNER DE IA AUTOMÁTICO ═══ -->
@@ -5465,81 +5457,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-<script>
-window.showTab = function(tab) {
-  // Ocultar todas las vistas
-  var mainContainer = document.querySelector('.container');
-  var tabH = document.getElementById('tabHistorial');
-  var tabP = document.getElementById('tabPlan');
-  var tabC = document.getElementById('tabConfig');
 
-  if (mainContainer) mainContainer.style.display = (tab === 'main') ? 'block' : 'none';
-  if (tabH) tabH.style.display = (tab === 'historial') ? 'block' : 'none';
-  if (tabP) tabP.style.display = (tab === 'plan') ? 'block' : 'none';
-  if (tabC) tabC.style.display = (tab === 'config') ? 'block' : 'none';
-
-  // Actualizar botón activo
-  var btns = document.querySelectorAll('#bottomTabs .tab-btn');
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].classList.remove('active');
-  }
-  if (event && event.target) {
-    event.target.closest('.tab-btn').classList.add('active');
-  }
-
-  // Cargar datos si es necesario
-  if (tab === 'historial') {
-    cargarHistorial();
-  }
-};
-
-function cargarHistorial() {
-  var lista = document.getElementById('historialLista');
-  var token = localStorage.getItem('comdiaz_seller_token');
-  if (!lista || !token) return;
-  
-  lista.innerHTML = '<p style="color:#94A3B8; text-align:center;">Cargando...</p>';
-  
-  fetch(API_BASE + '/api/seller/products?deleted=true', {
-    headers: { 'Authorization': 'Bearer ' + token }
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.ok && data.productos && data.productos.length > 0) {
-      lista.innerHTML = data.productos.map(function(p) {
-        return '<div style="background:#0A0E1A; padding:12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">' +
-          '<div><div style="color:#FFF; font-weight:700;">' + p.titulo + '</div><div style="color:#94A3B8; font-size:12px;">$' + p.precio_usd + '</div></div>' +
-          '<button onclick="recuperarProducto(\'' + p.id + '\')" style="background:#22C55E; color:#0A0E1A; border:none; padding:6px 12px; border-radius:6px; font-weight:700;">Recuperar</button>' +
-        '</div>';
-      }).join('');
-    } else {
-      lista.innerHTML = '<p style="color:#94A3B8; text-align:center; padding:20px;">No hay productos en la papelera</p>';
-    }
-  })
-  .catch(function() { lista.innerHTML = '<p style="color:#F87171; text-align:center;">Error de conexión</p>'; });
-}
-
-function recuperarProducto(id) {
-  var token = localStorage.getItem('comdiaz_seller_token');
-  fetch(API_BASE + '/api/seller/products/' + id + '/recuperar', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token }
-  }).then(function(r) {
-    if (r.ok) { alert('✅ Producto recuperado'); cargarHistorial(); location.reload(); }
-  });
-}
-
-function solicitarPlan(plan) {
-  var msg = encodeURIComponent('Hola admin, quiero cambiar mi plan a *' + plan + '* en ProfitToLife.');
-  window.open('https://wa.me/5358980267?text=' + msg, '_blank');
-}
-
-function eliminarCuenta() {
-  if (confirm('¿Seguro que quieres eliminar tu cuenta? Irá a la papelera por 30 días.')) {
-    alert('Solicitud enviada al administrador.');
-  }
-}
-</script>
 
 
 <div id="bottomTabs" style="position: fixed; bottom: 0; left: 0; right: 0; background: #131A2E; border-top: 1px solid #1F2A44; display: flex; justify-content: space-around; padding: 8px 0 24px 0; z-index: 99999; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
@@ -5582,10 +5500,389 @@ function eliminarCuenta() {
   </div>
 </div>
 
-<div id="tabConfig" style="display:none; padding:16px; padding-bottom:100px;">
-  <h2 style="color:#FFF; margin-bottom:12px;">⚙️ Configuración</h2>
-  <button onclick="eliminarCuenta()" style="width:100%; padding:14px; background:rgba(239,68,68,0.15); color:#F87171; border:1px solid rgba(239,68,68,0.3); border-radius:10px; font-weight:800;">🗑️ Eliminar mi cuenta</button>
+
+
+<!-- ═══ TAB PLAN ═══ -->
+<div id="tabPlan" style="display:none;padding:16px;padding-bottom:100px;">
+  <h2 style="color:#FFF;margin-bottom:16px;">💳 Mi Plan</h2>
+  
+  <div id="planBasico" class="plan-card" style="background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:16px;margin-bottom:12px;position:relative;">
+    <div style="color:#FFF;font-size:18px;font-weight:900;">Básico</div>
+    <div style="color:#22C55E;font-size:24px;font-weight:900;margin-bottom:8px;">Gratis</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">50 productos · 1 foto por producto</p>
+    <button disabled style="width:100%;padding:10px;background:#1F2A44;color:#94A3B8;border:none;border-radius:8px;font-weight:700;">Plan Actual</button>
+  </div>
+  
+  <div id="planPro" class="plan-card" style="background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:16px;margin-bottom:12px;position:relative;">
+    <div style="color:#FFF;font-size:18px;font-weight:900;">Pro</div>
+    <div style="color:#22C55E;font-size:24px;font-weight:900;margin-bottom:8px;">$5 USD/mes</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">200 productos · 3 fotos · Destacados</p>
+    <button onclick="solicitarPlan('Pro')" style="width:100%;padding:10px;background:#22C55E;color:#0A0E1A;border:none;border-radius:8px;font-weight:800;">🚀 Actualizar a Pro</button>
+  </div>
+  
+  <div id="planPremium" class="plan-card" style="background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:16px;position:relative;">
+    <div style="color:#FFF;font-size:18px;font-weight:900;">Premium</div>
+    <div style="color:#FCD34D;font-size:24px;font-weight:900;margin-bottom:8px;">$15 USD/mes</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">Ilimitado · IA · VIP</p>
+    <button onclick="solicitarPlan('Premium')" style="width:100%;padding:10px;background:#FCD34D;color:#0A0E1A;border:none;border-radius:8px;font-weight:800;">👑 Actualizar a Premium</button>
+  </div>
 </div>
+
+<!-- ═══ TAB CONFIG ═══ -->
+
+
+<script>
+// ═══ LÓGICA DE TABS CORREGIDA ═══
+window.showTab = function(tab) {
+  // OCULTAR TODO con !important para ganar al CSS
+  var mainContainer = document.querySelector('.container');
+  if (mainContainer) mainContainer.style.setProperty('display', 'none', 'important');
+  
+  ['tabHistorial', 'tabPlan', 'tabConfig'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.setProperty('display', 'none', 'important');
+  });
+  
+  // MOSTRAR el seleccionado
+  if (tab === 'main' && mainContainer) {
+    mainContainer.style.setProperty('display', 'block', 'important');
+  } else if (tab === 'historial') {
+    document.getElementById('tabHistorial').style.setProperty('display', 'block', 'important');
+    cargarHistorial();
+  } else if (tab === 'plan') {
+    document.getElementById('tabPlan').style.setProperty('display', 'block', 'important');
+    cargarPlanActual();
+  } else if (tab === 'config') {
+    document.getElementById('tabConfig').style.setProperty('display', 'block', 'important');
+  }
+  
+  // Actualizar botones
+  document.querySelectorAll('#bottomTabs .tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+    b.style.color = '#94A3B8';
+  });
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+    event.currentTarget.style.color = '#22C55E';
+  }
+};
+
+// ═══ CARGAR HISTORIAL ═══
+window.cargarHistorial = function() {
+  var lista = document.getElementById('historialLista');
+  var token = localStorage.getItem('comdiaz_seller_token');
+  if (!lista) return;
+  
+  if (!token) {
+    lista.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:20px;">Debes iniciar sesión</p>';
+    return;
+  }
+  
+  lista.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:20px;">Cargando...</p>';
+  
+  fetch(window.API_BASE + '/api/seller/products?deleted=true', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok && data.productos && data.productos.length > 0) {
+      lista.innerHTML = data.productos.map(function(p) {
+        return '<div style="background:#0A0E1A;padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<div><div style="color:#FFF;font-weight:700;">' + (p.titulo || 'Sin título') + '</div><div style="color:#94A3B8;font-size:12px;">$' + (p.precio_usd || 0) + '</div></div>' +
+          '<button onclick="window.recuperarProducto('' + p.id + '')" style="background:#22C55E;color:#0A0E1A;border:none;padding:6px 12px;border-radius:6px;font-weight:700;">Recuperar</button>' +
+        '</div>';
+      }).join('');
+    } else {
+      lista.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:20px;">No hay productos en la papelera</p>';
+    }
+  })
+  .catch(function(e) {
+    lista.innerHTML = '<p style="color:#F87171;text-align:center;padding:20px;">Error: ' + e.message + '</p>';
+  });
+};
+
+window.recuperarProducto = function(id) {
+  var token = localStorage.getItem('comdiaz_seller_token');
+  fetch(window.API_BASE + '/api/seller/products/' + id + '/recuperar', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(function(r) {
+    if (r.ok) { alert('✅ Producto recuperado'); window.cargarHistorial(); setTimeout(function() { location.reload(); }, 500); }
+  });
+};
+
+// ═══ CARGAR PLAN ACTUAL Y RESALTAR ═══
+window.cargarPlanActual = function() {
+  var token = localStorage.getItem('comdiaz_seller_token');
+  if (!token) return;
+  
+  fetch(window.API_BASE + '/api/seller/plan-info', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var planActual = 'basico';
+    if (data.ok) {
+      // Intentar obtener el plan de varias formas
+      if (data.plan_id) planActual = String(data.plan_id).toLowerCase();
+      else if (data.seller && data.seller.plan_id) planActual = String(data.seller.plan_id).toLowerCase();
+      else if (data.plan && data.plan.nombre) planActual = String(data.plan.nombre).toLowerCase();
+    }
+    
+    // Normalizar
+    if (planActual.indexOf('premium') >= 0) planActual = 'premium';
+    else if (planActual.indexOf('pro') >= 0) planActual = 'pro';
+    else planActual = 'basico';
+    
+    resaltarPlan(planActual);
+  })
+  .catch(function() {
+    // Si falla la API, al menos no rompemos la UI
+    console.log('No se pudo cargar el plan, usando básico por defecto');
+  });
+};
+
+function resaltarPlan(planId) {
+  var idMap = { 'basico': 'planBasico', 'pro': 'planPro', 'premium': 'planPremium' };
+  
+  // Remover resaltado de todos
+  Object.values(idMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.style.borderColor = '#1F2A44';
+      el.style.boxShadow = 'none';
+      el.style.borderWidth = '1px';
+      var badge = el.querySelector('.current-badge');
+      if (badge) badge.remove();
+    }
+  });
+  
+  // Resaltar el actual
+  var currentEl = document.getElementById(idMap[planId]);
+  if (currentEl) {
+    currentEl.style.borderColor = '#22C55E';
+    currentEl.style.borderWidth = '2px';
+    currentEl.style.boxShadow = '0 0 20px rgba(34,197,94,0.3)';
+    
+    // Agregar badge
+    var badge = document.createElement('div');
+    badge.className = 'current-badge';
+    badge.textContent = '✅ Tu plan actual';
+    badge.style.cssText = 'position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#22C55E;color:#0A0E1A;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:900;white-space:nowrap;';
+    currentEl.appendChild(badge);
+  }
+}
+
+// ═══ PLANES ═══
+window.solicitarPlan = function(plan) {
+  var msg = encodeURIComponent('Hola admin de ProfitToLife, quiero cambiar mi plan a *' + plan + '*.
+
+Mi tienda: ' + (window.tiendaActual && window.tiendaActual.slug || 'mi-tienda') + '
+Mi teléfono: ' + (localStorage.getItem('comdiaz_seller_token') ? '(logueado)' : ''));
+  window.open('https://wa.me/5358980267?text=' + msg, '_blank');
+};
+
+window.eliminarCuenta = function() {
+  if (confirm('¿Seguro que quieres eliminar tu cuenta? Irá a la papelera por 30 días.')) {
+    alert('Solicitud enviada al administrador.');
+  }
+};
+</script>
+
+<style id="tabs-logic-css">
+  /* Ocultar los paneles por defecto */
+  .tab-panel { display: none; }
+  /* Mostrar solo el activo */
+  .tab-panel.active { display: block !important; }
+  
+  /* Ajuste para la barra inferior */
+  #bottomTabs { position: fixed; bottom: 0; left: 0; right: 0; background: #131A2E; border-top: 1px solid #1F2A44; display: flex; justify-content: space-around; padding: 8px 0 20px 0; z-index: 99999; }
+  #bottomTabs .tab-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer; }
+  #bottomTabs .tab-btn.active { color: #22C55E; }
+  #bottomTabs .tab-btn .icon { font-size: 20px; }
+  body { padding-bottom: 100px !important; }
+</style>
+
+<div id="tabHistorial" class="tab-panel" style="padding:16px;">
+  <h2 style="color:#FFF;margin-bottom:12px;">🗑️ Papelera de reciclaje</h2>
+  <p style="color:#94A3B8;font-size:13px;margin-bottom:16px;">Los productos eliminados se guardan aquí por 30 días.</p>
+  <div id="historialLista"><p style="color:#94A3B8;text-align:center;padding:20px;">Cargando...</p></div>
+</div>
+
+<div id="tabPlan" class="tab-panel" style="padding:16px;">
+  <h2 style="color:#FFF;margin-bottom:16px;">💳 Mi Plan</h2>
+  
+  <div id="planBasico" style="background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:16px;margin-bottom:12px;position:relative;">
+    <div style="color:#FFF;font-size:18px;font-weight:900;">Básico</div>
+    <div style="color:#22C55E;font-size:24px;font-weight:900;margin-bottom:8px;">Gratis</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">50 productos · 1 foto</p>
+  </div>
+  
+  <div id="planPro" style="background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:16px;margin-bottom:12px;position:relative;">
+    <div style="color:#FFF;font-size:18px;font-weight:900;">Pro</div>
+    <div style="color:#22C55E;font-size:24px;font-weight:900;margin-bottom:8px;">$5 USD/mes</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">200 productos · 3 fotos</p>
+    <button onclick="solicitarPlan('Pro')" style="width:100%;padding:10px;background:#22C55E;color:#0A0E1A;border:none;border-radius:8px;font-weight:800;">🚀 Actualizar a Pro</button>
+  </div>
+  
+  <div id="planPremium" style="background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:16px;position:relative;">
+    <div style="color:#FFF;font-size:18px;font-weight:900;">Premium</div>
+    <div style="color:#FCD34D;font-size:24px;font-weight:900;margin-bottom:8px;">$15 USD/mes</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">Ilimitado · IA · VIP</p>
+    <button onclick="solicitarPlan('Premium')" style="width:100%;padding:10px;background:#FCD34D;color:#0A0E1A;border:none;border-radius:8px;font-weight:800;">👑 Actualizar a Premium</button>
+  </div>
+</div>
+
+<div id="tabConfig" class="tab-panel" style="padding:16px;">
+  <h2 style="color:#FFF;margin-bottom:12px;">⚙️ Configuración</h2>
+  <div style="background:#131A2E;padding:16px;border-radius:12px;border:1px solid #EF4444;">
+    <div style="color:#FFF;font-size:14px;font-weight:800;margin-bottom:8px;">Zona de peligro</div>
+    <p style="color:#94A3B8;font-size:12px;margin-bottom:12px;">Tu cuenta irá a la papelera por 30 días.</p>
+    <button onclick="eliminarCuenta()" style="width:100%;padding:12px;background:rgba(239,68,68,0.15);color:#F87171;border:1px solid rgba(239,68,68,0.3);border-radius:10px;font-weight:800;">🗑️ Eliminar mi cuenta</button>
+  </div>
+</div>
+
+<div id="bottomTabs">
+  <button class="tab-btn active" onclick="showTab('main')"><span class="icon">📦</span> Productos</button>
+  <button class="tab-btn" onclick="showTab('historial')"><span class="icon">🗑️</span> Historial</button>
+  <button class="tab-btn" onclick="showTab('plan')"><span class="icon">💳</span> Mi Plan</button>
+  <button class="tab-btn" onclick="showTab('config')"><span class="icon">⚙️</span> Config</button>
+</div>
+
+<script>
+window.showTab = function(tab) {
+  // Ocultar TODOS los paneles y el contenedor principal
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  var mainContainer = document.querySelector('.container');
+  if (mainContainer) mainContainer.style.setProperty('display', 'none', 'important');
+  
+  // Mostrar el seleccionado
+  if (tab === 'main' && mainContainer) {
+    mainContainer.style.setProperty('display', 'block', 'important');
+  } else if (tab === 'historial') {
+    document.getElementById('tabHistorial').classList.add('active');
+    cargarHistorial();
+  } else if (tab === 'plan') {
+    document.getElementById('tabPlan').classList.add('active');
+    cargarPlanActual();
+  } else if (tab === 'config') {
+    document.getElementById('tabConfig').classList.add('active');
+  }
+  
+  // Actualizar botones
+  document.querySelectorAll('#bottomTabs .tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+};
+
+window.cargarHistorial = function() {
+  var lista = document.getElementById('historialLista');
+  var token = localStorage.getItem('comdiaz_seller_token');
+  if (!lista) return;
+  if (!token) { lista.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:20px;">Debes iniciar sesión</p>'; return; }
+  
+  lista.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:20px;">Cargando...</p>';
+  
+  fetch(window.API_BASE + '/api/seller/products?deleted=true', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok && data.productos && data.productos.length > 0) {
+      lista.innerHTML = data.productos.map(function(p) {
+        return '<div style="background:#0A0E1A;padding:12px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<div><div style="color:#FFF;font-weight:700;">' + (p.titulo || 'Sin título') + '</div><div style="color:#94A3B8;font-size:12px;">$' + (p.precio_usd || 0) + '</div></div>' +
+          '<button onclick="window.recuperarProducto('' + p.id + '')" style="background:#22C55E;color:#0A0E1A;border:none;padding:6px 12px;border-radius:6px;font-weight:700;">Recuperar</button>' +
+        '</div>';
+      }).join('');
+    } else {
+      lista.innerHTML = '<p style="color:#94A3B8;text-align:center;padding:20px;">No hay productos en la papelera</p>';
+    }
+  })
+  .catch(function(e) { lista.innerHTML = '<p style="color:#F87171;text-align:center;padding:20px;">Error: ' + e.message + '</p>'; });
+};
+
+window.recuperarProducto = function(id) {
+  var token = localStorage.getItem('comdiaz_seller_token');
+  fetch(window.API_BASE + '/api/seller/products/' + id + '/recuperar', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r) { if (r.ok) { alert('✅ Producto recuperado'); window.cargarHistorial(); setTimeout(function() { location.reload(); }, 500); } });
+};
+
+window.cargarPlanActual = function() {
+  var token = localStorage.getItem('comdiaz_seller_token');
+  if (!token) return;
+  fetch(window.API_BASE + '/api/seller/plan-info', { headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var planActual = 'basico';
+    if (data.ok) {
+      var p = data.plan_id || (data.seller && data.seller.plan_id) || (data.plan && data.plan.nombre) || 'basico';
+      p = String(p).toLowerCase();
+      if (p.indexOf('premium') >= 0) planActual = 'premium';
+      else if (p.indexOf('pro') >= 0) planActual = 'pro';
+    }
+    resaltarPlan(planActual);
+  })
+  .catch(function() {});
+};
+
+function resaltarPlan(planId) {
+  var idMap = { 'basico': 'planBasico', 'pro': 'planPro', 'premium': 'planPremium' };
+  Object.values(idMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.style.borderColor = '#1F2A44';
+      el.style.borderWidth = '1px';
+      el.style.boxShadow = 'none';
+      var badge = el.querySelector('.current-badge');
+      if (badge) badge.remove();
+    }
+  });
+  
+  var currentEl = document.getElementById(idMap[planId]);
+  if (currentEl) {
+    currentEl.style.borderColor = '#22C55E';
+    currentEl.style.borderWidth = '2px';
+    currentEl.style.boxShadow = '0 0 20px rgba(34,197,94,0.3)';
+    var badge = document.createElement('div');
+    badge.className = 'current-badge';
+    badge.textContent = '✅ Tu plan actual';
+    badge.style.cssText = 'position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#22C55E;color:#0A0E1A;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:900;white-space:nowrap;';
+    currentEl.appendChild(badge);
+  }
+}
+
+window.solicitarPlan = function(plan) {
+  var msg = encodeURIComponent('Hola admin de ProfitToLife, quiero cambiar mi plan a *' + plan + '*.');
+  window.open('https://wa.me/5358980267?text=' + msg, '_blank');
+};
+window.eliminarCuenta = function() {
+  if (confirm('¿Seguro que quieres eliminar tu cuenta? Irá a la papelera por 30 días.')) {
+    alert('Solicitud enviada al administrador.');
+  }
+};
+</script>
+
+<script>
+// Ocultar visualmente los productos NO publicados en la pestaña principal
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function() {
+    var items = document.querySelectorAll('#productsList > div');
+    items.forEach(function(item) {
+      if (item.textContent.indexOf('OCULTO') >= 0) {
+        item.style.display = 'none';
+      } else {
+        item.style.display = 'flex';
+      }
+    });
+  });
+  var target = document.getElementById('productsList');
+  if (target) observer.observe(target, { childList: true, subtree: true, characterData: true });
+});
+</script>
 </body>
 </html>
 
