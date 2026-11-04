@@ -1736,6 +1736,62 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
   });
 })();
 </script>
+
+<style id="final-ui-fix">
+  /* Grid compacto de productos */
+  #productsList {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  #productsList > div {
+    background: #131A2E !important;
+    border: 1px solid #1F2A44 !important;
+    border-radius: 10px !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: auto !important;
+  }
+  #productsList img {
+    width: 100% !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    margin-bottom: 6px !important;
+  }
+  #productsList .product-title, #productsList .product-name {
+    font-size: 11px !important;
+    color: #F1F5F9 !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 4px !important;
+  }
+  #productsList .product-price {
+    color: #22C55E !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+  }
+
+  /* Barra de navegación inferior */
+  #bottomTabs {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #131A2E; border-top: 1px solid #1F2A44;
+    display: flex; justify-content: space-around;
+    padding: 8px 0 20px 0; z-index: 1000;
+  }
+  #bottomTabs .tab-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: #94A3B8; font-size: 10px; font-weight: 600;
+    background: none; border: none; flex: 1; cursor: pointer;
+  }
+  #bottomTabs .tab-btn.active { color: #22C55E; }
+  #bottomTabs .tab-btn .icon { font-size: 20px; }
+  
+  /* Ajuste para que la barra no tape contenido */
+  body { padding-bottom: 100px !important; }
+</style>
 </head>
 <body>
 
@@ -5406,6 +5462,83 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Visibilidad forzada');
   });
 })();
+</script>
+
+
+<script>
+window.showTab = function(tab) {
+  // Ocultar todas las vistas
+  var mainContainer = document.querySelector('.container');
+  var tabH = document.getElementById('tabHistorial');
+  var tabP = document.getElementById('tabPlan');
+  var tabC = document.getElementById('tabConfig');
+
+  if (mainContainer) mainContainer.style.display = (tab === 'main') ? 'block' : 'none';
+  if (tabH) tabH.style.display = (tab === 'historial') ? 'block' : 'none';
+  if (tabP) tabP.style.display = (tab === 'plan') ? 'block' : 'none';
+  if (tabC) tabC.style.display = (tab === 'config') ? 'block' : 'none';
+
+  // Actualizar botón activo
+  var btns = document.querySelectorAll('#bottomTabs .tab-btn');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+  }
+  if (event && event.target) {
+    event.target.closest('.tab-btn').classList.add('active');
+  }
+
+  // Cargar datos si es necesario
+  if (tab === 'historial') {
+    cargarHistorial();
+  }
+};
+
+function cargarHistorial() {
+  var lista = document.getElementById('historialLista');
+  var token = localStorage.getItem('comdiaz_seller_token');
+  if (!lista || !token) return;
+  
+  lista.innerHTML = '<p style="color:#94A3B8; text-align:center;">Cargando...</p>';
+  
+  fetch(API_BASE + '/api/seller/products?deleted=true', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok && data.productos && data.productos.length > 0) {
+      lista.innerHTML = data.productos.map(function(p) {
+        return '<div style="background:#0A0E1A; padding:12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">' +
+          '<div><div style="color:#FFF; font-weight:700;">' + p.titulo + '</div><div style="color:#94A3B8; font-size:12px;">$' + p.precio_usd + '</div></div>' +
+          '<button onclick="recuperarProducto(\'' + p.id + '\')" style="background:#22C55E; color:#0A0E1A; border:none; padding:6px 12px; border-radius:6px; font-weight:700;">Recuperar</button>' +
+        '</div>';
+      }).join('');
+    } else {
+      lista.innerHTML = '<p style="color:#94A3B8; text-align:center; padding:20px;">No hay productos en la papelera</p>';
+    }
+  })
+  .catch(function() { lista.innerHTML = '<p style="color:#F87171; text-align:center;">Error de conexión</p>'; });
+}
+
+function recuperarProducto(id) {
+  var token = localStorage.getItem('comdiaz_seller_token');
+  fetch(API_BASE + '/api/seller/products/' + id + '/recuperar', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(function(r) {
+    if (r.ok) { alert('✅ Producto recuperado'); cargarHistorial(); location.reload(); }
+  });
+}
+
+function solicitarPlan(plan) {
+  var msg = encodeURIComponent('Hola admin, quiero cambiar mi plan a *' + plan + '* en ProfitToLife.');
+  window.open('https://wa.me/5358980267?text=' + msg, '_blank');
+}
+
+function eliminarCuenta() {
+  if (confirm('¿Seguro que quieres eliminar tu cuenta? Irá a la papelera por 30 días.')) {
+    alert('Solicitud enviada al administrador.');
+  }
+}
 </script>
 
 </body>
