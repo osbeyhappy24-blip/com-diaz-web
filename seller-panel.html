@@ -1736,24 +1736,16 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
   });
 })();
 </script>
-<script>window.API_BASE = window.API_BASE || "https://com-diaz-ty2b.onrender.com";</script>
-<style id="clean-tabs-css">
-  .tab-panel { display: none; padding: 16px; padding-bottom: 100px; }
-  .tab-panel.active { display: block; }
-  #bottomTabs {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: #131A2E; border-top: 1px solid #1F2A44;
-    display: flex; justify-content: space-around;
-    padding: 8px 0 20px 0; z-index: 99999;
-  }
-  #bottomTabs .tab-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    color: #94A3B8; font-size: 10px; font-weight: 600;
-    background: none; border: none; flex: 1; cursor: pointer;
-  }
-  #bottomTabs .tab-btn.active { color: #22C55E; }
-  #bottomTabs .icon { font-size: 20px; }
-  body { padding-bottom: 100px; }
+<script>window.API_BASE = "https://com-diaz-ty2b.onrender.com";</script>
+
+<style>
+.tab-view { display: none; padding: 16px; padding-bottom: 100px; }
+.tab-view.visible { display: block; }
+#bottomBar { position: fixed; bottom: 0; left: 0; right: 0; background: #131A2E; border-top: 1px solid #1F2A44; display: flex; justify-content: space-around; padding: 8px 0 20px 0; z-index: 99999; }
+#bottomBar .tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94A3B8; font-size: 10px; font-weight: 600; background: none; border: none; flex: 1; cursor: pointer; padding: 4px; }
+#bottomBar .tab-item.on { color: #22C55E; }
+#bottomBar .tab-icon { font-size: 20px; }
+body { padding-bottom: 100px; }
 </style>
 </head>
 <body>
@@ -5428,105 +5420,96 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-<div id="tabInventario" class="tab-panel">
-  <h2 style="color:#FFF; margin-bottom:12px;">📋 Inventario completo</h2>
-  <p style="color:#94A3B8; font-size:13px; margin-bottom:16px;">Todos tus productos: publicados y ocultos.</p>
-  <div id="inventarioLista" style="display:flex; flex-direction:column; gap:8px;"></div>
+<div id="tab-inventario" class="tab-view">
+  <h2 style="color: #FFFFFF; margin-bottom: 12px;">Inventario completo</h2>
+  <p style="color: #94A3B8; font-size: 13px; margin-bottom: 16px;">Todos tus productos: publicados y ocultos.</p>
+  <div id="inventarioBox"><p style="color: #94A3B8; text-align: center; padding: 20px;">Cargando...</p></div>
 </div>
 
-<div id="tabHistorial" class="tab-panel">
-  <h2 style="color:#FFF; margin-bottom:12px;">🗑️ Papelera de reciclaje</h2>
-  <p style="color:#94A3B8; font-size:13px; margin-bottom:16px;">Productos eliminados. Se guardan 30 días.</p>
-  <div id="historialLista"></div>
+<div id="tab-historial" class="tab-view">
+  <h2 style="color: #FFFFFF; margin-bottom: 12px;">Papelera de reciclaje</h2>
+  <p style="color: #94A3B8; font-size: 13px; margin-bottom: 16px;">Productos eliminados. Se guardan 30 días.</p>
+  <div id="historialBox"><p style="color: #94A3B8; text-align: center; padding: 20px;">Cargando...</p></div>
 </div>
 
-<div id="tabPlan" class="tab-panel">
-  <h2 style="color:#FFF; margin-bottom:16px;">💳 Mi Plan</h2>
-  <div id="planBasico" class="plan-card" style="background:#131A2E; border:1px solid #1F2A44; border-radius:12px; padding:16px; margin-bottom:12px; position:relative;">
-    <div style="color:#FFF; font-size:18px; font-weight:900;">Básico</div>
-    <div style="color:#22C55E; font-size:24px; font-weight:900; margin-bottom:8px;">Gratis</div>
-    <p style="color:#94A3B8; font-size:12px; margin-bottom:12px;">50 productos · 1 foto</p>
+<div id="tab-plan" class="tab-view">
+  <h2 style="color: #FFFFFF; margin-bottom: 16px;">Mi Plan</h2>
+  <div id="plan-basico" style="background: #131A2E; border: 1px solid #1F2A44; border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative;">
+    <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Básico</div>
+    <div style="color: #22C55E; font-size: 24px; font-weight: 900; margin-bottom: 8px;">Gratis</div>
+    <p style="color: #94A3B8; font-size: 12px;">50 productos · 1 foto</p>
   </div>
-  <div id="planPro" class="plan-card" style="background:#131A2E; border:1px solid #1F2A44; border-radius:12px; padding:16px; margin-bottom:12px; position:relative;">
-    <div style="color:#FFF; font-size:18px; font-weight:900;">Pro</div>
-    <div style="color:#22C55E; font-size:24px; font-weight:900; margin-bottom:8px;">$5 USD/mes</div>
-    <p style="color:#94A3B8; font-size:12px; margin-bottom:12px;">200 productos · 3 fotos</p>
-    <button onclick="solicitarPlan('Pro')" style="width:100%; padding:10px; background:#22C55E; color:#0A0E1A; border:none; border-radius:8px; font-weight:800;">Actualizar a Pro</button>
+  <div id="plan-pro" style="background: #131A2E; border: 1px solid #1F2A44; border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative;">
+    <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Pro</div>
+    <div style="color: #22C55E; font-size: 24px; font-weight: 900; margin-bottom: 8px;">$5 USD/mes</div>
+    <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">200 productos · 3 fotos</p>
+    <button onclick="pedirPlan('Pro')" style="width: 100%; padding: 10px; background: #22C55E; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Pro</button>
   </div>
-  <div id="planPremium" class="plan-card" style="background:#131A2E; border:1px solid #1F2A44; border-radius:12px; padding:16px; position:relative;">
-    <div style="color:#FFF; font-size:18px; font-weight:900;">Premium</div>
-    <div style="color:#FCD34D; font-size:24px; font-weight:900; margin-bottom:8px;">$15 USD/mes</div>
-    <p style="color:#94A3B8; font-size:12px; margin-bottom:12px;">Ilimitado · IA · VIP</p>
-    <button onclick="solicitarPlan('Premium')" style="width:100%; padding:10px; background:#FCD34D; color:#0A0E1A; border:none; border-radius:8px; font-weight:800;">Actualizar a Premium</button>
-  </div>
-</div>
-
-<div id="tabConfig" class="tab-panel">
-  <h2 style="color:#FFF; margin-bottom:12px;">⚙️ Configuración</h2>
-  <div style="background:#131A2E; padding:16px; border-radius:12px; border:1px solid #EF4444;">
-    <div style="color:#FFF; font-size:14px; font-weight:800; margin-bottom:8px;">Zona de peligro</div>
-    <p style="color:#94A3B8; font-size:12px; margin-bottom:12px;">Tu cuenta irá a la papelera por 30 días.</p>
-    <button onclick="eliminarCuenta()" style="width:100%; padding:12px; background:rgba(239,68,68,0.15); color:#F87171; border:1px solid rgba(239,68,68,0.3); border-radius:10px; font-weight:800;">Eliminar mi cuenta</button>
+  <div id="plan-premium" style="background: #131A2E; border: 1px solid #1F2A44; border-radius: 12px; padding: 16px; position: relative;">
+    <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Premium</div>
+    <div style="color: #FCD34D; font-size: 24px; font-weight: 900; margin-bottom: 8px;">$15 USD/mes</div>
+    <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">Ilimitado · IA · VIP</p>
+    <button onclick="pedirPlan('Premium')" style="width: 100%; padding: 10px; background: #FCD34D; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Premium</button>
   </div>
 </div>
 
-<div id="bottomTabs">
-  <button class="tab-btn active" data-tab="main" onclick="showTab('main', this)">
-    <span class="icon">📦</span><span>Productos</span>
+<div id="tab-config" class="tab-view">
+  <h2 style="color: #FFFFFF; margin-bottom: 12px;">Configuración</h2>
+  <div style="background: #131A2E; padding: 16px; border-radius: 12px; border: 1px solid #EF4444;">
+    <div style="color: #FFFFFF; font-size: 14px; font-weight: 800; margin-bottom: 8px;">Zona de peligro</div>
+    <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">Tu cuenta irá a la papelera por 30 días.</p>
+    <button onclick="borrarCuenta()" style="width: 100%; padding: 12px; background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; font-weight: 800;">Eliminar mi cuenta</button>
+  </div>
+</div>
+
+<div id="bottomBar">
+  <button id="btn-main" class="tab-item on" onclick="cambiarTab('main')">
+    <span class="tab-icon">📦</span><span>Productos</span>
   </button>
-  <button class="tab-btn" data-tab="inventario" onclick="showTab('inventario', this)">
-    <span class="icon">📋</span><span>Inventario</span>
+  <button id="btn-inventario" class="tab-item" onclick="cambiarTab('inventario')">
+    <span class="tab-icon">📋</span><span>Inventario</span>
   </button>
-  <button class="tab-btn" data-tab="historial" onclick="showTab('historial', this)">
-    <span class="icon">🗑️</span><span>Historial</span>
+  <button id="btn-historial" class="tab-item" onclick="cambiarTab('historial')">
+    <span class="tab-icon">🗑️</span><span>Historial</span>
   </button>
-  <button class="tab-btn" data-tab="plan" onclick="showTab('plan', this)">
-    <span class="icon">💳</span><span>Mi Plan</span>
+  <button id="btn-plan" class="tab-item" onclick="cambiarTab('plan')">
+    <span class="tab-icon">💳</span><span>Mi Plan</span>
   </button>
-  <button class="tab-btn" data-tab="config" onclick="showTab('config', this)">
-    <span class="icon">⚙️</span><span>Config</span>
+  <button id="btn-config" class="tab-item" onclick="cambiarTab('config')">
+    <span class="tab-icon">⚙️</span><span>Config</span>
   </button>
 </div>
 
 <script>
-window.showTab = function(tabName, btnEl) {
-  // Ocultar paneles
-  var panels = document.querySelectorAll('.tab-panel');
-  for (var i = 0; i < panels.length; i++) {
-    panels[i].classList.remove('active');
+function cambiarTab(name) {
+  var views = document.querySelectorAll('.tab-view');
+  for (var i = 0; i < views.length; i++) { views[i].classList.remove('visible'); }
+  var container = document.querySelector('.container');
+  if (container) { container.style.display = 'none'; }
+  
+  var tabs = ['main', 'inventario', 'historial', 'plan', 'config'];
+  for (var j = 0; j < tabs.length; j++) {
+    var btn = document.getElementById('btn-' + tabs[j]);
+    if (btn) btn.classList.remove('on');
   }
+  var activeBtn = document.getElementById('btn-' + name);
+  if (activeBtn) activeBtn.classList.add('on');
   
-  // Ocultar contenedor principal
-  var mainContainer = document.querySelector('.container');
-  if (mainContainer) mainContainer.style.display = 'none';
-  
-  // Mostrar panel seleccionado
-  if (tabName === 'main') {
-    if (mainContainer) mainContainer.style.display = 'block';
+  if (name === 'main') {
+    if (container) container.style.display = 'block';
   } else {
-    var panel = document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
-    if (panel) panel.classList.add('active');
+    var view = document.getElementById('tab-' + name);
+    if (view) view.classList.add('visible');
+    if (name === 'inventario') cargarInventario();
+    if (name === 'historial') cargarHistorial();
+    if (name === 'plan') cargarPlanActual();
   }
-  
-  // Actualizar botones activos
-  var btns = document.querySelectorAll('#bottomTabs .tab-btn');
-  for (var j = 0; j < btns.length; j++) {
-    btns[j].classList.remove('active');
-  }
-  if (btnEl) btnEl.classList.add('active');
-  
-  // Cargar datos según tab
-  if (tabName === 'inventario') cargarInventario();
-  if (tabName === 'historial') cargarHistorial();
-  if (tabName === 'plan') cargarPlanActual();
-};
+}
 
-window.cargarInventario = function() {
-  var cont = document.getElementById('inventarioLista');
+function cargarInventario() {
+  var box = document.getElementById('inventarioBox');
   var token = localStorage.getItem('comdiaz_seller_token');
-  if (!cont || !token) return;
-  
-  cont.innerHTML = '<p style="color:#94A3B8; text-align:center; padding:20px;">Cargando...</p>';
+  if (!box || !token) return;
   
   fetch(window.API_BASE + '/api/seller/products', {
     headers: { 'Authorization': 'Bearer ' + token }
@@ -5537,30 +5520,28 @@ window.cargarInventario = function() {
       var html = '';
       for (var i = 0; i < data.productos.length; i++) {
         var p = data.productos[i];
-        var estado = p.publicado ? 'PUBLICADO' : 'OCULTO';
+        var estado = p.publicado ? 'Publicado' : 'Oculto';
         var color = p.publicado ? '#22C55E' : '#94A3B8';
-        html += '<div style="background:#0A0E1A; padding:12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">';
-        html += '<div><div style="color:#FFF; font-weight:700; font-size:13px;">' + (p.titulo || 'Sin título') + '</div>';
-        html += '<div style="color:' + color + '; font-size:11px; font-weight:700;">' + estado + ' · $' + (p.precio_usd || 0) + '</div></div>';
-        html += '<button onclick="window.location.href=\'producto.html?id=' + p.id + '\'" style="background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3); padding:6px 12px; border-radius:6px; font-weight:700; font-size:11px;">Ver</button>';
+        html += '<div style="background: #0A0E1A; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">';
+        html += '<div><div style="color: #FFFFFF; font-weight: 700; font-size: 13px;">' + (p.titulo || 'Sin titulo') + '</div>';
+        html += '<div style="color: ' + color + '; font-size: 11px; font-weight: 700;">' + estado + ' | $' + (p.precio_usd || 0) + '</div></div>';
+        html += '<a href="producto.html?id=' + p.id + '" style="background: rgba(34,197,94,0.15); color: #22C55E; border: 1px solid rgba(34,197,94,0.3); padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 11px; text-decoration: none;">Ver</a>';
         html += '</div>';
       }
-      cont.innerHTML = html;
+      box.innerHTML = html;
     } else {
-      cont.innerHTML = '<p style="color:#94A3B8; text-align:center; padding:20px;">No tienes productos</p>';
+      box.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 20px;">No tienes productos</p>';
     }
   })
-  .catch(function(e) {
-    cont.innerHTML = '<p style="color:#F87171; text-align:center; padding:20px;">Error: ' + e.message + '</p>';
+  .catch(function() {
+    box.innerHTML = '<p style="color: #F87171; text-align: center; padding: 20px;">Error al cargar</p>';
   });
-};
+}
 
-window.cargarHistorial = function() {
-  var cont = document.getElementById('historialLista');
+function cargarHistorial() {
+  var box = document.getElementById('historialBox');
   var token = localStorage.getItem('comdiaz_seller_token');
-  if (!cont || !token) return;
-  
-  cont.innerHTML = '<p style="color:#94A3B8; text-align:center; padding:20px;">Cargando...</p>';
+  if (!box || !token) return;
   
   fetch(window.API_BASE + '/api/seller/products?deleted=true', {
     headers: { 'Authorization': 'Bearer ' + token }
@@ -5571,36 +5552,37 @@ window.cargarHistorial = function() {
       var html = '';
       for (var i = 0; i < data.productos.length; i++) {
         var p = data.productos[i];
-        html += '<div style="background:#0A0E1A; padding:12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">';
-        html += '<div><div style="color:#FFF; font-weight:700;">' + (p.titulo || 'Sin título') + '</div><div style="color:#94A3B8; font-size:12px;">$' + (p.precio_usd || 0) + '</div></div>';
-        html += '<button onclick="recuperarProducto(\'' + p.id + '\')" style="background:#22C55E; color:#0A0E1A; border:none; padding:6px 12px; border-radius:6px; font-weight:700; font-size:11px;">Recuperar</button>';
+        html += '<div style="background: #0A0E1A; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">';
+        html += '<div><div style="color: #FFFFFF; font-weight: 700;">' + (p.titulo || 'Sin titulo') + '</div>';
+        html += '<div style="color: #94A3B8; font-size: 12px;">$' + (p.precio_usd || 0) + '</div></div>';
+        html += '<button onclick="recuperar('' + p.id + '')" style="background: #22C55E; color: #0A0E1A; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer;">Recuperar</button>';
         html += '</div>';
       }
-      cont.innerHTML = html;
+      box.innerHTML = html;
     } else {
-      cont.innerHTML = '<p style="color:#94A3B8; text-align:center; padding:20px;">No hay productos eliminados</p>';
+      box.innerHTML = '<p style="color: #94A3B8; text-align: center; padding: 20px;">No hay productos eliminados</p>';
     }
   })
-  .catch(function(e) {
-    cont.innerHTML = '<p style="color:#F87171; text-align:center; padding:20px;">Error al cargar</p>';
+  .catch(function() {
+    box.innerHTML = '<p style="color: #F87171; text-align: center; padding: 20px;">Error al cargar</p>';
   });
-};
+}
 
-window.recuperarProducto = function(id) {
+function recuperar(id) {
   var token = localStorage.getItem('comdiaz_seller_token');
   fetch(window.API_BASE + '/api/seller/products/' + id + '/recuperar', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + token }
-  }).then(function(r) {
+  })
+  .then(function(r) {
     if (r.ok) {
       alert('Producto recuperado');
       cargarHistorial();
-      setTimeout(function() { location.reload(); }, 1000);
     }
   });
-};
+}
 
-window.cargarPlanActual = function() {
+function cargarPlanActual() {
   var token = localStorage.getItem('comdiaz_seller_token');
   if (!token) return;
   
@@ -5609,75 +5591,62 @@ window.cargarPlanActual = function() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    var planActual = 'basico';
+    var actual = 'basico';
     if (data.ok) {
-      var p = data.plan_id || (data.seller && data.seller.plan_id) || (data.plan && data.plan.nombre) || 'basico';
+      var p = data.plan_id || 'basico';
       p = String(p).toLowerCase();
-      if (p.indexOf('premium') >= 0) planActual = 'premium';
-      else if (p.indexOf('pro') >= 0) planActual = 'pro';
+      if (p.indexOf('premium') >= 0) actual = 'premium';
+      else if (p.indexOf('pro') >= 0) actual = 'pro';
     }
-    resaltarPlan(planActual);
+    marcarPlan(actual);
   })
   .catch(function() {});
-};
+}
 
-function resaltarPlan(planId) {
-  var idMap = { 'basico': 'planBasico', 'pro': 'planPro', 'premium': 'planPremium' };
-  var keys = ['basico', 'pro', 'premium'];
-  
-  for (var i = 0; i < keys.length; i++) {
-    var el = document.getElementById(idMap[keys[i]]);
+function marcarPlan(actual) {
+  var ids = ['basico', 'pro', 'premium'];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById('plan-' + ids[i]);
     if (el) {
       el.style.borderColor = '#1F2A44';
       el.style.borderWidth = '1px';
       el.style.boxShadow = 'none';
-      var old = el.querySelector('.current-badge');
+      var old = el.querySelector('.mi-plan-badge');
       if (old) old.remove();
     }
   }
   
-  var currentEl = document.getElementById(idMap[planId]);
-  if (currentEl) {
-    currentEl.style.borderColor = '#22C55E';
-    currentEl.style.borderWidth = '2px';
-    currentEl.style.boxShadow = '0 0 20px rgba(34,197,94,0.3)';
-    var badge = document.createElement('div');
-    badge.className = 'current-badge';
-    badge.textContent = 'Tu plan actual';
-    badge.style.cssText = 'position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#22C55E; color:#0A0E1A; padding:4px 12px; border-radius:12px; font-size:11px; font-weight:900; white-space:nowrap;';
-    currentEl.appendChild(badge);
+  var cur = document.getElementById('plan-' + actual);
+  if (cur) {
+    cur.style.borderColor = '#22C55E';
+    cur.style.borderWidth = '2px';
+    cur.style.boxShadow = '0 0 20px rgba(34,197,94,0.3)';
+    var b = document.createElement('div');
+    b.className = 'mi-plan-badge';
+    b.textContent = 'Tu plan actual';
+    b.style.cssText = 'position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #22C55E; color: #0A0E1A; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; white-space: nowrap;';
+    cur.appendChild(b);
   }
 }
 
-window.solicitarPlan = function(plan) {
-  var msg = encodeURIComponent('Hola admin de ProfitToLife, quiero cambiar mi plan a ' + plan);
+function pedirPlan(plan) {
+  var msg = encodeURIComponent('Hola admin, quiero cambiar mi plan a ' + plan);
   window.open('https://wa.me/5358980267?text=' + msg, '_blank');
-};
+}
 
-window.eliminarCuenta = function() {
+function borrarCuenta() {
   if (confirm('Seguro que quieres eliminar tu cuenta? Iras a la papelera por 30 dias.')) {
     alert('Solicitud enviada al administrador.');
   }
-};
-</script>
+}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() {
-    var observer = new MutationObserver(function() {
-      var items = document.querySelectorAll('#productsList > div');
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].textContent.indexOf('OCULTO') >= 0) {
-          items[i].style.display = 'none';
-        } else {
-          items[i].style.display = 'flex';
-        }
-      }
-    });
-    var target = document.getElementById('productsList');
-    if (target) observer.observe(target, { childList: true, subtree: true, characterData: true });
-  }, 1000);
-});
+window.cambiarTab = cambiarTab;
+window.cargarInventario = cargarInventario;
+window.cargarHistorial = cargarHistorial;
+window.recuperar = recuperar;
+window.cargarPlanActual = cargarPlanActual;
+window.pedirPlan = pedirPlan;
+window.borrarCuenta = borrarCuenta;
 </script>
 </body>
 </html>
