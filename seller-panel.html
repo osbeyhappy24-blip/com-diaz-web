@@ -5349,6 +5349,32 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 3000);
 });
 </script>
+
+<script>
+// ═══ FORZAR VISIBILIDAD ABSOLUTA ═══
+(function() {
+  // 1. Quitar cualquier display:none del body y container
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.style.display = 'block';
+    document.body.style.visibility = 'visible';
+    document.body.style.opacity = '1';
+    
+    var containers = document.querySelectorAll('.container, .header');
+    containers.forEach(function(el) {
+      el.style.display = el.classList.contains('header') ? 'flex' : 'block';
+      el.style.visibility = 'visible';
+      el.style.opacity = '1';
+    });
+    
+    // 2. Quitar el banner de IA si existe y está tapando
+    var iaBanner = document.getElementById('iaBanner');
+    if (iaBanner) iaBanner.style.display = 'none';
+    
+    console.log('✅ Visibilidad forzada');
+  });
+})();
+</script>
+
 </body>
 </html>
 
