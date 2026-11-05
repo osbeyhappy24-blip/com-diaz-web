@@ -6042,6 +6042,26 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+
+<script id="ptl-botones-bruteforce">
+document.addEventListener('DOMContentLoaded', () => {
+    // Revisar cada segundo si los botones ya cargaron
+    setInterval(() => {
+        const btns = document.querySelectorAll('button');
+        btns.forEach(b => {
+            if (b.textContent.includes('Actualizar a Pro') && !b.dataset.fixed) {
+                b.dataset.fixed = 'true';
+                b.onclick = (e) => { e.preventDefault(); window.abrirModalPago('Pro ($5 USD/mes)'); };
+            }
+            if (b.textContent.includes('Actualizar a Premium') && !b.dataset.fixed) {
+                b.dataset.fixed = 'true';
+                b.onclick = (e) => { e.preventDefault(); window.abrirModalPago('Premium ($15 USD/mes)'); };
+            }
+        });
+    }, 1000);
+});
+</script>
+
 </body>
 </html>
 
