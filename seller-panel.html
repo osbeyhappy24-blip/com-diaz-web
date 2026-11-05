@@ -6031,6 +6031,38 @@ function pedirPlan(plan) {
 }
 </script>
 
+
+<script id="ptl-planes-definitivo">
+document.addEventListener('DOMContentLoaded', () => {
+    // Observador que revisa cada segundo si los botones ya se dibujaron
+    const observer = new MutationObserver(() => {
+        const botones = Array.from(document.querySelectorAll('button, a, div'));
+        botones.forEach(b => {
+            const txt = (b.textContent || '').trim();
+            
+            if (txt === 'Actualizar a Pro' && !b.dataset.ptlFixed) {
+                b.dataset.ptlFixed = 'true';
+                b.onclick = null; // Limpiar onclick viejo
+                b.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (typeof abrirModalPago === 'function') abrirModalPago('Pro ($5 USD/mes)');
+                });
+            }
+            if (txt === 'Actualizar a Premium' && !b.dataset.ptlFixed) {
+                b.dataset.ptlFixed = 'true';
+                b.onclick = null;
+                b.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (typeof abrirModalPago === 'function') abrirModalPago('Premium ($15 USD/mes)');
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+
 </body>
 </html>
 
