@@ -1790,97 +1790,10 @@ body { padding-bottom: 100px; }
 
 
 
-<style id="ptl-final-css">
-  @media (max-width: 768px) {
-    #productsList {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 8px !important;
-        padding: 5px !important;
-    }
-    .ptl-product-card {
-        background: #131A2E;
-        border: 1px solid #1F2A44;
-        border-radius: 8px;
-        padding: 8px;
-        text-align: center;
-        cursor: pointer;
-        transition: transform 0.1s;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        overflow: hidden;
-    }
-    .ptl-product-card:active { transform: scale(0.95); }
-    .ptl-product-img {
-        width: 100%;
-        height: 70px;
-        object-fit: cover;
-        border-radius: 6px;
-        margin-bottom: 5px;
-    }
-    .ptl-product-price {
-        color: #22C55E;
-        font-size: 11px;
-        font-weight: bold;
-        white-space: nowrap;
-    }
-    .ptl-product-title-mini {
-        color: #94A3B8;
-        font-size: 9px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-        margin-top: 2px;
-    }
-    .ptl-modal-acciones {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(10, 14, 26, 0.85);
-        z-index: 99999;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(4px);
-    }
-    .ptl-modal-content {
-        background: #131A2E;
-        padding: 20px;
-        border-radius: 12px;
-        width: 85%;
-        max-width: 350px;
-        border: 1px solid #1F2A44;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-  }
-</style>
 
 
-<style id="ptl-bugs-fix-css">
-  /* Ocultar el modal de pago por defecto */
-  #ptlModalPago {
-      display: none !important;
-      position: fixed !important;
-      top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;
-      background: rgba(10, 14, 26, 0.85) !important;
-      z-index: 99999 !important;
-      justify-content: center !important;
-      align-items: center !important;
-  }
-  /* Estilo del buscador */
-  #ptlSearchBar {
-      width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #1F2A44;
-      background: #131A2E;
-      color: #F1F5F9;
-      font-size: 14px;
-      box-sizing: border-box;
-  }
-</style>
+
+
 
 </head>
 <body>
@@ -5637,13 +5550,13 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Pro</div>
     <div style="color: #22C55E; font-size: 24px; font-weight: 900; margin-bottom: 8px;">$5 USD/mes</div>
     <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">200 productos · 3 fotos</p>
-    <button onclick="abrirModalPago('Pro ($5 USD/mes)')" style="width: 100%; padding: 10px; background: #22C55E; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Pro</button>
+    <button onclick="window.abrirModalPago('Pro ($5 USD/mes)')" style="width: 100%; padding: 10px; background: #22C55E; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Pro</button>
   </div>
   <div id="plan-premium" style="background: #131A2E; border: 1px solid #1F2A44; border-radius: 12px; padding: 16px; position: relative;">
     <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Premium</div>
     <div style="color: #FCD34D; font-size: 24px; font-weight: 900; margin-bottom: 8px;">$15 USD/mes</div>
     <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">Ilimitado · IA · VIP</p>
-    <button onclick="abrirModalPago('Premium ($15 USD/mes)')" style="width: 100%; padding: 10px; background: #FCD34D; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Premium</button>
+    <button onclick="window.abrirModalPago('Premium ($15 USD/mes)')" style="width: 100%; padding: 10px; background: #FCD34D; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Premium</button>
   </div>
 </div>
 
@@ -6030,36 +5943,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-<script id="ptl-kill-sw">
-// Desactivar Service Worker para evitar caché viejo
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-            registration.unregister();
-            console.log('Service Worker desregistrado');
-        }
-    });
-}
-</script>
 
 
-<script id="ptl-botones-bruteforce">
-document.addEventListener('DOMContentLoaded', () => {
-    // Revisar cada segundo si los botones ya cargaron
-    setInterval(() => {
-        const btns = document.querySelectorAll('button');
-        btns.forEach(b => {
-            if (b.textContent.includes('Actualizar a Pro') && !b.dataset.fixed) {
-                b.dataset.fixed = 'true';
-                b.onclick = (e) => { e.preventDefault(); window.abrirModalPago('Pro ($5 USD/mes)'); };
-            }
-            if (b.textContent.includes('Actualizar a Premium') && !b.dataset.fixed) {
-                b.dataset.fixed = 'true';
-                b.onclick = (e) => { e.preventDefault(); window.abrirModalPago('Premium ($15 USD/mes)'); };
-            }
-        });
-    }, 1000);
-});
+
+<style id="ptl-modal-css">
+  #ptlModalPago {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 14, 26, 0.85); z-index: 999999;
+      justify-content: center; align-items: center; backdrop-filter: blur(4px);
+  }
+  #ptlModalPago.ptl-show {
+      display: flex !important; /* Solo es flex cuando tiene la clase .ptl-show */
+  }
+  .ptl-modal-box {
+      background: #131A2E; border: 1px solid #1F2A44; border-radius: 16px;
+      padding: 24px; width: 90%; max-width: 400px; text-align: center; color: #F1F5F9;
+  }
+  .ptl-btn-pago {
+      display: block; width: 100%; padding: 14px; margin: 10px 0;
+      border-radius: 8px; font-weight: bold; font-size: 16px; border: none; cursor: pointer;
+  }
+  .ptl-btn-transfer { background: #0056b3; color: white; }
+  .ptl-btn-wa { background: #22C55E; color: white; text-decoration: none; box-sizing: border-box; }
+</style>
+
+<div id="ptlModalPago">
+  <div class="ptl-modal-box">
+    <h3 style="margin-top:0; font-size: 20px;">Actualizar Plan</h3>
+    <p style="color:#94A3B8; font-size:14px;">Estás a punto de actualizar a <b id="ptlPlanNombre" style="color:#22C55E;"></b></p>
+    
+    <button class="ptl-btn-pago ptl-btn-transfer" onclick="alert('⚠️ IMPORTANTE: Debes estar autenticado en la app de Transfermóvil antes de realizar la transferencia.')">
+      💳 Pagar por Transfermóvil
+    </button>
+    
+    <div style="background:#0A0E1A; padding:15px; border-radius:8px; margin:15px 0; border:1px dashed #FCD34D;">
+      <p style="margin:0; font-size:12px; color:#94A3B8;">Cuenta destino (Pago Seguro):</p>
+      <p style="font-size:22px; font-weight:bold; color:#FCD34D; letter-spacing:2px; user-select:none; -webkit-user-select:none; pointer-events:none; margin:5px 0;">5358980267</p>
+      <p style="margin:0; font-size:10px; color:#F59E0B;">Protegido contra copia</p>
+    </div>
+
+    <a href="#" id="ptlBtnWA" target="_blank" class="ptl-btn-pago ptl-btn-wa">
+      💬 Contactar al Administrador
+    </a>
+    
+    <button onclick="document.getElementById('ptlModalPago').classList.remove('ptl-show')" style="margin-top:15px; background:none; border:none; color:#94A3B8; text-decoration:underline; cursor:pointer;">
+      Cancelar
+    </button>
+  </div>
+</div>
+
+<script id="ptl-planes-event-delegation">
+// Esta función abre el modal agregando la clase .ptl-show
+window.abrirModalPago = function(plan) {
+    const modal = document.getElementById('ptlModalPago');
+    if (modal) {
+        document.getElementById('ptlPlanNombre').innerText = plan;
+        modal.classList.add('ptl-show'); // Esto quita el display:none y pone display:flex
+        
+        const waBtn = document.getElementById('ptlBtnWA');
+        if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
+    } else {
+        alert("Error: El modal no existe en el HTML.");
+    }
+};
+
+// DELEGACIÓN DE EVENTOS: Atrapa cualquier clic en la pantalla
+document.addEventListener('click', function(e) {
+    // Buscamos si el clic fue en un botón o en un texto que diga "Actualizar a Pro/Premium"
+    let target = e.target;
+    
+    // Si el clic fue en un ícono dentro del botón, subimos al elemento padre
+    if (target.tagName !== 'BUTTON' && target.tagName !== 'A') {
+        target = target.closest('button') || target.closest('a') || target;
+    }
+
+    const text = (target.innerText || target.textContent || '').trim();
+
+    if (text.includes('Actualizar a Pro')) {
+        e.preventDefault(); e.stopPropagation();
+        window.abrirModalPago('Pro ($5 USD/mes)');
+    } else if (text.includes('Actualizar a Premium')) {
+        e.preventDefault(); e.stopPropagation();
+        window.abrirModalPago('Premium ($15 USD/mes)');
+    }
+}, true); // El 'true' hace que capture el evento antes que otros scripts
 </script>
 
 </body>
