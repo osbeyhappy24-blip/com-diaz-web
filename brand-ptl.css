@@ -150,3 +150,63 @@
   border-color: var(--ptl-green);
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   COLORES OFICIALES PROFITTOLIFE (CONTRASTE GARANTIZADO)
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Fondo */
+  --ptl-bg: #0A0E1A;
+  --ptl-card: #131A2E;
+  --ptl-border: #1F2A44;
+  
+  /* Marca */
+  --ptl-navy: #0B132B;
+  --ptl-green: #22C55E;
+  --ptl-green-light: #4ADE80;
+  --ptl-yellow: #FCD34D;
+  --ptl-orange: #F59E0B;
+  
+  /* Textos con CONTRASTE GARANTIZADO sobre fondo oscuro */
+  --ptl-text: #FFFFFF;              /* Texto principal: BLANCO */
+  --ptl-text-soft: #F1F5F9;         /* Texto suave: casi blanco */
+  --ptl-text-muted: #CBD5E1;        /* Texto secundario: gris claro */
+  --ptl-text-dim: #94A3B8;          /* Texto terciario: gris medio */
+  
+  /* Textos sobre fondos de marca */
+  --ptl-text-on-green: #0A0E1A;     /* Texto sobre verde: navy oscuro */
+  --ptl-text-on-yellow: #0A0E1A;    /* Texto sobre amarillo: navy oscuro */
+  --ptl-text-on-orange: #0A0E1A;    /* Texto sobre naranja: navy oscuro */
+  
+  /* Estados */
+  --ptl-success: #22C55E;
+  --ptl-warning: #FCD34D;
+  --ptl-danger: #EF4444;
+  --ptl-info: #60A5FA;
+}
+
+/* ═══ Garantizar contraste en todos los textos ═══ */
+body, p, span, div, li, td, th, label, small {
+  color: var(--ptl-text);
+}
+
+.text-muted, .muted, small.text-muted {
+  color: var(--ptl-text-muted) !important;
+}
+
+.text-dim {
+  color: var(--ptl-text-dim) !important;
+}
+
+/* Textos sobre botones de marca */
+.ptl-btn-primary,
+button[type="submit"],
+.btn-primary {
+  color: var(--ptl-text-on-green) !important;
+}
+
+.btn-warning, .ptl-badge-yellow {
+  color: var(--ptl-text-on-yellow) !important;
+}

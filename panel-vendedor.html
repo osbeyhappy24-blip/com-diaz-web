@@ -1771,6 +1771,41 @@ body { padding-bottom: 100px; }
     display: none !important;
   }
 </style>
+
+<style id="ptl-ux-fixes">
+  /* 1. Arreglar botón guardar tapado por la barra inferior */
+  body { padding-bottom: 120px !important; }
+  
+  /* 2. Productos en cuadrícula (más pequeños y compartidos) */
+  .product-list, #mis-productos, .grid-productos { 
+      display: grid !important; 
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; 
+      gap: 15px !important; 
+  }
+  
+  /* 3. Proteger número de cuenta contra capturas/copias */
+  .no-copy { 
+      user-select: none !important; 
+      -webkit-user-select: none !important; 
+      pointer-events: none; 
+  }
+  
+  /* 4. Diseño del Modal de Pago */
+  .modal-pago { 
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; 
+  }
+  .modal-pago-content { 
+      background: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; 
+  }
+  .btn-pago-opcion { 
+      display: block; width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; 
+      text-decoration: none; font-weight: bold; color: white; border: none; cursor: pointer;
+  }
+  .btn-transfermovil { background: #0056b3; }
+  .btn-whatsapp { background: #25D366; }
+</style>
+
 </head>
 <body>
 
@@ -5780,6 +5815,71 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 500);
 })();
 </script>
+
+<script id="ptl-ux-js">
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. INYECTAR BUSCADOR ---
+    const contenedorProductos = document.querySelector('.product-list, #mis-productos, .grid-productos');
+    if (contenedorProductos && !document.getElementById('buscador-ptl')) {
+        const buscador = document.createElement('input');
+        buscador.id = 'buscador-ptl';
+        buscador.placeholder = '🔍 Buscar producto...';
+        buscador.style = 'width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;';
+        contenedorProductos.parentNode.insertBefore(buscador, contenedorProductos);
+        
+        buscador.addEventListener('input', (e) => {
+            const texto = e.target.value.toLowerCase();
+            const items = contenedorProductos.children;
+            for (let item of items) {
+                item.style.display = item.textContent.toLowerCase().includes(texto) ? '' : 'none';
+            }
+        });
+    }
+
+    // --- 2. INYECTAR MODAL DE PAGOS ---
+    if (!document.getElementById('modalPagoPTL')) {
+        const modalHTML = `
+        <div id="modalPagoPTL" class="modal-pago">
+            <div class="modal-pago-content">
+                <h3 style="margin-top:0; color:#333;">Actualizar Plan</h3>
+                <p style="color:#666; font-size:14px;">Elige tu método de pago para <b id="planSeleccionadoNombre"></b></p>
+                
+                <button class="btn-pago-opcion btn-transfermovil" onclick="alert('Aquí se abrirá el enlace o instrucciones de Transfermóvil')">
+                    💳 Pagar por Transfermóvil
+                </button>
+                <div style="background:#f0f0f0; padding:10px; border-radius:8px; margin-bottom:15px;">
+                    <p style="margin:0; font-size:12px; color:#555;">Cuenta destino:</p>
+                    <p class="no-copy" style="margin:5px 0; font-size:18px; font-weight:bold;">5358980267</p>
+                    <p style="margin:0; font-size:10px; color:#999;">(Protegido contra copia)</p>
+                </div>
+
+                <a href="https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20" target="_blank" class="btn-pago-opcion btn-whatsapp">
+                    💬 Contactar al Administrador
+                </a>
+                
+                <button onclick="document.getElementById('modalPagoPTL').style.display='none'" style="margin-top:10px; background:none; border:none; color:#999; text-decoration:underline; cursor:pointer;">Cancelar</button>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    // --- 3. INTERCEPTAR BOTONES DE ACTUALIZAR PLAN ---
+    const btnsActualizar = Array.from(document.querySelectorAll('button, a')).filter(el => el.textContent.includes('Actualizar a Pro') || el.textContent.includes('Actualizar a Premium'));
+    btnsActualizar.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const plan = btn.textContent.includes('Pro') ? 'Pro' : 'Premium';
+            document.getElementById('planSeleccionadoNombre').innerText = plan;
+            document.getElementById('modalPagoPTL').style.display = 'flex';
+            
+            // Actualizar link de whatsapp dinámicamente
+            const waBtn = document.querySelector('.btn-whatsapp');
+            waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}`;
+        });
+    });
+});
+</script>
+
 </body>
 </html>
 

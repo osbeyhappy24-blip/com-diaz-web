@@ -328,7 +328,30 @@
   }
 
   // ─── Upload con XHR ───
-  function apiUpload(payload) {
+  
+function comprimirBase64(base64Str, maxWidth = 800, quality = 0.7) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(base64Str);
+  });
+}
+
+function apiUpload(payload) {
     return new Promise((resolve) => {
       try {
         const xhr = new XMLHttpRequest();
@@ -375,7 +398,8 @@
         // 1) Subir foto si no tiene URL
         let imgUrl = p.url;
         if (!imgUrl && p.base64) {
-          const up = await apiUpload({ image: p.base64, nombre: 'local_' + Date.now() });
+          const imgComprimida = await comprimirBase64(p.base64);
+          const up = await apiUpload({ image: imgComprimida, nombre: 'local_' + Date.now() });
           if (!up || !up.ok || !up.url) throw new Error('Upload: ' + (up?.error || '?'));
           imgUrl = up.url;
           p.url = imgUrl;
