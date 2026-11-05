@@ -2102,7 +2102,8 @@ body { padding-bottom: 100px; }
   <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
 
   <!-- Lista de productos -->
-  <div class="products-list" id="productsList">
+  <input type="text" id="ptlSearchBar" placeholder="🔍 Buscar producto publicado..." oninput="renderProductos()" style="width:100%; padding:12px 15px; margin:10px 0; border-radius:8px; border:1px solid #1F2A44; background:#131A2E; color:#F1F5F9; font-size:14px; box-sizing:border-box;">
+<div class="products-list" id="productsList">
     <div class="empty">Cargando productos...</div>
   </div>
 
@@ -6009,6 +6010,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
+<script id="ptl-fix-planes">
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const botones = Array.from(document.querySelectorAll('button, a, div'));
+        botones.forEach(b => {
+            const txt = (b.textContent || '').trim();
+            if (txt === 'Actualizar a Pro' || txt.includes('Actualizar a Pro')) {
+                b.onclick = null; // Limpiar eventos viejos
+                b.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (typeof abrirModalPago === 'function') abrirModalPago('Pro ($5 USD/mes)');
+                    else alert('Error: abrirModalPago no definido');
+                });
+            }
+            if (txt === 'Actualizar a Premium' || txt.includes('Actualizar a Premium')) {
+                b.onclick = null;
+                b.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (typeof abrirModalPago === 'function') abrirModalPago('Premium ($15 USD/mes)');
+                    else alert('Error: abrirModalPago no definido');
+                });
+            }
+        });
+    }, 1000); // Esperar 1s para que el JS original cargue los planes
+});
+</script>
 
 </body>
 </html>
