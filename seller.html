@@ -327,6 +327,70 @@ select:disabled { opacity: .5; cursor: not-allowed; }
   #successMsg { display: none !important; }
   #successMsg.show { display: flex !important; }
 </style>
+
+<style id="ptl-seller-visual-fix">
+  /* 1. Fondo general oscuro */
+  body, html { 
+      background-color: #0A0E1A !important; 
+      color: #F1F5F9 !important; 
+  }
+
+  /* 2. Arreglar títulos y textos */
+  h1, h2, h3, h4, .title, .heading { 
+      color: #F1F5F9 !important; 
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+  }
+  p, span, .subtitle, .description { 
+      color: #94A3B8 !important; 
+  }
+
+  /* 3. Arreglar las tarjetas de los planes */
+  .plan-card, .card, .plan {
+      background: #131A2E !important;
+      border: 1px solid #1F2A44 !important;
+      border-radius: 12px !important;
+      padding: 20px !important;
+      margin-bottom: 15px !important;
+  }
+  .plan-card.active, .plan.selected {
+      border: 2px solid #22C55E !important;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.2) !important;
+  }
+  
+  /* 4. Los checks verdes y precios */
+  .plan-card li, .plan-card ul, .plan-features {
+      color: #F1F5F9 !important;
+      list-style: none !important;
+  }
+  .plan-price, .precio {
+      color: #22C55E !important;
+      font-weight: 900 !important;
+  }
+
+  /* 5. Inputs del formulario */
+  input, select, textarea {
+      background-color: #131A2E !important;
+      color: #F1F5F9 !important;
+      border: 1px solid #1F2A44 !important;
+      border-radius: 8px !important;
+      padding: 12px !important;
+  }
+  input:focus, select:focus {
+      border-color: #22C55E !important;
+      outline: none !important;
+  }
+  input::placeholder { color: #64748B !important; }
+
+  /* 6. Botón de Registro */
+  button[type="submit"], .btn-primary {
+      background: #22C55E !important;
+      color: #0A0E1A !important;
+      font-weight: 800 !important;
+      border-radius: 8px !important;
+      padding: 14px !important;
+  }
+</style>
+
 </head>
 <body>
 
@@ -741,6 +805,82 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ Visibilidad forzada');
   });
 })();
+</script>
+
+
+<style id="ptl-seller-modal-css">
+  #ptlModalPagoSeller {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 14, 26, 0.85); z-index: 999999;
+      justify-content: center; align-items: center; backdrop-filter: blur(4px);
+  }
+  #ptlModalPagoSeller.ptl-show { display: flex !important; }
+  .ptl-modal-box {
+      background: #131A2E; border: 1px solid #1F2A44; border-radius: 16px;
+      padding: 24px; width: 90%; max-width: 400px; text-align: center; color: #F1F5F9;
+  }
+</style>
+
+<div id="ptlModalPagoSeller">
+  <div class="ptl-modal-box">
+    <h3 style="margin-top:0; font-size: 20px;">Registro con Plan <span id="ptlPlanNombreSeller" style="color:#22C55E;"></span></h3>
+    <p style="color:#94A3B8; font-size:14px;">Para activar tu cuenta con este plan, debes realizar el pago y esperar aprobación del administrador.</p>
+    
+    <button onclick="alert('⚠️ Debes estar autenticado en Transfermóvil. Copia el número y realiza la transferencia.')" style="display:block; width:100%; padding:14px; margin:10px 0; border-radius:8px; font-weight:bold; font-size:16px; border:none; cursor:pointer; background:#0056b3; color:white;">
+      💳 Pagar por Transfermóvil
+    </button>
+    
+    <div style="background:#0A0E1A; padding:15px; border-radius:8px; margin:15px 0; border:1px dashed #FCD34D;">
+      <p style="margin:0; font-size:12px; color:#94A3B8;">Cuenta destino CUP (Pago Seguro):</p>
+      <p style="font-size:20px; font-weight:bold; color:#FCD34D; letter-spacing:2px; margin:5px 0;">0699 9111 6586 0313</p>
+    </div>
+
+    <a href="https://wa.me/5358980267?text=Hola,%20quiero%20registrarme%20con%20el%20plan%20" target="_blank" id="ptlBtnWASeller" style="display:block; width:100%; padding:14px; margin:10px 0; border-radius:8px; font-weight:bold; font-size:16px; border:none; cursor:pointer; background:#22C55E; color:white; text-decoration:none; box-sizing:border-box;">
+      💬 Enviar comprobante al Admin
+    </a>
+    
+    <button onclick="document.getElementById('ptlModalPagoSeller').classList.remove('ptl-show')" style="margin-top:15px; background:none; border:none; color:#94A3B8; text-decoration:underline; cursor:pointer;">
+      Cancelar y elegir plan Gratis
+    </button>
+  </div>
+</div>
+
+<script id="ptl-seller-logica">
+document.addEventListener('DOMContentLoaded', () => {
+    // Buscar el formulario de registro y los botones de selección de plan
+    const form = document.querySelector('form');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Detectar qué plan está seleccionado
+            let planSeleccionado = 'Básico'; // Por defecto
+            
+            // Buscamos si hay algún input radio o botón con clase activa que diga Pro o Premium
+            const planesActivos = document.querySelectorAll('.plan-card.active, .plan.selected, input[type="radio"]:checked');
+            planesActivos.forEach(p => {
+                if (p.innerText && p.innerText.includes('Pro')) planSeleccionado = 'Pro ($5 USD/mes)';
+                if (p.innerText && p.innerText.includes('Premium')) planSeleccionado = 'Premium ($15 USD/mes)';
+                if (p.value && p.value.toLowerCase().includes('pro')) planSeleccionado = 'Pro ($5 USD/mes)';
+                if (p.value && p.value.toLowerCase().includes('premium')) planSeleccionado = 'Premium ($15 USD/mes)';
+            });
+
+            // Si es Pro o Premium, detenemos el registro normal
+            if (planSeleccionado !== 'Básico') {
+                e.preventDefault(); // Detiene el envío del formulario
+                e.stopPropagation();
+                
+                // Mostrar el modal
+                document.getElementById('ptlPlanNombreSeller').innerText = planSeleccionado;
+                document.getElementById('ptlModalPagoSeller').classList.add('ptl-show');
+                
+                // Actualizar link de WhatsApp
+                const waBtn = document.getElementById('ptlBtnWASeller');
+                if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20registrarme%20con%20el%20plan%20${planSeleccionado}%20en%20ProfitToLife`;
+            }
+            // Si es Básico, el formulario se envía normalmente (auto-aprobación)
+        }, true); // Usar true para capturar el evento antes de que se envíe
+    }
+});
 </script>
 
 </body>
