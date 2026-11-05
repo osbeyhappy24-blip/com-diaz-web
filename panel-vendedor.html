@@ -1753,6 +1753,30 @@ body { padding-bottom: 100px; }
   /* Ocultar productos OCULTOS en la vista principal */
   body.tab-main #productsList .oculto-item { display: none !important; }
 </style>
+
+<style id="modal-zindex-fix">
+  /* Elevar TODOS los modales por encima de la barra inferior */
+  .modal,
+  .modal-overlay,
+  .modal-container,
+  [class*="modal"],
+  [id*="Modal"] {
+    z-index: 100000 !important;
+  }
+  .modal-overlay,
+  [class*="modal-overlay"] {
+    z-index: 100000 !important;
+  }
+  .modal-body,
+  [class*="modal-body"] {
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    padding-bottom: 30px !important;
+  }
+  /* Cuando hay un modal abierto, ocultar la barra inferior */
+  body.modal-open #bottomBar { display: none !important; }
+  body.modal-open .tab-view { padding-bottom: 20px !important; }
+</style>
 </head>
 <body>
 
@@ -5710,6 +5734,37 @@ window.borrarCuenta = borrarCuenta;
 
 // Inicializar con tab main
 if (document.body) document.body.classList.add('tab-main');
+</script>
+
+<script>
+// Detectar apertura/cierre de modales para ocultar la barra inferior
+document.addEventListener('DOMContentLoaded', function() {
+  // Observer para detectar cuando el estilo display del modal cambia
+  var observer = new MutationObserver(function(mutations) {
+    var anyModalOpen = false;
+    // Buscar todos los modales visibles
+    var modals = document.querySelectorAll('.modal, [id*="Modal"], [id*="modal"]');
+    modals.forEach(function(m) {
+      var style = window.getComputedStyle(m);
+      if (style.display !== 'none' && style.visibility !== 'hidden' && m.offsetParent !== null) {
+        anyModalOpen = true;
+      }
+    });
+    
+    if (anyModalOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+  });
+  
+  // Observar cambios en todo el body
+  observer.observe(document.body, { 
+    attributes: true, 
+    attributeFilter: ['style', 'class'], 
+    subtree: true 
+  });
+});
 </script>
 </body>
 </html>
