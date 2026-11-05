@@ -2515,6 +2515,7 @@ function editar(id) {
   abrirModal(id);
 }
 
+
 async function eliminar(id) {
   if (!confirm('¿Eliminar este producto? No aparecerá más en la tienda.')) return;
   try {
@@ -2522,12 +2523,17 @@ async function eliminar(id) {
       method: 'DELETE',
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
-    const d = await r.json();
+    let d;
+    try {
+        d = await r.json();
+    } catch(e) {
+        throw new Error('Error del servidor. Código: ' + r.status + '. Contacta al admin.');
+    }
     if (d.ok) {
       toast('✅ Producto eliminado', 'ok');
       cargarPerfil();
     } else {
-      toast('Error: ' + d.error, 'err');
+      toast('Error: ' + (d.error || d.message || 'Desconocido'), 'err');
     }
   } catch(e) {
     toast('Error: ' + e.message, 'err');
@@ -6061,6 +6067,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     observer.observe(document.body, { childList: true, subtree: true });
 });
+</script>
+
+
+<script id="ptl-pedir-plan-global">
+window.pedirPlan = function(plan) {
+    const modal = document.getElementById('ptlModalPago');
+    if (modal) {
+        document.getElementById('ptlPlanNombre').innerText = plan === 'Pro' ? 'Pro ($5 USD/mes)' : 'Premium ($15 USD/mes)';
+        modal.style.display = 'flex';
+        const waBtn = document.getElementById('ptlBtnWA');
+        if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
+    } else {
+        alert('Error: Modal no encontrado. Recarga la página.');
+    }
+};
 </script>
 
 </body>
