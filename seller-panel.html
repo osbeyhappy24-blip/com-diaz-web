@@ -6012,31 +6012,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-<script id="ptl-fix-planes">
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const botones = Array.from(document.querySelectorAll('button, a, div'));
-        botones.forEach(b => {
-            const txt = (b.textContent || '').trim();
-            if (txt === 'Actualizar a Pro' || txt.includes('Actualizar a Pro')) {
-                b.onclick = null; // Limpiar eventos viejos
-                b.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    if (typeof abrirModalPago === 'function') abrirModalPago('Pro ($5 USD/mes)');
-                    else alert('Error: abrirModalPago no definido');
-                });
-            }
-            if (txt === 'Actualizar a Premium' || txt.includes('Actualizar a Premium')) {
-                b.onclick = null;
-                b.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    if (typeof abrirModalPago === 'function') abrirModalPago('Premium ($15 USD/mes)');
-                    else alert('Error: abrirModalPago no definido');
-                });
-            }
-        });
-    }, 1000); // Esperar 1s para que el JS original cargue los planes
-});
+
+
+
+<script id="ptl-pedir-plan-fix">
+function pedirPlan(plan) {
+    if (typeof abrirModalPago === 'function') {
+        abrirModalPago(plan === 'Pro' ? 'Pro ($5 USD/mes)' : 'Premium ($15 USD/mes)');
+    } else {
+        // Si por alguna razón abrirModalPago no existe, inyectamos el modal manualmente
+        alert('Abriendo modal para: ' + plan);
+        const modal = document.getElementById('ptlModalPago');
+        if (modal) {
+            document.getElementById('ptlPlanNombre').innerText = plan;
+            modal.style.display = 'flex';
+        }
+    }
+}
 </script>
 
 </body>
