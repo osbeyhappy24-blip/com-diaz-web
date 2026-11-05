@@ -1753,30 +1753,6 @@ body { padding-bottom: 100px; }
   /* Ocultar productos OCULTOS en la vista principal */
   body.tab-main #productsList .oculto-item { display: none !important; }
 </style>
-
-<style id="modal-zindex-fix">
-  /* Elevar TODOS los modales por encima de la barra inferior */
-  .modal,
-  .modal-overlay,
-  .modal-container,
-  [class*="modal"],
-  [id*="Modal"] {
-    z-index: 100000 !important;
-  }
-  .modal-overlay,
-  [class*="modal-overlay"] {
-    z-index: 100000 !important;
-  }
-  .modal-body,
-  [class*="modal-body"] {
-    max-height: 85vh !important;
-    overflow-y: auto !important;
-    padding-bottom: 30px !important;
-  }
-  /* Cuando hay un modal abierto, ocultar la barra inferior */
-  body.modal-open #bottomBar { display: none !important; }
-  body.modal-open .tab-view { padding-bottom: 20px !important; }
-</style>
 </head>
 <body>
 
@@ -5737,33 +5713,32 @@ if (document.body) document.body.classList.add('tab-main');
 </script>
 
 <script>
-// Detectar apertura/cierre de modales para ocultar la barra inferior
+// ═══ DIAGNÓSTICO DE SESIÓN ═══
 document.addEventListener('DOMContentLoaded', function() {
-  // Observer para detectar cuando el estilo display del modal cambia
-  var observer = new MutationObserver(function(mutations) {
-    var anyModalOpen = false;
-    // Buscar todos los modales visibles
-    var modals = document.querySelectorAll('.modal, [id*="Modal"], [id*="modal"]');
-    modals.forEach(function(m) {
-      var style = window.getComputedStyle(m);
-      if (style.display !== 'none' && style.visibility !== 'hidden' && m.offsetParent !== null) {
-        anyModalOpen = true;
-      }
-    });
+  setTimeout(function() {
+    var token = localStorage.getItem('comdiaz_seller_token');
+    var nombre = document.getElementById('sellerName');
     
-    if (anyModalOpen) {
-      document.body.classList.add('modal-open');
-    } else {
-      document.body.classList.remove('modal-open');
+    // Si el header sigue diciendo "Cargando..." después de 3 segundos
+    if (nombre && nombre.textContent === 'Cargando...') {
+      // Mostrar barra de estado encima del header
+      var bar = document.createElement('div');
+      bar.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:12px;font-size:12px;z-index:99999;font-family:monospace;text-align:center;';
+      
+      if (!token) {
+        bar.innerHTML = '⚠️ NO HAY TOKEN. <a href="seller.html" style="color:#fff;text-decoration:underline;font-weight:900;">Inicia sesion aqui</a>';
+      } else {
+        bar.innerHTML = 'Token existe pero panel no carga. Abre la consola (F12) para ver el error.';
+      }
+      
+      document.body.insertBefore(bar, document.body.firstChild);
+      
+      // Intentar diagnosticar el error
+      console.log('[DIAGNOSTICO] Token existe:', !!token);
+      console.log('[DIAGNOSTICO] API_BASE:', window.API_BASE);
+      console.log('[DIAGNOSTICO] typeof cargarPerfil:', typeof window.cargarPerfil);
     }
-  });
-  
-  // Observar cambios en todo el body
-  observer.observe(document.body, { 
-    attributes: true, 
-    attributeFilter: ['style', 'class'], 
-    subtree: true 
-  });
+  }, 3000);
 });
 </script>
 </body>
