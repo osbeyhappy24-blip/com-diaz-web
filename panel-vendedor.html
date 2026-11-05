@@ -6021,68 +6021,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-<script id="ptl-pedir-plan-fix">
-function pedirPlan(plan) {
-    if (typeof abrirModalPago === 'function') {
-        abrirModalPago(plan === 'Pro' ? 'Pro ($5 USD/mes)' : 'Premium ($15 USD/mes)');
-    } else {
-        // Si por alguna razón abrirModalPago no existe, inyectamos el modal manualmente
-        alert('Abriendo modal para: ' + plan);
-        const modal = document.getElementById('ptlModalPago');
-        if (modal) {
-            document.getElementById('ptlPlanNombre').innerText = plan;
-            modal.style.display = 'flex';
-        }
-    }
-}
-</script>
 
 
-<script id="ptl-planes-definitivo">
-document.addEventListener('DOMContentLoaded', () => {
-    // Observador que revisa cada segundo si los botones ya se dibujaron
-    const observer = new MutationObserver(() => {
-        const botones = Array.from(document.querySelectorAll('button, a, div'));
-        botones.forEach(b => {
-            const txt = (b.textContent || '').trim();
-            
-            if (txt === 'Actualizar a Pro' && !b.dataset.ptlFixed) {
-                b.dataset.ptlFixed = 'true';
-                b.onclick = null; // Limpiar onclick viejo
-                b.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    if (typeof abrirModalPago === 'function') abrirModalPago('Pro ($5 USD/mes)');
-                });
-            }
-            if (txt === 'Actualizar a Premium' && !b.dataset.ptlFixed) {
-                b.dataset.ptlFixed = 'true';
-                b.onclick = null;
-                b.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    if (typeof abrirModalPago === 'function') abrirModalPago('Premium ($15 USD/mes)');
-                });
-            }
-        });
-    });
-    
-    observer.observe(document.body, { childList: true, subtree: true });
-});
-</script>
 
 
-<script id="ptl-pedir-plan-global">
-window.pedirPlan = function(plan) {
-    const modal = document.getElementById('ptlModalPago');
-    if (modal) {
-        document.getElementById('ptlPlanNombre').innerText = plan === 'Pro' ? 'Pro ($5 USD/mes)' : 'Premium ($15 USD/mes)';
-        modal.style.display = 'flex';
-        const waBtn = document.getElementById('ptlBtnWA');
-        if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
-    } else {
-        alert('Error: Modal no encontrado. Recarga la página.');
-    }
-};
-</script>
+
+
+
 
 </body>
 </html>
