@@ -5927,56 +5927,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<div id="ptlModalPago" class="ptl-modal-overlay">
-  <div class="ptl-modal-box">
-    <h3 style="margin-top:0; font-size: 20px;">Actualizar Plan</h3>
-    <p style="color:#94A3B8; font-size:14px;">Estás a punto de actualizar a <b id="ptlPlanNombre" style="color:#22C55E;"></b></p>
-    
-    <button class="ptl-btn-pago ptl-btn-transfer" onclick="alert('⚠️ IMPORTANTE: Debes estar autenticado en la app de Transfermóvil antes de realizar la transferencia.')">
-      💳 Pagar por Transfermóvil
-    </button>
-    
-    <div class="ptl-cuenta-box">
-      <p style="margin:0; font-size:12px; color:#94A3B8;">Cuenta destino (Pago Seguro):</p>
-      <p class="ptl-cuenta-numero">5358980267</p>
-      <p style="margin:0; font-size:10px; color:#F59E0B;">Protegido contra copia</p>
-    </div>
-
-    <a href="#" id="ptlBtnWA" target="_blank" class="ptl-btn-pago ptl-btn-wa">
-      💬 Contactar al Administrador
-    </a>
-    
-    <button onclick="document.getElementById('ptlModalPago').style.display='none'" style="margin-top:15px; background:none; border:none; color:#94A3B8; text-decoration:underline; cursor:pointer;">
-      Cancelar
-    </button>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Buscar TODOS los botones que digan Pro o Premium
-    const botones = Array.from(document.querySelectorAll('button, a, div'));
-    const btnPro = botones.find(b => b.textContent.trim() === 'Actualizar a Pro');
-    const btnPremium = botones.find(b => b.textContent.trim() === 'Actualizar a Premium');
-    
-    function abrirModal(plan, e) {
-        // DETENER la redirección a WhatsApp que hacía el código viejo
-        if(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        document.getElementById('ptlPlanNombre').innerText = plan;
-        document.getElementById('ptlModalPago').style.display = 'flex';
-        
-        // Actualizar link de WhatsApp pero NO redirigir, solo prepararlo
-        document.getElementById('ptlBtnWA').href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
-    }
-
-    if (btnPro) btnPro.onclick = (e) => abrirModal('Pro ($5 USD/mes)', e);
-    if (btnPremium) btnPremium.onclick = (e) => abrirModal('Premium ($15 USD/mes)', e);
-});
-</script>
 
 
 
@@ -6003,19 +5953,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-<style id="ptl-modal-css">
+
+
+
+
+
+
+<style id="ptl-modal-final-css">
   #ptlModalPago {
       display: none;
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(10, 14, 26, 0.85); z-index: 999999;
       justify-content: center; align-items: center; backdrop-filter: blur(4px);
   }
-  #ptlModalPago.ptl-show {
-      display: flex !important; /* Solo es flex cuando tiene la clase .ptl-show */
-  }
+  #ptlModalPago.ptl-show { display: flex !important; }
   .ptl-modal-box {
       background: #131A2E; border: 1px solid #1F2A44; border-radius: 16px;
       padding: 24px; width: 90%; max-width: 400px; text-align: center; color: #F1F5F9;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   }
   .ptl-btn-pago {
       display: block; width: 100%; padding: 14px; margin: 10px 0;
@@ -6030,13 +5985,14 @@ document.addEventListener('DOMContentLoaded', () => {
     <h3 style="margin-top:0; font-size: 20px;">Actualizar Plan</h3>
     <p style="color:#94A3B8; font-size:14px;">Estás a punto de actualizar a <b id="ptlPlanNombre" style="color:#22C55E;"></b></p>
     
-    <button class="ptl-btn-pago ptl-btn-transfer" onclick="alert('⚠️ IMPORTANTE: Debes estar autenticado en la app de Transfermóvil antes de realizar la transferencia.')">
+    <button class="ptl-btn-pago ptl-btn-transfer" onclick="pagarTransfermovil()">
       💳 Pagar por Transfermóvil
     </button>
     
     <div style="background:#0A0E1A; padding:15px; border-radius:8px; margin:15px 0; border:1px dashed #FCD34D;">
       <p style="margin:0; font-size:12px; color:#94A3B8;">Cuenta destino (Pago Seguro):</p>
-      <p style="font-size:22px; font-weight:bold; color:#FCD34D; letter-spacing:2px; user-select:none; -webkit-user-select:none; pointer-events:none; margin:5px 0;">5358980267</p>
+      <!-- Reemplaza este número por tu tarjeta real de Transfermóvil -->
+      <p id="ptlCuentaNumero" style="font-size:20px; font-weight:bold; color:#FCD34D; letter-spacing:2px; user-select:none; -webkit-user-select:none; margin:5px 0;">9234 5678 1234 5678</p>
       <p style="margin:0; font-size:10px; color:#F59E0B;">Protegido contra copia</p>
     </div>
 
@@ -6044,47 +6000,50 @@ document.addEventListener('DOMContentLoaded', () => {
       💬 Contactar al Administrador
     </a>
     
-    <button onclick="document.getElementById('ptlModalPago').classList.remove('ptl-show')" style="margin-top:15px; background:none; border:none; color:#94A3B8; text-decoration:underline; cursor:pointer;">
+    <button onclick="cerrarModalPago()" style="margin-top:15px; background:none; border:none; color:#94A3B8; text-decoration:underline; cursor:pointer;">
       Cancelar
     </button>
   </div>
 </div>
 
-<script id="ptl-planes-event-delegation">
-// Esta función abre el modal agregando la clase .ptl-show
+<script id="ptl-pago-experiencia-js">
+// Función para cerrar el modal
+window.cerrarModalPago = function() {
+    const modal = document.getElementById('ptlModalPago');
+    if (modal) modal.classList.remove('ptl-show');
+};
+
+// Función para abrir el modal
 window.abrirModalPago = function(plan) {
     const modal = document.getElementById('ptlModalPago');
     if (modal) {
         document.getElementById('ptlPlanNombre').innerText = plan;
-        modal.classList.add('ptl-show'); // Esto quita el display:none y pone display:flex
+        modal.classList.add('ptl-show');
         
         const waBtn = document.getElementById('ptlBtnWA');
         if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
-    } else {
-        alert("Error: El modal no existe en el HTML.");
     }
 };
 
-// DELEGACIÓN DE EVENTOS: Atrapa cualquier clic en la pantalla
-document.addEventListener('click', function(e) {
-    // Buscamos si el clic fue en un botón o en un texto que diga "Actualizar a Pro/Premium"
-    let target = e.target;
-    
-    // Si el clic fue en un ícono dentro del botón, subimos al elemento padre
-    if (target.tagName !== 'BUTTON' && target.tagName !== 'A') {
-        target = target.closest('button') || target.closest('a') || target;
-    }
+// Función con el flujo de Transfermóvil
+window.pagarTransfermovil = function() {
+    if (confirm("⚠️ IMPORTANTE: Debes estar autenticado en la app de Transfermóvil antes de realizar la transferencia.
 
-    const text = (target.innerText || target.textContent || '').trim();
+¿Ya estás autenticado y deseas continuar?")) {
+        const cuenta = "9234567812345678"; // Sin espacios para copiar
+        navigator.clipboard.writeText(cuenta).then(() => {
+            alert("✅ Número de cuenta copiado al portapapeles.
 
-    if (text.includes('Actualizar a Pro')) {
-        e.preventDefault(); e.stopPropagation();
-        window.abrirModalPago('Pro ($5 USD/mes)');
-    } else if (text.includes('Actualizar a Premium')) {
-        e.preventDefault(); e.stopPropagation();
-        window.abrirModalPago('Premium ($15 USD/mes)');
+1. Abre tu app Transfermóvil.
+2. Ve a Transferencias.
+3. Pega el número de cuenta.
+4. Ingresa el monto del plan y confirma.");
+        }).catch(err => {
+            alert("El número de cuenta es: 9234 5678 1234 5678
+(Por favor, anótalo manualmente).");
+        });
     }
-}, true); // El 'true' hace que capture el evento antes que otros scripts
+};
 </script>
 
 </body>
