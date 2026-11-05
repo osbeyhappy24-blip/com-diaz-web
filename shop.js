@@ -1,3 +1,18 @@
+
+// BANNER CTA INYECTADO
+function _getBannerCTA() {
+    return `
+    <div style="background: linear-gradient(135deg, #131A2E 0%, #1F2A44 100%); border: 1px solid #22C55E; border-radius: 12px; padding: 15px 20px; margin: 15px 10px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2); position: relative; overflow: hidden;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.15), transparent 70%); pointer-events: none;"></div>
+      <div style="z-index: 1;">
+        <h3 style="margin: 0 0 5px 0; color: #F1F5F9; font-size: 16px; font-weight: 800;">🚀 ¡Vende en Cuba!</h3>
+        <p style="margin: 0; color: #94A3B8; font-size: 12px;">Crea tu tienda gratis y llega a miles de clientes.</p>
+      </div>
+      <a href="seller.html" style="background: #22C55E; color: #0A0E1A; padding: 10px 18px; border-radius: 8px; font-weight: 800; font-size: 14px; text-decoration: none; white-space: nowrap; z-index: 1;">Crear Tienda</a>
+    </div>
+    `;
+}
+
 // ProfitToLife Marketplace - Logica del catalogo publico
 
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
@@ -195,7 +210,7 @@ function getSourceBadge(p) {
   if (src === 'amazon') return { label: 'Amazon', cls: 'amazon' };
   if (src === 'walmart') return { label: 'Walmart', cls: 'walmart' };
   if (src === 'ebay' || src === 'ebay-v1') return { label: 'eBay', cls: 'ebay' };
-  return { label: 'Importado', cls: '' };
+  return { label: '', cls: '' };
 }
 
 const $ = id => document.getElementById(id);
@@ -2547,7 +2562,7 @@ cargarCatalogo();
       badge.className = 'product-badge ' + tipo;
       if (tipo === 'local') badge.textContent = '🇨🇺 Local';
       else if (tipo === 'seller') badge.textContent = '🏪 Verificado';
-      else badge.textContent = '🌐 Importado';
+      else badge.textContent = '';
 
       card.style.position = 'relative';
       card.insertBefore(badge, card.firstChild);
