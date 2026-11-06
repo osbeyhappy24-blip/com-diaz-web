@@ -2292,6 +2292,10 @@ async function cargarProductos() {
     }
     productos = d.products || [];
     renderProductos();
+    // Sincronizar contador de la card Mi Tienda si ya está definida
+    if (typeof window._actualizarContadorTienda === 'function') {
+      window._actualizarContadorTienda();
+    }
   } catch(e) {
     list.innerHTML = '<div class="empty" style="color:#f87171">No se pudo cargar.<br><button class="retry-btn" onclick="cargarProductos()">\uD83D\uDD04 Reintentar</button></div>';
     toast('Error: ' + e.message, 'err');
@@ -5068,19 +5072,21 @@ console.log('[IDB] IndexedDB listo');
     }
 
     // Stats (solo productos PUBLICADOS, no ocultos)
-    setTimeout(function() {
-      var prodList = document.getElementById('productsList');
-      if (prodList) {
-        var cards = prodList.querySelectorAll('.product-item, .product-card');
-        var publicados = 0;
-        cards.forEach(function(card) {
-          var txt = card.textContent || '';
-          // "Publicado" y NO "Oculto" = cuenta
-          if (/Publicado/i.test(txt) && !/Oculto/i.test(txt)) publicados++;
-        });
-        document.getElementById('miTiendaProdCount').textContent = publicados;
+    // Lee del global 'productos' (robusto: no depende de timing ni del DOM)
+    window._actualizarContadorTienda = function() {
+      var publicados = 0;
+      if (typeof productos !== 'undefined' && Array.isArray(productos)) {
+        publicados = productos.filter(function(p) {
+          if (!p || p.eliminado) return false;
+          return p.publicado === true || p.estado === 'publicado' || p.estado_publicacion === 'publicado';
+        }).length;
       }
-    }, 1500);
+      var el = document.getElementById('miTiendaProdCount');
+      if (el) el.textContent = publicados;
+    };
+    window._actualizarContadorTienda();
+    setTimeout(window._actualizarContadorTienda, 1500);
+    setTimeout(window._actualizarContadorTienda, 4000);
   }
 
   // ─── Generar slug ───
