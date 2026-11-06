@@ -1264,6 +1264,53 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script id="ptl-check-phone-js">
+document.addEventListener('DOMContentLoaded', () => {
+    const telInput = document.getElementById('regTelefono');
+    if (!telInput) return;
+
+    // Crear un mensaje debajo del input
+    const msgDiv = document.createElement('div');
+    msgDiv.id = 'ptlPhoneMsg';
+    msgDiv.style.cssText = 'font-size: 12px; margin-top: 5px; font-weight: bold; display: none;';
+    telInput.parentNode.insertBefore(msgDiv, telInput.nextSibling);
+
+    let timeout = null;
+
+    telInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim().replace(/\D/g, ''); // Solo números
+        msgDiv.style.display = 'none';
+        
+        if (val.length < 8) return; // Esperar a que tenga un mínimo de dígitos
+
+        clearTimeout(timeout);
+        timeout = setTimeout(async () => {
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = '#94A3B8';
+            msgDiv.textContent = '⏳ Verificando...';
+
+            try {
+                const r = await fetch(API + '/api/seller/check-phone?tel=' + encodeURIComponent(val));
+                const d = await r.json();
+                
+                if (d.ok) {
+                    if (d.exists) {
+                        msgDiv.style.color = '#EF4444'; // Rojo
+                        msgDiv.textContent = '❌ Este número ya está registrado.';
+                    } else {
+                        msgDiv.style.color = '#22C55E'; // Verde
+                        msgDiv.textContent = '✅ Número disponible.';
+                    }
+                }
+            } catch(err) {
+                msgDiv.style.display = 'none'; // Ignorar errores de red
+            }
+        }, 500); // Esperar 500ms después de que deje de escribir
+    });
+});
+</script>
+
 </body>
 </html>
 
