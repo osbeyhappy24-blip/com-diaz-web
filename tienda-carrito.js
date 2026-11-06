@@ -91,11 +91,15 @@
       const idMatch = link.match(/id=([^&]+)/);
       if (!idMatch) return;
       const productId = idMatch[1];
+      
+      // GUARDAMOS EL ID EN EL DOM PARA PODER ENCONTRARLO DESDE EL LINK
+      card.setAttribute('data-id', productId);
+
       const imgSrc = card.querySelector('.product-img')?.src || '';
       const title = card.querySelector('.product-title')?.textContent || 'Producto';
       const priceText = card.querySelector('.product-price')?.textContent.replace('$', '') || '0';
       const price = parseFloat(priceText) || 0;
-      const location = card.querySelector('.product-location')?.textContent || '';
+      const locationText = card.querySelector('.product-location')?.textContent || '';
 
       const actions = document.createElement('div');
       actions.className = 'product-actions';
@@ -126,16 +130,15 @@
       card.removeAttribute('href');
       card.style.cursor = 'default';
       
-      // Abrir modal al tocar la imagen o el título
       const img = card.querySelector('.product-img');
       if (img) {
         img.style.cursor = 'pointer';
-        img.onclick = () => window.openProductModal(productId, imgSrc, title, price, location);
+        img.onclick = () => window.openProductModal(productId, imgSrc, title, price, locationText);
       }
       const titleEl = card.querySelector('.product-title');
       if (titleEl) {
         titleEl.style.cursor = 'pointer';
-        titleEl.onclick = () => window.openProductModal(productId, imgSrc, title, price, location);
+        titleEl.onclick = () => window.openProductModal(productId, imgSrc, title, price, locationText);
       }
     });
 
@@ -147,7 +150,6 @@
       document.getElementById('pm-location').textContent = loc;
       document.getElementById('pm-btn-details').href = 'producto.html?id=' + id;
       
-      // Asignar acciones
       document.getElementById('pm-btn-add').onclick = () => { window.addToCart(id, title, price); window.closeProductModal(); };
       document.getElementById('pm-btn-wa').onclick = () => window.orderSingle(title, price);
       document.getElementById('pm-btn-share').onclick = () => window.shareProduct(id, title, price);
@@ -168,11 +170,8 @@
       };
       
       if (navigator.share) {
-        try {
-          await navigator.share(shareData);
-        } catch(e) { console.log('Error sharing', e); }
+        try { await navigator.share(shareData); } catch(e) { console.log('Error sharing', e); }
       } else {
-        // Fallback: copiar al portapapeles
         try {
           await navigator.clipboard.writeText(`${shareData.text}\n${url}`);
           alert('✅ Link del producto copiado. Pégalo en WhatsApp.');
@@ -287,13 +286,25 @@
 
     updateUI();
 
-    // --- 7. AUTO-ABRIR PRODUCTO DESDE EL LINK ---
+    // --- 7. AUTO-ABRIR PRODUCTO DESDE EL LINK COMPARTIDO ---
     if (location.hash.startsWith('#producto=')) {
       const pid = location.hash.replace('#producto=', '');
-      const card = Array.from(document.querySelectorAll('.product-card')).find(c => (c.querySelector('.product-img').onclick?.toString().includes(pid)));
-      // El hash se maneja mejor si el usuario hace click en un link que ya tiene el hash, 
-      // pero para simplificar, no auto-abrimos el modal al cargar la página por primera vez, 
-      // solo si el usuario comparte el link y recarga. (Se puede mejorar después).
+      // Buscamos la tarjeta usando el data-id que le pusimos arriba
+      const card = document.querySelector(`.product-card[data-id="${pid}"]`);
+      
+      if (card) {
+        const imgSrc = card.querySelector('.product-img')?.src || '';
+        const title = card.querySelector('.product-title')?.textContent || 'Producto';
+        const priceText = card.querySelector('.product-price')?.textContent.replace('$', '') || '0';
+        const price = parseFloat(priceText) || 0;
+        const loc = card.querySelector('.product-location')?.textContent || '';
+
+        // Abrimos el modal automáticamente
+        window.openProductModal(pid, imgSrc, title, price, loc);
+
+        // Limpiamos el hash de la URL para que si el usuario cierra el modal, no se vuelva a abrir al recargar
+        history.replaceState(null, null, location.pathname + location.search);
+      }
     }
   }
 })();
