@@ -1230,6 +1230,40 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script id="ptl-forgot-password-js">
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('formLogin');
+    if (loginForm && !document.getElementById('ptlForgotLink')) {
+        // Crear el enlace de "¿Olvidaste tu contraseña?"
+        const forgotDiv = document.createElement('div');
+        forgotDiv.style.textAlign = 'center';
+        forgotDiv.style.marginTop = '15px';
+        forgotDiv.id = 'ptlForgotLink';
+        
+        forgotDiv.innerHTML = `
+            <a href="#" id="ptlForgotBtn" style="color: #94A3B8; font-size: 13px; text-decoration: underline;">
+                ¿Olvidaste tu contraseña?
+            </a>
+        `;
+        
+        // Insertar después del formulario
+        loginForm.parentNode.insertBefore(forgotDiv, loginForm.nextSibling);
+        
+        // Lógica del botón
+        document.getElementById('ptlForgotBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            const tel = document.getElementById('logTelefono').value.trim();
+            const msg = tel 
+                ? `Hola admin, olvidé mi contraseña de ProfitToLife. Mi número es: ${tel}. ¿Me puedes ayudar a recuperarla?`
+                : `Hola admin, olvidé mi contraseña de ProfitToLife. ¿Me puedes ayudar a recuperarla?`;
+            
+            window.open('https://wa.me/5358980267?text=' + encodeURIComponent(msg), '_blank');
+        });
+    }
+});
+</script>
+
 </body>
 </html>
 
