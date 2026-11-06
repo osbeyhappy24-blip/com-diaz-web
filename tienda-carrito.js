@@ -342,7 +342,8 @@
 
     window.shareProduct = async function(id, title, price) {
       const url = location.origin + location.pathname + '?slug=' + slug + '#producto=' + id;
-      const shareData = { title: title, text: `Mira este producto en ProfitToLife: *${title}* - $${price}`, url: url };
+      const storeName = document.querySelector('.tienda-name')?.textContent.replace('✅ Verificado', '').trim() || 'la tienda';
+      const shareData = { title: title + ' - ' + storeName, text: `Mira este producto en *${storeName}* (ProfitToLife):\n\n*${title}* - $${price}`, url: url };
       if (navigator.share) { try { await navigator.share(shareData); } catch(e) { console.log('Error sharing', e); } }
       else { try { await navigator.clipboard.writeText(`${shareData.text}\n${url}`); window.showToast('✅ Link del producto copiado', 'success'); } catch(e) { prompt('Copia este link:', url); } }
     };
