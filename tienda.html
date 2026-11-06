@@ -62,37 +62,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   .tienda-name { font-size: 22px; }
   .products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }
-
-/* --- NUEVOS ESTILOS (Auto-inyectados) --- */
-.btn-back-top {
-  position: absolute; top: 15px; left: 15px; z-index: 100;
-  background: rgba(0, 0, 0, 0.7); color: #FFF;
-  padding: 8px 14px; border-radius: 20px;
-  text-decoration: none; font-size: 13px; font-weight: 700;
-  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
-  display: flex; align-items: center; gap: 5px;
-}
-.cart-fab {
-  position: fixed; bottom: 20px; right: 20px;
-  background: #22c55e; color: #0A0E1A; border: none;
-  width: 60px; height: 60px; border-radius: 50%;
-  font-size: 24px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-  cursor: pointer; z-index: 999; display: flex; align-items: center; justify-content: center;
-}
-.cart-badge {
-  position: absolute; top: -5px; right: -5px;
-  background: #ef4444; color: white; border-radius: 50%;
-  padding: 4px 8px; font-size: 12px; font-weight: bold;
-}
-.product-actions { display: flex; gap: 5px; margin-top: 8px; }
-.product-actions button {
-  flex: 1; padding: 6px; border: none; border-radius: 6px;
-  font-weight: bold; font-size: 14px; cursor: pointer; transition: transform 0.1s;
-}
-.product-actions button:active { transform: scale(0.9); }
-.btn-add-cart { background: #E2E8F0; color: #1E293B; }
-.btn-wa-cart { background: #22C55E; color: #0A0E1A; }
-
 </style>
 
 <style id="ptl-tienda-visual-fix">
@@ -170,37 +139,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       background-color: #004d65 !important; /* Color base de MTM */
       min-height: 120px !important;
   }
-
-/* --- NUEVOS ESTILOS (Auto-inyectados) --- */
-.btn-back-top {
-  position: absolute; top: 15px; left: 15px; z-index: 100;
-  background: rgba(0, 0, 0, 0.7); color: #FFF;
-  padding: 8px 14px; border-radius: 20px;
-  text-decoration: none; font-size: 13px; font-weight: 700;
-  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
-  display: flex; align-items: center; gap: 5px;
-}
-.cart-fab {
-  position: fixed; bottom: 20px; right: 20px;
-  background: #22c55e; color: #0A0E1A; border: none;
-  width: 60px; height: 60px; border-radius: 50%;
-  font-size: 24px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-  cursor: pointer; z-index: 999; display: flex; align-items: center; justify-content: center;
-}
-.cart-badge {
-  position: absolute; top: -5px; right: -5px;
-  background: #ef4444; color: white; border-radius: 50%;
-  padding: 4px 8px; font-size: 12px; font-weight: bold;
-}
-.product-actions { display: flex; gap: 5px; margin-top: 8px; }
-.product-actions button {
-  flex: 1; padding: 6px; border: none; border-radius: 6px;
-  font-weight: bold; font-size: 14px; cursor: pointer; transition: transform 0.1s;
-}
-.product-actions button:active { transform: scale(0.9); }
-.btn-add-cart { background: #E2E8F0; color: #1E293B; }
-.btn-wa-cart { background: #22C55E; color: #0A0E1A; }
-
 </style>
 
 </head>
@@ -237,9 +175,7 @@ function imgUrl(url) {
 
 function showError(msg, code) {
   content.innerHTML = `
-    
-<a href="shop.html" class="btn-back-top">← Volver</a>
-<div class="error-box">
+    <div class="error-box">
       <h2>❌ ${code || 'Error'}</h2>
       <p>${esc(msg)}</p>
       <a href="shop.html" class="btn-back">← Volver a la tienda</a>
@@ -300,9 +236,7 @@ function renderTienda(stats) {
   const shareMsg = `Mira la tienda *${tienda.nombre}* en ProfitToLife Marketplace:\n\n${shopUrl}\n\n🛍️ Compra directo por WhatsApp`;
   
   content.innerHTML = `
-    
-<a href="shop.html" class="btn-back-top">← Volver</a>
-<div class="tienda-banner" style="background:linear-gradient(135deg, ${color} 0%, ${color}dd 100%)">
+    <div class="tienda-banner" style="background:linear-gradient(135deg, ${color} 0%, ${color}dd 100%)">
       ${tienda.banner ? `<img src="${esc(tienda.banner)}" alt="">` : ''}
     </div>
     <div class="tienda-header">
@@ -411,67 +345,13 @@ function renderProductos() {
           <div class="product-title">${esc(p.titulo)}</div>
           <div class="product-price">$${fmtPrice(p.precio_usd)}</div>
           ${p.provincia ? `<div class="product-location">📍 ${esc(p.provincia)}${p.municipio ? ' / ' + esc(p.municipio) : ''}</div>` : ''}
-        
-
-                  <div class="product-actions">
-                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart('${esc(p.id)}')">🛒</button>
-                    <button class="btn-wa-cart" onclick="event.stopPropagation(); orderSingle('${esc(p.id)}')">📲</button>
-                  </div>
-                  </div>
-      </div>
-            `;
+        </div>
+      </a>
+    `;
   }).join('');
 }
 
-
-// ═══ LÓGICA DEL CARRITO (Auto-inyectada) ═══
-let cart = JSON.parse(localStorage.getItem('ptl_cart_' + slug)) || [];
-
-function updateCartUI() {
-  const count = cart.reduce((acc, item) => acc + item.qty, 0);
-  document.getElementById('cart-count').textContent = count;
-  document.getElementById('cart-fab').style.display = count > 0 ? 'flex' : 'none';
-}
-
-window.addToCart = function(productId) {
-  const product = productos.find(p => p.id === productId);
-  if (!product) return;
-  const existing = cart.find(item => item.id === productId);
-  if (existing) { existing.qty += 1; } else { cart.push({ ...product, qty: 1 }); }
-  localStorage.setItem('ptl_cart_' + slug, JSON.stringify(cart));
-  updateCartUI();
-  
-  const fab = document.getElementById('cart-fab');
-  fab.style.transform = 'scale(1.2)';
-  setTimeout(() => fab.style.transform = 'scale(1)', 200);
-};
-
-window.orderSingle = function(productId) {
-  const product = productos.find(p => p.id === productId);
-  if (!product) return;
-  const phone = tienda.whatsapp || '';
-  const text = `Hola! Me interesa este producto de tu tienda *${tienda.nombre}*:\n\n*${product.titulo}* - $${product.precio_usd}\n\n¿Está disponible?`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-};
-
-window.openCart = function() {
-  if (cart.length === 0) return alert("Tu carrito está vacío 🛒");
-  let total = 0;
-  let lista = cart.map(item => {
-    total += (item.precio_usd * item.qty);
-    return `${item.qty}x ${item.titulo} - $${(item.precio_usd * item.qty).toFixed(2)}`;
-  }).join('\n');
-  const mensaje = `Hola! Quiero hacer un pedido desde tu tienda *${tienda.nombre}*:\n\n${lista}\n\n*TOTAL: $${total.toFixed(2)}*`;
-  const phone = tienda.whatsapp || '';
-  if(confirm(`Resumen de tu pedido:\n\n${lista}\n\nTOTAL: $${total.toFixed(2)}\n\n¿Enviar pedido por WhatsApp al vendedor?`)) {
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
-  }
-};
-
-updateCartUI();
-
-
-    cargarTienda();
+cargarTienda();
 
   // ═══ CARGAR REPUTACIÓN DEL VENDEDOR ═══
   async function cargarReputacion(vendedorId) {
@@ -506,10 +386,6 @@ updateCartUI();
   }
 
 </script>
-
-<button id="cart-fab" class="cart-fab" onclick="openCart()" style="display:none;">
-  🛒 <span id="cart-count" class="cart-badge">0</span>
-</button>
-
+<script src="tienda-carrito.js"></script>
 </body>
 </html>
