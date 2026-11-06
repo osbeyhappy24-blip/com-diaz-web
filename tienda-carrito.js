@@ -102,6 +102,40 @@
       document.getElementById('qr-overlay').onclick = (e) => { if(e.target.id === 'qr-overlay') window.closeQrModal(); };
     }
 
+    // --- ABOUT TIENDA CARD ---
+    if (!document.getElementById('about-tienda-card')) {
+      var _actions = document.querySelector('.tienda-actions');
+      if (_actions && slug) {
+        fetch('https://com-diaz-ty2b.onrender.com/api/public/tienda/' + encodeURIComponent(slug))
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            if (!d.ok || !d.tienda) return;
+            var t = d.tienda;
+            var fechaTxt = 'Reciente';
+            if (t.created_at) {
+              try {
+                var dt = new Date(t.created_at);
+                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                fechaTxt = dt.getDate() + ' de ' + meses[dt.getMonth()] + ' de ' + dt.getFullYear();
+              } catch(e) {}
+            }
+            var visitas = t.visitas || 0;
+            var card = document.createElement('div');
+            card.id = 'about-tienda-card';
+            card.style.cssText = 'background:#131A2E;border:1px solid #1F2A44;border-radius:12px;padding:14px;margin-bottom:20px;';
+            var html = '<div style="color:#FFF;font-size:14px;font-weight:800;margin-bottom:10px;">🏪 Sobre esta tienda</div>';
+            html += '<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#CBD5E1;">';
+            html += '<div>🗓️ Miembro desde <strong style="color:#FFF;">' + fechaTxt + '</strong></div>';
+            html += '<div>👁️ <strong style="color:#FFF;">' + visitas + '</strong> visitas recibidas</div>';
+            if (t.esVerificado) html += '<div>✅ Tienda verificada por ProfitToLife</div>';
+            html += '</div>';
+            card.innerHTML = html;
+            _actions.parentNode.insertBefore(card, _actions.nextSibling);
+          })
+          .catch(function() {});
+      }
+    }
+
     // --- 4. BOTÓN FLOTANTE CARRITO ---
     if (!document.getElementById('cart-fab')) {
       const fab = document.createElement('button');
