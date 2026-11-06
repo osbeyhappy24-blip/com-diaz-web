@@ -1937,7 +1937,7 @@ body { padding-bottom: 100px; }
       <div class="quota-fill" id="quotaFill" style="width:0%"></div>
     </div>
     <div class="quota-text">
-      <span id="quotaUsada">0 productos</span>
+      <span id="quotaUsada">0 imágenes</span>
       <span id="quotaMax">—</span>
     </div>
   </div>
@@ -2258,7 +2258,7 @@ function renderPerfil() {
   const fill = document.getElementById('quotaFill');
   fill.style.width = (max === -1 ? 100 : pct) + '%';
   fill.className = 'quota-fill' + (pct >= 90 ? ' full' : pct >= 70 ? ' warn' : '');
-  document.getElementById('quotaUsada').textContent = usada + ' productos';
+  document.getElementById('quotaUsada').textContent = usada + ' imágenes';
   document.getElementById('quotaMax').textContent = max === -1 ? '∞' : max + ' máx';
 
   const btn = document.getElementById('addProductBtn');
@@ -2880,12 +2880,63 @@ window.addEventListener('offline', () => {
   if (c) {
     const u = document.getElementById('quotaUsada');
     const m = document.getElementById('quotaMax');
-    if (u) u.textContent = c.usada + ' productos (offline)';
+    if (u) u.textContent = c.usada + ' imágenes (offline)';
     if (m) m.textContent = c.max === -1 ? '∞' : c.max + ' máx';
   }
 });
 
 console.log('✅ Photo uploader + quota cache ready');
+
+window.cambiarPassword = async function() {
+  const actual = document.getElementById('cfgPassActual').value;
+  const nueva = document.getElementById('cfgPassNueva').value;
+  const confirm = document.getElementById('cfgPassConfirm').value;
+
+  if (!actual || !nueva || !confirm) return toast('Llena todos los campos', 'err');
+  if (nueva !== confirm) return toast('Las contraseñas nuevas no coinciden', 'err');
+  if (nueva.length < 6) return toast('La nueva contraseña debe tener al menos 6 caracteres', 'err');
+
+  try {
+    const r = await fetch(API + '/api/seller/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ actual, nueva })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error al cambiar contraseña');
+    toast('✅ ' + d.mensaje, 'ok');
+    document.getElementById('cfgPassActual').value = '';
+    document.getElementById('cfgPassNueva').value = '';
+    document.getElementById('cfgPassConfirm').value = '';
+  } catch(e) {
+    toast('❌ ' + e.message, 'err');
+  }
+};
+
+window.cambiarWhatsApp = async function() {
+  const whatsapp = document.getElementById('cfgWaNuevo').value;
+  const password = document.getElementById('cfgWaPass').value;
+
+  if (!whatsapp || !password) return toast('Llena todos los campos', 'err');
+
+  try {
+    const r = await fetch(API + '/api/seller/me', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ whatsapp, password })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error al cambiar WhatsApp');
+    
+    toast('✅ WhatsApp actualizado. Re-iniciando sesión...', 'ok');
+    if (d.token) {
+      localStorage.setItem('comdiaz_seller_token', d.token);
+    }
+    setTimeout(() => location.reload(), 2000);
+  } catch(e) {
+    toast('❌ ' + e.message, 'err');
+  }
+};
 
 </script>
 
@@ -5625,6 +5676,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <div id="tab-config" class="tab-view">
   <h2 style="color: #FFFFFF; margin-bottom: 12px;">Configuración</h2>
+      
+      <!-- Formulario Contraseña -->
+      <div style="background: #131A2E; padding: 16px; border-radius: 12px; border: 1px solid #1F2A44; margin-bottom: 16px;">
+        <div style="color: #FFFFFF; font-size: 14px; font-weight: 800; margin-bottom: 8px;">🔒 Cambiar Contraseña</div>
+        <input type="password" id="cfgPassActual" placeholder="Contraseña actual" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9;box-sizing:border-box;">
+        <input type="password" id="cfgPassNueva" placeholder="Nueva contraseña" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9;box-sizing:border-box;">
+        <input type="password" id="cfgPassConfirm" placeholder="Confirmar nueva contraseña" style="width:100%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9;box-sizing:border-box;">
+        <button onclick="cambiarPassword()" style="width: 100%; padding: 12px; background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); border-radius: 10px; font-weight: 800; cursor:pointer;">Actualizar Contraseña</button>
+      </div>
+
+      <!-- Formulario WhatsApp -->
+      <div style="background: #131A2E; padding: 16px; border-radius: 12px; border: 1px solid #1F2A44; margin-bottom: 16px;">
+        <div style="color: #FFFFFF; font-size: 14px; font-weight: 800; margin-bottom: 8px;">📱 Cambiar WhatsApp (Teléfono de Login)</div>
+        <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">Este número es tu usuario y tu WhatsApp de contacto.</p>
+        <input type="tel" id="cfgWaNuevo" placeholder="Nuevo WhatsApp (ej: 5355...)" style="width:100%;padding:10px;margin-bottom:8px;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9;box-sizing:border-box;">
+        <input type="password" id="cfgWaPass" placeholder="Contraseña para confirmar" style="width:100%;padding:10px;margin-bottom:12px;border-radius:8px;border:1px solid #334155;background:#0F172A;color:#F1F5F9;box-sizing:border-box;">
+        <button onclick="cambiarWhatsApp()" style="width: 100%; padding: 12px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.4); border-radius: 10px; font-weight: 800; cursor:pointer;">Actualizar WhatsApp</button>
+      </div>
   <div style="background: #131A2E; padding: 16px; border-radius: 12px; border: 1px solid #EF4444;">
     <div style="color: #FFFFFF; font-size: 14px; font-weight: 800; margin-bottom: 8px;">Zona de peligro</div>
     <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">Tu cuenta irá a la papelera por 30 días.</p>
