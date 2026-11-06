@@ -24,7 +24,7 @@
       banner.parentNode.insertBefore(btn, banner);
     }
 
-    // --- 2. INYECTAR MODALES (CARRITO Y PRODUCTO) ---
+    // --- 2. INYECTAR MODALES ---
     if (!document.getElementById('cart-overlay')) {
       document.body.insertAdjacentHTML('beforeend', `
         <div id="cart-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-end;justify-content:center;">
@@ -53,12 +53,19 @@
             <h2 id="pm-title" style="color:#FFF;font-size:20px;margin-bottom:10px;line-height:1.3;"></h2>
             <div id="pm-price" style="color:#22C55E;font-size:24px;font-weight:900;margin-bottom:10px;"></div>
             <div id="pm-location" style="color:#94A3B8;font-size:14px;margin-bottom:20px;"></div>
+            
             <div style="display:flex;gap:10px;margin-top:20px;">
               <button id="pm-btn-add" style="flex:1;background:#E2E8F0;color:#1E293B;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;">🛒 Agregar</button>
               <button id="pm-btn-wa" style="flex:1;background:#22C55E;color:#0A0E1A;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;">📲 Pedir</button>
               <button id="pm-btn-share" style="background:#3B82F6;color:#FFF;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;">📤</button>
             </div>
             <a id="pm-btn-details" href="#" style="display:block;text-align:center;margin-top:15px;color:#94A3B8;font-size:13px;text-decoration:underline;">Ver descripción completa</a>
+            
+            <!-- SECCIÓN NUEVA: PRODUCTOS RELACIONADOS -->
+            <div id="pm-related-section" style="margin-top:25px; padding-top:15px; border-top:1px solid #1F2A44; display:none;">
+              <h3 style="color:#FFF; font-size:15px; margin-bottom:10px;">Otros productos de esta tienda</h3>
+              <div id="pm-related-list" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;"></div>
+            </div>
           </div>
         </div>
       `);
@@ -91,8 +98,6 @@
       const idMatch = link.match(/id=([^&]+)/);
       if (!idMatch) return;
       const productId = idMatch[1];
-      
-      // GUARDAMOS EL ID EN EL DOM PARA PODER ENCONTRARLO DESDE EL LINK
       card.setAttribute('data-id', productId);
 
       const imgSrc = card.querySelector('.product-img')?.src || '';
@@ -154,6 +159,39 @@
       document.getElementById('pm-btn-wa').onclick = () => window.orderSingle(title, price);
       document.getElementById('pm-btn-share').onclick = () => window.shareProduct(id, title, price);
       
+      // LOGICA DE PRODUCTOS RELACIONADOS
+      const relatedList = document.getElementById('pm-related-list');
+      const relatedSection = document.getElementById('pm-related-section');
+      relatedList.innerHTML = '';
+      
+      let relatedCount = 0;
+      document.querySelectorAll('.product-card').forEach(c => {
+        if (relatedCount >= 5) return; // Máximo 5 recomendados
+        const otherId = c.getAttribute('data-id');
+        if (otherId && otherId !== id) {
+          const otherImg = c.querySelector('.product-img')?.src || '';
+          const otherTitle = c.querySelector('.product-title')?.textContent || '';
+          const otherPrice = c.querySelector('.product-price')?.textContent || '';
+          
+          const miniCard = document.createElement('div');
+          miniCard.style.cssText = 'min-width:100px; width:100px; cursor:pointer;';
+          miniCard.innerHTML = `
+            <img src="${otherImg}" style="width:100px; height:100px; object-fit:cover; border-radius:8px; border:1px solid #1F2A44; margin-bottom:5px;">
+            <div style="color:#FFF; font-size:11px; line-height:1.2; margin-bottom:2px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${otherTitle}</div>
+            <div style="color:#22C55E; font-size:12px; font-weight:bold;">${otherPrice}</div>
+          `;
+          miniCard.onclick = () => {
+            // Al tocar un relacionado, abrimos su modal
+            const loc2 = c.querySelector('.product-location')?.textContent || '';
+            const p2 = parseFloat(otherPrice.replace('$', '')) || 0;
+            window.openProductModal(otherId, otherImg, otherTitle, p2, loc2);
+          };
+          relatedList.appendChild(miniCard);
+          relatedCount++;
+        }
+      });
+      
+      relatedSection.style.display = relatedCount > 0 ? 'block' : 'none';
       document.getElementById('product-overlay').style.display = 'flex';
     };
 
@@ -289,7 +327,6 @@
     // --- 7. AUTO-ABRIR PRODUCTO DESDE EL LINK COMPARTIDO ---
     if (location.hash.startsWith('#producto=')) {
       const pid = location.hash.replace('#producto=', '');
-      // Buscamos la tarjeta usando el data-id que le pusimos arriba
       const card = document.querySelector(`.product-card[data-id="${pid}"]`);
       
       if (card) {
@@ -299,10 +336,7 @@
         const price = parseFloat(priceText) || 0;
         const loc = card.querySelector('.product-location')?.textContent || '';
 
-        // Abrimos el modal automáticamente
         window.openProductModal(pid, imgSrc, title, price, loc);
-
-        // Limpiamos el hash de la URL para que si el usuario cierra el modal, no se vuelva a abrir al recargar
         history.replaceState(null, null, location.pathname + location.search);
       }
     }
