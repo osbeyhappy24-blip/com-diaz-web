@@ -1169,7 +1169,7 @@ cargarCatalogo();
     const btn = $id('liveSearchBtn');
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = '⏳ Buscando en eBay…';
+      btn.innerHTML = '⏳ Buscando…';
     }
 
     try {
@@ -1190,7 +1190,7 @@ cargarCatalogo();
       buscandoLive = false;
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = '🔍 Buscar <b id="liveQuery"></b> en eBay';
+        btn.innerHTML = '🔍 Buscar <b id="liveQuery"></b>';
         if ($id('liveQuery')) $id('liveQuery').textContent = '"' + q + '"';
       }
     }
