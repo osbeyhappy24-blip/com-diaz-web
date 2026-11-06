@@ -3357,3 +3357,125 @@ html{scroll-behavior:smooth}
   font-size: 0.9rem;
   letter-spacing: 1px;
 }
+
+/* ==========================================
+   🏆 COHESIÓN DORADA (Shop Completa)
+   ========================================== */
+:root {
+    --gold-light: #FCF6BA;
+    --gold-mid: #BF953F;
+    --gold-dark: #AA771C;
+    --bg-dark: #0a0a0a;
+    --card-bg: #151515;
+}
+
+/* Fondo general de la tienda */
+body {
+    background-color: var(--bg-dark) !important;
+}
+
+/* Header y Barra de búsqueda */
+header, .navbar, .top-bar {
+    background: rgba(10, 10, 10, 0.95) !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3) !important;
+}
+input[type="text"], input[type="search"], .search-input {
+    background: #111 !important;
+    border: 1px solid var(--gold-mid) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+}
+input::placeholder {
+    color: #888 !important;
+}
+
+/* Banner "Vende en Cuba" */
+[class*="vende"], [class*="banner-cta"] {
+    background: linear-gradient(135deg, #111, #1a1a1a) !important;
+    border: 1px solid var(--gold-mid) !important;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.1) !important;
+    border-radius: 12px !important;
+}
+[class*="vende"] button, [class*="banner-cta"] button {
+    background: linear-gradient(to bottom, var(--gold-light), var(--gold-mid)) !important;
+    color: #000 !important;
+    font-weight: 900 !important;
+    border: none !important;
+}
+
+/* Tabs y Chips de Filtros */
+.filter-chip, [class*="chip"], .tab-btn, .category-btn {
+    background: #111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.3) !important;
+    color: #ccc !important;
+    transition: all 0.2s;
+}
+.filter-chip.active, .tab-btn.active, .category-btn.active,
+.filter-chip:hover, .tab-btn:hover, .category-btn:hover {
+    background: linear-gradient(to bottom, var(--gold-light), var(--gold-mid)) !important;
+    color: #000 !important;
+    border-color: var(--gold-light) !important;
+    font-weight: 800 !important;
+}
+
+/* Tarjetas de Producto */
+[class*="product-card"], [class*="card"] {
+    background: var(--card-bg) !important;
+    border: 1px solid rgba(212, 175, 55, 0.2) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    transition: transform 0.2s, border-color 0.2s;
+}
+[class*="product-card"]:hover, [class*="card"]:hover {
+    border-color: var(--gold-mid) !important;
+    transform: translateY(-3px);
+}
+[class*="product-card"] .price, [class*="card"] .price, [class*="price"] {
+    color: var(--gold-light) !important;
+    font-weight: 900 !important;
+    font-size: 1.1rem !important;
+    text-shadow: 0 0 5px rgba(252, 246, 186, 0.3);
+}
+[class*="product-card"] .shop-name, [class*="card"] .shop-name {
+    color: var(--gold-mid) !important;
+    font-weight: bold !important;
+}
+
+/* Botones dentro de las Tarjetas */
+button[class*="add"], button[class*="cart"] {
+    background: linear-gradient(to bottom, var(--gold-light), var(--gold-mid)) !important;
+    color: #000 !important;
+    font-weight: 800 !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+button[class*="whatsapp"], button[class*="wa"], a[class*="whatsapp"] {
+    background: transparent !important;
+    border: 1px solid var(--gold-mid) !important;
+    color: var(--gold-mid) !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    transition: background 0.2s;
+}
+button[class*="whatsapp"]:hover, button[class*="wa"]:hover {
+    background: rgba(212, 175, 55, 0.1) !important;
+}
+
+/* 📱 Grid Móvil Optimizado (3 columnas en pantallas > 400px) */
+@media (min-width: 400px) and (max-width: 768px) {
+    [class*="grid"], [class*="products-container"] {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+    }
+    [class*="product-card"], [class*="card"] {
+        padding: 8px !important;
+    }
+    [class*="product-card"] h3, [class*="card"] h3 {
+        font-size: 0.85rem !important;
+        line-height: 1.2;
+    }
+    button[class*="add"], button[class*="whatsapp"] {
+        font-size: 0.75rem !important;
+        padding: 6px !important;
+    }
+}
