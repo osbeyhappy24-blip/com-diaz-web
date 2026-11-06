@@ -138,6 +138,65 @@
       }
     }
 
+    // --- BÚSQUEDA POR VOZ ---
+    var _searchInput = document.querySelector('input[placeholder*="Buscar"], input[type="search"]');
+    if (_searchInput && !document.getElementById('btn-voice-search')) {
+      var _wrap = document.createElement('div');
+      _wrap.style.cssText = 'display:flex; gap:8px; align-items:center; width:100%; margin-top:10px;';
+      
+      // Movemos el input a un contenedor flex para alinear con el micro
+      _searchInput.parentNode.insertBefore(_wrap, _searchInput);
+      _wrap.appendChild(_searchInput);
+      _searchInput.style.flex = '1';
+      _searchInput.style.margin = '0';
+
+      var _vBtn = document.createElement('button');
+      _vBtn.id = 'btn-voice-search';
+      _vBtn.innerHTML = '🎤';
+      _vBtn.title = 'Buscar por voz';
+      _vBtn.style.cssText = 'background:#22C55E;color:#0A0E1A;border:none;padding:10px 15px;border-radius:8px;font-size:18px;cursor:pointer;flex:0 0 auto;box-shadow:0 2px 4px rgba(0,0,0,0.2);';
+      _wrap.appendChild(_vBtn);
+
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SR) {
+        var rec = new SR();
+        rec.lang = 'es-ES';
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+
+        _vBtn.onclick = function() { try { rec.start(); } catch(e) {} };
+        
+        rec.onstart = function() {
+          _vBtn.innerHTML = '🔴';
+          _vBtn.style.background = '#ef4444';
+          _vBtn.style.color = '#FFF';
+        };
+        
+        rec.onresult = function(e) {
+          var text = e.results[0][0].transcript;
+          _searchInput.value = text;
+          // Disparamos los eventos para que el filtro original de la tienda reaccione
+          _searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+          _searchInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+        };
+        
+        rec.onerror = function() {
+          _vBtn.innerHTML = '🎤';
+          _vBtn.style.background = '#22C55E';
+          _vBtn.style.color = '#0A0E1A';
+          alert('No se pudo escuchar. Verifica los permisos del micrófono.');
+        };
+        
+        rec.onend = function() {
+          _vBtn.innerHTML = '🎤';
+          _vBtn.style.background = '#22C55E';
+          _vBtn.style.color = '#0A0E1A';
+        };
+      } else {
+        _vBtn.style.display = 'none'; // Si el navegador no soporta, ocultar botón
+      }
+    }
+
     // --- 4. BOTÓN FLOTANTE CARRITO ---
     if (!document.getElementById('cart-fab')) {
       const fab = document.createElement('button');
