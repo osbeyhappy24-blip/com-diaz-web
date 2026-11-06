@@ -24,6 +24,8 @@
       banner.parentNode.insertBefore(btn, banner);
     }
 
+    var _st=document.createElement('style');_st.textContent='.tienda-actions{display:grid!important;grid-template-columns:1fr auto!important;gap:10px!important}.tienda-actions .btn-wa{grid-column:1/-1!important;justify-content:center!important}.tienda-actions .btn-share{justify-content:center!important}.prov-filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:20px;padding-bottom:5px}.prov-btn{padding:6px 12px;background:#131A2E;color:#94A3B8;border:1px solid #1F2A44;border-radius:15px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.prov-btn.active{background:#22C55E;color:#0A0E1A;border-color:#22C55E}';document.head.appendChild(_st);
+
     // --- 2. BOTÓN QR EN EL HEADER DE LA TIENDA ---
     const actionsContainer = document.querySelector('.tienda-actions');
     if (actionsContainer && !document.getElementById('btn-show-qr')) {
@@ -159,6 +161,8 @@
     });
 
     // --- 6. FUNCIONES GLOBALES ---
+    if(!document.getElementById('prov-filters-container')){var _f=document.querySelector('.filters');if(_f){var _p=new Set();document.querySelectorAll('.product-location').forEach(function(l){var t=l.textContent.replace('📍','').trim().split('/')[0].trim();if(t)_p.add(t);});if(_p.size>1){var _d=document.createElement('div');_d.id='prov-filters-container';_d.className='prov-filters';var _h='<button class="prov-btn active" onclick="window.fp(\'todas\',this)">📍 Todas</button>';_p.forEach(function(p){_h+='<button class="prov-btn" onclick="window.fp(\''+p+'\',this)">📍 '+p+'</button>';});_d.innerHTML=_h;_f.parentNode.insertBefore(_d,_f.nextSibling);}}}window.fp=function(p,b){document.querySelectorAll('.prov-btn').forEach(function(x){x.classList.remove('active');});if(b)b.classList.add('active');document.querySelectorAll('.product-card').forEach(function(cd){if(p==='todas'){cd.style.display='flex';}else{var l=cd.querySelector('.product-location')?cd.querySelector('.product-location').textContent:'';cd.style.display=(l.replace('📍','').trim().split('/')[0].trim()===p)?'flex':'none';}});};
+
     window.openQrModal = function() {
       const storeUrl = location.origin + location.pathname + '?slug=' + slug;
       const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(storeUrl);
