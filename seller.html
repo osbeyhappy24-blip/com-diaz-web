@@ -1342,6 +1342,54 @@ window.ptlLogout = function() {
 };
 </script>
 
+
+<script id="ptl-seller-final-touches">
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. OJITO PARA EL LOGIN
+    const loginPass = document.getElementById('logPassword');
+    if (loginPass && !document.getElementById('ptlEyeLogin')) {
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.width = '100%';
+        
+        loginPass.parentNode.insertBefore(wrapper, loginPass);
+        wrapper.appendChild(loginPass);
+
+        const eyeBtn = document.createElement('button');
+        eyeBtn.id = 'ptlEyeLogin';
+        eyeBtn.type = 'button';
+        eyeBtn.innerHTML = '👁️';
+        eyeBtn.style.cssText = 'position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94A3B8; font-size: 20px; cursor: pointer; z-index: 10;';
+        wrapper.appendChild(eyeBtn);
+
+        eyeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (loginPass.type === 'password') {
+                loginPass.type = 'text';
+                eyeBtn.innerHTML = '🙈';
+            } else {
+                loginPass.type = 'password';
+                eyeBtn.innerHTML = '👁️';
+            }
+        });
+    }
+
+    // 2. BANNER DE REFERIDOS (Debajo del formulario de registro)
+    const panelRegister = document.getElementById('panel-register');
+    if (panelRegister && !document.getElementById('ptlReferralBanner')) {
+        const banner = document.createElement('div');
+        banner.id = 'ptlReferralBanner';
+        banner.style.cssText = 'margin-top: 20px; padding: 15px; background: rgba(34, 197, 94, 0.1); border: 1px dashed #22C55E; border-radius: 8px; text-align: center;';
+        banner.innerHTML = `
+            <p style="color: #F1F5F9; font-size: 14px; margin: 0 0 5px 0; font-weight: bold;">🎁 ¡Gana productos extra!</p>
+            <p style="color: #94A3B8; font-size: 12px; margin: 0;">Invita a otros vendedores y gana +5 productos en tu plan por cada uno que se registre.</p>
+        `;
+        // Insertar al final del panel de registro
+        panelRegister.appendChild(banner);
+    }
+});
+</script>
+
 </body>
 </html>
 
