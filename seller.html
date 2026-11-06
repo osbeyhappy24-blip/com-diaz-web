@@ -712,12 +712,14 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
         telefono: document.getElementById('regTelefono').value.trim(),
         password: document.getElementById('regPassword').value,
         provincia: document.getElementById('regProvincia').value || null,
-        municipio: document.getElementById('regMunicipio').value || null, referred_by_code: localStorage.getItem('comdiaz_referral_code') || undefined})
+        municipio: document.getElementById('regMunicipio').value || null,
+        plan_id: document.getElementById('selectedPlanId').value || 'basico',
+        referred_by_code: localStorage.getItem('comdiaz_referral_code') || undefined})
     });
     const d = await r.json();
 
     if (d.ok) {
-      // Guardar token
+      if (d.token) localStorage.setItem('comdiaz_seller_token', d.token);
       localStorage.setItem('comdiaz_seller_telefono', document.getElementById('regTelefono').value.trim());
       // Mostrar pendiente
       document.getElementById('panel-register').classList.remove('active');
@@ -1129,7 +1131,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
                             
                             // ¡Éxito detectado! Mostrar nuestro modal bonito
-                            const planSeleccionado = document.querySelector('.plan-card.active')?.innerText || 'Básico';
+                            const planId = document.getElementById('selectedPlanId').value || 'basico';
+                            const planSeleccionado = planId === 'pro' ? 'Pro ($5 USD/mes)' : (planId === 'premium' ? 'Premium ($15 USD/mes)' : 'Básico');
                             const exitoMsg = document.getElementById('ptlExitoMensaje');
                             
                             if (planSeleccionado.toLowerCase().includes('pro') || planSeleccionado.toLowerCase().includes('premium')) {
