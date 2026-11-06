@@ -1772,6 +1772,10 @@ body { padding-bottom: 100px; }
   body.modal-open #bottomTabs {
     display: none !important;
   }
+  /* Fix: modalAccionesProducto hereda .modal pero necesita z-index alto */
+  .ptl-modal-acciones {
+    z-index: 100001 !important;
+  }
   /* Fix defensivo: reforzar overlay fixed en cualquier .modal visible */
   .modal:not(.hidden) {
     position: fixed !important;
@@ -2366,7 +2370,8 @@ function abrirAcciones(id) {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'modalAccionesProducto';
-        modal.className = 'ptl-modal-acciones';
+        modal.className = 'modal ptl-modal-acciones';
+        modal.style.display = 'none';
         document.body.appendChild(modal);
     }
 
@@ -5985,7 +5990,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function() {
-  var modalIds = ['tiendaModal', 'productModal', 'modalPedido', 'modalResena', 'modalVerificar'];
+  var modalIds = ['tiendaModal', 'productModal', 'modalPedido', 'modalResena', 'modalVerificar', 'modalAccionesProducto'];
   setInterval(function() {
     var anyOpen = false;
     for (var i = 0; i < modalIds.length; i++) {
