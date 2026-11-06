@@ -300,6 +300,8 @@ textarea { min-height: 60px; resize: vertical; }
   display: none;
 }
 .toast.show { display: block; }
+/* Fix: subir toast sobre la barra inferior (que mide ~80px) */
+body:not(.modal-open) .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important; }
 .toast.ok { border-color: #10b981; }
 .toast.err { border-color: #ef4444; }
 
