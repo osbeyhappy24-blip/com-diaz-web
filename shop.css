@@ -3566,3 +3566,103 @@ button[class*="whatsapp"]:hover, button[class*="wa"]:hover {
     height: auto !important;
     min-height: 350px !important;
 }
+
+/* ==========================================
+   ⚡ FUERZA BRUTA DORADA (Header, Banner, Tabs, Botones)
+   ========================================== */
+
+/* Header y Barra de Búsqueda */
+header, .header, .top-bar, nav {
+    background: #0a0a0a !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.4) !important;
+}
+input[placeholder*="Buscar"] {
+    background: #111 !important;
+    border: 1px solid #BF953F !important;
+    color: #FCF6BA !important;
+}
+input[placeholder*="Buscar"]::placeholder {
+    color: #888 !important;
+}
+
+/* Tabs (Todo / Tiendas / Vendedores) - Anulando el <style> del head */
+.tab, .tab.active {
+    background: transparent !important;
+    border: 1px solid #BF953F !important;
+    color: #BF953F !important;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s !important;
+}
+.tab.active, .tab:hover {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+}
+
+/* Chips de categorías (Todas, Audio, etc) */
+.chip, .filter-btn {
+    background: #111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    color: #ccc !important;
+}
+.chip.active, .filter-btn.active {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+    font-weight: 800 !important;
+}
+
+/* Banner "Vende en Cuba" (El estático) */
+.ptl-cta-banner {
+    background: linear-gradient(135deg, #111, #1a1a1a) !important;
+    border: 1px solid #BF953F !important;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15) !important;
+    border-radius: 12px !important;
+}
+.ptl-cta-btn {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+}
+
+/* Banner "Vende en Cuba" (El inyectado por JS - Atrapando el style en línea) */
+div[style*="linear-gradient(135deg, #131A2E"] {
+    background: #111 !important;
+    border: 1px solid #BF953F !important;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15) !important;
+}
+div[style*="linear-gradient(135deg, #131A2E"] a {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+}
+div[style*="linear-gradient(135deg, #131A2E"] h3 {
+    color: #FCF6BA !important;
+}
+
+/* Botones de las Tarjetas (Forzando el color) */
+.product-card .product-add {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    border: none !important;
+}
+.product-card .product-buy {
+    background: transparent !important;
+    border: 1px solid #BF953F !important;
+    color: #BF953F !important;
+    font-weight: 800 !important;
+}
+.product-card .product-buy:hover {
+    background: rgba(212, 175, 55, 0.2) !important;
+    color: #FCF6BA !important;
+}
+
+/* Fondo general de la página y body */
+body {
+    background-color: #050505 !important;
+}
