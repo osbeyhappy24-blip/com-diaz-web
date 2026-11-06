@@ -7,3 +7,13 @@ audit_*.py
 *.bak
 *.tmp
 *.log
+# Backups temporales (nunca subir a git)
+*.bak
+*.bak-*
+*.bak.*
+*.swp
+*.tmp
+
+# Scripts temporales de fix
+fix_tienda.py
+fix_*.py
