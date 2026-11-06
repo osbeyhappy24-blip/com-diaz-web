@@ -518,9 +518,126 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
+<style id="ptl-modal-exito-css">
+  #ptlModalExito {
+      display: none !important; /* Oculto por defecto */
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 14, 26, 0.95); z-index: 999999;
+      justify-content: center; align-items: center; backdrop-filter: blur(5px);
+  }
+  #ptlModalExito.ptl-show { display: flex !important; }
+  
+  .ptl-exito-box {
+      background: #131A2E !important; border: 1px solid #22C55E !important; border-radius: 16px !important;
+      padding: 30px !important; width: 90% !important; max-width: 350px !important; text-align: center !important;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2) !important;
+      animation: ptlPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  }
+  
+  @keyframes ptlPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+  }
+  
+  .ptl-check-circle {
+      width: 70px !important; height: 70px !important; border-radius: 50% !important;
+      background: rgba(34, 197, 94, 0.15) !important; border: 2px solid #22C55E !important;
+      display: flex !important; align-items: center !important; justify-content: center !important;
+      font-size: 35px !important; color: #22C55E !important; margin: 0 auto 20px auto !important;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.4) !important;
+  }
+  
+  .ptl-exito-box h2 { 
+      color: #F1F5F9 !important; margin: 0 0 10px 0 !important; font-size: 22px !important; font-weight: 900 !important; 
+  }
+  .ptl-exito-box p { 
+      color: #94A3B8 !important; font-size: 14px !important; margin-bottom: 25px !important; line-height: 1.5 !important; 
+  }
+</style>
+
+</head>
+<body>
 
 
+<div class="header">
+  
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+      <span class="ptl-logo" style="width:48px;height:48px;font-size:26px;border-radius:14px;background:linear-gradient(135deg,#0066FF,#22C55E);display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(34,197,94,0.4)"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="display:block"><rect width="100" height="100" rx="22" fill="#0B132B"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FFFFFF"/></svg></span>
+      <h1 style="font-size:26px;font-weight:900;margin:0;color:#FFFFFF">Vende en <span style="color:#22C55E">ProfitToLife</span></h1>
+    </div>
+  <p>Tu negocio al alcance de toda Cuba 🇨🇺</p>
+  <div class="header-badges" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px;">
+    <span style="background:rgba(34,197,94,0.15);color:#22C55E;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;">✅ Gratis para empezar</span>
+    <span style="background:rgba(34,197,94,0.15);color:#22C55E;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;">💬 Sin comisiones</span>
+    <span style="background:rgba(34,197,94,0.15);color:#22C55E;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;">📲 Compra por WhatsApp</span>
+  </div>
+</div>
+<div class="container">
 
+  <div id="viewTabs">
+    <div class="tabs">
+      <div class="tab active" data-tab="register">Registrarme</div>
+      <div class="tab" data-tab="login">Ya tengo cuenta</div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="panel-register" class="panel active">
+      <div style="margin-bottom:16px">
+        <h3 style="color:#f1f5f9;font-size:15px;margin:0 0 4px">1. Elige tu plan</h3>
+        <p style="color:#94a3b8;font-size:12px;margin:0 0 12px">Puedes cambiar de plan en cualquier momento.</p>
+        <div id="planesContainer" data-mode="register" data-actual="basico"></div>
+      </div>
+      <h3 style="color:#f1f5f9;font-size:15px;margin:24px 0 12px">2. Crea tu cuenta</h3>
+
+      <form id="formRegister">
+        <input type="hidden" id="selectedPlanId" name="plan_id" value="basico">
+        <label>Tu nombre completo *</label>
+        <input type="text" id="regNombre" placeholder="Ej: Juan Pérez" maxlength="80" required>
+
+        <label>Tu WhatsApp *</label>
+        <input type="tel" id="regTelefono" placeholder="Ej: 5351234567" maxlength="20" inputmode="numeric" required>
+        <p class="hint">Con este número te contactarán los compradores</p>
+
+        <label>Contraseña *</label>
+        <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" minlength="6" required>
+
+        <label>Provincia</label>
+        <select id="regProvincia">
+          <option value="">Selecciona...</option>
+        </select>
+
+        <label>Municipio</label>
+        <select id="regMunicipio" disabled>
+          <option value="">Primero la provincia</option>
+        </select>
+
+        <button type="submit" class="btn" id="btnRegister">Crear cuenta</button>
+        <div id="regError" class="error"></div>
+        <div id="regSuccess" class="success"></div>
+      </form>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="panel-login" class="panel">
+      <form id="formLogin">
+        <label>Tu WhatsApp</label>
+        <input type="tel" id="logTelefono" placeholder="Ej: 5351234567" maxlength="20" inputmode="numeric" required>
+
+        <label>Contraseña</label>
+        <input type="password" id="logPassword" placeholder="Tu contraseña" required>
+
+        <button type="submit" class="btn" id="btnLogin">Iniciar sesión</button>
+        <div id="logError" class="error"></div>
+      </form>
+    </div>
+
+    <!-- PENDIENTE DE APROBACIÓN -->
+    <div id="successMsg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;"><div id="panel-pending" class="pending">
+      <div class="pending-icon">⏳</div>
+      <h2>Cuenta creada exitosamente</h2>
+      <p>Tu cuenta está <b>pendiente de aprobación</b>.<br>Te avisaremos cuando esté lista para publicar productos.</p>
+      <button class="btn btn-back" onclick="location.href='shop.html'">← Volver a la tienda</button>
+    </div></div></div>
   </div>
 
 </div>
@@ -931,15 +1048,30 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
+<!-- INICIO MODAL EXITO -->
+<div id="ptlModalExito">
+  <div class="ptl-exito-box">
+    <div class="ptl-check-circle">✓</div>
+    <h2>¡Cuenta Creada!</h2>
+    <p id="ptlExitoMensaje">Tu cuenta ha sido creada exitosamente.</p>
+    <button onclick="window.location.href='seller-panel.html'" style="background: #22C55E !important; color: #0A0E1A !important; padding: 14px !important; border-radius: 8px !important; font-weight: 800 !important; font-size: 16px !important; border: none !important; width: 100% !important; cursor: pointer !important;">
+        Ir a mi Panel
+    </button>
+    <button onclick="window.location.href='seller.html'" style="margin-top: 15px !important; background: none !important; border: none !important; color: #94A3B8 !important; text-decoration: underline !important; cursor: pointer !important; font-size: 14px !important;">
+        Cerrar
+    </button>
+  </div>
+</div>
+<!-- FIN MODAL EXITO -->
 
 
-
-<script id="ptl-seller-modal-v2-js">
+<script id="ptl-modal-exito-js">
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('ptlModalExito');
-    let isSubmitting = false; // Bandera de seguridad
+    const form = document.querySelector('form');
+    let isSubmitting = false;
 
-    // 1. DUPLICAR CAMPO DE CONTRASEÑA (Si no existe ya)
+    // 1. Duplicar campo de contraseña (si no existe)
     const passInput = document.querySelector('input[type="password"]');
     if (passInput && !document.getElementById('ptlConfirmPass')) {
         const confirmGroup = document.createElement('div');
@@ -954,76 +1086,66 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmInput.required = true;
         confirmInput.style.cssText = 'width:100%; padding:12px; border-radius:8px; border:1px solid #1F2A44; background:#131A2E; color:#F1F5F9; margin-top:10px; box-sizing:border-box;';
 
+        // Insertar después del input original
         passInput.parentNode.parentNode.insertBefore(confirmGroup, passInput.parentNode.nextSibling);
         confirmGroup.appendChild(confirmInput);
     }
 
-    // 2. LÓGICA DEL FORMULARIO
-    const form = document.querySelector('form');
+    // 2. Lógica al enviar el formulario
     if (form) {
         form.addEventListener('submit', (e) => {
-            // Validar contraseñas
             const pass1 = passInput ? passInput.value : '';
             const pass2 = document.getElementById('ptlConfirmPass') ? document.getElementById('ptlConfirmPass').value : '';
-            
+            const terms = document.getElementById('ptlTermsCheck');
+
+            // Validar contraseñas
             if (pass1 !== pass2) {
-                e.preventDefault();
-                e.stopPropagation();
-                alert('⚠️ Las contraseñas no coinciden. Por favor, verifícalas.');
+                e.preventDefault(); e.stopPropagation();
+                alert('⚠️ Las contraseñas no coinciden.');
                 return;
             }
 
             // Validar términos
-            const terms = document.getElementById('ptlTermsCheck');
             if (terms && !terms.checked) {
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
                 alert('⚠️ Debes aceptar los Términos y Condiciones.');
                 return;
             }
 
-            // Si pasa todo, activamos la bandera
+            // Si todo está bien, empezamos a buscar el mensaje de éxito original
             isSubmitting = true;
-            
-            // Empezar a vigilar si el mensaje de éxito original aparece
-            // (Usamos setInterval porque es más seguro que el Observer)
             let intentos = 0;
+            
             const checkSuccess = setInterval(() => {
                 intentos++;
-                if (intentos > 50) { // Si pasan 5 segundos (50 * 100ms), dejamos de buscar
-                    clearInterval(checkSuccess);
-                    isSubmitting = false;
-                    return;
-                }
+                if (intentos > 50) { clearInterval(checkSuccess); isSubmitting = false; return; }
+                if (!isSubmitting) return;
 
-                if (!isSubmitting) return; // Si se canceló, no hacer nada
-
-                // Buscar el mensaje de éxito original en el DOM
+                // Buscar el texto de éxito en el DOM
                 const allElements = document.querySelectorAll('div, p, span, h3');
                 for (let el of allElements) {
                     if (el.textContent.includes('Cuenta creada exitosamente') || el.textContent.includes('pendiente de aprobación')) {
-                        // Verificar que sea visible (display != none y opacity > 0)
                         const style = window.getComputedStyle(el);
                         if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
                             
-                            // ¡ENCONTRADO! Mostrar nuestro modal bonito
+                            // ¡Éxito detectado! Mostrar nuestro modal bonito
                             const planSeleccionado = document.querySelector('.plan-card.active')?.innerText || 'Básico';
                             const exitoMsg = document.getElementById('ptlExitoMensaje');
                             
                             if (planSeleccionado.toLowerCase().includes('pro') || planSeleccionado.toLowerCase().includes('premium')) {
-                                exitoMsg.innerHTML = "Tu cuenta ha sido creada con el plan <b>" + (planSeleccionado.includes('Pro') ? 'Pro' : 'Premium') + "</b>.<br><br>⏳ <b>Pendiente de aprobación.</b><br>Te avisaremos por WhatsApp cuando el administrador confirme tu pago.";
+                                exitoMsg.innerHTML = "Tu cuenta ha sido creada con el plan <b>" + (planSeleccionado.includes('Pro') ? 'Pro' : 'Premium') + "</b>.<br><br>⏳ <b>Pendiente de aprobación.</b><br>Te avisaremos por WhatsApp.";
                             } else {
-                                exitoMsg.innerHTML = "Tu cuenta con el plan <b>Básico</b> está lista.<br><br>✅ <b>Aprobación automática.</b><br>Ya puedes empezar a subir productos.";
+                                exitoMsg.innerHTML = "Tu cuenta con el plan <b>Básico</b> está lista.<br><br>✅ <b>Aprobación automática.</b><br>Ya puedes subir productos.";
                             }
                             
                             modal.classList.add('ptl-show');
-                            clearInterval(checkSuccess); // Detener la búsqueda
+                            clearInterval(checkSuccess);
                             isSubmitting = false;
                             return;
                         }
                     }
                 }
-            }, 100); // Revisar cada 100ms
+            }, 100);
         });
     }
 });
