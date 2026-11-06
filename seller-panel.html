@@ -1772,6 +1772,12 @@ body { padding-bottom: 100px; }
   body.modal-open #bottomTabs {
     display: none !important;
   }
+  /* Fix defensivo: reforzar overlay fixed en cualquier .modal visible */
+  .modal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+  }
+  body.modal-open { overflow: hidden !important; }
 </style>
 
 
@@ -5984,7 +5990,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var anyOpen = false;
     for (var i = 0; i < modalIds.length; i++) {
       var m = document.getElementById(modalIds[i]);
-      if (m && m.style.display !== 'none' && m.style.display !== '') {
+      if (!m) continue;
+      if (m.classList.contains('hidden')) continue;
+      var _cs = window.getComputedStyle(m);
+      if (_cs.display !== 'none' && _cs.visibility !== 'hidden') {
         anyOpen = true;
         break;
       }
