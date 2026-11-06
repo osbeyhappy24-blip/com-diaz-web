@@ -48,10 +48,10 @@
       `;
       document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-      // Eventos del modal
-      document.getElementById('close-cart-btn').onclick = closeCart;
-      document.getElementById('cart-overlay').onclick = (e) => { if(e.target.id === 'cart-overlay') closeCart(); };
-      document.getElementById('btn-checkout-wa').onclick = checkoutWhatsApp;
+      // Asignación segura de eventos usando funciones flecha
+      document.getElementById('close-cart-btn').onclick = () => window.closeCart();
+      document.getElementById('cart-overlay').onclick = (e) => { if(e.target.id === 'cart-overlay') window.closeCart(); };
+      document.getElementById('btn-checkout-wa').onclick = () => window.checkoutWhatsApp();
     }
 
     // --- 3. BOTÓN FLOTANTE CARRITO ---
@@ -60,7 +60,7 @@
       fab.id = 'cart-fab';
       fab.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#22c55e;color:#0A0E1A;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;box-shadow:0 4px 12px rgba(34,197,94,0.4);cursor:pointer;z-index:999;display:none;align-items:center;justify-content:center;';
       fab.innerHTML = '🛒 <span id="cart-count" style="position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;border-radius:50%;padding:4px 8px;font-size:12px;font-weight:bold;">0</span>';
-      fab.onclick = openCart;
+      fab.onclick = () => window.openCart();
       document.body.appendChild(fab);
     }
 
@@ -84,12 +84,12 @@
       const btnAdd = document.createElement('button');
       btnAdd.textContent = '🛒';
       btnAdd.style.cssText = 'flex:1;padding:6px;border:none;border-radius:6px;font-weight:bold;font-size:14px;cursor:pointer;background:#E2E8F0;color:#1E293B;';
-      btnAdd.onclick = (e) => { e.preventDefault(); e.stopPropagation(); addToCart(productId, title, price); };
+      btnAdd.onclick = (e) => { e.preventDefault(); e.stopPropagation(); window.addToCart(productId, title, price); };
 
       const btnWa = document.createElement('button');
       btnWa.textContent = '📲';
       btnWa.style.cssText = 'flex:1;padding:6px;border:none;border-radius:6px;font-weight:bold;font-size:14px;cursor:pointer;background:#22C55E;color:#0A0E1A;';
-      btnWa.onclick = (e) => { e.preventDefault(); e.stopPropagation(); orderSingle(title, price); };
+      btnWa.onclick = (e) => { e.preventDefault(); e.stopPropagation(); window.orderSingle(title, price); };
 
       actions.appendChild(btnAdd);
       actions.appendChild(btnWa);
@@ -106,15 +106,63 @@
       }
     });
 
-    // --- 5. LÓGICA INTERNA ---
-    function saveCart() {
+    // --- 5. FUNCIONES (DEFINIDAS ANTES DE USARSE) ---
+    window.openCart = function() {
+      renderCartItems();
+      const overlay = document.getElementById('cart-overlay');
+      const modal = document.getElementById('cart-modal');
+      overlay.style.display = 'flex';
+      setTimeout(() => { modal.style.transform = 'translateY(0)'; }, 10);
+    };
+
+    window.closeCart = function() {
+      const overlay = document.getElementById('cart-overlay');
+      const modal = document.getElementById('cart-modal');
+      if (modal) modal.style.transform = 'translateY(100%)';
+      setTimeout(() => { if (overlay) overlay.style.display = 'none'; }, 300);
+    };
+
+    window.changeQty = function(index, delta) {
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) cart.splice(index, 1);
       localStorage.setItem('ptl_cart_' + slug, JSON.stringify(cart));
       updateUI();
-      if (document.getElementById('cart-overlay').style.display === 'flex') {
-        renderCartItems();
-      }
-    }
+      renderCartItems();
+    };
 
+    window.addToCart = function(productId, title, price) {
+      const existing = cart.find(item => String(item.id) === String(productId));
+      if (existing) existing.qty += 1;
+      else cart.push({ id: productId, titulo: title, precio_usd: price, qty: 1 });
+      
+      localStorage.setItem('ptl_cart_' + slug, JSON.stringify(cart));
+      updateUI();
+      
+      const fab = document.getElementById('cart-fab');
+      if (fab) { fab.style.transform = 'scale(1.2)'; setTimeout(() => fab.style.transform = 'scale(1)', 200); }
+    };
+
+    window.orderSingle = function(title, price) {
+      const phone = getPhone();
+      const text = `Hola! Me interesa este producto de tu tienda:\n\n*${title}* - $${price}\n\n¿Está disponible?`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    window.checkoutWhatsApp = function() {
+      if (cart.length === 0) return;
+      const phone = getPhone();
+      let total = 0;
+      let lista = cart.map(item => {
+        total += (item.precio_usd * item.qty);
+        return `${item.qty}x ${item.titulo} - $${(item.precio_usd * item.qty).toFixed(2)}`;
+      }).join('\n');
+      
+      const mensaje = `Hola! Quiero hacer un pedido:\n\n${lista}\n\n*TOTAL: $${total.toFixed(2)}*`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
+      window.closeCart();
+    };
+
+    // --- 6. FUNCIONES AUXILIARES ---
     function updateUI() {
       const count = cart.reduce((acc, item) => acc + item.qty, 0);
       const badge = document.getElementById('cart-count');
@@ -161,60 +209,6 @@
       }
       return '';
     }
-
-    // --- FUNCIONES GLOBALES ---
-    window.addToCart = function(productId, title, price) {
-      const existing = cart.find(item => String(item.id) === String(productId));
-      if (existing) existing.qty += 1;
-      else cart.push({ id: productId, titulo: title, precio_usd: price, qty: 1 });
-      
-      saveCart();
-      
-      const fab = document.getElementById('cart-fab');
-      if (fab) { fab.style.transform = 'scale(1.2)'; setTimeout(() => fab.style.transform = 'scale(1)', 200); }
-    };
-
-    window.orderSingle = function(title, price) {
-      const phone = getPhone();
-      const text = `Hola! Me interesa este producto de tu tienda:\n\n*${title}* - $${price}\n\n¿Está disponible?`;
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
-    };
-
-    window.changeQty = function(index, delta) {
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) cart.splice(index, 1);
-      saveCart();
-    };
-
-    window.openCart = function() {
-      renderCartItems();
-      const overlay = document.getElementById('cart-overlay');
-      const modal = document.getElementById('cart-modal');
-      overlay.style.display = 'flex';
-      // Pequeño delay para la animación
-      setTimeout(() => { modal.style.transform = 'translateY(0)'; }, 10);
-    };
-
-    window.closeCart = function() {
-      const overlay = document.getElementById('cart-overlay');
-      const modal = document.getElementById('cart-modal');
-      modal.style.transform = 'translateY(100%)';
-      setTimeout(() => { overlay.style.display = 'none'; }, 300);
-    };
-
-    window.checkoutWhatsApp = function() {
-      if (cart.length === 0) return;
-      const phone = getPhone();
-      let total = 0;
-      let lista = cart.map(item => {
-        total += (item.precio_usd * item.qty);
-        return `${item.qty}x ${item.titulo} - $${(item.precio_usd * item.qty).toFixed(2)}`;
-      }).join('\n');
-      
-      const mensaje = `Hola! Quiero hacer un pedido:\n\n${lista}\n\n*TOTAL: $${total.toFixed(2)}*`;
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, '_blank');
-      closeCart();
-    };
 
     updateUI();
   }
