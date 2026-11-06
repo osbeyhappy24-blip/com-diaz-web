@@ -1962,7 +1962,7 @@ body { padding-bottom: 100px; }
             <li>🏷️ Marca propia con logo y banner</li>
             <li>🔗 Link único para compartir</li>
             <li>📦 Todos tus productos en un solo lugar</li>
-            <li>📱 Página web propia (<span id="tuSlugEjemplo" style="color:#4ADE80">market.profittolife.com/tienda/tu-nombre</span>)</li>
+            <li>📱 Página web propia (<span id="tuSlugEjemplo" style="color:#4ADE80">osbeyhappy24-blip.github.io/com-diaz-web/tienda.html?slug=tu-nombre</span>)</li>
           </ul>
         </div>
         <button onclick="abrirModalTienda()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22C55E,#22C55E);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer">
@@ -4923,7 +4923,7 @@ console.log('[IDB] IndexedDB listo');
 
       <label class="tienda-label">Tu link único *</label>
       <div style="display:flex;gap:6px;align-items:center">
-        <span style="color:#94A3B8;font-size:12px">market.profittolife.com/tienda/</span>
+        <span style="color:#94A3B8;font-size:12px">osbeyhappy24-blip.github.io/com-diaz-web/tienda.html?slug=</span>
         <input type="text" id="tiendaSlugInput" class="tienda-input" placeholder="electronica-osbey" maxlength="40" style="flex:1" oninput="validarSlug(this.value)">
       </div>
       <div id="slugStatus" style="font-size:11px;margin-top:4px;color:#94a3b8">Solo letras, números y guiones</div>
@@ -5026,7 +5026,7 @@ console.log('[IDB] IndexedDB listo');
     var sellerName = document.getElementById('sellerName').textContent || '';
     var slugEj = generarSlug(sellerName) || 'tu-nombre';
     var el = document.getElementById('tuSlugEjemplo');
-    if (el) el.textContent = 'market.profittolife.com/tienda/' + slugEj;
+    if (el) el.textContent = 'osbeyhappy24-blip.github.io/com-diaz-web/tienda.html?slug=' + slugEj;
   }
 
   function mostrarTiendaCreada(t) {
@@ -5058,7 +5058,7 @@ console.log('[IDB] IndexedDB listo');
     var url = window.location.origin + window.location.pathname.replace('seller-panel.html', 'tienda.html') + '?slug=' + encodeURIComponent(t.slug);
     var urlEl = document.getElementById('miTiendaUrl');
     urlEl.href = url;
-    document.getElementById('miTiendaUrlText').textContent = 'market.profittolife.com/tienda/' + t.slug;
+    document.getElementById('miTiendaUrlText').textContent = 'osbeyhappy24-blip.github.io/com-diaz-web/tienda.html?slug=' + t.slug;
 
     // Botón explícito "Ver mi tienda"
     var verBtn = document.getElementById('miTiendaVerBtn');
@@ -5389,7 +5389,7 @@ console.log('[IDB] IndexedDB listo');
     while ((node = walker.nextNode())) {
       if (node.nodeValue && node.nodeValue.indexOf('Comdiaz') >= 0) {
         node.nodeValue = node.nodeValue
-          .replace(/comdiaz\.shop\/tienda\//g, 'market.profittolife.com/tienda/')
+          .replace(/comdiaz\.shop\/tienda\//g, 'osbeyhappy24-blip.github.io/com-diaz-web/tienda.html?slug=')
           .replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace')
           .replace(/Comdiaz/g, 'ProfitToLife');
       }
