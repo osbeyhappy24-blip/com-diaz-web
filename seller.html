@@ -1151,6 +1151,45 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script id="ptl-eye-confirm-js">
+document.addEventListener('DOMContentLoaded', () => {
+    // Buscar el input de confirmar contraseña que inyectamos antes
+    const confirmInput = document.getElementById('ptlConfirmPass');
+    
+    if (confirmInput && !document.getElementById('ptlEyeBtnConfirm')) {
+        // Crear el contenedor relativo
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.width = '100%';
+        
+        // Insertar el wrapper antes del input y mover el input dentro
+        confirmInput.parentNode.insertBefore(wrapper, confirmInput);
+        wrapper.appendChild(confirmInput);
+
+        // Crear el botón del ojito
+        const eyeBtn = document.createElement('button');
+        eyeBtn.id = 'ptlEyeBtnConfirm';
+        eyeBtn.type = 'button';
+        eyeBtn.innerHTML = '👁️';
+        eyeBtn.style.cssText = 'position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94A3B8; font-size: 20px; cursor: pointer; z-index: 10;';
+        wrapper.appendChild(eyeBtn);
+
+        // Lógica para mostrar/ocultar
+        eyeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirmInput.type === 'password') {
+                confirmInput.type = 'text';
+                eyeBtn.innerHTML = '🙈';
+            } else {
+                confirmInput.type = 'password';
+                eyeBtn.innerHTML = '👁️';
+            }
+        });
+    }
+});
+</script>
+
 </body>
 </html>
 
