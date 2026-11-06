@@ -1,9 +1,9 @@
-*.bak
-*.bak-*
-node_modules/
-.DS_Store
+# Scripts de python de desarrollo
+*.py
+fix_*.py
+audit_*.py
 
-# Folders temporales de consolidación de zips (contienen secrets)
-extract-*/
-*.tar.gz
-comdiaz-archive/
+# Archivos temporales
+*.bak
+*.tmp
+*.log
