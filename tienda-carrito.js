@@ -197,6 +197,43 @@
       }
     }
 
+    // --- TRUST BAR Y MEJORA DE IMAGENES ---
+    if (!document.getElementById('ptl-trust-bar')) {
+      var _trust = document.createElement('div');
+      _trust.id = 'ptl-trust-bar';
+      _trust.style.cssText = 'background:#131A2E; border:1px solid #22C55E; border-radius:10px; padding:10px 15px; margin-bottom:15px; display:flex; align-items:center; gap:10px; font-size:12px; color:#CBD5E1; line-height:1.4;';
+      _trust.innerHTML = '<span style="font-size:18px;">🤝</span> <span><strong style="color:#FFF;">Pago y envío directo con el vendedor.</strong> Compra 100% segura coordinando todo por WhatsApp.</span>';
+      
+      var _filters = document.querySelector('.filters');
+      if (_filters) {
+        _filters.parentNode.insertBefore(_trust, _filters);
+      } else {
+        var _grid = document.getElementById('productsGrid');
+        if (_grid) _grid.parentNode.insertBefore(_trust, _grid);
+      }
+    }
+
+    // Mejorar manejo de imagenes rotas o sin imagen
+    document.querySelectorAll('.product-img').forEach(function(img) {
+      if (!img.hasAttribute('data-img-fix')) {
+        img.setAttribute('data-img-fix', 'true');
+        
+        // Si la imagen ya fallo al cargar y muestra el texto "Sin imagen" en SVG
+        if (img.src.indexOf('data:image/svg') !== -1) {
+          img.style.objectFit = 'contain';
+          img.style.padding = '20%';
+          img.style.background = '#1F2A44';
+        }
+        
+        img.onerror = function() {
+          this.onerror = null;
+          this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23131A2E" width="100" height="100"/><text x="50" y="55" font-family="sans-serif" font-size="12" fill="%2364748B" text-anchor="middle">📷 Sin imagen</text></svg>';
+          this.style.objectFit = 'contain';
+          this.style.padding = '20%';
+        };
+      }
+    });
+
     // --- 4. BOTÓN FLOTANTE CARRITO ---
     if (!document.getElementById('cart-fab')) {
       const fab = document.createElement('button');
