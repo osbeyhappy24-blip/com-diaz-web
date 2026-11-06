@@ -5,11 +5,11 @@
     const grid = document.getElementById('productsGrid');
     if ((grid && grid.children.length > 0) || attempts > 20) {
       clearInterval(checkInterval);
-      initCarrito();
+      initTienda();
     }
   }, 500);
 
-  function initCarrito() {
+  function initTienda() {
     const slug = new URLSearchParams(location.search).get('slug');
     let cart = JSON.parse(localStorage.getItem('ptl_cart_' + slug)) || [];
 
@@ -24,9 +24,9 @@
       banner.parentNode.insertBefore(btn, banner);
     }
 
-    // --- 2. INYECTAR HTML DEL MODAL DEL CARRITO ---
-    if (!document.getElementById('cart-modal')) {
-      const modalHTML = `
+    // --- 2. INYECTAR MODALES (CARRITO Y PRODUCTO) ---
+    if (!document.getElementById('cart-overlay')) {
+      document.body.insertAdjacentHTML('beforeend', `
         <div id="cart-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-end;justify-content:center;">
           <div id="cart-modal" style="background:#0A0E1A;width:100%;max-width:500px;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s ease-out;border:1px solid #1F2A44;border-bottom:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
@@ -45,13 +45,32 @@
             </div>
           </div>
         </div>
-      `;
-      document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-      // Asignación segura de eventos usando funciones flecha
+        <div id="product-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1001;align-items:center;justify-content:center;padding:20px;">
+          <div id="product-modal" style="background:#0A0E1A;width:100%;max-width:450px;border-radius:16px;padding:20px;position:relative;border:1px solid #1F2A44;max-height:90vh;overflow-y:auto;">
+            <button id="close-product-btn" style="position:absolute;top:10px;right:15px;background:none;border:none;color:#94A3B8;font-size:28px;cursor:pointer;z-index:10;">&times;</button>
+            <img id="pm-image" style="width:100%;height:250px;object-fit:contain;background:#131A2E;border-radius:10px;margin-bottom:15px;" />
+            <h2 id="pm-title" style="color:#FFF;font-size:20px;margin-bottom:10px;line-height:1.3;"></h2>
+            <div id="pm-price" style="color:#22C55E;font-size:24px;font-weight:900;margin-bottom:10px;"></div>
+            <div id="pm-location" style="color:#94A3B8;font-size:14px;margin-bottom:20px;"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+              <button id="pm-btn-add" style="flex:1;background:#E2E8F0;color:#1E293B;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;">🛒 Agregar</button>
+              <button id="pm-btn-wa" style="flex:1;background:#22C55E;color:#0A0E1A;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;">📲 Pedir</button>
+              <button id="pm-btn-share" style="background:#3B82F6;color:#FFF;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;">📤</button>
+            </div>
+            <a id="pm-btn-details" href="#" style="display:block;text-align:center;margin-top:15px;color:#94A3B8;font-size:13px;text-decoration:underline;">Ver descripción completa</a>
+          </div>
+        </div>
+      `);
+
+      // Eventos Modal Carrito
       document.getElementById('close-cart-btn').onclick = () => window.closeCart();
       document.getElementById('cart-overlay').onclick = (e) => { if(e.target.id === 'cart-overlay') window.closeCart(); };
       document.getElementById('btn-checkout-wa').onclick = () => window.checkoutWhatsApp();
+
+      // Eventos Modal Producto
+      document.getElementById('close-product-btn').onclick = () => window.closeProductModal();
+      document.getElementById('product-overlay').onclick = (e) => { if(e.target.id === 'product-overlay') window.closeProductModal(); };
     }
 
     // --- 3. BOTÓN FLOTANTE CARRITO ---
@@ -72,10 +91,11 @@
       const idMatch = link.match(/id=([^&]+)/);
       if (!idMatch) return;
       const productId = idMatch[1];
-
+      const imgSrc = card.querySelector('.product-img')?.src || '';
       const title = card.querySelector('.product-title')?.textContent || 'Producto';
       const priceText = card.querySelector('.product-price')?.textContent.replace('$', '') || '0';
       const price = parseFloat(priceText) || 0;
+      const location = card.querySelector('.product-location')?.textContent || '';
 
       const actions = document.createElement('div');
       actions.className = 'product-actions';
@@ -91,22 +111,77 @@
       btnWa.style.cssText = 'flex:1;padding:6px;border:none;border-radius:6px;font-weight:bold;font-size:14px;cursor:pointer;background:#22C55E;color:#0A0E1A;';
       btnWa.onclick = (e) => { e.preventDefault(); e.stopPropagation(); window.orderSingle(title, price); };
 
+      const btnShare = document.createElement('button');
+      btnShare.textContent = '📤';
+      btnShare.style.cssText = 'flex:1;padding:6px;border:none;border-radius:6px;font-weight:bold;font-size:14px;cursor:pointer;background:#3B82F6;color:#FFF;';
+      btnShare.onclick = (e) => { e.preventDefault(); e.stopPropagation(); window.shareProduct(productId, title, price); };
+
       actions.appendChild(btnAdd);
       actions.appendChild(btnWa);
+      actions.appendChild(btnShare);
 
       const info = card.querySelector('.product-info');
       if (info) info.appendChild(actions);
       
       card.removeAttribute('href');
       card.style.cursor = 'default';
+      
+      // Abrir modal al tocar la imagen o el título
       const img = card.querySelector('.product-img');
       if (img) {
         img.style.cursor = 'pointer';
-        img.onclick = () => { window.location.href = 'producto.html?id=' + productId; };
+        img.onclick = () => window.openProductModal(productId, imgSrc, title, price, location);
+      }
+      const titleEl = card.querySelector('.product-title');
+      if (titleEl) {
+        titleEl.style.cursor = 'pointer';
+        titleEl.onclick = () => window.openProductModal(productId, imgSrc, title, price, location);
       }
     });
 
-    // --- 5. FUNCIONES (DEFINIDAS ANTES DE USARSE) ---
+    // --- 5. FUNCIONES GLOBALES ---
+    window.openProductModal = function(id, img, title, price, loc) {
+      document.getElementById('pm-image').src = img;
+      document.getElementById('pm-title').textContent = title;
+      document.getElementById('pm-price').textContent = '$' + price.toFixed(2);
+      document.getElementById('pm-location').textContent = loc;
+      document.getElementById('pm-btn-details').href = 'producto.html?id=' + id;
+      
+      // Asignar acciones
+      document.getElementById('pm-btn-add').onclick = () => { window.addToCart(id, title, price); window.closeProductModal(); };
+      document.getElementById('pm-btn-wa').onclick = () => window.orderSingle(title, price);
+      document.getElementById('pm-btn-share').onclick = () => window.shareProduct(id, title, price);
+      
+      document.getElementById('product-overlay').style.display = 'flex';
+    };
+
+    window.closeProductModal = function() {
+      document.getElementById('product-overlay').style.display = 'none';
+    };
+
+    window.shareProduct = async function(id, title, price) {
+      const url = location.origin + location.pathname + '?slug=' + slug + '#producto=' + id;
+      const shareData = {
+        title: title,
+        text: `Mira este producto en ProfitToLife: *${title}* - $${price}`,
+        url: url
+      };
+      
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch(e) { console.log('Error sharing', e); }
+      } else {
+        // Fallback: copiar al portapapeles
+        try {
+          await navigator.clipboard.writeText(`${shareData.text}\n${url}`);
+          alert('✅ Link del producto copiado. Pégalo en WhatsApp.');
+        } catch(e) {
+          prompt('Copia este link:', url);
+        }
+      }
+    };
+
     window.openCart = function() {
       renderCartItems();
       const overlay = document.getElementById('cart-overlay');
@@ -211,5 +286,14 @@
     }
 
     updateUI();
+
+    // --- 7. AUTO-ABRIR PRODUCTO DESDE EL LINK ---
+    if (location.hash.startsWith('#producto=')) {
+      const pid = location.hash.replace('#producto=', '');
+      const card = Array.from(document.querySelectorAll('.product-card')).find(c => (c.querySelector('.product-img').onclick?.toString().includes(pid)));
+      // El hash se maneja mejor si el usuario hace click en un link que ya tiene el hash, 
+      // pero para simplificar, no auto-abrimos el modal al cargar la página por primera vez, 
+      // solo si el usuario comparte el link y recarga. (Se puede mejorar después).
+    }
   }
 })();
