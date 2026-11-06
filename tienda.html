@@ -42,7 +42,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .filter-btn.active { background: #22C55E; color: #0A0E1A; }
 .filter-btn:hover { background: #dbeafe; }
 .filter-btn.active:hover { background: #001a35; }
-.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .product-card { background: var(--ptl-card); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.3); transition: transform .15s, box-shadow .15s; cursor: pointer; text-decoration: none; color: inherit; display: flex; flex-direction: column; border: 1px solid var(--ptl-border); }
 .product-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.4); }
 .product-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--ptl-bg); }
@@ -61,6 +61,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   .tienda-logo { width: 80px; height: 80px; font-size: 32px; margin-top: -40px; }
   .tienda-name { font-size: 22px; }
   .products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+/* ptl-grid-3 */
+@media (max-width: 480px) {
+.products-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
+.product-info { padding: 6px !important; }
+.product-title { font-size: 11px !important; line-height: 1.2 !important; }
+.product-price { font-size: 13px !important; }
+.product-location { font-size: 9px !important; }
 }
 </style>
 

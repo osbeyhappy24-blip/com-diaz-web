@@ -102,6 +102,8 @@
       document.getElementById('qr-overlay').onclick = (e) => { if(e.target.id === 'qr-overlay') window.closeQrModal(); };
     }
 
+    var _stGrid=document.createElement('style');_stGrid.id='ptl-btn-mobile';_stGrid.textContent='@media (max-width:480px){.product-actions{gap:3px !important;margin-top:5px !important;}.product-actions button{padding:3px !important;font-size:11px !important;border-radius:4px !important;}}';document.head.appendChild(_stGrid);
+    
     // --- ABOUT TIENDA CARD ---
     if (!document.getElementById('about-tienda-card')) {
       var _actions = document.querySelector('.tienda-actions');
