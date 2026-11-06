@@ -262,24 +262,28 @@
 <!-- 🎉 BANNER DE PROMOCIONES (movido arriba) -->
 
 
-<!-- 🇨🇺 HERO BANNER CUBANO -->
-<section class="shop-hero" id="shopHero">
-  <div class="shop-hero-inner">
-    <div class="shop-hero-badge">🇨🇺 ProfitToLife Marketplace · Cuba</div>
-    <h2 class="shop-hero-title">Lo que buscas, <span>más cerca</span> que nunca</h2>
-    <p class="shop-hero-subtitle">
-      Productos de vendedores cubanos, compra directa por WhatsApp.
-    </p>
-    <!-- hero search eliminado (usar header search) -->
-    <div class="shop-hero-ctas">
-      <button class="shop-hero-cta primary" onclick="heroVerTodo()">
+<!-- 🏆 HERO BANNER PREMIUM GOLD -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<section class="shop-hero premium-hero" id="shopHero">
+  <div class="hero-spotlights"></div>
+  <div class="shop-hero-inner hero-content-premium">
+    <div class="dios-primero">Dios Primero</div>
+    <h1 class="hero-title-gold">ProfitToLife</h1>
+    <div class="hero-subtitle-gold">
+      <span>Marketplace</span>
+      <div class="gold-curve"></div>
+    </div>
+    
+    <div class="shop-hero-ctas mt-4" style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+      <button class="shop-hero-cta primary gold-btn" onclick="heroVerTodo()">
         🛍 Ver catálogo
       </button>
-      <a class="shop-hero-cta secondary" href="seller.html">
+      <a class="shop-hero-cta secondary gold-btn-outline" href="seller.html">
         🏪 Quiero vender
       </a>
     </div>
-    <div class="shop-hero-stats">
+    
+    <div class="shop-hero-stats gold-stats" style="display: flex; gap: 30px; justify-content: center;">
       <div class="shop-hero-stat">
         <span class="shop-hero-stat-num" id="heroStatProductos">0</span>
         <span class="shop-hero-stat-label">Productos</span>
@@ -287,10 +291,6 @@
       <div class="shop-hero-stat">
         <span class="shop-hero-stat-num" id="heroStatLocales">0</span>
         <span class="shop-hero-stat-label">Locales</span>
-      </div>
-      <div class="shop-hero-stat">
-        <span class="shop-hero-stat-num">24/7</span>
-        <span class="shop-hero-stat-label">Disponible</span>
       </div>
     </div>
   </div>
