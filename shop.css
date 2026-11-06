@@ -3479,3 +3479,90 @@ button[class*="whatsapp"]:hover, button[class*="wa"]:hover {
         padding: 6px !important;
     }
 }
+
+/* ==========================================
+   🔥 FIX QUIRÚRGICO: TARJETAS DE PRODUCTO (GOLD)
+   Usando selectores exactos de shop.js
+   ========================================== */
+
+/* Fondo y borde de la tarjeta */
+.product-card {
+    background: #151515 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    border-radius: 12px !important;
+}
+.product-card:hover {
+    border-color: #BF953F !important;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Categoría */
+.product-card .product-category {
+    color: #BF953F !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    background: rgba(212, 175, 55, 0.08) !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    display: inline-block !important;
+    margin-bottom: 6px !important;
+}
+
+/* Título */
+.product-card .product-title {
+    color: #F5F5F5 !important;
+    font-weight: 600 !important;
+}
+
+/* Precio (anulando gradient-brand y transparent) */
+.product-card .product-price {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    font-weight: 900 !important;
+    font-size: 1.2rem !important;
+    text-shadow: none !important;
+}
+
+/* Botón Agregar al pedido */
+.product-card .product-add {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 800 !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25) !important;
+}
+
+/* Botón Pedir por WhatsApp */
+.product-card .product-buy {
+    background: transparent !important;
+    border: 1px solid #BF953F !important;
+    color: #BF953F !important;
+    font-weight: 700 !important;
+}
+.product-card .product-buy:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+    color: #FCF6BA !important;
+}
+
+/* Botón Compartir */
+.product-card .product-share {
+    background: transparent !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    color: #BF953F !important;
+}
+.product-card .product-share:hover {
+    background: rgba(212, 175, 55, 0.1) !important;
+}
+
+/* Asegurar que el HERO sea visible SIEMPRE */
+#shopHero, .premium-hero {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    min-height: 350px !important;
+}
