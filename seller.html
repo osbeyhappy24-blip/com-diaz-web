@@ -1311,6 +1311,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script id="ptl-session-guardian">
+document.addEventListener('DOMContentLoaded', () => {
+    // Solo ejecutar si estamos en seller.html (no en el panel)
+    const token = localStorage.getItem('comdiaz_seller_token');
+    
+    // Si hay token guardado y el usuario acaba de entrar a seller.html
+    // pero NO hizo clic en "Salir", lo mandamos al panel automáticamente
+    if (token && window.location.pathname.includes('seller.html')) {
+        // Verificar que no venga de un "logout" (que borra el token antes)
+        const urlParams = new URLSearchParams(window.location.search);
+        const forceLogin = urlParams.get('force') === '1';
+        
+        if (!forceLogin) {
+            // Pequeña pausa para que el usuario vea la página por un instante
+            setTimeout(() => {
+                window.location.href = 'seller-panel.html';
+            }, 500);
+        }
+    }
+});
+
+// Función global para cerrar sesión (por si la necesitas en el panel)
+window.ptlLogout = function() {
+    localStorage.removeItem('comdiaz_seller_token');
+    localStorage.removeItem('comdiaz_seller_data');
+    localStorage.removeItem('comdiaz_seller_telefono');
+    window.location.href = 'seller.html?force=1';
+};
+</script>
+
 </body>
 </html>
 
