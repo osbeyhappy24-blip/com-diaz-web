@@ -3899,3 +3899,22 @@ body {
     border: 1px solid #BF953F !important;
     color: #BF953F !important;
 }
+
+/* ==========================================
+   👑 FIX DEFINITIVO: CONTENEDOR DEL PRECIO
+   ========================================== */
+#productModal .modal-content > div:has(#pmPrice),
+#productModal .modal-content > div[style*="background"],
+#productModal .pm-price-container {
+    background: #111111 !important;
+    background-color: #111111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.3) !important;
+    border-radius: 12px !important;
+}
+
+/* Forzar que el texto "Precio:" sea visible */
+#productModal #pmPrice,
+#productModal .pm-price-label {
+    color: #FCD34D !important;
+    text-shadow: 0 0 10px rgba(252, 211, 77, 0.5) !important;
+}
