@@ -1618,9 +1618,9 @@ cargarCatalogo();
   function generarMensaje(p) {
     const titulo = p.title || 'Producto';
     const precio = Number(p.salePrice || 0).toFixed(2);
-    const shopUrl = 'https://com-diaz-ty2b.onrender.com/shop.html' + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
-    const wa = (state && state.config && state.config.whatsapp) || '5351425691';
-    const tienda = (state && state.config && state.config.titulo) || 'ProfitToLife Marketplace';
+    const shopUrl = location.origin + location.pathname + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
+    const wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp || (state && state.config && state.config.whatsapp) || '5351425691';
+    const tienda = 'ProfitToLife Marketplace';
 
     return '🛍️ Mira este producto en *' + tienda + ':*\n\n' +
            '*_' + titulo + '_*\n\n' +
