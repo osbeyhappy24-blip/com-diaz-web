@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-FINAL-V12">
+<link rel="stylesheet" href="shop.css?v=GOLD-PERFECT">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -238,7 +238,23 @@ html body .header-content button.active svg {
     display: none !important; 
 }
 </style>
+
+<style id="gold-css-fix">
+html body .logo-badge {
+    background: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
+    border: none !important;
+}
+html body .logo-badge svg {
+    stroke: #0a0a0a !important;
+}
+html body input[placeholder*="Buscar"] {
+    background-color: #111111 !important;
+    border: 1px solid #BF953F !important;
+    color: #FCF6BA !important;
+}
+</style>
 </head>
+
 
 
 
@@ -1079,32 +1095,35 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
+
+
 <script id="gold-insurance">
 document.addEventListener("DOMContentLoaded", () => {
   const forceGold = () => {
-    // Tabs y Chips
+    // 1. Tabs y Chips (Limpiar bordes dobles y forzar colores)
     document.querySelectorAll('.tab, .chip, .filter-btn, [class*="tab"], [class*="chip"]').forEach(el => {
+      el.style.setProperty('box-shadow', 'none', 'important');
       if (!el.classList.contains('active')) {
         el.style.setProperty('background-color', '#111111', 'important');
         el.style.setProperty('background-image', 'none', 'important');
         el.style.setProperty('border', '1px solid #BF953F', 'important');
         el.style.setProperty('color', '#BF953F', 'important');
-        el.querySelectorAll('*').forEach(child => {
-            child.style.setProperty('color', '#BF953F', 'important');
-        });
+        el.querySelectorAll('*').forEach(child => child.style.setProperty('color', '#BF953F', 'important'));
       } else {
         el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
+        el.style.setProperty('background-color', '#BF953F', 'important');
         el.style.setProperty('border', '1px solid #FCF6BA', 'important');
         el.style.setProperty('color', '#0a0a0a', 'important');
-        el.querySelectorAll('*').forEach(child => {
-            child.style.setProperty('color', '#0a0a0a', 'important');
-        });
+        el.querySelectorAll('*').forEach(child => child.style.setProperty('color', '#0a0a0a', 'important'));
       }
     });
 
-    // Iconos del Header
-    document.querySelectorAll('header button, .shop-header button, .icon-btn').forEach(el => {
-      if (!el.classList.contains('active')) {
+    // 2. Botones del Header (Home, Check, Carrito, Luna)
+    document.querySelectorAll('header button, .shop-header button, .icon-btn').forEach((el, index) => {
+      // El primer botón (Home) siempre es el activo
+      const isActive = el.classList.contains('active') || index === 0;
+      
+      if (!isActive) {
         el.style.setProperty('background-color', '#111111', 'important');
         el.style.setProperty('border', '1px solid #BF953F', 'important');
         el.querySelectorAll('svg, i').forEach(icon => {
@@ -1113,6 +1132,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } else {
         el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
+        el.style.setProperty('background-color', '#BF953F', 'important');
         el.style.setProperty('border', '1px solid #FCF6BA', 'important');
         el.querySelectorAll('svg, i').forEach(icon => {
             icon.style.setProperty('stroke', '#0a0a0a', 'important');
@@ -1120,14 +1140,40 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     });
+
+    // 3. Logo del Bolso (.logo-badge) y Barra de Búsqueda
+    document.querySelectorAll('.logo-badge').forEach(el => {
+        el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
+        el.style.setProperty('border', 'none', 'important');
+        el.querySelectorAll('svg').forEach(icon => {
+            icon.style.setProperty('stroke', '#0a0a0a', 'important');
+            icon.style.setProperty('color', '#0a0a0a', 'important');
+        });
+    });
+    
+    document.querySelectorAll('input[placeholder*="Buscar"]').forEach(el => {
+        el.style.setProperty('background-color', '#111111', 'important');
+        el.style.setProperty('border', '1px solid #BF953F', 'important');
+        el.style.setProperty('color', '#FCF6BA', 'important');
+    });
+
+    // 4. Arreglar el texto del título apretado
+    const title = document.getElementById('shopTitle');
+    if (title) {
+        title.style.setProperty('font-size', '15px', 'important');
+        title.style.setProperty('gap', '5px', 'important');
+        title.style.setProperty('white-space', 'nowrap', 'important');
+    }
   };
   
-  // Ejecutar varias veces para ganarle al renderizado asíncrono del JS
+  // Ejecutar varias veces para ganarle al renderizado asíncrono
   setTimeout(forceGold, 100);
   setTimeout(forceGold, 500);
   setTimeout(forceGold, 1500);
+  setTimeout(forceGold, 3000);
 });
 </script>
 </body>
+
 
 </html>
