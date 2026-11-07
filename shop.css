@@ -3844,3 +3844,58 @@ body {
     font-weight: 700 !important;
     border-radius: 12px !important;
 }
+
+/* ==========================================
+   👑 MODAL PRODUCTO - FIX DEFINITIVO
+   ========================================== */
+#productModal .modal-content {
+    background: #111111 !important;
+    background-color: #111111 !important;
+    border: 1px solid #BF953F !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9), 0 0 20px rgba(212, 175, 55, 0.2) !important;
+    color: #FCF6BA !important;
+}
+
+#productModal .modal-backdrop {
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+/* Título y Categoría */
+#productModal #pmTitle {
+    color: #FCF6BA !important;
+    font-weight: 900 !important;
+}
+#productModal #pmCategory {
+    color: #BF953F !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+}
+
+/* Descripción */
+#productModal #pmDescription {
+    color: #a3a3a3 !important;
+}
+
+/* PRECIO BRILLANTE */
+#productModal #pmPrice {
+    color: #FCD34D !important;
+    font-weight: 900 !important;
+    font-size: 2rem !important;
+    text-shadow: 0 0 15px rgba(252, 211, 77, 0.6), 0 0 30px rgba(252, 211, 77, 0.3) !important;
+}
+
+/* Botones del Modal */
+#productModal #pmWaBtn {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4) !important;
+}
+#productModal #pmEbayBtn {
+    background: transparent !important;
+    border: 1px solid #BF953F !important;
+    color: #BF953F !important;
+}
