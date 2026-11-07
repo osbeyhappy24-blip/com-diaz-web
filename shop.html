@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-V10">
+<link rel="stylesheet" href="shop.css?v=GOLD-NUCLEAR">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -129,126 +129,117 @@
 
 
 
-<style id="gold-override-supreme">
-/* 👑 GOLPE DEFINITIVO: REESCRIBIENDO VARIABLES DE BRAND-PTL.CSS */
-html body {
-    --ptl-bg: #050505 !important;
-    --ptl-card: #111111 !important;
-    --ptl-card-hover: #1a1a1a !important;
-    --ptl-border: #BF953F !important;
-    --ptl-green: #BF953F !important; /* El verde ahora es dorado */
-    --ptl-green-dark: #AA771C !important;
-    --ptl-green-light: #FCF6BA !important;
-    --ptl-text: #FCF6BA !important;
-    --ptl-text-muted: #d4af37 !important;
-    --ptl-text-dim: #888888 !important;
-}
 
-/* Forzar que los tabs y chips se vean oscuros por defecto */
+
+<style id="gold-final-boss">
+/* 💣 ATAQUE NUCLEAR: TABS, CHIPS Y HEADER */
+
+/* 1. TABS Y CHIPS (Fondo oscuro, texto dorado) */
 html body .tab, 
 html body .chip, 
 html body .filter-btn,
 html body [class*="tab"], 
 html body [class*="chip"] {
-    background-color: var(--ptl-card) !important;
+    background: #111111 !important;
+    background-color: #111111 !important;
     background-image: none !important;
-    border: 1px solid var(--ptl-border) !important;
-    color: var(--ptl-text) !important;
+    border: 1px solid #BF953F !important;
     border-radius: 20px !important;
     box-shadow: none !important;
 }
 
-/* Forzar color de texto en todos los hijos */
+/* Forzar texto dorado en TODOS los hijos de los tabs/chips */
 html body .tab *, 
 html body .chip *, 
 html body .filter-btn *,
 html body [class*="tab"] *, 
-html body [class*="chip"] * {
-    color: var(--ptl-text) !important;
+html body [class*="chip"] *,
+html body .tab, 
+html body .chip {
+    color: #BF953F !important;
     font-weight: 700 !important;
+    fill: #BF953F !important;
 }
 
-/* ESTADO ACTIVO / HOVER */
+/* 2. TABS Y CHIPS ACTIVOS (Fondo dorado, texto negro) */
 html body .tab.active, 
-html body .tab:hover,
 html body .chip.active,
-html body .chip:hover,
 html body .filter-btn.active,
-html body .filter-btn:hover,
 html body [class*="tab"].active,
 html body [class*="chip"].active {
-    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    background: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
+    background-color: #BF953F !important;
+    background-image: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
     border-color: #FCF6BA !important;
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5) !important;
 }
 
 html body .tab.active *, 
 html body .chip.active *,
 html body .filter-btn.active *,
 html body [class*="tab"].active *,
-html body [class*="chip"].active * {
-    color: #0a0a0a !important; /* Texto negro en el activo */
+html body [class*="chip"].active *,
+html body .tab.active,
+html body .chip.active {
+    color: #0a0a0a !important;
+    fill: #0a0a0a !important;
     font-weight: 900 !important;
 }
 
-/* ICONOS DEL HEADER */
+/* 3. ICONOS DEL HEADER (Botones de Home, Check, Carrito, Luna) */
 html body header button,
 html body header .icon-btn,
 html body header a[role="button"],
 html body .shop-header button,
-html body header button[class*="icon"] {
-    background-color: var(--ptl-card) !important;
+html body .header-content button,
+html body header button[class*="icon"],
+html body header button[class*="nav"] {
+    background: #111111 !important;
+    background-color: #111111 !important;
     background-image: none !important;
-    border: 1px solid var(--ptl-border) !important;
+    border: 1px solid #BF953F !important;
     border-radius: 12px !important;
     box-shadow: none !important;
-    color: var(--ptl-text) !important;
+    color: #BF953F !important;
 }
 
+/* Forzar el color de los SVG dentro del header */
 html body header button svg,
 html body header .icon-btn svg,
 html body .shop-header button svg,
+html body .header-content button svg,
 html body header button i,
 html body header .icon-btn i {
-    stroke: var(--ptl-text) !important;
-    color: var(--ptl-text) !important;
+    stroke: #BF953F !important;
+    color: #BF953F !important;
     fill: none !important;
 }
 
-/* BOTÓN ACTIVO DEL HEADER */
+/* 4. ICONOS DEL HEADER ACTIVOS */
 html body header button.active,
 html body header .icon-btn.active,
-html body .shop-header button.active {
-    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+html body .shop-header button.active,
+html body .header-content button.active {
+    background: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
+    background-color: #BF953F !important;
     border-color: #FCF6BA !important;
 }
 
 html body header button.active svg,
 html body header .icon-btn.active svg,
-html body .shop-header button.active svg {
+html body .shop-header button.active svg,
+html body .header-content button.active svg {
     stroke: #0a0a0a !important;
     color: #0a0a0a !important;
 }
 
-/* Logo Badge (El bolso) */
-html body .logo-badge {
-    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    border: none !important;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3) !important;
-}
-html body .logo-badge svg {
-    stroke: #0a0a0a !important;
-    color: #0a0a0a !important;
-}
-
-/* Arreglar el error de "No hay productos" en Tiendas/Vendedores */
+/* 5. Arreglar el error de "No hay productos" en Tiendas/Vendedores */
 #empty {
     display: none !important; 
 }
 </style>
 </head>
+
 
 
 
