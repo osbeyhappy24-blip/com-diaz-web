@@ -3693,3 +3693,70 @@ body {
     background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
     color: #0a0a0a !important;
 }
+
+/* ==========================================
+   👑 FUERZA TOTAL DORADA (Tabs, Chips, Header Icons)
+   ========================================== */
+
+/* Tabs (Todo, Tiendas, Vendedores) */
+body .tab, body .tab.active {
+    background: #111111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.5) !important;
+    color: #BF953F !important;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    transition: all 0.2s !important;
+    box-shadow: none !important;
+}
+body .tab.active, body .tab:hover {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+    font-weight: 900 !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Chips (Todas, Audio y Accesorios, etc.) */
+body .chip, body .filter-btn {
+    background: #111111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    color: #BF953F !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+}
+body .chip.active, body .filter-btn.active, body .chip:hover, body .filter-btn:hover {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+    font-weight: 800 !important;
+}
+
+/* Iconos del Header (Home, Check, Carrito, Luna) */
+body header .icon-btn, body .header .icon-btn, body .shop-header .icon-btn,
+body header button, body .header button, body .shop-header button {
+    background: #111111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    color: #BF953F !important;
+    border-radius: 12px !important;
+}
+body header .icon-btn.active, body .header .icon-btn.active, body .shop-header .icon-btn.active {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+}
+
+/* Barra de búsqueda (asegurar) */
+body input[placeholder*="Buscar"] {
+    background: #111111 !important;
+    border: 1px solid #BF953F !important;
+    color: #FCF6BA !important;
+}
+body input[placeholder*="Buscar"]::placeholder {
+    color: #888 !important;
+}
+
+/* Fondo del body */
+body {
+    background-color: #050505 !important;
+}
