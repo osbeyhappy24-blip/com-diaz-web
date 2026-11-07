@@ -234,7 +234,7 @@ async function cargarCatalogo() {
     state.config = data.config || {};
 
     // Actualizar header
-    if (state.config.titulo) $('shopTitle').textContent = state.config.titulo;
+    // IGNORADO: El título ahora es fijo para mantener el diseño ProfiToLife
     if (state.config.subtitulo) $('shopSubtitle').textContent = state.config.subtitulo;
 
     renderCategorias();

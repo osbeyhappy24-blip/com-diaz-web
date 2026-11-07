@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-NUCLEAR">
+<link rel="stylesheet" href="shop.css?v=GOLD-FINAL-V12">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -1078,5 +1078,56 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+<script id="gold-insurance">
+document.addEventListener("DOMContentLoaded", () => {
+  const forceGold = () => {
+    // Tabs y Chips
+    document.querySelectorAll('.tab, .chip, .filter-btn, [class*="tab"], [class*="chip"]').forEach(el => {
+      if (!el.classList.contains('active')) {
+        el.style.setProperty('background-color', '#111111', 'important');
+        el.style.setProperty('background-image', 'none', 'important');
+        el.style.setProperty('border', '1px solid #BF953F', 'important');
+        el.style.setProperty('color', '#BF953F', 'important');
+        el.querySelectorAll('*').forEach(child => {
+            child.style.setProperty('color', '#BF953F', 'important');
+        });
+      } else {
+        el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
+        el.style.setProperty('border', '1px solid #FCF6BA', 'important');
+        el.style.setProperty('color', '#0a0a0a', 'important');
+        el.querySelectorAll('*').forEach(child => {
+            child.style.setProperty('color', '#0a0a0a', 'important');
+        });
+      }
+    });
+
+    // Iconos del Header
+    document.querySelectorAll('header button, .shop-header button, .icon-btn').forEach(el => {
+      if (!el.classList.contains('active')) {
+        el.style.setProperty('background-color', '#111111', 'important');
+        el.style.setProperty('border', '1px solid #BF953F', 'important');
+        el.querySelectorAll('svg, i').forEach(icon => {
+            icon.style.setProperty('stroke', '#BF953F', 'important');
+            icon.style.setProperty('color', '#BF953F', 'important');
+        });
+      } else {
+        el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
+        el.style.setProperty('border', '1px solid #FCF6BA', 'important');
+        el.querySelectorAll('svg, i').forEach(icon => {
+            icon.style.setProperty('stroke', '#0a0a0a', 'important');
+            icon.style.setProperty('color', '#0a0a0a', 'important');
+        });
+      }
+    });
+  };
+  
+  // Ejecutar varias veces para ganarle al renderizado asíncrono del JS
+  setTimeout(forceGold, 100);
+  setTimeout(forceGold, 500);
+  setTimeout(forceGold, 1500);
+});
+</script>
 </body>
+
 </html>
