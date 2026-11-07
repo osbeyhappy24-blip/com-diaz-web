@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-ATOMIC">
+<link rel="stylesheet" href="shop.css?v=GOLD-V10">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -127,33 +127,44 @@
 
 
 
+
+
 <style id="gold-override-supreme">
-/* 👑 ATAQUE ATÓMICO FINAL - GANA A BRAND-PTL.CSS Y CUALQUIER OTRO */
-html body .tabs, 
-html body .categories-bar {
-    background: #0a0a0a !important; 
-    border-bottom: none !important;
+/* 👑 GOLPE DEFINITIVO: REESCRIBIENDO VARIABLES DE BRAND-PTL.CSS */
+html body {
+    --ptl-bg: #050505 !important;
+    --ptl-card: #111111 !important;
+    --ptl-card-hover: #1a1a1a !important;
+    --ptl-border: #BF953F !important;
+    --ptl-green: #BF953F !important; /* El verde ahora es dorado */
+    --ptl-green-dark: #AA771C !important;
+    --ptl-green-light: #FCF6BA !important;
+    --ptl-text: #FCF6BA !important;
+    --ptl-text-muted: #d4af37 !important;
+    --ptl-text-dim: #888888 !important;
 }
 
+/* Forzar que los tabs y chips se vean oscuros por defecto */
 html body .tab, 
 html body .chip, 
 html body .filter-btn,
 html body [class*="tab"], 
 html body [class*="chip"] {
-    background-color: #111111 !important;
+    background-color: var(--ptl-card) !important;
     background-image: none !important;
-    border: 1px solid #BF953F !important;
+    border: 1px solid var(--ptl-border) !important;
+    color: var(--ptl-text) !important;
     border-radius: 20px !important;
     box-shadow: none !important;
 }
 
-/* Forzar color de texto en todos los hijos (span, div, etc.) */
+/* Forzar color de texto en todos los hijos */
 html body .tab *, 
 html body .chip *, 
 html body .filter-btn *,
 html body [class*="tab"] *, 
 html body [class*="chip"] * {
-    color: #BF953F !important;
+    color: var(--ptl-text) !important;
     font-weight: 700 !important;
 }
 
@@ -181,26 +192,27 @@ html body [class*="chip"].active * {
     font-weight: 900 !important;
 }
 
-/* ICONOS DEL HEADER (Home, Check, Carrito, Luna) */
+/* ICONOS DEL HEADER */
 html body header button,
 html body header .icon-btn,
 html body header a[role="button"],
-html body .shop-header button {
-    background: #111111 !important;
+html body .shop-header button,
+html body header button[class*="icon"] {
+    background-color: var(--ptl-card) !important;
     background-image: none !important;
-    border: 1px solid rgba(212, 175, 55, 0.5) !important;
+    border: 1px solid var(--ptl-border) !important;
     border-radius: 12px !important;
     box-shadow: none !important;
+    color: var(--ptl-text) !important;
 }
 
-/* Forzar color de los SVG e iconos dentro de los botones */
 html body header button svg,
 html body header .icon-btn svg,
 html body .shop-header button svg,
 html body header button i,
 html body header .icon-btn i {
-    stroke: #BF953F !important;
-    color: #BF953F !important;
+    stroke: var(--ptl-text) !important;
+    color: var(--ptl-text) !important;
     fill: none !important;
 }
 
@@ -215,9 +227,18 @@ html body .shop-header button.active {
 
 html body header button.active svg,
 html body header .icon-btn.active svg,
-html body .shop-header button.active svg,
-html body header button.active i,
-html body header .icon-btn.active i {
+html body .shop-header button.active svg {
+    stroke: #0a0a0a !important;
+    color: #0a0a0a !important;
+}
+
+/* Logo Badge (El bolso) */
+html body .logo-badge {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3) !important;
+}
+html body .logo-badge svg {
     stroke: #0a0a0a !important;
     color: #0a0a0a !important;
 }
@@ -228,6 +249,7 @@ html body header .icon-btn.active i {
 }
 </style>
 </head>
+
 
 
 
@@ -246,10 +268,10 @@ html body header .icon-btn.active i {
       </div>
       <div class="brand-info">
         <h1 id="shopTitle" style="display:flex;align-items:center;gap:10px;font-size:18px;font-weight:900;flex:1;min-width:0;margin:0">
-        <svg viewBox="0 0 100 100" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="border-radius:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(34,197,94,0.3)"><rect width="100" height="100" rx="22" fill="#0B132B"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FFFFFF"/></svg>
+        <svg viewBox="0 0 100 100" width="36" height="36" xmlns="http://www.w3.org/2000/svg" style="border-radius:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(34,197,94,0.3)"><rect width="100" height="100" rx="22" fill="#111111"/><path d="M 32 26 L 55 26 C 72 26 80 38 80 50 C 80 62 72 74 55 74 L 48 74 L 48 82 L 32 82 Z M 48 38 L 48 62 L 54 62 C 62 62 66 56 66 50 C 66 44 62 38 54 38 Z" fill="#FCF6BA"/></svg>
         <div style="display:flex;flex-direction:column;min-width:0;line-height:1.1">
-          <span style="color:#FFFFFF;font-size:16px;white-space:nowrap">ProfitToLife</span>
-          <span style="color:#22C55E;font-size:11px;font-weight:700">Marketplace</span>
+          <span style="color:#FCF6BA;font-size:16px;white-space:nowrap;font-weight:900;">ProfitToLife</span>
+          <span style="color:#BF953F;font-size:11px;font-weight:900;letter-spacing:0.5px;">Marketplace</span>
         </div>
       </h1>
         <p id="shopSubtitle" style="display:none">Productos de vendedores cubanos</p>
