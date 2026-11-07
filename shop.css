@@ -3666,3 +3666,30 @@ div[style*="linear-gradient(135deg, #131A2E"] h3 {
 body {
     background-color: #050505 !important;
 }
+
+/* ==========================================
+   👑 TOQUES FINALES GOLD (Header y Body)
+   ========================================== */
+body {
+    background-color: #0a0a0a !important;
+}
+
+/* Header superior */
+.shop-header, .header, header {
+    background-color: #0a0a0a !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3) !important;
+}
+.shop-header h1, .header h1, .shop-title {
+    color: #FCF6BA !important;
+}
+
+/* Iconos del header */
+.shop-header .icon-btn, .header .icon-btn {
+    background: #111 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    color: #BF953F !important;
+}
+.shop-header .icon-btn.active, .header .icon-btn.active {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+}

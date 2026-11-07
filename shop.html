@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-FORCE">
+<link rel="stylesheet" href="shop.css?v=GOLD-FINAL">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -80,13 +80,21 @@
       background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important;
     }
 
-    /* Filtros */
-    .filter-btn, .chip {
-      background: #131A2E !important; color: #94A3B8 !important; border: 1px solid #1F2A44 !important;
+    
+    /* Filtros Dorados (Sobrescribiendo el viejo) */
+    .filter-btn, .chip, .tab {
+      background: #111111 !important; 
+      color: #BF953F !important; 
+      border: 1px solid rgba(212, 175, 55, 0.4) !important;
+      border-radius: 20px !important;
     }
-    .filter-btn.active, .chip.active {
-      background: #22C55E !important; color: #0A0E1A !important; font-weight: 800 !important; border-color: #22C55E !important;
+    .filter-btn.active, .chip.active, .tab.active {
+      background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important; 
+      color: #0a0a0a !important; 
+      font-weight: 800 !important; 
+      border-color: #FCF6BA !important;
     }
+
 
     /* Cards de producto */
     .product-card, .prod-card, .card {
@@ -200,7 +208,7 @@
 <body>
 
 <div id="shippingBar" class="shipping-bar hidden"></div>
-<header class="shop-header">
+<header class="shop-header" style="background: #0a0a0a !important; border-bottom: 1px solid rgba(212,175,55,0.3) !important;">
   <div class="header-content">
     <div class="brand">
       <div class="logo-badge">
