@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-SUPREME-V2">
+<link rel="stylesheet" href="shop.css?v=GOLD-ATOMIC">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -125,77 +125,101 @@
 
 
 
+
+
 <style id="gold-override-supreme">
-/* 👑 ATAQUE DEFINITIVO - GANA A BRAND-PTL.CSS */
+/* 👑 ATAQUE ATÓMICO FINAL - GANA A BRAND-PTL.CSS Y CUALQUIER OTRO */
+html body .tabs, 
+html body .categories-bar {
+    background: #0a0a0a !important; 
+    border-bottom: none !important;
+}
+
+html body .tab, 
+html body .chip, 
+html body .filter-btn,
 html body [class*="tab"], 
-html body button[class*="tab"],
-html body [class*="chip"],
-html body [class*="filter-btn"] {
-    background: #111111 !important;
+html body [class*="chip"] {
+    background-color: #111111 !important;
     background-image: none !important;
     border: 1px solid #BF953F !important;
-    color: #BF953F !important;
-    font-weight: 700 !important;
     border-radius: 20px !important;
     box-shadow: none !important;
 }
 
-html body [class*="tab"].active, 
-html body button[class*="tab"].active,
-html body [class*="tab"]:hover,
-html body [class*="chip"].active,
-html body [class*="chip"]:hover,
-html body [class*="filter-btn"].active,
-html body [class*="filter-btn"]:hover {
-    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    color: #0a0a0a !important;
-    border-color: #FCF6BA !important;
-    font-weight: 900 !important;
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
+/* Forzar color de texto en todos los hijos (span, div, etc.) */
+html body .tab *, 
+html body .chip *, 
+html body .filter-btn *,
+html body [class*="tab"] *, 
+html body [class*="chip"] * {
+    color: #BF953F !important;
+    font-weight: 700 !important;
 }
 
-/* Header (Botones e Iconos) */
+/* ESTADO ACTIVO / HOVER */
+html body .tab.active, 
+html body .tab:hover,
+html body .chip.active,
+html body .chip:hover,
+html body .filter-btn.active,
+html body .filter-btn:hover,
+html body [class*="tab"].active,
+html body [class*="chip"].active {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    border-color: #FCF6BA !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4) !important;
+}
+
+html body .tab.active *, 
+html body .chip.active *,
+html body .filter-btn.active *,
+html body [class*="tab"].active *,
+html body [class*="chip"].active * {
+    color: #0a0a0a !important; /* Texto negro en el activo */
+    font-weight: 900 !important;
+}
+
+/* ICONOS DEL HEADER (Home, Check, Carrito, Luna) */
 html body header button,
-html body header [class*="icon"],
-html body header [class*="btn"],
-html body .shop-header button,
-html body .header-actions button {
+html body header .icon-btn,
+html body header a[role="button"],
+html body .shop-header button {
     background: #111111 !important;
     background-image: none !important;
-    border: 1px solid rgba(212, 175, 55, 0.4) !important;
-    color: #BF953F !important;
+    border: 1px solid rgba(212, 175, 55, 0.5) !important;
     border-radius: 12px !important;
     box-shadow: none !important;
 }
 
+/* Forzar color de los SVG e iconos dentro de los botones */
+html body header button svg,
+html body header .icon-btn svg,
+html body .shop-header button svg,
+html body header button i,
+html body header .icon-btn i {
+    stroke: #BF953F !important;
+    color: #BF953F !important;
+    fill: none !important;
+}
+
+/* BOTÓN ACTIVO DEL HEADER */
 html body header button.active,
-html body header [class*="icon"].active,
-html body header button:hover {
+html body header .icon-btn.active,
+html body .shop-header button.active {
     background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
     background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    color: #0a0a0a !important;
     border-color: #FCF6BA !important;
 }
 
-/* Logo (Contenedor del icono de la P) */
-html body .logo-badge, 
-html body [class*="logo-badge"] {
-    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
-    border: none !important;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3) !important;
-}
-html body .logo-badge svg, 
-html body [class*="logo-badge"] svg {
-    fill: #0a0a0a !important;
+html body header button.active svg,
+html body header .icon-btn.active svg,
+html body .shop-header button.active svg,
+html body header button.active i,
+html body header .icon-btn.active i {
+    stroke: #0a0a0a !important;
     color: #0a0a0a !important;
-}
-
-/* Barra de búsqueda */
-html body input[placeholder*="Buscar"] {
-    background: #111111 !important;
-    border: 1px solid #BF953F !important;
-    color: #FCF6BA !important;
 }
 
 /* Arreglar el error de "No hay productos" en Tiendas/Vendedores */
@@ -204,6 +228,7 @@ html body input[placeholder*="Buscar"] {
 }
 </style>
 </head>
+
 
 
 <body>
