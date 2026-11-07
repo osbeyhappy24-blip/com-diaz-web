@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-PERFECT-V3">
+<link rel="stylesheet" href="shop.css?v=GOLD-PERFECT-V4">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -241,18 +241,27 @@ html body .header-content button.active svg {
 
 
 
+
+
 <style id="gold-css-fix">
-/* Ocultar el bolso, solo dejar la P */
-html body .logo-badge, 
-html body .brand .logo-badge { 
-    display: none !important; 
+#shopHero {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    clear: both !important;
 }
-/* Asegurar que el body y el header no tengan azul */
-html body, html body header, html body .shop-header {
-    background-color: #0a0a0a !important;
+/* Asegurar que el contenedor de productos empuje hacia abajo */
+#products, .products-grid, #grid {
+    position: relative !important;
+    z-index: 1 !important;
 }
 </style>
 </head>
+
 
 
 
@@ -311,7 +320,18 @@ html body, html body header, html body .shop-header {
     <input id="searchInput" type="search" placeholder="Buscar en el catalogo...">
   </div>
 
-  <section class="shop-hero premium-hero" id="shopHero">
+  
+
+<div class="tabs">
+    <button class="tab active" data-tab="all">🛍️ Todo</button>
+    <button class="tab" data-tab="tiendas">🏪 Tiendas</button>
+    <button class="tab" data-tab="vendedores">🏷️ Vendedores</button>
+  </div>
+
+  <div id="categoriesBar" class="categories-bar"></div>
+</header>
+
+<section class="shop-hero premium-hero" id="shopHero">
   <div class="hero-spotlights"></div>
   <div class="shop-hero-inner hero-content-premium">
     <div class="dios-primero">Dios Primero</div>
@@ -343,14 +363,7 @@ html body, html body header, html body .shop-header {
   </div>
 </section>
 
-<div class="tabs">
-    <button class="tab active" data-tab="all">🛍️ Todo</button>
-    <button class="tab" data-tab="tiendas">🏪 Tiendas</button>
-    <button class="tab" data-tab="vendedores">🏷️ Vendedores</button>
-  </div>
 
-  <div id="categoriesBar" class="categories-bar"></div>
-</header>
 
 
 
