@@ -3760,3 +3760,87 @@ body input[placeholder*="Buscar"]::placeholder {
 body {
     background-color: #050505 !important;
 }
+
+/* ==========================================
+   👑 MODAL DE PRODUCTO PREMIUM GOLD
+   ========================================== */
+#productModal .modal-content {
+    background: #151515 !important;
+    border: 1px solid #BF953F !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(212, 175, 55, 0.15) !important;
+}
+
+#productModal .modal-backdrop {
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+/* Botón de cerrar (X) */
+#productModal .modal-close, 
+#productModal button[aria-label="Cerrar"] {
+    background: #111 !important;
+    color: #BF953F !important;
+    border: 1px solid #BF953F !important;
+}
+
+/* Imagen */
+#productModal #pmImage {
+    border-radius: 12px !important;
+    background: #0a0a0a !important;
+}
+
+/* Categoría */
+#productModal #pmCategory {
+    color: #BF953F !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Título */
+#productModal #pmTitle {
+    color: #FCF6BA !important;
+    font-weight: 900 !important;
+    font-size: 1.4rem !important;
+    line-height: 1.2 !important;
+}
+
+/* Descripción */
+#productModal #pmDescription {
+    color: #a3a3a3 !important;
+    font-size: 0.95rem !important;
+}
+
+/* Precio */
+#productModal #pmPrice {
+    color: #BF953F !important;
+    font-weight: 900 !important;
+    font-size: 1.8rem !important;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Botón Pedir por WhatsApp del modal */
+#productModal #pmWaBtn {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4) !important;
+    border-radius: 12px !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+#productModal #pmWaBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6) !important;
+}
+
+/* Botón Ver en Tienda / eBay (si existe) */
+#productModal #pmEbayBtn {
+    background: transparent !important;
+    border: 1px solid #BF953F !important;
+    color: #BF953F !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+}

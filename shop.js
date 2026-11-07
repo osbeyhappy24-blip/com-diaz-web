@@ -497,7 +497,7 @@ function pedirPorWhatsApp(producto) {
   const waCliente = prompt("Tu número de WhatsApp (con código de país):", "");
   if (waCliente === null) return;
 
-  const wa = state.config?.whatsapp || "5351425691";
+  const wa = producto.sellerWhatsapp || producto.seller_whatsapp || (producto.seller && producto.seller.whatsapp) || producto.whatsapp || state.config?.whatsapp || "5351425691";
   const titulo = producto.title || "producto";
   const precio = Number(producto.salePrice || 0).toFixed(2);
   const url = producto.url || "";
