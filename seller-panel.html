@@ -5546,7 +5546,7 @@ async function iniciarIA(token) {
   }
 }
 
-function renderIABanner(job) {
+function renderIABannerOld(job) {
   const banner = document.getElementById('iaBanner');
   if (!banner) return;
   banner.style.display = 'block';
@@ -6263,7 +6263,7 @@ document.addEventListener('click', function(e) {
   document.getElementById('iaPanelClose').onclick = toggleIaPanel;
 
   // Reemplazar la lógica del banner viejo
-  function renderIABanner(job) {
+  function renderIABannerOld(job) {
     const fab = document.getElementById('iaFabBtn');
     const panel = document.getElementById('iaPanel');
     const prog = document.getElementById('iaPanelProgress');
@@ -6290,6 +6290,10 @@ document.addEventListener('click', function(e) {
   }
 </script>
 
+
+<style id="kill-ia-banner">
+  .ia-banner, #iaBanner { display: none !important; visibility: hidden !important; height: 0 !important; padding: 0 !important; margin: 0 !important; }
+</style>
 </body>
 </html>
 
