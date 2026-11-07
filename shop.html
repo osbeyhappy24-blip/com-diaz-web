@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-SUPREME">
+<link rel="stylesheet" href="shop.css?v=GOLD-SUPREME-V2">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -123,13 +123,16 @@
 </style>
 
 
+
+
 <style id="gold-override-supreme">
-/* 👑 OVERRIDE SUPREMO - GANA A CUALQUIER CSS EXTERNO */
-html body .tabs .tab, 
-html body .categories-bar .chip, 
-html body .filter-btn,
-html body .tab {
+/* 👑 ATAQUE DEFINITIVO - GANA A BRAND-PTL.CSS */
+html body [class*="tab"], 
+html body button[class*="tab"],
+html body [class*="chip"],
+html body [class*="filter-btn"] {
     background: #111111 !important;
+    background-image: none !important;
     border: 1px solid #BF953F !important;
     color: #BF953F !important;
     font-weight: 700 !important;
@@ -137,39 +140,54 @@ html body .tab {
     box-shadow: none !important;
 }
 
-html body .tabs .tab.active, 
-html body .tabs .tab:hover,
-html body .categories-bar .chip.active,
-html body .categories-bar .chip:hover,
-html body .filter-btn.active,
-html body .filter-btn:hover {
+html body [class*="tab"].active, 
+html body button[class*="tab"].active,
+html body [class*="tab"]:hover,
+html body [class*="chip"].active,
+html body [class*="chip"]:hover,
+html body [class*="filter-btn"].active,
+html body [class*="filter-btn"]:hover {
     background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
     color: #0a0a0a !important;
     border-color: #FCF6BA !important;
     font-weight: 900 !important;
     box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3) !important;
 }
 
-/* Header Dorado */
-html body header, 
-html body .shop-header,
-html body .top-bar {
-    background: #0a0a0a !important;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.4) !important;
-}
-
-/* Iconos del Header */
+/* Header (Botones e Iconos) */
 html body header button,
-html body header .icon-btn,
-html body .shop-header button {
+html body header [class*="icon"],
+html body header [class*="btn"],
+html body .shop-header button,
+html body .header-actions button {
     background: #111111 !important;
+    background-image: none !important;
     border: 1px solid rgba(212, 175, 55, 0.4) !important;
     color: #BF953F !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
 }
 
 html body header button.active,
-html body header .icon-btn.active {
+html body header [class*="icon"].active,
+html body header button:hover {
     background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    background-image: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+}
+
+/* Logo (Contenedor del icono de la P) */
+html body .logo-badge, 
+html body [class*="logo-badge"] {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3) !important;
+}
+html body .logo-badge svg, 
+html body [class*="logo-badge"] svg {
+    fill: #0a0a0a !important;
     color: #0a0a0a !important;
 }
 
@@ -182,10 +200,11 @@ html body input[placeholder*="Buscar"] {
 
 /* Arreglar el error de "No hay productos" en Tiendas/Vendedores */
 #empty {
-    display: none !important; /* Ocultar por defecto */
+    display: none !important; 
 }
 </style>
 </head>
+
 
 <body>
 
