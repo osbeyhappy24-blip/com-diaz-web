@@ -16,7 +16,7 @@
   --shadow-hover:0 12px 32px rgba(0,63,127,.18);
   --radius:14px;
   --wa:#25d366;
-  --success:#16a34a;
+  --success:#BF953F;
   --danger:#dc2626;
   --font-display:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif;
   --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
@@ -419,7 +419,7 @@ body{
   max-width:90vw;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{background:#10b981}
+.toast.ok{background:#BF953F}
 .toast.err{background:#ef4444}
 
 /* ---------- Botón WhatsApp en header ---------- */
@@ -1157,7 +1157,7 @@ body{
   background: linear-gradient(135deg, #7c3aed, #ec4899);
 }
 .shop-banner.green {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #BF953F, #AA771C);
 }
 .shop-banner.orange {
   background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -1220,7 +1220,7 @@ body{
   --surface-2: #f3f4f6;
   --surface-3: #e5e7eb;
 
-  --success: #10b981;
+  --success: #BF953F;
   --success-soft: rgba(16, 185, 129, 0.1);
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -1448,7 +1448,7 @@ html{scroll-behavior:smooth}
   filter: brightness(1.06);
 }
 .product-add.added{
-  background: linear-gradient(135deg, var(--success), #059669);
+  background: linear-gradient(135deg, var(--success), #AA771C);
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
 }
 
@@ -1759,7 +1759,7 @@ html{scroll-behavior:smooth}
 
 /* ─── BARRA DE ENVÍO GRATIS (top) ─── */
 .shipping-bar{
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #BF953F, #AA771C);
   color: #fff;
   text-align: center;
   padding: 8px 16px;
@@ -1799,7 +1799,7 @@ html{scroll-behavior:smooth}
   animation: fadeInUp 300ms ease-out;
 }
 .product-badge.new{
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #BF953F, #AA771C);
 }
 .product-badge.sale{
   background: linear-gradient(135deg, #ef4444, #dc2626);
@@ -1858,7 +1858,7 @@ html{scroll-behavior:smooth}
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
-.toast.success{background: linear-gradient(135deg, #10b981, #059669)}
+.toast.success{background: linear-gradient(135deg, #BF953F, #AA771C)}
 .toast.error{background: linear-gradient(135deg, #ef4444, #dc2626)}
 
 /* ─── CATEGORÍAS BAR MÁS LIMPIA ─── */
@@ -1919,7 +1919,7 @@ html{scroll-behavior:smooth}
    BADGES POR FUENTE
    ═══════════════════════════════════════════════ */
 .product-source.local {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #BF953F, #AA771C);
   color: #fff;
 }
 .product-source.temu {
@@ -1970,7 +1970,7 @@ html{scroll-behavior:smooth}
   color: #fff;
 }
 .shop-banner.promo-gradient { background: linear-gradient(135deg, #7c3aed, #ec4899); color: #fff; }
-.shop-banner.promo-green { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+.shop-banner.promo-green { background: linear-gradient(135deg, #BF953F, #AA771C); color: #fff; }
 .shop-banner.promo-orange { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
 .shop-banner.promo-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
 .shop-banner.promo-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
@@ -2060,7 +2060,7 @@ html{scroll-behavior:smooth}
 }
 .pedido-card-total {
   font-weight: 800;
-  color: #10b981;
+  color: #BF953F;
   font-size:16px;
 }
 .pedido-card-estado {
@@ -2305,7 +2305,7 @@ html{scroll-behavior:smooth}
 }
 .shop-banner.promo-green,
 .shop-banner.green {
-  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  background: linear-gradient(135deg, #BF953F 0%, #BF953F 100%);
 }
 .shop-banner.promo-yellow {
   background: linear-gradient(135deg, var(--accent-3) 0%, #f59e0b 100%);
@@ -2575,7 +2575,7 @@ html{scroll-behavior:smooth}
 .seller-house.v1 { background: linear-gradient(135deg, #003f7f, #002a56); box-shadow: 0 6px 18px rgba(0,63,127,.35); }
 .seller-house.v2 { background: linear-gradient(135deg, #dc2626, #991b1b); box-shadow: 0 6px 18px rgba(220,38,38,.35); }
 .seller-house.v3 { background: linear-gradient(135deg, #f59e0b, #b45309); box-shadow: 0 6px 18px rgba(245,158,11,.35); }
-.seller-house.v4 { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 6px 18px rgba(22,163,74,.35); }
+.seller-house.v4 { background: linear-gradient(135deg, #BF953F, #AA771C); box-shadow: 0 6px 18px rgba(212, 175, 55,.35); }
 .seller-house.v5 { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 6px 18px rgba(124,58,237,.35); }
 .seller-house.v6 { background: linear-gradient(135deg, #0891b2, #0e7490); box-shadow: 0 6px 18px rgba(8,145,178,.35); }
 
@@ -2617,14 +2617,14 @@ html{scroll-behavior:smooth}
 
 /* ── Badge "Verificado" animado ── */
 .product-card.seller-card .product-badge.seller {
-  background: linear-gradient(135deg, var(--success), #15803d);
+  background: linear-gradient(135deg, var(--success), #AA771C);
   animation: verificadoPulse 2s ease-in-out infinite;
   position: relative;
   overflow: hidden;
 }
 @keyframes verificadoPulse {
-  0%, 100% { box-shadow: 0 2px 8px rgba(22,163,74,.15); }
-  50% { box-shadow: 0 2px 16px rgba(22,163,74,.5); }
+  0%, 100% { box-shadow: 0 2px 8px rgba(212, 175, 55,.15); }
+  50% { box-shadow: 0 2px 16px rgba(212, 175, 55,.5); }
 }
 .product-card.seller-card .product-badge.seller::after {
   content: '';
@@ -2717,7 +2717,7 @@ html{scroll-behavior:smooth}
 .shop-banner-promo.color-yellow .banner-bg { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
 .shop-banner-promo.color-purple .banner-bg { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
 .shop-banner-promo.color-blue .banner-bg { background: linear-gradient(135deg, #0891b2 0%, #3b82f6 100%); }
-.shop-banner-promo.color-green .banner-bg { background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); }
+.shop-banner-promo.color-green .banner-bg { background: linear-gradient(135deg, #BF953F 0%, #BF953F 100%); }
 .shop-banner-promo.color-orange .banner-bg { background: linear-gradient(135deg, #ea580c 0%, #fbbf24 100%); }
 .shop-banner-promo.color-pink .banner-bg { background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); }
 
@@ -2760,7 +2760,7 @@ html{scroll-behavior:smooth}
 .banner-badge.sale { background: #fbbf24; color: #000; }
 .banner-badge.limited { background: #7c3aed; color: #fff; }
 .banner-badge.new { background: #0891b2; color: #fff; }
-.banner-badge.free { background: #16a34a; color: #fff; }
+.banner-badge.free { background: #BF953F; color: #fff; }
 
 /* Emoji + texto */
 .shop-banner-promo .banner-emoji {

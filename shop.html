@@ -48,7 +48,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-V23">
+<link rel="stylesheet" href="shop.css?v=GOLD-V24">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -1134,19 +1134,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
 <script id="gold-insurance">
 document.addEventListener("DOMContentLoaded", () => {
-  // Función para forzar el dorado en los Tabs
-  const forceTabsGold = () => {
+  const forceTabGold = () => {
       document.querySelectorAll('.tab').forEach(tab => {
-          // Si el tab tiene la clase active, lo pintamos de dorado
-          if (tab.classList.contains('active')) {
+          const isActive = tab.classList.contains('active');
+          if (isActive) {
               tab.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
+              tab.style.setProperty('background-color', '#BF953F', 'important');
               tab.style.setProperty('color', '#0a0a0a', 'important');
               tab.style.setProperty('border-color', '#FCF6BA', 'important');
               tab.querySelectorAll('*').forEach(child => child.style.setProperty('color', '#0a0a0a', 'important'));
           } else {
               tab.style.setProperty('background-color', '#111111', 'important');
+              tab.style.setProperty('background-image', 'none', 'important');
               tab.style.setProperty('color', '#BF953F', 'important');
               tab.style.setProperty('border', '1px solid #BF953F', 'important');
               tab.querySelectorAll('*').forEach(child => child.style.setProperty('color', '#BF953F', 'important'));
@@ -1154,27 +1157,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   };
 
-  // Escuchar clics en los Tabs
   document.body.addEventListener('click', (e) => {
       const tab = e.target.closest('.tab');
       if (tab) {
-          // Quitar el active a todos manualmente
           document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          // Poner active al clickeado
           tab.classList.add('active');
-          
-          // Forzar estilos inmediatamente y luego de un pequeño delay (por si el JS de la página hace otra cosa)
-          forceTabsGold();
-          setTimeout(forceTabsGold, 50);
-          setTimeout(forceTabsGold, 200);
+          forceTabGold();
+          setTimeout(forceTabGold, 50);
+          setTimeout(forceTabGold, 200);
       }
   });
 
-  // Ejecutar al inicio
-  forceTabsGold();
+  forceTabGold();
 });
 </script>
 </body>
+
 
 
 
