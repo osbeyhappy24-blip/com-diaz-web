@@ -490,25 +490,32 @@ function generarLinkWhatsApp(producto) {
   return _waUrl(wa, mensaje);
 }
 
-function pedirPorWhatsApp(producto) {
-  // Pedir datos del cliente antes de abrir WhatsApp
+async function pedirPorWhatsApp(producto) {
   const nombre = prompt("Tu nombre (para que te identifiquemos):", "");
-  if (nombre === null) return; // canceló
+  if (nombre === null) return;
   const waCliente = prompt("Tu número de WhatsApp (con código de país):", "");
   if (waCliente === null) return;
 
-  const wa = producto.sellerWhatsapp || producto.seller_whatsapp || (producto.seller && producto.seller.whatsapp) || producto.whatsapp || state.config?.whatsapp || "5351425691";
+  let wa = producto.sellerWhatsapp || producto.seller_whatsapp || (producto.seller && producto.seller.whatsapp) || producto.whatsapp;
+  if (!wa && (producto.seller_id || producto.sellerId)) {
+    try {
+      const API = (typeof API_BASE !== 'undefined' ? API_BASE : 'https://com-diaz-ty2b.onrender.com');
+      const r = await fetch(API + '/api/public/seller-contact', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ seller_id: producto.seller_id || producto.sellerId, product_id: producto.id })
+      });
+      const d = await r.json();
+      if (d && d.ok && (d.whatsapp || d.telefono)) { wa = d.whatsapp || d.telefono; }
+    } catch(e) { console.warn('[wa] No se pudo obtener seller contact:', e); }
+  }
+  wa = wa || '5358980267';
   const titulo = producto.title || "producto";
   const precio = Number(producto.salePrice || 0).toFixed(2);
   const url = producto.url || "";
-  let mensaje = "Hola, me interesa este producto de ProfitToLife Marketplace:\n\n";
-  mensaje += "*" + titulo + "*\n";
-  mensaje += "Precio: $" + precio + "\n";
-  if (url) mensaje += url + "\n";
-  mensaje += "\n";
-  if (nombre.trim()) mensaje += "Mi nombre: " + nombre.trim() + "\n";
-  if (waCliente.trim()) mensaje += "Mi WhatsApp: " + waCliente.trim() + "\n";
-  mensaje += "\n¿Esta disponible?";
+  const nombreTxt = nombre.trim() ? `Mi nombre: ${nombre.trim()}\n` : '';
+  const waTxt = waCliente.trim() ? `Mi WhatsApp: ${waCliente.trim()}\n` : '';
+  const mensaje = `Hola, me interesa este producto de ProfitToLife Marketplace:\n\n*${titulo}*\nPrecio: $${precio}\n${url ? url + '\n' : ''}\n${nombreTxt}${waTxt}\n¿Esta disponible?`;
   abrirWhatsApp(wa, mensaje);
 }
 
@@ -517,25 +524,26 @@ function pedirPorWhatsApp(producto) {
 async function compartirProducto(p) {
   const id = p && p.id != null ? String(p.id) : '';
   if (!id) { alert('No se puede compartir este producto'); return; }
-
   const base = location.origin + location.pathname;
   const url = base + '?product=' + encodeURIComponent(id);
   const titulo = p.title || p.aiTitulo || 'Producto';
   const precio = Number(p.salePrice || 0).toFixed(2);
-  
-  const wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp || '5351425691';
-  
-  const texto = `🛍️ Mira este producto en *ProfitToLife Marketplace:*
-
-*_${titulo}_*
-
-💰 Precio: $${precio}
-
-🔗 ${url}
-
-📲 Pedidos por WhatsApp:
-https://wa.me/${wa.replace(/[^0-9]/g, '')}`;
-
+  let wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp;
+  if (!wa && (p.seller_id || p.sellerId)) {
+    try {
+      const API = (typeof API_BASE !== 'undefined' ? API_BASE : 'https://com-diaz-ty2b.onrender.com');
+      const r = await fetch(API + '/api/public/seller-contact', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ seller_id: p.seller_id || p.sellerId, product_id: p.id })
+      });
+      const d = await r.json();
+      if (d && d.ok && (d.whatsapp || d.telefono)) { wa = d.whatsapp || d.telefono; }
+    } catch(e) { console.warn('[share] No se pudo obtener seller contact:', e); }
+  }
+  wa = wa || '5358980267';
+  const waLimpio = String(wa).replace(/[^0-9]/g, '');
+  const texto = `🛍️ Mira este producto en *ProfitToLife Marketplace:*\n\n*_${titulo}_*\n\n💰 Precio: $${precio}\n\n🔗 ${url}\n\n📲 Pedidos por WhatsApp:\nhttps://wa.me/${waLimpio}`;
   if (navigator.share) {
     try {
       await navigator.share({ title: 'ProfitToLife Marketplace', text: texto, url: url });
@@ -544,10 +552,9 @@ https://wa.me/${wa.replace(/[^0-9]/g, '')}`;
       if (err && err.name === 'AbortError') return;
     }
   }
-
   try {
     await navigator.clipboard.writeText(texto);
-    alert('✅ Enlace copiado. Pégalo en WhatsApp o donde quieras:\n' + url);
+    alert('✅ Enlace copiado. Pégalo en WhatsApp:\n' + url);
   } catch {
     prompt('Copia este enlace:', url);
   }

@@ -4108,3 +4108,52 @@ html body .tab:not(.active) {
     color: #BF953F !important;
     border: 1px solid #BF953F !important;
 }
+
+/* ==========================================
+   👑 FIX V26: HOME/SELLER DORADO Y VERDE CERO
+   ========================================== */
+
+/* Botón seller/home en el header - forzarlo a dorado activo */
+html body #sellerBtn {
+    background: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
+    border: 1px solid #FCF6BA !important;
+    border-radius: 12px !important;
+    color: #0a0a0a !important;
+}
+html body #sellerBtn svg {
+    stroke: #0a0a0a !important;
+    color: #0a0a0a !important;
+}
+
+/* El banner "Vende en Cuba" inyectado por JS - reforzar dorado */
+div[style*="linear-gradient(135deg, #131A2E"],
+div[style*="background: #22C55E"] {
+    background: linear-gradient(135deg, #111111 0%, #0a0a0a 100%) !important;
+    border-color: #BF953F !important;
+}
+div[style*="linear-gradient(135deg, #131A2E"] a,
+div[style*="background: #22C55E"] a {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+}
+
+/* Compartir producto (botón) - forzar dorado */
+.product-card .product-share,
+#productModal #pmShareBtn {
+    background: transparent !important;
+    border: 1px solid #BF953F !important;
+    color: #BF953F !important;
+    font-weight: 700 !important;
+}
+.product-card .product-share:hover,
+#productModal #pmShareBtn:hover {
+    background: rgba(212, 175, 55, 0.15) !important;
+}
+
+/* Forzar TODOS los botones primarios (los verdes) a dorado */
+.btn-primary, .btn-cta, .tiendas-empty-cta, .vendedores-empty-cta {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    border: none !important;
+}
