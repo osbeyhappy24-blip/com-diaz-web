@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-PERFECT-V4">
+<link rel="stylesheet" href="shop.css?v=GOLD-V21">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -1114,74 +1114,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
 <script id="gold-insurance">
 document.addEventListener("DOMContentLoaded", () => {
-  // Ocultar bolso por si acaso
-  document.querySelectorAll('.logo-badge').forEach(el => el.style.display = 'none');
-
   const applyGold = (el, forceActive = false) => {
       if (!el) return;
       const isActive = el.classList.contains('active') || forceActive;
       
       if (isActive) {
-          el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
-          el.style.setProperty('background-color', '#BF953F', 'important');
-          el.style.setProperty('border', '1px solid #FCF6BA', 'important');
+          el.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
           el.style.setProperty('color', '#0a0a0a', 'important');
+          el.style.setProperty('border-color', '#FCF6BA', 'important');
           el.querySelectorAll('*').forEach(child => {
               child.style.setProperty('color', '#0a0a0a', 'important');
-              child.style.setProperty('stroke', '#0a0a0a', 'important');
           });
       } else {
-          el.style.setProperty('background-color', '#111111', 'important');
-          el.style.setProperty('background-image', 'none', 'important');
-          el.style.setProperty('border', '1px solid #BF953F', 'important');
+          el.style.setProperty('background', '#111111', 'important');
           el.style.setProperty('color', '#BF953F', 'important');
+          el.style.setProperty('border', '1px solid #BF953F', 'important');
           el.querySelectorAll('*').forEach(child => {
               child.style.setProperty('color', '#BF953F', 'important');
-              child.style.setProperty('stroke', '#BF953F', 'important');
           });
       }
   };
 
   const refreshStyles = () => {
-      // Tabs y Chips (Categorías)
-      document.querySelectorAll('.tab, .chip, .filter-btn, [class*="tab"], [class*="chip"]').forEach(el => applyGold(el));
-      
-      // Botones del Header (Home, Check, Carrito, Luna)
-      // Forzamos a que el primer botón (index 0) sea dorado
-      document.querySelectorAll('header a, header button, .shop-header a, .shop-header button, .icon-btn, .header-btn').forEach((el, index) => {
-          applyGold(el, index === 0);
-      });
-      
-      // Buscador
-      document.querySelectorAll('input[placeholder*="Buscar"]').forEach(el => {
-          el.style.setProperty('background-color', '#111111', 'important');
+      document.querySelectorAll('.tab, .chip, [class*="tab"]').forEach(el => applyGold(el));
+      document.querySelectorAll('#tiendasContainer > div, .tienda-card, [class*="store-card"]').forEach(el => {
+          el.style.setProperty('background', '#111111', 'important');
           el.style.setProperty('border', '1px solid #BF953F', 'important');
-          el.style.setProperty('color', '#FCF6BA', 'important');
       });
   };
 
-  // Ejecutar al inicio
-  refreshStyles();
-
-  // 1. Escuchar clics (para cuando tocas Tiendas o Vendedores)
-  document.body.addEventListener('click', () => {
+  // Escuchar clics para forzar el dorado inmediato
+  document.body.addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab, .chip, [class*="tab"]');
+      if (tab) {
+          // Quitar activo a todos y poner al clickeado
+          document.querySelectorAll('.tab, .chip, [class*="tab"]').forEach(t => {
+              t.classList.remove('active');
+              applyGold(t, false);
+          });
+          tab.classList.add('active');
+          applyGold(tab, true);
+      }
       setTimeout(refreshStyles, 50);
       setTimeout(refreshStyles, 200);
   });
 
-  // 2. Observador de Mutaciones (para cuando el JS cambia clases solo)
-  const observer = new MutationObserver(() => {
-      refreshStyles();
-  });
-  observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
-
-  // 3. Fallback por si acaso
+  refreshStyles();
   setInterval(refreshStyles, 1000);
 });
 </script>
 </body>
+
 
 
 

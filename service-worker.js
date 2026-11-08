@@ -1,5 +1,5 @@
 // ═══ PROFITTOLIFE MARKETPLACE - SERVICE WORKER (Offline-First) ═══
-const CACHE_VERSION = 'ptl-20261107-v20-gold-perfect'; // Cambiar versión para forzar actualización
+const CACHE_VERSION = 'ptl-20261108-v21-gold-stores'; // Cambiar versión para forzar actualización
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DYNAMIC_CACHE = CACHE_VERSION + '-dynamic';
 const OFFLINE_URL = 'offline.html';

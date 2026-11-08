@@ -3946,3 +3946,58 @@ body {
     font-size: 1.8rem !important;
     text-shadow: 0 0 10px rgba(252, 211, 77, 0.5) !important;
 }
+
+/* ==========================================
+   👑 FIX TIENDAS, FILTROS Y TABS (Adiós Verde)
+   ========================================== */
+/* Tarjetas de Tiendas (debajo del tab Tiendas) */
+#tiendasContainer > div, 
+.tienda-card, 
+[class*="tienda-card"],
+.store-card {
+    background: #111111 !important;
+    border: 1px solid #BF953F !important;
+    color: #FCF6BA !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+}
+
+#tiendasContainer h3, 
+#tiendasContainer p,
+.tienda-card h3,
+.tienda-card p {
+    color: #FCF6BA !important;
+}
+
+#tiendasContainer button, 
+.tienda-card button,
+.store-card button {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 800 !important;
+    border: none !important;
+}
+
+/* Filtros (El menú que se abre al tocar ⚙️ Filtros) */
+.filter-drawer, 
+.filter-modal, 
+[id*="filter"],
+.filter-panel {
+    background: #111111 !important;
+    border: 1px solid #BF953F !important;
+    color: #FCF6BA !important;
+}
+.filter-drawer h3, 
+.filter-modal h3 {
+    color: #BF953F !important;
+}
+
+/* Forzar Tabs Activos (Todo, Tiendas, Vendedores) */
+.tab.active, 
+.tab[data-tab].active,
+.chip.active {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    background-color: #BF953F !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+    font-weight: 900 !important;
+}
