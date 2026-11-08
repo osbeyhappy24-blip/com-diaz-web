@@ -434,8 +434,8 @@ function renderProductos() {
       </div>
       <div class="product-body">
         ${casitaData.tagHTML}
-        <div class="product-category">${p.category || ''}</div>
-        <div class="product-title">${p.aiTitulo || p.title || 'Sin titulo'}</div>
+        <div class="product-category">${escapeHtml(p.category) || ''}</div>
+        <div class="product-title">${escapeHtml(p.aiTitulo || p.title) || 'Sin titulo'}</div>
         ${p._isLocal && (p.provincia || p.municipio) ? `<div class="product-ubicacion" style="font-size:11px;color:#6b7280;margin:2px 0 4px">📍 ${[p.provincia, p.municipio].filter(Boolean).join(' / ')}</div>` : ''}
         <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}${p._isLocal && p.precioCUP ? `<span style="font-size:11px;color:#6b7280;margin-left:6px">· ${Number(p.precioCUP).toLocaleString()} CUP</span>` : ''}</div>
         <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
@@ -1329,8 +1329,8 @@ cargarCatalogo();
           <span class="product-source ${sourceClass}">${sourceLabel}</span>
         </div>
         <div class="product-body">
-          <div class="product-category">${p.category || ''}</div>
-          <div class="product-title">${p.title || 'Sin titulo'}</div>
+          <div class="product-category">${escapeHtml(p.category) || ''}</div>
+          <div class="product-title">${escapeHtml(p.title) || 'Sin titulo'}</div>
           <div class="product-price">${Number(p.salePrice || 0).toFixed(2)}${p.precioCUP ? ` <span style="font-size:11px;color:#6b7280;margin-left:4px">· ${Number(p.precioCUP).toLocaleString()} CUP</span>` : ''}</div>
           <button class="product-add" data-pid="${p.id}">🛒 Agregar al pedido</button>
           <button class="product-buy" data-id="${p.id}">Pedir por WhatsApp</button>
