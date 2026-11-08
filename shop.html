@@ -34,7 +34,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-V21">
+<link rel="stylesheet" href="shop.css?v=GOLD-V22">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -1116,58 +1116,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
 <script id="gold-insurance">
 document.addEventListener("DOMContentLoaded", () => {
-  const applyGold = (el, forceActive = false) => {
-      if (!el) return;
-      const isActive = el.classList.contains('active') || forceActive;
-      
-      if (isActive) {
-          el.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
-          el.style.setProperty('color', '#0a0a0a', 'important');
-          el.style.setProperty('border-color', '#FCF6BA', 'important');
-          el.querySelectorAll('*').forEach(child => {
-              child.style.setProperty('color', '#0a0a0a', 'important');
-          });
-      } else {
-          el.style.setProperty('background', '#111111', 'important');
-          el.style.setProperty('color', '#BF953F', 'important');
-          el.style.setProperty('border', '1px solid #BF953F', 'important');
-          el.querySelectorAll('*').forEach(child => {
-              child.style.setProperty('color', '#BF953F', 'important');
-          });
-      }
-  };
+  const forceGoldEverything = () => {
+      // 1. Arreglar Tabs y Chips
+      document.querySelectorAll('.tab, .chip, [class*="tab"]').forEach(el => {
+          const isActive = el.classList.contains('active');
+          if (isActive) {
+              el.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
+              el.style.setProperty('color', '#0a0a0a', 'important');
+              el.style.setProperty('border-color', '#FCF6BA', 'important');
+          } else {
+              el.style.setProperty('background-color', '#111111', 'important');
+              el.style.setProperty('color', '#BF953F', 'important');
+              el.style.setProperty('border', '1px solid #BF953F', 'important');
+          }
+      });
 
-  const refreshStyles = () => {
-      document.querySelectorAll('.tab, .chip, [class*="tab"]').forEach(el => applyGold(el));
-      document.querySelectorAll('#tiendasContainer > div, .tienda-card, [class*="store-card"]').forEach(el => {
-          el.style.setProperty('background', '#111111', 'important');
-          el.style.setProperty('border', '1px solid #BF953F', 'important');
+      // 2. Cazar el VERDE en las Tarjetas de Tienda (Dinámicas)
+      document.querySelectorAll('#tiendasContainer *, [class*="tienda"] *').forEach(el => {
+          // Si el color es verde (el rgb del verde original)
+          if (el.style.color === '#22C55E' || el.style.color === 'rgb(34, 197, 94)') {
+              el.style.setProperty('color', '#BF953F', 'important');
+              el.style.setProperty('border-color', '#BF953F', 'important');
+          }
+          // Si el fondo es verde
+          if (el.style.backgroundColor === '#22C55E' || el.style.backgroundColor === 'rgb(34, 197, 94)') {
+              el.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
+              el.style.setProperty('color', '#0a0a0a', 'important');
+          }
+          // Si hay clases que sabemos que son verdes (ej. bg-green-500)
+          if (el.className && typeof el.className === 'string' && el.className.includes('green')) {
+              el.style.setProperty('background', '#111111', 'important');
+              el.style.setProperty('color', '#BF953F', 'important');
+              el.style.setProperty('border', '1px solid #BF953F', 'important');
+          }
       });
   };
 
-  // Escuchar clics para forzar el dorado inmediato
-  document.body.addEventListener('click', (e) => {
-      const tab = e.target.closest('.tab, .chip, [class*="tab"]');
-      if (tab) {
-          // Quitar activo a todos y poner al clickeado
-          document.querySelectorAll('.tab, .chip, [class*="tab"]').forEach(t => {
-              t.classList.remove('active');
-              applyGold(t, false);
-          });
-          tab.classList.add('active');
-          applyGold(tab, true);
-      }
-      setTimeout(refreshStyles, 50);
-      setTimeout(refreshStyles, 200);
+  // Ejecutar al inicio
+  forceGoldEverything();
+
+  // 3. El "Espía": Observa cambios en el DOM (para cuando el JS pinta las tiendas)
+  const observer = new MutationObserver(() => {
+      forceGoldEverything();
+  });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+  // 4. Escuchar clics
+  document.body.addEventListener('click', () => {
+      setTimeout(forceGoldEverything, 50);
+      setTimeout(forceGoldEverything, 200);
   });
 
-  refreshStyles();
-  setInterval(refreshStyles, 1000);
+  // 5. Fallback por si acaso
+  setInterval(forceGoldEverything, 1000);
 });
 </script>
 </body>
+
 
 
 
