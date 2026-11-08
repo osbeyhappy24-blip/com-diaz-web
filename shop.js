@@ -497,17 +497,19 @@ async function pedirPorWhatsApp(producto) {
   if (waCliente === null) return;
 
   let wa = producto.sellerWhatsapp || producto.seller_whatsapp || (producto.seller && producto.seller.whatsapp) || producto.whatsapp;
-  if (!wa && (producto.seller_id || producto.sellerId)) {
+  const sellerId = producto.seller_id || producto.sellerId;
+  if (!wa && sellerId) {
     try {
       const API = (typeof API_BASE !== 'undefined' ? API_BASE : 'https://com-diaz-ty2b.onrender.com');
       const r = await fetch(API + '/api/public/seller-contact', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ seller_id: producto.seller_id || producto.sellerId, product_id: producto.id })
+        body: JSON.stringify({ productId: producto.id, sellerId: sellerId })
       });
       const d = await r.json();
       if (d && d.ok && (d.whatsapp || d.telefono)) { wa = d.whatsapp || d.telefono; }
-    } catch(e) { console.warn('[wa] No se pudo obtener seller contact:', e); }
+      else { console.warn('[wa] seller-contact falló:', d); }
+    } catch(e) { console.warn('[wa] fetch error:', e); }
   }
   wa = wa || '5358980267';
   const titulo = producto.title || "producto";
@@ -529,17 +531,19 @@ async function compartirProducto(p) {
   const titulo = p.title || p.aiTitulo || 'Producto';
   const precio = Number(p.salePrice || 0).toFixed(2);
   let wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp;
-  if (!wa && (p.seller_id || p.sellerId)) {
+  const sellerId = p.seller_id || p.sellerId;
+  if (!wa && sellerId) {
     try {
       const API = (typeof API_BASE !== 'undefined' ? API_BASE : 'https://com-diaz-ty2b.onrender.com');
       const r = await fetch(API + '/api/public/seller-contact', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ seller_id: p.seller_id || p.sellerId, product_id: p.id })
+        body: JSON.stringify({ productId: p.id, sellerId: sellerId })
       });
       const d = await r.json();
       if (d && d.ok && (d.whatsapp || d.telefono)) { wa = d.whatsapp || d.telefono; }
-    } catch(e) { console.warn('[share] No se pudo obtener seller contact:', e); }
+      else { console.warn('[share] seller-contact falló:', d); }
+    } catch(e) { console.warn('[share] fetch error:', e); }
   }
   wa = wa || '5358980267';
   const waLimpio = String(wa).replace(/[^0-9]/g, '');
@@ -548,16 +552,12 @@ async function compartirProducto(p) {
     try {
       await navigator.share({ title: 'ProfitToLife Marketplace', text: texto, url: url });
       return;
-    } catch (err) {
-      if (err && err.name === 'AbortError') return;
-    }
+    } catch (err) { if (err && err.name === 'AbortError') return; }
   }
   try {
     await navigator.clipboard.writeText(texto);
     alert('✅ Enlace copiado. Pégalo en WhatsApp:\n' + url);
-  } catch {
-    prompt('Copia este enlace:', url);
-  }
+  } catch { prompt('Copia este enlace:', url); }
 }
 window.compartirProducto = compartirProducto;
 
@@ -1673,7 +1673,7 @@ cargarCatalogo();
   document.addEventListener('click', async (e) => {
     if (e.target.id === 'pmShareBtn' || (e.target.closest && e.target.closest('#pmShareBtn'))) {
       e.preventDefault();
-      if (productoActual) await compartir(productoActual);
+      if (productoActual) await compartirProducto(productoActual);
       else if (typeof toast === 'function') toast('Producto no disponible', 'err');
     }
   });
