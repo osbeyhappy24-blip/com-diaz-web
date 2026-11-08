@@ -4157,3 +4157,56 @@ div[style*="background: #22C55E"] a {
     font-weight: 900 !important;
     border: none !important;
 }
+
+/* ==========================================
+   👑 FIX V28: BOTÓN FLOTANTE WHATSAPP + TABS REFORZADOS
+   ========================================== */
+
+/* 1. Botón flotante de WhatsApp (cualquier variante) */
+html body .whatsapp-float,
+html body .wa-float,
+html body #whatsappFloat,
+html body #waFloat,
+html body [class*="whatsapp-float"],
+html body [class*="wa-float"],
+html body a[href*="wa.me"][style*="position: fixed"],
+html body a[href*="wa.me"][style*="position:fixed"],
+html body button[style*="position: fixed"][class*="wa"],
+html body button[style*="position:fixed"][class*="wa"],
+html body .float-wa,
+html body .btn-whatsapp-float {
+    background: linear-gradient(135deg, #FCF6BA 0%, #BF953F 100%) !important;
+    background-color: #BF953F !important;
+    border: 2px solid #FCF6BA !important;
+    color: #0a0a0a !important;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5) !important;
+}
+html body .whatsapp-float svg,
+html body .wa-float svg,
+html body #whatsappFloat svg,
+html body [class*="whatsapp-float"] svg,
+html body [class*="wa-float"] svg,
+html body a[href*="wa.me"][style*="position: fixed"] svg {
+    stroke: #0a0a0a !important;
+    fill: #0a0a0a !important;
+    color: #0a0a0a !important;
+}
+
+/* 2. Reforzar tabs (con !important doble para ganar a brand-ptl) */
+html body .tabs .tab.active,
+html body .tabs button.tab.active,
+html body .tab[data-tab].active,
+html body button[data-tab="tiendas"].active,
+html body button[data-tab="vendedores"].active,
+html body button[data-tab="all"].active {
+    background: linear-gradient(135deg, #FCF6BA 0%, #BF953F 100%) !important;
+    background-color: #BF953F !important;
+    color: #0a0a0a !important;
+    border-color: #FCF6BA !important;
+    font-weight: 900 !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4) !important;
+}
+html body .tabs .tab.active *,
+html body button[data-tab].active * {
+    color: #0a0a0a !important;
+}

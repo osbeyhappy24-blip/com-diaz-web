@@ -275,7 +275,7 @@ html body .header-content button.active svg {
 }
 </style>
 <link rel="stylesheet" href="brand-ptl.css">
-  <link rel="stylesheet" href="shop.css?v=GOLD-V27">
+  <link rel="stylesheet" href="shop.css?v=GOLD-V28">
 </head>
 
 
@@ -1140,54 +1140,89 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-<script id="gold-insurance">
-document.addEventListener("DOMContentLoaded", () => {
-  const forceGold = () => {
-      // Tabs
-      document.querySelectorAll('.tab').forEach(tab => {
-          const isActive = tab.classList.contains('active');
-          if (isActive) {
-              tab.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
-              tab.style.setProperty('color', '#0a0a0a', 'important');
-              tab.querySelectorAll('*').forEach(c => c.style.setProperty('color', '#0a0a0a', 'important'));
-          } else {
-              tab.style.setProperty('background-color', '#111111', 'important');
-              tab.style.setProperty('color', '#BF953F', 'important');
-              tab.style.setProperty('border', '1px solid #BF953F', 'important');
-              tab.querySelectorAll('*').forEach(c => c.style.setProperty('color', '#BF953F', 'important'));
-          }
-      });
 
-      // Header Home Button (Forzarlo a dorado)
-      document.querySelectorAll('header a, header button, .shop-header a, .shop-header button').forEach((el, idx) => {
-          if (idx === 0) { // El primer botón es el de Home
-              el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
-              el.style.setProperty('border', '1px solid #FCF6BA', 'important');
-              el.querySelectorAll('svg, i').forEach(icon => {
-                  icon.style.setProperty('stroke', '#0a0a0a', 'important');
-                  icon.style.setProperty('color', '#0a0a0a', 'important');
-              });
-          }
-      });
+
+<script id="gold-insurance">
+(function() {
+  const GOLD_BG = 'linear-gradient(135deg, #FCF6BA 0%, #BF953F 100%)';
+  const GOLD_COLOR = '#0a0a0a';
+  const DARK_BG = '#111111';
+  const DARK_COLOR = '#BF953F';
+
+  const styleTab = (tab) => {
+    if (!tab) return;
+    const isActive = tab.classList.contains('active');
+    if (isActive) {
+      tab.style.setProperty('background', GOLD_BG, 'important');
+      tab.style.setProperty('background-color', '#BF953F', 'important');
+      tab.style.setProperty('color', GOLD_COLOR, 'important');
+      tab.style.setProperty('border-color', '#FCF6BA', 'important');
+      tab.style.setProperty('font-weight', '900', 'important');
+      tab.querySelectorAll('*').forEach(c => c.style.setProperty('color', GOLD_COLOR, 'important'));
+    } else {
+      tab.style.setProperty('background', DARK_BG, 'important');
+      tab.style.setProperty('background-color', DARK_BG, 'important');
+      tab.style.setProperty('background-image', 'none', 'important');
+      tab.style.setProperty('color', DARK_COLOR, 'important');
+      tab.style.setProperty('border', '1px solid #BF953F', 'important');
+      tab.querySelectorAll('*').forEach(c => c.style.setProperty('color', DARK_COLOR, 'important'));
+    }
   };
 
-  document.body.addEventListener('click', (e) => {
-      const tab = e.target.closest('.tab');
-      if (tab) {
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          forceGold();
-          setTimeout(forceGold, 50);
-          setTimeout(forceGold, 200);
-      }
-  });
+  const styleAllTabs = () => {
+    document.querySelectorAll('.tab').forEach(styleTab);
+  };
 
-  forceGold();
-  setTimeout(forceGold, 500);
-  setTimeout(forceGold, 1500);
-});
+  const styleFloatWa = () => {
+    // Buscar cualquier elemento flotante con icono de WhatsApp
+    document.querySelectorAll('a[href*="wa.me"], a[href*="whatsapp"], button').forEach(el => {
+      const s = window.getComputedStyle(el);
+      if (s.position === 'fixed' && (el.href && (el.href.includes('wa.me') || el.href.includes('whatsapp')))) {
+        el.style.setProperty('background', GOLD_BG, 'important');
+        el.style.setProperty('background-color', '#BF953F', 'important');
+        el.style.setProperty('border', '2px solid #FCF6BA', 'important');
+        el.style.setProperty('color', GOLD_COLOR, 'important');
+        el.style.setProperty('box-shadow', '0 6px 20px rgba(212, 175, 55, 0.5)', 'important');
+        el.querySelectorAll('svg, i').forEach(ic => {
+          ic.style.setProperty('stroke', GOLD_COLOR, 'important');
+          ic.style.setProperty('fill', GOLD_COLOR, 'important');
+          ic.style.setProperty('color', GOLD_COLOR, 'important');
+        });
+      }
+    });
+  };
+
+  // 1. CAPTURE: Interceptar el click ANTES que el JS original
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab');
+    if (tab) {
+      // Forzar el cambio de clase ANTES de que el JS original lo haga
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      styleAllTabs();
+      // Re-forzar en varios momentos porque el JS original puede cambiar clases después
+      setTimeout(styleAllTabs, 10);
+      setTimeout(styleAllTabs, 50);
+      setTimeout(styleAllTabs, 200);
+      setTimeout(styleAllTabs, 500);
+    }
+  }, true); // <-- capture: true es la clave
+
+  // 2. Ejecutar al inicio
+  document.addEventListener('DOMContentLoaded', () => {
+    styleAllTabs();
+    setTimeout(styleFloatWa, 500);
+    setTimeout(styleFloatWa, 1500);
+  });
+  if (document.readyState !== 'loading') {
+    styleAllTabs();
+    setTimeout(styleFloatWa, 500);
+  }
+  setTimeout(styleFloatWa, 2000);
+})();
 </script>
 </body>
+
 
 
 
