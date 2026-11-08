@@ -48,7 +48,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shop.css?v=GOLD-V24">
+<link rel="stylesheet" href="shop.css?v=GOLD-V25">
 <link rel="icon" type="image/svg+xml" href="icon-ptl.svg">
 <link rel="manifest" href="manifest-shop-v2.json">
 <link rel="apple-touch-icon" href="icon-shop-192.png">
@@ -1136,23 +1136,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
 <script id="gold-insurance">
 document.addEventListener("DOMContentLoaded", () => {
-  const forceTabGold = () => {
+  const forceGold = () => {
+      // Tabs
       document.querySelectorAll('.tab').forEach(tab => {
           const isActive = tab.classList.contains('active');
           if (isActive) {
               tab.style.setProperty('background', 'linear-gradient(to bottom, #FCF6BA, #BF953F)', 'important');
-              tab.style.setProperty('background-color', '#BF953F', 'important');
               tab.style.setProperty('color', '#0a0a0a', 'important');
-              tab.style.setProperty('border-color', '#FCF6BA', 'important');
-              tab.querySelectorAll('*').forEach(child => child.style.setProperty('color', '#0a0a0a', 'important'));
+              tab.querySelectorAll('*').forEach(c => c.style.setProperty('color', '#0a0a0a', 'important'));
           } else {
               tab.style.setProperty('background-color', '#111111', 'important');
-              tab.style.setProperty('background-image', 'none', 'important');
               tab.style.setProperty('color', '#BF953F', 'important');
               tab.style.setProperty('border', '1px solid #BF953F', 'important');
-              tab.querySelectorAll('*').forEach(child => child.style.setProperty('color', '#BF953F', 'important'));
+              tab.querySelectorAll('*').forEach(c => c.style.setProperty('color', '#BF953F', 'important'));
+          }
+      });
+
+      // Header Home Button (Forzarlo a dorado)
+      document.querySelectorAll('header a, header button, .shop-header a, .shop-header button').forEach((el, idx) => {
+          if (idx === 0) { // El primer botón es el de Home
+              el.style.setProperty('background', 'linear-gradient(135deg, #FCF6BA, #BF953F)', 'important');
+              el.style.setProperty('border', '1px solid #FCF6BA', 'important');
+              el.querySelectorAll('svg, i').forEach(icon => {
+                  icon.style.setProperty('stroke', '#0a0a0a', 'important');
+                  icon.style.setProperty('color', '#0a0a0a', 'important');
+              });
           }
       });
   };
@@ -1162,16 +1174,19 @@ document.addEventListener("DOMContentLoaded", () => {
       if (tab) {
           document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
-          forceTabGold();
-          setTimeout(forceTabGold, 50);
-          setTimeout(forceTabGold, 200);
+          forceGold();
+          setTimeout(forceGold, 50);
+          setTimeout(forceGold, 200);
       }
   });
 
-  forceTabGold();
+  forceGold();
+  setTimeout(forceGold, 500);
+  setTimeout(forceGold, 1500);
 });
 </script>
 </body>
+
 
 
 

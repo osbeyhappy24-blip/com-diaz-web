@@ -4050,3 +4050,61 @@ html body #tiendasContainer button[class*="green"] {
 html body header {
     background-color: #0a0a0a !important;
 }
+
+/* ==========================================
+   👑 FIX V25: VERDES ERRADICADOS Y DORADO RESTAURADO
+   ========================================== */
+
+/* 1. Tarjetas de Tienda (Forzar Dorado) */
+.tienda-card .tienda-logo-mini,
+.tienda-card .tienda-banner-mini {
+    background: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    border: 1px solid #FCF6BA !important;
+}
+.tienda-card .tienda-stats-mini {
+    background: rgba(212, 175, 55, 0.15) !important;
+    color: #BF953F !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    display: inline-block !important;
+    font-weight: 700 !important;
+}
+.tienda-card .tienda-cta-mini {
+    background: linear-gradient(to bottom, #FCF6BA, #BF953F) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    display: inline-block !important;
+    margin-top: 10px !important;
+    text-align: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Recuperar el Dorado en el Header (El botón de Home se había vuelto azul) */
+html body header button.active,
+html body header .icon-btn.active,
+html body .shop-header button.active,
+html body .header-content button.active,
+html body header a[href*="home"].active {
+    background: linear-gradient(135deg, #FCF6BA, #BF953F) !important;
+    background-color: #BF953F !important;
+    border-color: #FCF6BA !important;
+    color: #0a0a0a !important;
+}
+html body header button.active svg,
+html body header .icon-btn.active svg,
+html body .shop-header button.active svg {
+    stroke: #0a0a0a !important;
+    color: #0a0a0a !important;
+}
+
+/* 3. Asegurar que los tabs inactivos sean oscuros */
+html body .tab:not(.active) {
+    background-color: #111111 !important;
+    color: #BF953F !important;
+    border: 1px solid #BF953F !important;
+}

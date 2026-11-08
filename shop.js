@@ -523,7 +523,7 @@ async function compartirProducto(p) {
   const titulo = p.title || p.aiTitulo || 'Producto';
   const precio = Number(p.salePrice || 0).toFixed(2);
   
-  const wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp || (state && state.config && state.config.whatsapp) || '5351425691';
+  const wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp || '5351425691';
   
   const texto = `🛍️ Mira este producto en *ProfitToLife Marketplace:*
 
@@ -1628,7 +1628,7 @@ cargarCatalogo();
     const titulo = p.title || 'Producto';
     const precio = Number(p.salePrice || 0).toFixed(2);
     const shopUrl = location.origin + location.pathname + (p.id ? '?product=' + encodeURIComponent(String(p.id)) : '');
-    const wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp || (state && state.config && state.config.whatsapp) || '5351425691';
+    const wa = p.sellerWhatsapp || p.seller_whatsapp || (p.seller && p.seller.whatsapp) || p.whatsapp || '5351425691';
     const tienda = 'ProfitToLife Marketplace';
 
     return '🛍️ Mira este producto en *' + tienda + ':*\n\n' +
@@ -1672,7 +1672,7 @@ cargarCatalogo();
   });
 
   // Exponer para que el botón de la card use el mismo formato rico
-  window.compartirV1 = compartir;
+  window.compartirV1 = compartirProducto;
   console.log('✅ Compartir producto listo');
 })();
 
@@ -2639,7 +2639,7 @@ async function renderTiendas() {
     }
     
     grid.innerHTML = d.tiendas.map(t => {
-      const color = t.color || '#003f7f';
+      const color = '#BF953F'; // Forzado a dorado
       const bannerStyle = t.banner 
         ? `background-image:url('${escapeHtml(t.banner)}');` 
         : `background:linear-gradient(135deg, ${color} 0%, ${color}dd 100%);`;
