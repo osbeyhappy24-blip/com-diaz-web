@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test API 2 — Réplica home.html</title>
+  <style>
+    body { font-family: -apple-system, system-ui, monospace; padding: 12px; background: #0d1117; color: #e6edf3; font-size: 12px; }
+    .ok { color: #3fb950; font-weight: bold; }
+    .fail { color: #f85149; font-weight: bold; }
+    .warn { color: #d29922; font-weight: bold; }
+    .info { color: #58a6ff; }
+    pre { white-space: pre-wrap; word-break: break-all; background: #161b22; padding: 12px; border-radius: 6px; border: 1px solid #30363d; }
+    h1 { color: #f0f6fc; font-size: 16px; }
+    .btn { background: #238636; color: #fff; border: none; padding: 14px 20px; border-radius: 6px; font-size: 15px; font-weight: bold; width: 100%; margin-bottom: 12px; }
+    .btn2 { background: #1f6feb; }
+  </style>
+</head>
+<body>
+  <h1>🔬 Test API 2 — Réplica exacta de home.html</h1>
+  <button class="btn" onclick="runAll()">▶ Ejecutar tests</button>
+  <button class="btn btn2" onclick="setKeyAndReload()">🔑 Guardar API key en localStorage</button>
+  <pre id="log">Pulsa el botón para empezar...</pre>
+
+  <script>
+    const API = 'https://com-diaz-ty2b.onrender.com';
+    const HARDCODED_KEY = 'ukafr7gb';
+    const log = document.getElementById('log');
+    function p(msg, cls) { log.innerHTML += '<span class="' + (cls || '') + '">' + msg + '</span>\n'; }
+
+    async function test(name, url, opts, expectAuth) {
+      const t0 = performance.now();
+      try {
+        const r = await fetch(url, opts || {});
+        const dt = Math.round(performance.now() - t0);
+        const txt = await r.text();
+        const bodyPreview = txt.substring(0, 140).replace(/\n/g, ' ');
+        let cls = r.status === 200 ? 'ok' : (r.status === 401 ? 'warn' : 'fail');
+        if (expectAuth === 'public' && r.status === 200) cls = 'ok';
+        p('[' + r.status + ' · ' + dt + 'ms] ' + name, cls);
+        p('  ' + bodyPreview, cls);
+        return { status: r.status, ok: r.ok, body: txt };
+      } catch(e) {
+        const dt = Math.round(performance.now() - t0);
+        p('[ERROR · ' + dt + 'ms] ' + name, 'fail');
+        p('  → ' + e.message, 'fail');
+        return { status: 0, error: e.message };
+      }
+    }
+
+    function setKeyAndReload() {
+      localStorage.setItem('comdiaz_api_key', HARDCODED_KEY);
+      p('\n✅ API key "' + HARDCODED_KEY + '" guardada en localStorage.');
+      p('Ahora recarga home.html y prueba de nuevo la card IA.');
+      p('Si funciona → el bug era KEY vacío en localStorage.');
+    }
+
+    async function runAll() {
+      log.innerHTML = '';
+
+      // 0) Estado del localStorage
+      const storedKey = localStorage.getItem('comdiaz_api_key');
+      p('═══ 0) DIAGNÓSTICO DEL ENTORNO ═══', 'info');
+      p('localStorage.comdiaz_api_key: ' + (storedKey === null ? '❌ NO EXISTE (null)' : (storedKey === '' ? '❌ VACÍO ("")' : '✅ ' + storedKey.length + ' chars')),
+        storedKey && storedKey.length > 0 ? 'ok' : 'fail');
+      p('HARDCODED_KEY en test: ' + HARDCODED_KEY);
+      p('navigator.connection.saveData: ' + (navigator.connection ? navigator.connection.saveData : 'N/A'),
+        navigator.connection && navigator.connection.saveData ? 'warn' : 'ok');
+      p('navigator.connection.effectiveType: ' + (navigator.connection ? navigator.connection.effectiveType : 'N/A'));
+      p('navigator.onLine: ' + navigator.onLine);
+      p('userAgent: ' + navigator.userAgent.substring(0, 100));
+      p('');
+
+      // 1) Réplica del fetch de home.html con KEY real de localStorage
+      p('═══ 1) FETCH con KEY de localStorage (lo que hace home.html AHORA) ═══', 'info');
+      const keyParaFetch = storedKey || '';
+      await test(
+        'ia-dashboard con KEY real de localStorage',
+        API + '/api/admin/ia-dashboard',
+        { headers: { 'X-Comdiaz-Key': keyParaFetch } }
+      );
+      p('');
+
+      // 2) Mismo fetch pero con KEY hardcodeada (lo que hace test-api.html)
+      p('═══ 2) FETCH con KEY hardcodeada (lo que hace test-api.html) ═══', 'info');
+      await test(
+        'ia-dashboard con KEY hardcodeada ukafr7gb',
+        API + '/api/admin/ia-dashboard',
+        { headers: { 'X-Comdiaz-Key': HARDCODED_KEY } }
+      );
+      p('');
+
+      // 3) Los 5 endpoints que home.html dispara al cargar (en serie)
+      p('═══ 3) Los 5 endpoints admin que home.html llama al cargar ═══', 'info');
+      const h = { 'X-Comdiaz-Key': HARDCODED_KEY };
+      await test('cargarStats → /api/admin/stats',        API + '/api/admin/stats',                              { headers: h });
+      await test('cargarTiendas → /api/admin/tiendas',    API + '/api/admin/tiendas',                            { headers: h });
+      await test('cargarFundadores → /api/admin/fundadores', API + '/api/admin/fundadores',                      { headers: h });
+      await test('cargarProductos → /api/admin/sellers',   API + '/api/admin/sellers?estado=aprobado',           { headers: h });
+      await test('cargarIADashboard → /api/admin/ia-dashboard', API + '/api/admin/ia-dashboard',                  { headers: h });
+      p('');
+
+      // 4) Los 5 endpoints en PARALELO (como los dispara home.html)
+      p('═══ 4) Los 5 endpoints en PARALELO (así los dispara home.html) ═══', 'info');
+      const par = [
+        ['stats',        API + '/api/admin/stats'],
+        ['tiendas',      API + '/api/admin/tiendas'],
+        ['fundadores',   API + '/api/admin/fundadores'],
+        ['sellers',      API + '/api/admin/sellers?estado=aprobado'],
+        ['ia-dashboard', API + '/api/admin/ia-dashboard']
+      ];
+      const t0 = performance.now();
+      const results = await Promise.all(par.map(([n, u]) => fetch(u, { headers: h }).then(r => ({ n, s: r.status })).catch(e => ({ n, s: 'ERR:' + e.message }))));
+      const dt = Math.round(performance.now() - t0);
+      results.forEach(r => p('  [' + r.s + '] ' + r.n, (r.s === 200 ? 'ok' : 'fail')));
+      p('  Total: ' + dt + 'ms');
+      p('');
+
+      // 5) Resumen
+      p('══════════════════════════════════════', 'info');
+      p('📋 RESUMEN', 'info');
+      p('══════════════════════════════════════', 'info');
+      if (!storedKey || storedKey.length === 0) {
+        p('❌ localStorage.comdiaz_api_key VACÍO → home.html NO puede autenticarse', 'fail');
+        p('   → Toca el botón azul "Guardar API key en localStorage" y reintenta', 'warn');
+      } else {
+        p('✅ localStorage.comdiaz_api_key OK: ' + storedKey, 'ok');
+      }
+      if (navigator.connection && navigator.connection.saveData) {
+        p('⚠️ Chrome tiene Data Saver ACTIVADO → puede bloquear fetch a APIs', 'warn');
+      }
+    }
+  </script>
+</body>
+</html>
