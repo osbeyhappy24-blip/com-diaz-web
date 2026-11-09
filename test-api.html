@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test API — Diagnóstico</title>
+  <style>
+    body { font-family: -apple-system, system-ui, monospace; padding: 16px; background: #0d1117; color: #e6edf3; font-size: 13px; }
+    .ok { color: #3fb950; font-weight: bold; }
+    .fail { color: #f85149; font-weight: bold; }
+    .warn { color: #d29922; font-weight: bold; }
+    .info { color: #58a6ff; }
+    pre { white-space: pre-wrap; word-break: break-all; background: #161b22; padding: 12px; border-radius: 6px; border: 1px solid #30363d; }
+    h1 { color: #f0f6fc; font-size: 18px; }
+    h2 { color: #d29922; font-size: 14px; margin-top: 24px; }
+    .btn { background: #238636; color: #fff; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; font-weight: bold; width: 100%; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>🔬 Test API — Diagnóstico Cloudflare vs Fetch</h1>
+  <button class="btn" onclick="runAll()">▶ Ejecutar TODOS los tests</button>
+  <p class="info">Esta página prueba distintas formas de llamar al backend para identificar cuál funciona desde tu red/navegador.</p>
+  <pre id="log">Pulsa el botón para empezar...</pre>
+
+  <script>
+    const API = 'https://com-diaz-ty2b.onrender.com';
+    const KEY = 'ukafr7gb';
+    const log = document.getElementById('log');
+    function p(msg, cls) {
+      log.innerHTML += '<span class="' + (cls || '') + '">' + msg + '</span>\n';
+    }
+
+    async function test(name, url, opts) {
+      p('\n═══ ' + name + ' ═══');
+      const t0 = performance.now();
+      try {
+        const r = await fetch(url, opts || {});
+        const dt = Math.round(performance.now() - t0);
+        const txt = await r.text();
+        const status = r.status === 200 ? 'ok' : (r.status === 401 ? 'warn' : 'fail');
+        p('STATUS: ' + r.status + ' en ' + dt + 'ms', status);
+        p('BODY: ' + txt.substring(0, 220), status);
+      } catch(e) {
+        const dt = Math.round(performance.now() - t0);
+        p('ERROR en ' + dt + 'ms: ' + e.message, 'fail');
+        p('(Esto puede ser CORS o Cloudflare bloqueando JS)', 'fail');
+      }
+    }
+
+    async function runAll() {
+      log.innerHTML = '';
+      const cacheBust = '&_t=' + Date.now();
+
+      await test(
+        '1) FETCH con header X-Comdiaz-Key (código ACTUAL de la home)',
+        API + '/api/admin/ia-dashboard',
+        { headers: { 'X-Comdiaz-Key': KEY } }
+      );
+
+      await test(
+        '2) FETCH con query string ?k= (SIN header custom)',
+        API + '/api/admin/ia-dashboard?k=' + encodeURIComponent(KEY) + cacheBust
+      );
+
+      await test(
+        '3) FETCH sin auth (debe dar 401 o fallar)',
+        API + '/api/admin/ia-dashboard?_t=' + Date.now()
+      );
+
+      await test(
+        '4) FETCH endpoint público (debe dar 200)',
+        API + '/api/public/tiendas?_t=' + Date.now()
+      );
+
+      await test(
+        '5) FETCH ?k= con cache no-store',
+        API + '/api/admin/ia-dashboard?k=' + encodeURIComponent(KEY) + cacheBust,
+        { cache: 'no-store' }
+      );
+
+      await test(
+        '6) FETCH header + query (doble auth)',
+        API + '/api/admin/ia-dashboard?k=' + encodeURIComponent(KEY) + cacheBust,
+        { headers: { 'X-Comdiaz-Key': KEY } }
+      );
+
+      await test(
+        '7) NAVEGACIÓN top-level simulada con ?k=',
+        API + '/api/admin/ia-dashboard?k=' + encodeURIComponent(KEY) + cacheBust,
+        { mode: 'cors', credentials: 'omit' }
+      );
+
+      p('\n\n══════════════════════════════════════');
+      p('📋 Copia TODO este texto y pégamelo');
+      p('══════════════════════════════════════');
+      p('Tests que dieron 200 → esas formas FUNCIONAN');
+      p('Tests que dieron 503/ERROR → esas formas FALLAN');
+    }
+  </script>
+</body>
+</html>
