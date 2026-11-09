@@ -1458,64 +1458,94 @@ window._deleteProduct = async function(id, titulo) {
   const alertsEl = document.getElementById('iaAlerts');
   const badge = document.getElementById('iaStatusBadge');
   const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-  try {
-    const r = await fetch(API + '/api/admin/ia-dashboard', { headers: { 'X-Comdiaz-Key': KEY } });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    if (!d.ok) throw new Error('ok=false');
-    const alertas = [];
-    const cron = d.cron || {};
-    const keys = d.keys || {};
-    const prod = d.productos || {};
-    const mod = d.moderacion || {};
-    if (keys.total === 0) alertas.push({t:'❌ Sin keys IA — el cron no procesa nada. Sincronizar en Config', c:'#dc3545'});
-    if (cron.activo === false) alertas.push({t:'❌ Cron IA inactivo — revisar backend', c:'#dc3545'});
-    if (cron.minutos_desde_ultima != null && cron.minutos_desde_ultima > 30) alertas.push({t:'⚠️ Cron sin ejecutar hace ' + cron.minutos_desde_ultima + ' min', c:'#ffc107'});
-    if ((prod.pendientes||0) > 0) alertas.push({t:'⏳ ' + prod.pendientes + ' productos sin descripción IA', c:'#ffc107'});
-    if ((mod.bloqueadas||0) > 0) alertas.push({t:'🚨 ' + mod.bloqueadas + ' productos bloqueados por moderación', c:'#fd7e14'});
-    if ((mod.sellers_suspensos||0) > 0) alertas.push({t:'🚨 ' + mod.sellers_suspensos + ' vendedores suspendidos por strikes', c:'#dc3545'});
-    if (alertas.length === 0) alertas.push({t:'✅ Sistema IA funcionando', c:'#28a745'});
-    if (alertsEl) alertsEl.innerHTML = alertas.map(a => '<div style="background:' + a.c + ';color:#fff;padding:8px 12px;border-radius:6px;margin-bottom:6px;font-size:12px;font-weight:600;">' + a.t + '</div>').join('');
-    if (badge) {
-      const okGlobal = keys.total > 0 && cron.activo !== false && (mod.sellers_suspensos||0) === 0;
-      badge.textContent = okGlobal ? 'OK' : 'Revisar';
-      badge.style.background = okGlobal ? '#28a745' : (((mod.sellers_suspensos||0) > 0 || keys.total === 0) ? '#dc3545' : '#ffc107');
-      badge.style.color = '#fff';
-    }
-    setText('iaCronStatus', cron.activo ? 'Activo' : 'Inactivo');
-    setText('iaCronSub', cron.activo ? ('Cada ' + (cron.frecuencia_min||5) + ' min' + (cron.minutos_desde_ultima != null ? ' · hace ' + cron.minutos_desde_ultima + ' min' : '')) : 'Detenido');
-    setText('iaKeysCount', (keys.activas||0) + '/' + (keys.total||0));
-    setText('iaKeysModel', keys.modelo || '—');
-    setText('iaProdPct', (prod.porcentaje||0) + '%');
-    setText('iaProdSub', (prod.con_ia||0) + '/' + (prod.total||0) + ' con IA' + ((prod.pendientes||0)>0 ? ' · ' + prod.pendientes + ' pend.' : ''));
-    setText('iaModRevisadas', String(mod.revisadas||0));
-    setText('iaModSub', (mod.safe||0) + ' safe · ' + (mod.bloqueadas||0) + ' bloq.');
-    const vBody = document.getElementById('iaVendedoresBody');
-    if (vBody) {
-      const vs = d.vendedores || [];
-      if (vs.length === 0) {
-        vBody.innerHTML = '<tr><td colspan="8" style="padding:10px;text-align:center;color:#888;">Sin vendedores</td></tr>';
+  const showMsg = (bg, color, txt) => {
+    if (alertsEl) alertsEl.innerHTML = '<div style="background:' + bg + ';color:' + color + ';padding:8px 12px;border-radius:6px;margin-bottom:6px;font-size:12px;font-weight:600;">' + txt + '</div>';
+  };
+
+  let exito = false;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      if (attempt > 1) {
+        showMsg('#ffc107', '#000', '⏳ Despertando servidor Render... (Intento ' + attempt + '/3). Espera ~30s.');
       } else {
-        vBody.innerHTML = vs.map(v => {
-          const strikes = v.strikes||0;
-          const strikesColor = strikes >= 3 ? '#dc3545' : (strikes > 0 ? '#fd7e14' : '#28a745');
-          return '<tr style="border-bottom:1px solid #eee;">' +
-            '<td style="padding:6px;">' + (v.nombre||v.seller_id||'—') + '<br><span style="font-size:10px;color:#888;">' + (v.telefono||'') + '</span></td>' +
-            '<td style="padding:6px;">' + (v.plan||'—') + '</td>' +
-            '<td style="padding:6px;text-align:center;">' + (v.publicados||0) + '</td>' +
-            '<td style="padding:6px;text-align:center;">' + (v.con_ia||0) + '</td>' +
-            '<td style="padding:6px;text-align:center;color:' + ((v.pendientes||0)>0?'#fd7e14':'#28a745') + ';">' + (v.pendientes||0) + '</td>' +
-            '<td style="padding:6px;text-align:center;color:#28a745;">' + (v.moderados_safe||0) + '</td>' +
-            '<td style="padding:6px;text-align:center;color:' + ((v.bloqueados||0)>0?'#dc3545':'#888') + ';">' + (v.bloqueados||0) + '</td>' +
-            '<td style="padding:6px;text-align:center;font-weight:700;color:' + strikesColor + ';">' + strikes + '</td>' +
-          '</tr>';
-        }).join('');
+        showMsg('#17a2b8', '#fff', '🔄 Cargando datos IA...');
+      }
+      const r = await fetch(API + '/api/admin/ia-dashboard', { headers: { 'X-Comdiaz-Key': KEY } });
+
+      if (r.status === 503) {
+        if (attempt === 3) throw new Error('HTTP 503 — servidor Render no responde tras 3 intentos');
+        await new Promise(res => setTimeout(res, 8000));
+        continue;
+      }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+
+      const d = await r.json();
+      if (!d.ok) throw new Error('ok=false');
+
+      // ═══ RENDERIZADO ═══
+      const alertas = [];
+      const cron = d.cron || {};
+      const keys = d.keys || {};
+      const prod = d.productos || {};
+      const mod = d.moderacion || {};
+      if (keys.total === 0) alertas.push({t:'❌ Sin keys IA — el cron no procesa nada. Sincronizar en Config', c:'#dc3545'});
+      if (cron.activo === false) alertas.push({t:'❌ Cron IA inactivo — revisar backend', c:'#dc3545'});
+      if (cron.minutos_desde_ultima != null && cron.minutos_desde_ultima > 30) alertas.push({t:'⚠️ Cron sin ejecutar hace ' + cron.minutos_desde_ultima + ' min', c:'#ffc107'});
+      if ((prod.pendientes||0) > 0) alertas.push({t:'⏳ ' + prod.pendientes + ' productos sin descripción IA', c:'#ffc107'});
+      if ((mod.bloqueadas||0) > 0) alertas.push({t:'🚨 ' + mod.bloqueadas + ' productos bloqueados por moderación', c:'#fd7e14'});
+      if ((mod.sellers_suspensos||0) > 0) alertas.push({t:'🚨 ' + mod.sellers_suspensos + ' vendedores suspendidos por strikes', c:'#dc3545'});
+      if (alertas.length === 0) alertas.push({t:'✅ Sistema IA funcionando', c:'#28a745'});
+      if (alertsEl) alertsEl.innerHTML = alertas.map(a => '<div style="background:' + a.c + ';color:#fff;padding:8px 12px;border-radius:6px;margin-bottom:6px;font-size:12px;font-weight:600;">' + a.t + '</div>').join('');
+      if (badge) {
+        const okGlobal = keys.total > 0 && cron.activo !== false && (mod.sellers_suspensos||0) === 0;
+        badge.textContent = okGlobal ? 'OK' : 'Revisar';
+        badge.style.background = okGlobal ? '#28a745' : (((mod.sellers_suspensos||0) > 0 || keys.total === 0) ? '#dc3545' : '#ffc107');
+        badge.style.color = '#fff';
+      }
+      setText('iaCronStatus', cron.activo ? 'Activo' : 'Inactivo');
+      setText('iaCronSub', cron.activo ? ('Cada ' + (cron.frecuencia_min||5) + ' min' + (cron.minutos_desde_ultima != null ? ' · hace ' + cron.minutos_desde_ultima + ' min' : '')) : 'Detenido');
+      setText('iaKeysCount', (keys.activas||0) + '/' + (keys.total||0));
+      setText('iaKeysModel', keys.modelo || '—');
+      setText('iaProdPct', (prod.porcentaje||0) + '%');
+      setText('iaProdSub', (prod.con_ia||0) + '/' + (prod.total||0) + ' con IA' + ((prod.pendientes||0)>0 ? ' · ' + prod.pendientes + ' pend.' : ''));
+      setText('iaModRevisadas', String(mod.revisadas||0));
+      setText('iaModSub', (mod.safe||0) + ' safe · ' + (mod.bloqueadas||0) + ' bloq.');
+
+      const vBody = document.getElementById('iaVendedoresBody');
+      if (vBody) {
+        const vs = d.vendedores || [];
+        if (vs.length === 0) {
+          vBody.innerHTML = '<tr><td colspan="8" style="padding:10px;text-align:center;color:#888;">Sin vendedores</td></tr>';
+        } else {
+          vBody.innerHTML = vs.map(v => {
+            const strikes = v.strikes||0;
+            const strikesColor = strikes >= 3 ? '#dc3545' : (strikes > 0 ? '#fd7e14' : '#28a745');
+            return '<tr style="border-bottom:1px solid #eee;">' +
+              '<td style="padding:6px;">' + (v.nombre||v.seller_id||'—') + '<br><span style="font-size:10px;color:#888;">' + (v.telefono||'') + '</span></td>' +
+              '<td style="padding:6px;">' + (v.plan||'—') + '</td>' +
+              '<td style="padding:6px;text-align:center;">' + (v.publicados||0) + '</td>' +
+              '<td style="padding:6px;text-align:center;">' + (v.con_ia||0) + '</td>' +
+              '<td style="padding:6px;text-align:center;color:' + ((v.pendientes||0)>0?'#fd7e14':'#28a745') + ';">' + (v.pendientes||0) + '</td>' +
+              '<td style="padding:6px;text-align:center;color:#28a745;">' + (v.moderados_safe||0) + '</td>' +
+              '<td style="padding:6px;text-align:center;color:' + ((v.bloqueados||0)>0?'#dc3545':'#888') + ';">' + (v.bloqueados||0) + '</td>' +
+              '<td style="padding:6px;text-align:center;font-weight:700;color:' + strikesColor + ';">' + strikes + '</td>' +
+            '</tr>';
+          }).join('');
+        }
+      }
+      const upd = document.getElementById('iaLastUpdate');
+      if (upd && d.timestamp) upd.textContent = 'Actualizado: ' + new Date(d.timestamp).toLocaleTimeString();
+
+      exito = true;
+      break;
+    } catch(e) {
+      if (attempt === 3) {
+        showMsg('#dc3545', '#fff', '❌ Error tras 3 intentos: ' + e.message + ' — el servidor Render puede estar caído. Reintenta en 1 min.');
+      } else {
+        showMsg('#ffc107', '#000', '⚠️ Error de red: ' + e.message + '. Reintentando en 5s...');
+        await new Promise(res => setTimeout(res, 5000));
       }
     }
-    const upd = document.getElementById('iaLastUpdate');
-    if (upd && d.timestamp) upd.textContent = 'Actualizado: ' + new Date(d.timestamp).toLocaleTimeString();
-  } catch(e) {
-    if (alertsEl) alertsEl.innerHTML = '<div style="background:#dc3545;color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;">❌ Error cargando IA dashboard: ' + e.message + '</div>';
   }
 }
 
