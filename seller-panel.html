@@ -972,6 +972,47 @@ body:not(.modal-open) .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0
   line-height: 1.4;
 }
 
+
+/* ═══ VARIABLES SEMÁNTICAS (FASE 1) ═══ */
+:root {
+  /* Fondos */
+  --bg-body: #0A0E1A;
+  --bg-card: #131A2E;
+  --bg-elevated: #1F2A44;
+  --bg-input: #0F172A;
+  
+  /* Texto */
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  
+  /* Acentos */
+  --accent-green: #22C55E;
+  --accent-green-hover: #16A34A;
+  --accent-gold: #FCD34D;
+  --accent-gold-warm: #fbbf24;
+  --accent-blue: #3b82f6;
+  --accent-purple: #8B5CF6;
+  
+  /* Estados */
+  --error: #ef4444;
+  --error-soft: #f87171;
+  --warning: #f59e0b;
+  --success: #22C55E;
+  
+  /* Bordes y radios */
+  --border: #1F2A44;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* Espaciado */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+}
+
 </style>
 <style>
 /* ── Photo uploader ── */
@@ -2270,8 +2311,14 @@ function renderPerfil() {
   const fill = document.getElementById('quotaFill');
   fill.style.width = (max === -1 ? 100 : pct) + '%';
   fill.className = 'quota-fill' + (pct >= 90 ? ' full' : pct >= 70 ? ' warn' : '');
-  document.getElementById('quotaUsada').textContent = usada + ' imágenes';
-  document.getElementById('quotaMax').textContent = max === -1 ? '∞' : max + ' máx';
+  if (max === -1) {
+    document.getElementById('quotaUsada').textContent = usada + ' fotos usadas (ilimitado)';
+    document.getElementById('quotaMax').textContent = '';
+  } else {
+    const restantes = Math.max(0, max - usada);
+    document.getElementById('quotaUsada').textContent = 'Te quedan ' + restantes + ' fotos';
+    document.getElementById('quotaMax').textContent = '';
+  }
 
   const btn = document.getElementById('addProductBtn');
   if (s.estado !== 'aprobado') {
@@ -6184,8 +6231,8 @@ document.addEventListener('click', function(e) {
 <style>
   #iaFabContainer {
     position: fixed;
-    bottom: 90px;
-    right: 20px;
+    bottom: 140px;
+    right: 16px;
     z-index: 100000;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
