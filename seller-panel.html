@@ -524,15 +524,42 @@ body:not(.modal-open) .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0
 
 /* ═══ Banner de plan (monetización) ═══ */
 .plan-banner {
-  margin: 0 12px 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.5;
   display: none;
   align-items: center;
-  gap: 12px;
-  animation: slideDownBanner .35s ease;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  margin: 14px 0;
+}
+.plan-banner.show { display: flex; }
+.plan-banner.warning { background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4); }
+.plan-banner-icon { font-size: 20px; flex-shrink: 0; }
+.plan-banner-body { flex: 1; min-width: 0; }
+.plan-banner-title { font-size: 13px; font-weight: 700; color: #fbbf24; margin: 0; }
+.plan-banner.warning .plan-banner-title { color: #f87171; }
+.plan-banner-msg { display: none; }
+.plan-banner-btn {
+  background: #fbbf24;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.plan-banner.warning .plan-banner-btn { background: #f87171; color: #fff; }
+.plan-banner-close {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+  flex-shrink: 0;
 }
 @keyframes slideDownBanner {
   from { transform: translateY(-10px); opacity: 0; }
@@ -1013,6 +1040,34 @@ body:not(.modal-open) .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0
   --space-lg: 24px;
 }
 
+
+/* ═══ FASE 1.5 — Alineación y espaciado uniforme ═══ */
+.container {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  padding-bottom: 140px !important; /* Espacio para FAB */
+}
+.info-card,
+.tienda-section,
+.plan-banner {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 14px !important;
+  margin-top: 14px !important;
+}
+.info-card:first-child,
+.tienda-section:first-child,
+.plan-banner:first-child {
+  margin-top: 0 !important;
+}
+/* Ajustar .tienda-section que tenía margen extra */
+.tienda-section {
+  padding: 0 !important;
+}
+.tienda-section > * {
+  padding-left: 16px;
+  padding-right: 16px;
+}
 </style>
 <style>
 /* ── Photo uploader ── */
@@ -1967,6 +2022,7 @@ body { padding-bottom: 100px; }
         <div class="plan-banner-msg" id="planBannerMsg"></div>
       </div>
       <button class="plan-banner-btn" onclick="abrirPaymentModal()">Renovar</button>
+      <button class="plan-banner-close" onclick="ocultarBannerPlan()" title="Ocultar por hoy">✕</button>
     </div>
 
     <div class="container">
@@ -2309,8 +2365,15 @@ function renderPerfil() {
   const max = s.cuota_max || 50;
   const pct = max === -1 ? 0 : Math.min(100, (usada / max) * 100);
   const fill = document.getElementById('quotaFill');
-  fill.style.width = (max === -1 ? 100 : pct) + '%';
-  fill.className = 'quota-fill' + (pct >= 90 ? ' full' : pct >= 70 ? ' warn' : '');
+  const quotaBar = document.querySelector('.quota-bar');
+  if (max === -1 || pct >= 50) {
+    if (quotaBar) quotaBar.style.display = 'block';
+    fill.style.width = (max === -1 ? 100 : pct) + '%';
+    fill.className = 'quota-fill' + (pct >= 90 ? ' full' : pct >= 70 ? ' warn' : '');
+  } else {
+    // Menos del 50% usado: ocultar barra, solo texto
+    if (quotaBar) quotaBar.style.display = 'none';
+  }
   if (max === -1) {
     document.getElementById('quotaUsada').textContent = usada + ' fotos usadas (ilimitado)';
     document.getElementById('quotaMax').textContent = '';
@@ -6231,13 +6294,13 @@ document.addEventListener('click', function(e) {
 <style>
   #iaFabContainer {
     position: fixed;
-    bottom: 140px;
+    bottom: 100px;
     right: 16px;
     z-index: 100000;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   #iaFabBtn {
-    width: 60px; height: 60px;
+    width: 52px; height: 52px;
     border-radius: 50%;
     background: linear-gradient(135deg, #8B5CF6, #D946EF);
     border: none;
@@ -6335,6 +6398,27 @@ document.addEventListener('click', function(e) {
       }
     }
   }
+
+// ═══ FASE 1.5: Ocultar banner plan por hoy ═══
+window.ocultarBannerPlan = function() {
+  const banner = document.getElementById('planBanner');
+  if (banner) banner.classList.remove('show');
+  const hoy = new Date().toDateString();
+  try { localStorage.setItem('planBannerHiddenDate', hoy); } catch(e) {}
+};
+
+// Auto-aplicar al cargar: si el usuario lo ocultó hoy, no mostrarlo
+window._checkPlanBannerHidden = function() {
+  const hoy = new Date().toDateString();
+  try {
+    if (localStorage.getItem('planBannerHiddenDate') === hoy) {
+      const banner = document.getElementById('planBanner');
+      if (banner) banner.classList.remove('show');
+      return true;
+    }
+  } catch(e) {}
+  return false;
+};
 </script>
 
 
