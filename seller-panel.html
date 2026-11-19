@@ -6464,29 +6464,41 @@ window.parsearListaPrecios = function(texto) {
   const items = [];
   
   for (const linea of lineas) {
-    // Patrón 1: "Nombre $290" o "Nombre 290" o "Nombre 290.50"
-    const match1 = linea.match(/^(.+?)\s+\$?(\d+(?:[.,]\d+)?)\s*$/);
-    if (match1) {
-      const nombre = match1[1].trim();
-      const precio = parseFloat(match1[2].replace(',', '.'));
-      if (!isNaN(precio) && precio > 0) {
-        items.push({ nombre, precio, original: linea });
+    // Patrón 1: "Nombre 290 73000" (nombre + USD + CUP)
+    const match3 = linea.match(/^(.+?)\s+\$?(\d+(?:[.,]\d+)?)\s+\$?(\d+(?:[.,]\d+)?)\s*$/);
+    if (match3) {
+      const nombre = match3[1].trim();
+      const usd = parseFloat(match3[2].replace(',', '.'));
+      const cup = parseFloat(match3[3].replace(',', '.'));
+      if (!isNaN(usd) && usd > 0) {
+        items.push({ nombre, precio_usd: usd, precio_cup: isNaN(cup) ? 0 : cup, original: linea });
         continue;
       }
     }
     
-    // Patrón 2: Solo precio "290" o "$290"
-    const match2 = linea.match(/^\$?(\d+(?:[.,]\d+)?)\s*$/);
+    // Patrón 2: "Nombre 290" (nombre + USD)
+    const match2 = linea.match(/^(.+?)\s+\$?(\d+(?:[.,]\d+)?)\s*$/);
     if (match2) {
-      const precio = parseFloat(match2[1].replace(',', '.'));
-      if (!isNaN(precio) && precio > 0) {
-        items.push({ nombre: '', precio, original: linea });
+      const nombre = match2[1].trim();
+      const usd = parseFloat(match2[2].replace(',', '.'));
+      if (!isNaN(usd) && usd > 0) {
+        items.push({ nombre, precio_usd: usd, precio_cup: 0, original: linea });
         continue;
       }
     }
     
-    // Patrón 3: Solo nombre (sin precio válido)
-    items.push({ nombre: linea.trim(), precio: 0, original: linea, invalido: true });
+    // Patrón 3: Solo precio USD
+    const match1 = linea.match(/^\$?(\d+(?:[.,]\d+)?)\s*$/);
+    if (match1) {
+      const usd = parseFloat(match1[1].replace(',', '.'));
+      if (!isNaN(usd) && usd > 0) {
+        items.push({ nombre: '', precio_usd: usd, precio_cup: 0, original: linea });
+        continue;
+      }
+    }
+    
+    // Fallback: solo nombre
+    items.push({ nombre: linea.trim(), precio_usd: 0, precio_cup: 0, original: linea, invalido: true });
   }
   
   return items;
@@ -6568,29 +6580,18 @@ window.matchingPrecios = function(itemsPrecios, titulosIA) {
       const item = itemsPrecios[j];
       const nombreItem = (item.nombre || '').toLowerCase();
       
-      // Match exacto
       if (nombreItem && titulo.includes(nombreItem)) {
         const score = nombreItem.length;
-        if (score > mejorScore) {
-          mejorScore = score;
-          mejorMatch = j;
-        }
+        if (score > mejorScore) { mejorScore = score; mejorMatch = j; }
       } else if (nombreItem && nombreItem.includes(titulo.split(' ')[0])) {
         const score = titulo.split(' ')[0].length;
-        if (score > mejorScore) {
-          mejorScore = score;
-          mejorMatch = j;
-        }
+        if (score > mejorScore) { mejorScore = score; mejorMatch = j; }
       }
     }
     
-    // Fallback: si no hubo match por nombre, usar siguiente item por orden
     if (mejorMatch === null) {
       for (let j = 0; j < itemsPrecios.length; j++) {
-        if (!usados.has(j)) {
-          mejorMatch = j;
-          break;
-        }
+        if (!usados.has(j)) { mejorMatch = j; break; }
       }
     }
     
@@ -6598,12 +6599,13 @@ window.matchingPrecios = function(itemsPrecios, titulosIA) {
       usados.add(mejorMatch);
       resultado.push({
         titulo: titulosIA[i],
-        precio: itemsPrecios[mejorMatch].precio,
+        precio_usd: itemsPrecios[mejorMatch].precio_usd,
+        precio_cup: itemsPrecios[mejorMatch].precio_cup || 0,
         nombreOriginal: itemsPrecios[mejorMatch].nombre,
         matchType: mejorScore > 0 ? 'nombre' : 'orden'
       });
     } else {
-      resultado.push({ titulo: titulosIA[i], precio: 0, matchType: 'sin_precio' });
+      resultado.push({ titulo: titulosIA[i], precio_usd: 0, precio_cup: 0, matchType: 'sin_precio' });
     }
   }
   
@@ -6700,7 +6702,8 @@ window.analizarCargaInteligente = async function() {
   // Guardar en estado global para BLOQUE 3
   window._smartResultados = resultados.map((r, i) => ({
     ...r,
-    precio: matched[i]?.precio || 0,
+    precio_usd: matched[i]?.precio_usd || 0,
+    precio_cup: matched[i]?.precio_cup || 0,
     matchType: matched[i]?.matchType || 'sin_precio'
   }));
   
@@ -6729,7 +6732,7 @@ window.renderSmartPreview = function() {
   
   resultados.forEach((r, i) => {
     const tieneError = !r.url;
-    const sinPrecio = !r.precio || r.precio <= 0;
+    const sinPrecio = !r.precio_usd || r.precio_usd <= 0;
     
     if (tieneError) conError++;
     else exitosos++;
@@ -6737,7 +6740,6 @@ window.renderSmartPreview = function() {
     html += '<div style="background:#0F172A;border:1px solid #1F2A44;border-radius:10px;padding:12px;margin-bottom:10px">';
     html += '<div style="display:flex;gap:10px;align-items:start">';
     
-    // Imagen
     if (r.url) {
       html += '<img src="' + r.url + '" style="width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0">';
     } else {
@@ -6746,28 +6748,25 @@ window.renderSmartPreview = function() {
     
     html += '<div style="flex:1;min-width:0">';
     
-    // Título editable
     html += '<input type="text" value="' + (r.titulo || '').replace(/"/g, '&quot;') + '" onchange="window._smartResultados[' + i + '].titulo = this.value" style="width:100%;padding:6px 8px;background:#0A0E1A;border:1px solid #1F2A44;border-radius:6px;color:#F1F5F9;font-size:13px;margin-bottom:6px" placeholder="Título del producto">';
     
-    // Precio editable
-    html += '<div style="display:flex;gap:6px;align-items:center">';
-    html += '<span style="color:#94A3B8;font-size:12px">$</span>';
-    html += '<input type="number" value="' + (r.precio || '') + '" onchange="window._smartResultados[' + i + '].precio = parseFloat(this.value) || 0" style="flex:1;padding:6px 8px;background:#0A0E1A;border:1px solid ' + (sinPrecio ? '#f87171' : '#1F2A44') + ';border-radius:6px;color:#F1F5F9;font-size:13px" placeholder="0.00" step="0.01" min="0">';
+    // 2 columnas: USD + CUP
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+    html += '<div style="display:flex;gap:4px;align-items:center"><span style="color:#22C55E;font-size:11px;font-weight:700">USD</span><input type="number" value="' + (r.precio_usd || '') + '" onchange="window._smartResultados[' + i + '].precio_usd = parseFloat(this.value) || 0" style="flex:1;padding:6px;background:#0A0E1A;border:1px solid ' + (sinPrecio ? '#f87171' : '#1F2A44') + ';border-radius:6px;color:#F1F5F9;font-size:12px" placeholder="0.00" step="0.01" min="0"></div>';
+    html += '<div style="display:flex;gap:4px;align-items:center"><span style="color:#fbbf24;font-size:11px;font-weight:700">CUP</span><input type="number" value="' + (r.precio_cup || '') + '" onchange="window._smartResultados[' + i + '].precio_cup = parseFloat(this.value) || 0" style="flex:1;padding:6px;background:#0A0E1A;border:1px solid #1F2A44;border-radius:6px;color:#F1F5F9;font-size:12px" placeholder="0" step="1" min="0"></div>';
     html += '</div>';
     
-    // Badges
     if (tieneError) {
       html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(248,113,113,.2);color:#f87171;border-radius:999px;font-size:10px;font-weight:700">❌ ' + (r.error || 'Error') + '</span>';
     } else if (sinPrecio) {
-      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(251,191,36,.2);color:#fbbf24;border-radius:999px;font-size:10px;font-weight:700">⚠️ Falta precio</span>';
+      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(251,191,36,.2);color:#fbbf24;border-radius:999px;font-size:10px;font-weight:700">⚠️ Falta precio USD</span>';
     } else {
-      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(34,197,94,.2);color:#22C55E;border-radius:999px;font-size:10px;font-weight:700">✅ ' + (r.matchType === 'nombre' ? 'Match por nombre' : 'Match por orden') + '</span>';
+      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(34,197,94,.2);color:#22C55E;border-radius:999px;font-size:10px;font-weight:700">✅ ' + (r.matchType === 'nombre' ? 'Match nombre' : 'Match orden') + '</span>';
     }
     
     html += '</div></div></div>';
   });
   
-  // Resumen arriba
   const resumen = '<div style="padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;margin-bottom:12px;color:#A78BFA;font-size:12px;font-weight:600">' +
     '✅ ' + exitosos + ' listos · ❌ ' + conError + ' con error · ' + (resultados.length - exitosos) + ' requieren revisión' +
     '</div>';
@@ -6776,16 +6775,80 @@ window.renderSmartPreview = function() {
 };
 
 // GUARDAR (placeholder para BLOQUE 3)
-window.guardarCargaInteligente = function() {
+window.guardarCargaInteligente = async function() {
   const resultados = window._smartResultados || [];
-  const validos = resultados.filter(r => r.url && r.precio > 0 && r.titulo);
+  const validos = resultados.filter(r => r.url && r.precio_usd > 0 && r.titulo);
   
   if (validos.length === 0) {
-    alert('No hay productos válidos para guardar');
+    alert('No hay productos válidos para guardar.\n\nNecesitas: título + precio USD');
     return;
   }
   
-  alert('✅ ' + validos.length + ' productos listos para guardar.\n\nEl guardado real se implementa en BLOQUE 3.');
+  if (!confirm('¿Guardar ' + validos.length + ' productos?\n\nLos productos sin precio válido se descartarán.')) return;
+  
+  const saveBtn = document.getElementById('smartSaveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Guardando 0 de ' + validos.length + '...';
+  
+  let exitosos = 0;
+  let fallos = 0;
+  
+  for (let i = 0; i < validos.length; i++) {
+    const p = validos[i];
+    saveBtn.textContent = 'Guardando ' + (i + 1) + ' de ' + validos.length + '...';
+    
+    try {
+      const body = {
+        titulo: p.titulo.trim(),
+        descripcion: '',
+        precio_usd: p.precio_usd,
+        precio_cup: p.precio_cup || 0,
+        categoria: '', // IA asignará después
+        provincia: sellerData?.provincia || 'Camagüey',
+        municipio: sellerData?.municipio || 'Camagüey',
+        estado_producto: 'nuevo',
+        stock: 1,
+        imagenes: [p.url],
+        publicado: true
+      };
+      
+      const r = await fetch(API + '/api/seller/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + TOKEN
+        },
+        body: JSON.stringify(body)
+      });
+      
+      const d = await r.json();
+      if (d.ok) {
+        exitosos++;
+      } else {
+        console.error('[SMART] Falló producto ' + (i+1) + ':', d.error);
+        fallos++;
+      }
+    } catch(e) {
+      console.error('[SMART] Error producto ' + (i+1) + ':', e);
+      fallos++;
+    }
+    
+    // Pausa entre productos
+    if (i < validos.length - 1) {
+      await new Promise(r => setTimeout(r, 800));
+    }
+  }
+  
+  saveBtn.disabled = false;
+  saveBtn.textContent = '✅ Guardar todos';
+  
+  alert('✅ Guardados: ' + exitosos + '\n❌ Fallos: ' + fallos + '\n\nLos productos ya están en tu tienda. La IA procesará los títulos en los próximos minutos.');
+  
+  // Cerrar modal y recargar productos
+  if (exitosos > 0) {
+    cerrarModalCargaInteligente();
+    if (typeof cargarProductos === 'function') cargarProductos();
+  }
 };
 
 </script>
