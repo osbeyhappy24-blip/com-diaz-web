@@ -2180,6 +2180,14 @@ body { padding-bottom: 100px; }
 
   <button class="add-btn" id="addProductBtn" onclick="document.getElementById('photoInput').click()">➕ Añadir productos (fotos)</button>
 
+<button class="add-btn add-btn-smart" id="smartAddBtn" onclick="abrirModalCargaInteligente()" style="background:linear-gradient(135deg,#8B5CF6,#D946EF);color:#fff;border:none;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+  🧠 Carga inteligente (IA)
+</button>
+
+<div style="font-size:11px;color:#94A3B8;text-align:center;margin-top:6px;line-height:1.4;">
+  Sube varias fotos + pega la lista de precios.<br>La IA detecta los productos automáticamente.
+</div>
+
   <!-- Lista de productos -->
   <input type="text" id="ptlSearchBar" placeholder="🔍 Buscar producto publicado..." oninput="renderProductos()" style="width:100%; padding:12px 15px; margin:10px 0; border-radius:8px; border:1px solid #1F2A44; background:#131A2E; color:#F1F5F9; font-size:14px; box-sizing:border-box;">
 <div class="products-list" id="productsList">
@@ -6418,6 +6426,54 @@ window._checkPlanBannerHidden = function() {
     }
   } catch(e) {}
   return false;
+};
+
+// ═══════════════════════════════════════════════════════════
+// CARGA INTELIGENTE — BLOQUE 1 (solo UI, sin lógica)
+// ═══════════════════════════════════════════════════════════
+window.abrirModalCargaInteligente = function() {
+  const modal = document.getElementById('smartUploadModal');
+  if (!modal) return;
+  // Resetear estados
+  document.getElementById('smartStep1').style.display = 'block';
+  document.getElementById('smartStep2').style.display = 'none';
+  document.getElementById('smartStep3').style.display = 'none';
+  document.getElementById('smartAnalyzeBtn').style.display = 'block';
+  document.getElementById('smartSaveBtn').style.display = 'none';
+  document.getElementById('smartFilesInput').value = '';
+  document.getElementById('smartPricesInput').value = '';
+  modal.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+};
+
+window.cerrarModalCargaInteligente = function() {
+  const modal = document.getElementById('smartUploadModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+};
+
+// Función placeholder — lógica completa en BLOQUE 2
+window.analizarCargaInteligente = function() {
+  const files = document.getElementById('smartFilesInput').files;
+  const pricesText = document.getElementById('smartPricesInput').value.trim();
+  
+  if (!files || files.length === 0) {
+    alert('Selecciona al menos una foto');
+    return;
+  }
+  if (!pricesText) {
+    alert('Pega la lista de precios');
+    return;
+  }
+  
+  // TODO BLOQUE 2: implementar análisis real con IA
+  alert('🧠 Análisis con IA se implementará en el siguiente bloque.\n\nPor ahora esto es solo UI de prueba.\n\nRecibidos:\n• ' + files.length + ' imágenes\n• ' + pricesText.split('\n').length + ' líneas de precios');
+};
+
+// Función placeholder — lógica completa en BLOQUE 3
+window.guardarCargaInteligente = function() {
+  alert('✅ Guardado se implementará en BLOQUE 3');
 };
 </script>
 
