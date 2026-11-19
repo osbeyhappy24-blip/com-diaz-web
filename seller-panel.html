@@ -6481,6 +6481,80 @@ window.guardarCargaInteligente = function() {
 <style id="kill-ia-banner">
   .ia-banner, #iaBanner { display: none !important; visibility: hidden !important; height: 0 !important; padding: 0 !important; margin: 0 !important; }
 </style>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL CARGA INTELIGENTE (BLOQUE 1 - SOLO UI)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal hidden" id="smartUploadModal" style="z-index:100002">
+  <div class="modal-card" style="max-width:500px">
+    <div class="modal-head">
+      <h3>🧠 Carga inteligente</h3>
+      <button class="modal-close" onclick="cerrarModalCargaInteligente()">✕</button>
+    </div>
+    <div class="modal-body">
+      
+      <div id="smartStep1">
+        <p style="color:#F1F5F9;font-size:14px;margin-bottom:12px;line-height:1.5">
+          Sube varias fotos <strong>a la vez</strong> y pega la lista de precios con el formato <code style="background:#0F172A;padding:2px 6px;border-radius:4px;color:#fbbf24">Nombre precio</code>.
+        </p>
+        
+        <label style="display:block;color:#F1F5F9;font-size:13px;font-weight:600;margin-bottom:8px">
+          1️⃣ Selecciona las fotos:
+        </label>
+        <input type="file" id="smartFilesInput" accept="image/*" multiple style="width:100%;padding:10px;background:#0F172A;border:1px solid #1F2A44;border-radius:8px;color:#F1F5F9;margin-bottom:16px;">
+        
+        <label style="display:block;color:#F1F5F9;font-size:13px;font-weight:600;margin-bottom:8px">
+          2️⃣ Pega la lista de precios:
+        </label>
+        <textarea id="smartPricesInput" placeholder="Guitarra 290
+Piano 1400
+Consola 270
+
+O también sirve:
+290
+1400
+270" style="width:100%;min-height:140px;padding:12px;background:#0F172A;border:1px solid #1F2A44;border-radius:8px;color:#F1F5F9;font-family:monospace;font-size:13px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea>
+        
+        <div style="font-size:11px;color:#94A3B8;margin-top:8px;line-height:1.5">
+          <strong>Formatos aceptados:</strong><br>
+          • Nombre + precio: <code style="color:#fbbf24">Guitarra 290</code><br>
+          • Solo precio: <code style="color:#fbbf24">290</code> (se asigna por orden)<br>
+          • Con símbolos: <code style="color:#fbbf24">Guitarra $290</code>
+        </div>
+      </div>
+      
+      <div id="smartStep2" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:48px;margin-bottom:16px">🧠</div>
+        <h3 style="color:#A78BFA;font-size:16px;margin-bottom:8px">Analizando con IA...</h3>
+        <p style="color:#94A3B8;font-size:13px;margin-bottom:20px" id="smartProgressText">Procesando 0 de 0 imágenes</p>
+        <div style="width:100%;height:10px;background:#0F172A;border-radius:999px;overflow:hidden;margin-bottom:16px">
+          <div id="smartProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#8B5CF6,#D946EF);transition:width 0.3s ease"></div>
+        </div>
+        <p style="color:#94A3B8;font-size:12px">Cada imagen toma ~3 segundos. No cierres esta ventana.</p>
+      </div>
+      
+      <div id="smartStep3" style="display:none">
+        <p style="color:#F1F5F9;font-size:14px;margin-bottom:12px">
+          <strong>✅ Análisis completo</strong> — Revisa y corrige antes de guardar.
+        </p>
+        <div id="smartPreviewList" style="max-height:400px;overflow-y:auto;margin-bottom:16px">
+        </div>
+      </div>
+      
+    </div>
+    <div class="modal-footer" style="display:flex;gap:8px;padding:16px;border-top:1px solid #1F2A44">
+      <button onclick="cerrarModalCargaInteligente()" style="flex:1;padding:12px;background:transparent;color:#94A3B8;border:1px solid #334155;border-radius:10px;font-weight:700;cursor:pointer">
+        Cancelar
+      </button>
+      <button id="smartAnalyzeBtn" onclick="analizarCargaInteligente()" style="flex:2;padding:12px;background:linear-gradient(135deg,#8B5CF6,#D946EF);color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer">
+        🤖 Analizar con IA
+      </button>
+      <button id="smartSaveBtn" onclick="guardarCargaInteligente()" style="display:none;flex:2;padding:12px;background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer">
+        ✅ Guardar todos
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
