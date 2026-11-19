@@ -234,6 +234,36 @@
       }
     });
 
+    // --- BUSCADOR FUNCIONAL (fallback del onclick inline) ---
+    window.filtrarTienda = function(query) {
+      var q = (query || '').toLowerCase().trim();
+      var visible = 0;
+      document.querySelectorAll('.product-card').forEach(function(card) {
+        var title = (card.querySelector('.product-title')?.textContent || '').toLowerCase();
+        var loc = (card.querySelector('.product-location')?.textContent || '').toLowerCase();
+        var match = !q || title.indexOf(q) !== -1 || loc.indexOf(q) !== -1;
+        card.style.display = match ? 'flex' : 'none';
+        if (match) visible++;
+      });
+      // Mostrar mensaje si no hay resultados
+      var grid = document.getElementById('productsGrid');
+      var emptyMsg = document.getElementById('search-empty-msg');
+      if (visible === 0 && q) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('div');
+          emptyMsg.id = 'search-empty-msg';
+          emptyMsg.style.cssText = 'grid-column:1/-1; text-align:center; padding:40px 20px; color:#94A3B8; font-size:14px;';
+          emptyMsg.innerHTML = '🔍 No se encontraron productos para "<strong style="color:#FFF;">' + query + '</strong>"';
+          if (grid) grid.appendChild(emptyMsg);
+        } else {
+          emptyMsg.innerHTML = '🔍 No se encontraron productos para "<strong style="color:#FFF;">' + query + '</strong>"';
+          emptyMsg.style.display = 'block';
+        }
+      } else if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+      }
+    };
+
     // --- 4. BOTÓN FLOTANTE CARRITO ---
     if (!document.getElementById('cart-fab')) {
       const fab = document.createElement('button');
