@@ -6633,6 +6633,52 @@ window.analizarCargaInteligente = async function() {
     return;
   }
   
+  // ═══ VALIDACIÓN DE CUOTA ═══
+  // Obtener cuota actual del vendedor
+  const _cuotaMax = (sellerData && sellerData.cuota_max) || 50;
+  const _cuotaUsada = (sellerData && sellerData.cuota_usada) || 0;
+  const _cuotaDisponible = _cuotaMax === -1 ? Infinity : Math.max(0, _cuotaMax - _cuotaUsada);
+  
+  if (_cuotaDisponible === 0) {
+    alert('⚠️ Ya alcanzaste el límite de tu plan ' + ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico') + '.\n\n' +
+          'Límite: ' + _cuotaMax + ' imágenes.\n' +
+          'Usadas: ' + _cuotaUsada + '.\n\n' +
+          'Para subir más, actualiza tu plan en la sección "Mi Plan".');
+    return;
+  }
+  
+  // Si seleccionó más de las que caben, avisar y truncar
+  let _archivosAProcesar = files;
+  if (files.length > _cuotaDisponible) {
+    const _puedeSubir = Math.floor(_cuotaDisponible);
+    const _noCaben = files.length - _puedeSubir;
+    
+    if (!confirm('⚠️ Solo puedes subir ' + _puedeSubir + ' imágenes más.\n\n' +
+                 'Tu plan ' + ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico') + ' tiene límite de ' + _cuotaMax + ' imágenes.\n' +
+                 'Ya usaste ' + _cuotaUsada + '.\n\n' +
+                 'Seleccionaste ' + files.length + ' imágenes.\n' +
+                 'Se procesarán solo las primeras ' + _puedeSubir + '.\n' +
+                 'Las otras ' + _noCaben + ' se ignorarán.\n\n' +
+                 '¿Continuar?')) {
+      return;
+    }
+    
+    // Truncar archivos
+    const _dt = new DataTransfer();
+    for (let i = 0; i < _puedeSubir; i++) {
+      _dt.items.add(files[i]);
+    }
+    filesInput.files = _dt.files;
+    _archivosAProcesar = filesInput.files;
+    
+    console.log('[CUOTA] Truncado de ' + files.length + ' a ' + _puedeSubir + ' imágenes');
+  }
+  
+  console.log('[CUOTA] Plan: ' + ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico') + 
+              ' | Límite: ' + _cuotaMax + 
+              ' | Usadas: ' + _cuotaUsada + 
+              ' | Disponibles: ' + _cuotaDisponible);
+  
   // Parsear precios
   const items = window.parsearListaPrecios(pricesText);
   if (items.length === 0) {
