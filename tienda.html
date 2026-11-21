@@ -14,6 +14,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .loading-spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: #22C55E; border-radius: 50%; margin: 0 auto 16px; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .tienda-banner { position: relative; height: 160px; background: linear-gradient(135deg, #0A0E1A 0%, #131A2E 100%); overflow: hidden; border-bottom: 1px solid var(--ptl-border); }
+.tienda-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,14,26,0.3) 0%, rgba(10,14,26,0.7) 100%); pointer-events: none; }
 .tienda-banner img { width: 100%; height: 100%; object-fit: cover; }
 .tienda-header { max-width: 900px; margin: 0 auto; padding: 0 16px; position: relative; margin-top: -50px; }
 .tienda-logo { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--ptl-card); background: var(--ptl-green); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: #0A0E1A; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.5); }
@@ -244,8 +245,12 @@ function renderTienda(stats) {
   const shareMsg = `Mira la tienda *${tienda.nombre}* en ProfitToLife Marketplace:\n\n${shopUrl}\n\n🛍️ Compra directo por WhatsApp`;
   
   content.innerHTML = `
-    <div class="tienda-banner" style="background:linear-gradient(135deg, ${color} 0%, ${color}dd 100%)">
-      ${tienda.banner ? `<img src="${esc(tienda.banner)}" alt="">` : ''}
+    <div class="tienda-banner" style="background:linear-gradient(135deg, ${color} 0%, ${color}dd 100%); position:relative;">
+      ${(tienda.banner && tienda.banner.trim()) 
+        ? `<img src="${esc(tienda.banner)}" alt="${esc(tienda.nombre)}">` 
+        : (tienda.logo 
+          ? `<img src="${esc(tienda.logo)}" alt="${esc(tienda.nombre)}" style="width:100%;height:100%;object-fit:cover;opacity:0.35;filter:blur(2px);transform:scale(1.1);">` 
+          : '')}
     </div>
     <div class="tienda-header">
       <div class="tienda-logo" style="background:${color}">${logoHTML}</div>
