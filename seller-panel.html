@@ -2021,7 +2021,7 @@ body { padding-bottom: 100px; }
         <div class="plan-banner-title" id="planBannerTitle">Tu plan vence pronto</div>
         <div class="plan-banner-msg" id="planBannerMsg"></div>
       </div>
-      <button class="plan-banner-btn" onclick="abrirPaymentModal()">Renovar</button>
+      <button class="plan-banner-btn" onclick="irAWhatsApp('renovar', 'actual')">Renovar</button>
       <button class="plan-banner-close" onclick="ocultarBannerPlan()" title="Ocultar por hoy">✕</button>
     </div>
 
@@ -3717,7 +3717,7 @@ window.forceRegisterPush = async function() {
       <b>No pierdes nada:</b> tus productos, cuota e historial se conservan intactos.<br><br>
       Renueva ahora y todo vuelve al instante.
     </div>
-    <button class="plan-suspended-cta" onclick="abrirPaymentModal()">
+    <button class="plan-suspended-cta" onclick="irAWhatsApp('pagar_suspendido', 'actual')">
       💳 Renovar y reactivar
     </button>
     <button class="plan-suspended-secondary" onclick="logout()">
@@ -3835,19 +3835,7 @@ window.forceRegisterPush = async function() {
 
 
 <!-- Modal de pago / renovación -->
-<div class="payment-modal-overlay" id="paymentModal">
-  <div class="payment-modal">
-    <div class="payment-modal-head">
-      <div>
-        <h3 class="payment-modal-title">💳 Renovar plan</h3>
-        <p class="payment-modal-subtitle">Elige un método y envía el comprobante</p>
-      </div>
-      <button class="payment-modal-close" onclick="cerrarPaymentModal()">✕</button>
-    </div>
-    <div class="payment-modal-body" id="paymentModalBody">
-      <div style="text-align:center;color:#94a3b8;padding:20px">Cargando métodos...</div>
-    </div>
-  </div>
+
 </div>
 
 
@@ -3855,244 +3843,7 @@ window.forceRegisterPush = async function() {
 // ═══════════════════════════════════════════════════════
 // Sistema de pago / renovación
 // ═══════════════════════════════════════════════════════
-(function comdiaz_payments_v1() {
-  let _metodos = [];
-  let _metodoSeleccionado = null;
-  let _waAdmin = '5351425691';
-  let _planInfo = null;
 
-  async function cargarMetodos() {
-    if (typeof TOKEN === 'undefined' || !TOKEN) return;
-    try {
-      // Cargar métodos
-      const r = await fetch(API + '/api/seller/payment/options', {
-        headers: { 'Authorization': 'Bearer ' + TOKEN }
-      });
-      const d = await r.json();
-      if (d.ok) {
-        _metodos = d.methods || [];
-        _waAdmin = d.whatsapp || '5351425691';
-      }
-      // Cargar plan actual
-      const r2 = await fetch(API + '/api/seller/plan-info', {
-        headers: { 'Authorization': 'Bearer ' + TOKEN }
-      });
-      const d2 = await r2.json();
-      if (d2.ok) _planInfo = d2;
-    } catch(_) {}
-  }
-
-  function renderModal() {
-    const body = document.getElementById('paymentModalBody');
-    if (!body) return;
-
-    if (!_metodos.length) {
-      body.innerHTML = '<div style="text-align:center;color:#f87171;padding:20px">No hay métodos de pago disponibles. Contacta al admin por WhatsApp.</div>';
-      return;
-    }
-
-    const planNombre = _planInfo?.plan?.nombre || 'Pro';
-    const planPrecio = _planInfo?.plan?.precio_usd || 5;
-    const planMax = _planInfo?.plan?.max_productos || 200;
-
-    body.innerHTML = `
-      <div class="payment-plan-summary">
-        <div class="payment-plan-icon">⭐</div>
-        <div class="payment-plan-info">
-          <div class="payment-plan-name">Plan ${planNombre}</div>
-          <div class="payment-plan-price">$${planPrecio} USD / 30 días · ${planMax} productos</div>
-        </div>
-      </div>
-      <div class="payment-methods-title">Métodos de pago</div>
-      ${_metodos.map(m => `
-        <div class="payment-method-card ${_metodoSeleccionado === m.id ? 'selected' : ''}" onclick="seleccionarMetodo('${m.id}')">
-          <div class="payment-method-head">
-            <span class="payment-method-icon">${m.icono || '💳'}</span>
-            <span class="payment-method-name">${m.nombre}</span>
-            ${_metodoSeleccionado === m.id ? '<span style="color:#22c55e;font-weight:900">✓</span>' : ''}
-          </div>
-          ${_metodoSeleccionado === m.id ? `
-            <div class="payment-method-datos">${m.datos || '(sin datos)'}</div>
-            <div class="payment-method-instr">${m.instrucciones || ''}</div>
-          ` : ''}
-        </div>
-      `).join('')}
-      <button class="payment-btn-primary" onclick="confirmarPago()" ${!_metodoSeleccionado ? 'disabled' : ''}>
-        📱 Enviar comprobante por WhatsApp
-      </button>
-      <button class="payment-btn-secondary" onclick="cerrarPaymentModal()">Cancelar</button>
-    `;
-  }
-
-  window.seleccionarMetodo = function(id) {
-    _metodoSeleccionado = id;
-    renderModal();
-  };
-
-  window.abrirPaymentModal = function() {
-    try {
-      // Ocultar overlay de suspensión temporalmente
-      const overlaySuspend = document.getElementById('planSuspendedOverlay');
-      if (overlaySuspend) {
-        overlaySuspend.classList.remove('show');
-        overlaySuspend.setAttribute('data-hidden-by-payment', 'true');
-      }
-      
-      const modal = document.getElementById('paymentModal');
-      if (!modal) {
-        console.error('ERROR: Elemento paymentModal no encontrado en la pagina\'');
-        return;
-      }
-      
-      // Abrir el modal PRIMERO (con loader)
-      modal.classList.add('show');
-      modal.style.display = 'flex';  // forzar por si CSS falla
-      
-      const body = document.getElementById('paymentModalBody');
-      if (body) {
-        body.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:30px">🔄 Cargando métodos de pago...</div>';
-      }
-      
-      // Cargar métodos async
-      cargarMetodosYRenderizar();
-      
-    } catch(e) {
-      console.error('ERROR al abrir modal: \' + (e.message || e)');
-    }
-  };
-
-  // Función separada para cargar y renderizar (async)
-  async function cargarMetodosYRenderizar() {
-    const body = document.getElementById('paymentModalBody');
-    try {
-      // Cargar métodos
-      const r = await fetch(API + '/api/seller/payment/options', {
-        headers: { 'Authorization': 'Bearer ' + TOKEN }
-      });
-      if (!r.ok) {
-        const errTxt = await r.text();
-        if (body) body.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">Error ' + r.status + ': ' + errTxt.slice(0, 200) + '</div>';
-        return;
-      }
-      const d = await r.json();
-      if (!d.ok) {
-        if (body) body.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">Error: ' + (d.error || 'desconocido') + '</div>';
-        return;
-      }
-      _metodos = d.methods || [];
-      _waAdmin = d.whatsapp || '5351425691';
-
-      // Cargar plan info
-      try {
-        const r2 = await fetch(API + '/api/seller/plan-info', {
-          headers: { 'Authorization': 'Bearer ' + TOKEN }
-        });
-        const d2 = await r2.json();
-        if (d2.ok) _planInfo = d2;
-      } catch(_) {}
-
-      // Seleccionar primer método por defecto
-      _metodoSeleccionado = _metodos[0]?.id || null;
-      renderModal();
-
-    } catch(e) {
-      if (body) body.innerHTML = '<div style="color:#f87171;padding:20px;text-align:center">Error de conexión: ' + (e.message || e) + '</div>';
-    }
-  }
-
-  window.cerrarPaymentModal = function() {
-    const modal = document.getElementById('paymentModal');
-    if (modal) {
-      modal.classList.remove('show');
-      modal.style.display = 'none';
-    }
-    _metodoSeleccionado = null;
-    
-    // Restaurar overlay de suspensión si el usuario no pagó
-    const overlaySuspend = document.getElementById('planSuspendedOverlay');
-    if (overlaySuspend && overlaySuspend.getAttribute('data-hidden-by-payment') === 'true') {
-      overlaySuspend.removeAttribute('data-hidden-by-payment');
-      // Solo restaurar si sigue suspendido
-      if (typeof _planInfo !== 'undefined' && _planInfo && _planInfo.estadoPago === 'suspendido_pago') {
-        overlaySuspend.classList.add('show');
-      }
-    }
-  };
-
-  window.confirmarPago = async function() {
-    if (!_metodoSeleccionado) return;
-    const metodo = _metodos.find(m => m.id === _metodoSeleccionado);
-    if (!metodo) return;
-
-    const btn = document.querySelector('.payment-btn-primary');
-    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
-
-    try {
-      // 1. Crear pago pendiente en backend
-      const r = await fetch(API + '/api/seller/payment/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-        body: JSON.stringify({
-          plan_id: _planInfo?.plan?.id || 'pro',
-          metodo: metodo.nombre,
-          notas: 'Solicitud creada desde panel vendedor'
-        })
-      });
-      const d = await r.json();
-
-      if (!d.ok) {
-        if (r.status === 429) {
-          alert('⏳ ' + d.error);
-          cerrarPaymentModal();
-          return;
-        }
-        alert('Error: ' + (d.error || 'desconocido'));
-        if (btn) { btn.disabled = false; btn.textContent = '📱 Enviar comprobante por WhatsApp'; }
-        return;
-      }
-
-      // 2. Abrir WhatsApp con mensaje prellenado
-      const seller = typeof sellerData !== 'undefined' && sellerData ? sellerData : {};
-      const msg = 'Hola, quiero renovar mi plan ' + (_planInfo?.plan?.nombre || 'Pro') +
-        ' ($' + (_planInfo?.plan?.precio_usd || 5) + ' USD) en ProfitToLife Marketplace.' +
-        '\n\nMi nombre: ' + (seller.nombre || '') +
-        '\nMi teléfono: ' + (seller.telefono || '') +
-        '\nMétodo de pago: ' + metodo.nombre +
-        '\n\nAdjunto comprobante del pago. ID de solicitud: ' + d.pago.id.slice(0, 12);
-
-      const waUrl = 'https://wa.me/' + _waAdmin + '?text=' + encodeURIComponent(msg);
-      window.open(waUrl, '_blank');
-
-      // 3. Mostrar aviso de pendiente
-      const body = document.getElementById('paymentModalBody');
-      if (body) {
-        body.innerHTML = `
-          <div class="payment-pending-notice">
-            ✅ <b>Solicitud enviada</b><br><br>
-            Enviamos tu solicitud al admin. Adjunta el comprobante de pago en el chat de WhatsApp que se abrió.<br><br>
-            <b>Tu plan se activará cuando el admin verifique el pago</b> (usualmente en pocas horas).<br><br>
-            Recibirás una notificación aquí y en la barra del móvil.
-          </div>
-          <button class="payment-btn-primary" onclick="cerrarPaymentModal()">Entendido</button>
-        `;
-      }
-
-      // 4. Recargar plan-info después de 3s para ver si cambió
-      setTimeout(() => {
-        if (typeof cargarPlanInfo === 'function') cargarPlanInfo();
-      }, 3000);
-
-    } catch(e) {
-      alert('Error de conexión: ' + e.message);
-      if (btn) { btn.disabled = false; btn.textContent = '📱 Enviar comprobante por WhatsApp'; }
-    }
-  };
-
-  // Asegurar que abrirPaymentModal esté disponible globalmente
-  // (eliminado: window.abrirPaymentModal se define abajo)
-
-  console.log('✅ Sistema de pago listo');
-})();
 </script>
 
 
@@ -5550,6 +5301,55 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+// ═══════════════════════════════════════════════════════
+// IR A WHATSAPP — Sistema simple de pago
+// ═══════════════════════════════════════════════════════
+window.irAWhatsApp = function(accion, plan) {
+  try {
+    const nombreTienda = (sellerData && sellerData.tienda && sellerData.tienda.nombre) || '(sin tienda)';
+    const telefono = (sellerData && sellerData.telefono) || '?';
+    const nombre = (sellerData && sellerData.nombre) || '?';
+    const planActual = (sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico';
+    const diasRestantes = (sellerData && sellerData.plan && sellerData.plan.dias_restantes) || '?';
+    
+    let mensaje = '';
+    
+    if (accion === 'actualizar') {
+      mensaje = `Hola admin de ProfitToLife. Quiero actualizar mi plan a ${plan}.\n\n` +
+                `Mi tienda: ${nombreTienda}\n` +
+                `Mi teléfono: ${telefono}\n` +
+                `Mi nombre: ${nombre}\n\n` +
+                `Espero instrucciones para el pago.`;
+    } else if (accion === 'renovar') {
+      mensaje = `Hola admin de ProfitToLife. Quiero renovar mi plan ${planActual}.\n\n` +
+                `Mi tienda: ${nombreTienda}\n` +
+                `Mi teléfono: ${telefono}\n` +
+                `Mi nombre: ${nombre}\n\n` +
+                `Mi plan vence en ${diasRestantes} días.\n` +
+                `Espero instrucciones para el pago.`;
+    } else if (accion === 'pagar_suspendido') {
+      mensaje = `Hola admin de ProfitToLife. Mi cuenta está suspendida por pago vencido.\n\n` +
+                `Quiero pagar para reactivar mi plan ${planActual}.\n\n` +
+                `Mi tienda: ${nombreTienda}\n` +
+                `Mi teléfono: ${telefono}\n` +
+                `Mi nombre: ${nombre}\n\n` +
+                `Espero instrucciones para el pago.`;
+    } else {
+      mensaje = `Hola admin de ProfitToLife. Necesito ayuda con mi plan.\n\n` +
+                `Mi tienda: ${nombreTienda}\n` +
+                `Mi teléfono: ${telefono}\n` +
+                `Mi nombre: ${nombre}`;
+    }
+    
+    const url = 'https://wa.me/5358980267?text=' + encodeURIComponent(mensaje);
+    console.log('[WHATSAPP] Abriendo:', url);
+    window.open(url, '_blank');
+  } catch(e) {
+    console.error('[WHATSAPP] Error:', e);
+    alert('Error al abrir WhatsApp. Contacta al admin al +53 5358980267');
+  }
+};
+
 window.guardarTienda = async function() {
     var btn = document.getElementById('btnGuardarTienda');
     var errBox = document.getElementById('tiendaError');
@@ -5980,13 +5780,13 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Pro</div>
     <div style="color: #22C55E; font-size: 24px; font-weight: 900; margin-bottom: 8px;">$5 USD/mes</div>
     <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">200 productos · 3 fotos</p>
-    <button onclick="window.abrirModalPago('Pro ($5 USD/mes)')" style="width: 100%; padding: 10px; background: #22C55E; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Pro</button>
+    <button onclick="irAWhatsApp('actualizar', 'Pro ($5 USD/mes)')" style="width: 100%; padding: 10px; background: #22C55E; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Pro</button>
   </div>
   <div id="plan-premium" style="background: #131A2E; border: 1px solid #1F2A44; border-radius: 12px; padding: 16px; position: relative;">
     <div style="color: #FFFFFF; font-size: 18px; font-weight: 900;">Premium</div>
     <div style="color: #FCD34D; font-size: 24px; font-weight: 900; margin-bottom: 8px;">$15 USD/mes</div>
     <p style="color: #94A3B8; font-size: 12px; margin-bottom: 12px;">Ilimitado · IA · VIP</p>
-    <button onclick="window.abrirModalPago('Premium ($15 USD/mes)')" style="width: 100%; padding: 10px; background: #FCD34D; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Premium</button>
+    <button onclick="irAWhatsApp('actualizar', 'Premium ($15 USD/mes)')" style="width: 100%; padding: 10px; background: #FCD34D; color: #0A0E1A; border: none; border-radius: 8px; font-weight: 800;">Actualizar a Premium</button>
   </div>
 </div>
 
@@ -6405,594 +6205,7 @@ document.addEventListener('click', function(e) {
 
 
 <!-- MODAL PAGO INICIO -->
-<div id="ptlModalPago" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,14,26,0.85); z-index:999999; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
-  <div style="background:#131A2E; border:1px solid #1F2A44; border-radius:16px; padding:24px; width:90%; max-width:400px; text-align:center; color:#F1F5F9; box-shadow:0 10px 25px rgba(0,0,0,0.5);">
-    <h3 style="margin-top:0; font-size:20px;">Actualizar Plan</h3>
-    <p style="color:#94A3B8; font-size:14px;">Estás a punto de actualizar a <b id="ptlPlanNombre" style="color:#22C55E;"></b></p>
-    
-    <button onclick="pagarTransfermovil()" style="display:block; width:100%; padding:14px; margin:10px 0; border-radius:8px; font-weight:bold; font-size:16px; border:none; cursor:pointer; background:#0056b3; color:white;">
-      💳 Pagar por Transfermóvil
-    </button>
-    
-    <div style="background:#0A0E1A; padding:15px; border-radius:8px; margin:15px 0; border:1px dashed #FCD34D;">
-      <p style="margin:0; font-size:12px; color:#94A3B8;">Cuenta destino CUP (Pago Seguro):</p>
-      <p style="font-size:20px; font-weight:bold; color:#FCD34D; letter-spacing:2px; user-select:none; -webkit-user-select:none; margin:5px 0;">0699 9111 6586 0313</p>
-      <p style="margin:0; font-size:10px; color:#F59E0B;">Protegido contra copia</p>
-    </div>
-
-    <a href="#" id="ptlBtnWA" target="_blank" style="display:block; width:100%; padding:14px; margin:10px 0; border-radius:8px; font-weight:bold; font-size:16px; border:none; cursor:pointer; background:#22C55E; color:white; text-decoration:none; box-sizing:border-box;">
-      💬 Contactar al Administrador
-    </a>
-    
-    <button onclick="document.getElementById('ptlModalPago').style.display='none'" style="margin-top:15px; background:none; border:none; color:#94A3B8; text-decoration:underline; cursor:pointer;">
-      Cancelar
-    </button>
-  </div>
-</div>
-
-<script>
-window.abrirModalPago = function(plan) {
-    const modal = document.getElementById('ptlModalPago');
-    if (modal) {
-        document.getElementById('ptlPlanNombre').innerText = plan;
-        modal.style.display = 'flex';
-        const waBtn = document.getElementById('ptlBtnWA');
-        if (waBtn) waBtn.href = 'https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20' + plan + '%20en%20ProfitToLife';
-    }
-};
-
-window.pagarTransfermovil = function() {
-    var msg1 = "⚠️ IMPORTANTE: Debes estar autenticado en la app de Transfermóvil antes de realizar la transferencia.\n\n¿Ya estás autenticado y deseas continuar?";
-    if (confirm(msg1)) {
-        const cuenta = "0699911165860313";
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(cuenta).then(function() {
-                alert("✅ Número de cuenta CUP copiado.\n\n1. Abre tu app Transfermóvil.\n2. Ve a Transferencias.\n3. Pega el número de cuenta.\n4. Ingresa el monto y confirma.");
-            }).catch(function() {
-                alert("El número de cuenta es: 0699 9111 6586 0313\n(Por favor, anótalo manualmente).");
-            });
-        } else {
-            alert("El número de cuenta es: 0699 9111 6586 0313\n(Por favor, anótalo manualmente).");
-        }
-    }
-};
-
-document.addEventListener('click', function(e) {
-    let target = e.target;
-    while (target && target !== document) {
-        if (target.tagName === 'BUTTON' || target.tagName === 'A') {
-            const text = (target.innerText || target.textContent || '').trim();
-            if (text.includes('Actualizar a Pro')) {
-                e.preventDefault(); e.stopPropagation();
-                window.abrirModalPago('Pro ($5 USD/mes)');
-                return;
-            }
-            if (text.includes('Actualizar a Premium')) {
-                e.preventDefault(); e.stopPropagation();
-                window.abrirModalPago('Premium ($15 USD/mes)');
-                return;
-            }
-        }
-        target = target.parentNode;
-    }
-}, true);
-</script>
-<!-- MODAL PAGO FIN -->
-
-
-<!-- ═══ BOTÓN FLOTANTE IA (NUEVO) ═══ -->
-<style>
-  #iaFabContainer {
-    position: fixed;
-    bottom: 100px;
-    right: 16px;
-    z-index: 100000;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  }
-  #iaFabBtn {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #8B5CF6, #D946EF);
-    border: none;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-    color: white;
-    font-size: 28px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  #iaFabBtn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6); }
-  #iaFabBtn.processing { animation: pulse-ia 2s infinite; }
-  @keyframes pulse-ia {
-    0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
-  }
-
-  #iaPanel {
-    position: fixed;
-    bottom: 160px;
-    right: 20px;
-    width: 280px;
-    background: rgba(19, 26, 46, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    z-index: 100001;
-    display: none;
-    flex-direction: column;
-    color: #F1F5F9;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  #iaPanel.show { display: flex; transform: translateY(0); opacity: 1; }
-  #iaPanelClose {
-    position: absolute;
-    top: 10px; right: 10px;
-    background: none; border: none;
-    color: #94A3B8; font-size: 18px; cursor: pointer;
-  }
-  .ia-panel-title { font-size: 16px; font-weight: 700; margin-bottom: 5px; color: #A78BFA; }
-  .ia-panel-sub { font-size: 12px; color: #94A3B8; margin-bottom: 15px; }
-  .ia-panel-progress-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-  .ia-panel-progress-fill { height: 100%; background: linear-gradient(90deg, #8B5CF6, #D946EF); width: 0%; transition: width 0.3s ease; }
-  .ia-panel-count { font-size: 12px; font-weight: 700; text-align: right; }
-  .ia-panel-status { font-size: 12px; color: #F1F5F9; margin-top: 10px; font-style: italic; }
-</style>
-
-<div id="iaFabContainer">
-  <div id="iaPanel">
-    <button id="iaPanelClose">✕</button>
-    <div class="ia-panel-title">✨ Inteligencia Artificial</div>
-    <div class="ia-panel-sub">Mejorando tus productos automáticamente</div>
-    <div class="ia-panel-progress-bg"><div class="ia-panel-progress-fill" id="iaPanelProgress"></div></div>
-    <div class="ia-panel-count" id="iaPanelCount">0/0</div>
-    <div class="ia-panel-status" id="iaPanelStatus">En cola...</div>
-  </div>
-  <button id="iaFabBtn" onclick="toggleIaPanel()">✨</button>
-</div>
-
-<script>
-  function toggleIaPanel() {
-    const p = document.getElementById('iaPanel');
-    p.classList.toggle('show');
-  }
-  document.getElementById('iaPanelClose').onclick = toggleIaPanel;
-
-  // Reemplazar la lógica del banner viejo
-  function renderIABannerOld(job) {
-    const fab = document.getElementById('iaFabBtn');
-    const panel = document.getElementById('iaPanel');
-    const prog = document.getElementById('iaPanelProgress');
-    const count = document.getElementById('iaPanelCount');
-    const status = document.getElementById('iaPanelStatus');
-
-    if (!job) return;
-
-    // Actualizar UI
-    const pct = job.total > 0 ? Math.round((job.procesados / job.total) * 100) : 0;
-    if (prog) prog.style.width = pct + '%';
-    if (count) count.textContent = `${job.procesados}/${job.total}`;
-
-    if (job.estado === 'procesando' || job.estado === 'en_cola') {
-      fab.classList.add('processing');
-      if (status) status.textContent = job.estado === 'en_cola' ? 'Esperando turno...' : 'Procesando imagen y texto...';
-    } else if (job.estado === 'completado') {
-      fab.classList.remove('processing');
-      if (status) status.textContent = '¡Todo listo! ✅';
-      if (job.errores && job.errores.length > 0) {
-        if (status) status.textContent = `Terminado con ${job.errores.length} errores.`;
-      }
-    }
-  }
-
-// ═══ FASE 1.5: Ocultar banner plan por hoy ═══
-window.ocultarBannerPlan = function() {
-  const banner = document.getElementById('planBanner');
-  if (banner) banner.classList.remove('show');
-  const hoy = new Date().toDateString();
-  try { localStorage.setItem('planBannerHiddenDate', hoy); } catch(e) {}
-};
-
-// Auto-aplicar al cargar: si el usuario lo ocultó hoy, no mostrarlo
-window._checkPlanBannerHidden = function() {
-  const hoy = new Date().toDateString();
-  try {
-    if (localStorage.getItem('planBannerHiddenDate') === hoy) {
-      const banner = document.getElementById('planBanner');
-      if (banner) banner.classList.remove('show');
-      return true;
-    }
-  } catch(e) {}
-  return false;
-};
-
-// ═══════════════════════════════════════════════════════════
-// CARGA INTELIGENTE — BLOQUE 1 (solo UI, sin lógica)
-// ═══════════════════════════════════════════════════════════
-window.abrirModalCargaInteligente = function() {
-  const modal = document.getElementById('smartUploadModal');
-  if (!modal) return;
-  // Resetear estados
-  document.getElementById('smartStep1').style.display = 'block';
-  document.getElementById('smartStep2').style.display = 'none';
-  document.getElementById('smartStep3').style.display = 'none';
-  document.getElementById('smartAnalyzeBtn').style.display = 'block';
-  document.getElementById('smartSaveBtn').style.display = 'none';
-  document.getElementById('smartFilesInput').value = '';
-  document.getElementById('smartPricesInput').value = '';
-  modal.classList.remove('hidden');
-  document.body.classList.add('modal-open');
-};
-
-window.cerrarModalCargaInteligente = function() {
-  const modal = document.getElementById('smartUploadModal');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  document.body.classList.remove('modal-open');
-};
-
-
-// ═══════════════════════════════════════════════════════════
-// CARGA INTELIGENTE — BLOQUE 2: Lógica real
-// ═══════════════════════════════════════════════════════════
-
-// Parser flexible de lista de precios
-window.parsearListaPrecios = function(texto) {
-  const lineas = texto.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  const items = [];
-  
-  for (const linea of lineas) {
-    // Patrón 1: "Nombre 290 73000" (nombre + USD + CUP)
-    const match3 = linea.match(/^(.+?)\s+\$?(\d+(?:[.,]\d+)?)\s+\$?(\d+(?:[.,]\d+)?)\s*$/);
-    if (match3) {
-      const nombre = match3[1].trim();
-      const usd = parseFloat(match3[2].replace(',', '.'));
-      const cup = parseFloat(match3[3].replace(',', '.'));
-      if (!isNaN(usd) && usd > 0) {
-        items.push({ nombre, precio_usd: usd, precio_cup: isNaN(cup) ? 0 : cup, original: linea });
-        continue;
-      }
-    }
-    
-    // Patrón 2: "Nombre 290" (nombre + USD)
-    const match2 = linea.match(/^(.+?)\s+\$?(\d+(?:[.,]\d+)?)\s*$/);
-    if (match2) {
-      const nombre = match2[1].trim();
-      const usd = parseFloat(match2[2].replace(',', '.'));
-      if (!isNaN(usd) && usd > 0) {
-        items.push({ nombre, precio_usd: usd, precio_cup: 0, original: linea });
-        continue;
-      }
-    }
-    
-    // Patrón 3: Solo precio USD
-    const match1 = linea.match(/^\$?(\d+(?:[.,]\d+)?)\s*$/);
-    if (match1) {
-      const usd = parseFloat(match1[1].replace(',', '.'));
-      if (!isNaN(usd) && usd > 0) {
-        items.push({ nombre: '', precio_usd: usd, precio_cup: 0, original: linea });
-        continue;
-      }
-    }
-    
-    // Fallback: solo nombre
-    items.push({ nombre: linea.trim(), precio_usd: 0, precio_cup: 0, original: linea, invalido: true });
-  }
-  
-  return items;
-};
-
-// Comprimir imagen (reutilizar función existente si la hay)
-window.comprimirImagenSmart = async function(file, maxSizeKB) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const canvas = document.createElement('canvas');
-      let { width, height } = img;
-      const maxDim = 900;
-      if (width > maxDim || height > maxDim) {
-        const ratio = Math.min(maxDim / width, maxDim / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob(b => {
-        if (b) resolve(b);
-        else reject(new Error('Compresión falló'));
-      }, 'image/jpeg', 0.75);
-    };
-    img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
-    img.src = url;
-  });
-};
-
-// Convertir blob a base64
-window.blobToBase64Smart = function(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
-
-// Analizar UNA imagen con IA (llama a endpoint existente)
-window.analizarImagenConIA = async function(base64Image) {
-  try {
-    const r = await fetch(API + '/api/upload-image', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + TOKEN
-      },
-      body: JSON.stringify({ image: base64Image, nombre: 'smart_' + Date.now() + '.jpg' })
-    });
-    const d = await r.json();
-    if (!d.ok || !d.url) {
-      throw new Error(d.error || 'Upload falló');
-    }
-    return { url: d.url };
-  } catch(e) {
-    console.error('[IA] Error subiendo imagen:', e.message);
-    return { url: null, error: e.message };
-  }
-};
-
-// Matching inteligente entre precios y títulos IA
-window.matchingPrecios = function(itemsPrecios, titulosIA) {
-  const resultado = [];
-  const usados = new Set();
-  
-  for (let i = 0; i < titulosIA.length; i++) {
-    const titulo = (titulosIA[i] || '').toLowerCase();
-    let mejorMatch = null;
-    let mejorScore = 0;
-    
-    for (let j = 0; j < itemsPrecios.length; j++) {
-      if (usados.has(j)) continue;
-      const item = itemsPrecios[j];
-      const nombreItem = (item.nombre || '').toLowerCase();
-      
-      if (nombreItem && titulo.includes(nombreItem)) {
-        const score = nombreItem.length;
-        if (score > mejorScore) { mejorScore = score; mejorMatch = j; }
-      } else if (nombreItem && nombreItem.includes(titulo.split(' ')[0])) {
-        const score = titulo.split(' ')[0].length;
-        if (score > mejorScore) { mejorScore = score; mejorMatch = j; }
-      }
-    }
-    
-    if (mejorMatch === null) {
-      for (let j = 0; j < itemsPrecios.length; j++) {
-        if (!usados.has(j)) { mejorMatch = j; break; }
-      }
-    }
-    
-    if (mejorMatch !== null) {
-      usados.add(mejorMatch);
-      resultado.push({
-        titulo: titulosIA[i],
-        precio_usd: itemsPrecios[mejorMatch].precio_usd,
-        precio_cup: itemsPrecios[mejorMatch].precio_cup || 0,
-        nombreOriginal: itemsPrecios[mejorMatch].nombre,
-        matchType: mejorScore > 0 ? 'nombre' : 'orden'
-      });
-    } else {
-      resultado.push({ titulo: titulosIA[i], precio_usd: 0, precio_cup: 0, matchType: 'sin_precio' });
-    }
-  }
-  
-  return resultado;
-};
-
-// ANÁLISIS COMPLETO (reemplaza placeholder)
-window.analizarCargaInteligente = async function() {
-  const filesInput = document.getElementById('smartFilesInput');
-  const pricesInput = document.getElementById('smartPricesInput');
-  const files = filesInput.files;
-  const pricesText = pricesInput.value.trim();
-  
-  if (!files || files.length === 0) {
-    alert('Selecciona al menos una foto');
-    return;
-  }
-  if (!pricesText) {
-    alert('Pega la lista de precios');
-    return;
-  }
-  
-  if (files.length > 20) {
-    alert('Máximo 20 imágenes por lote. Divide en varios lotes.');
-    return;
-  }
-  
-  // ═══ VALIDACIÓN DE CUOTA ═══
-  // Obtener cuota actual del vendedor
-  const _cuotaMax = (sellerData && sellerData.cuota_max) || 50;
-  const _cuotaUsada = (sellerData && sellerData.cuota_usada) || 0;
-  const _cuotaDisponible = _cuotaMax === -1 ? Infinity : Math.max(0, _cuotaMax - _cuotaUsada);
-  
-  if (_cuotaDisponible === 0) {
-    alert('⚠️ Ya alcanzaste el límite de tu plan ' + ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico') + '.\n\n' +
-          'Límite: ' + _cuotaMax + ' imágenes.\n' +
-          'Usadas: ' + _cuotaUsada + '.\n\n' +
-          'Para subir más, actualiza tu plan en la sección "Mi Plan".');
-    return;
-  }
-  
-  // Si seleccionó más de las que caben, avisar y truncar
-  let _archivosAProcesar = files;
-  if (files.length > _cuotaDisponible) {
-    const _puedeSubir = Math.floor(_cuotaDisponible);
-    const _noCaben = files.length - _puedeSubir;
-    
-    if (!confirm('⚠️ Solo puedes subir ' + _puedeSubir + ' imágenes más.\n\n' +
-                 'Tu plan ' + ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico') + ' tiene límite de ' + _cuotaMax + ' imágenes.\n' +
-                 'Ya usaste ' + _cuotaUsada + '.\n\n' +
-                 'Seleccionaste ' + files.length + ' imágenes.\n' +
-                 'Se procesarán solo las primeras ' + _puedeSubir + '.\n' +
-                 'Las otras ' + _noCaben + ' se ignorarán.\n\n' +
-                 '¿Continuar?')) {
-      return;
-    }
-    
-    // Truncar archivos
-    const _dt = new DataTransfer();
-    for (let i = 0; i < _puedeSubir; i++) {
-      _dt.items.add(files[i]);
-    }
-    filesInput.files = _dt.files;
-    _archivosAProcesar = filesInput.files;
-    
-    console.log('[CUOTA] Truncado de ' + files.length + ' a ' + _puedeSubir + ' imágenes');
-  }
-  
-  console.log('[CUOTA] Plan: ' + ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico') + 
-              ' | Límite: ' + _cuotaMax + 
-              ' | Usadas: ' + _cuotaUsada + 
-              ' | Disponibles: ' + _cuotaDisponible);
-  
-  // Parsear precios
-  const items = window.parsearListaPrecios(pricesText);
-  if (items.length === 0) {
-    alert('No se detectaron precios válidos en la lista');
-    return;
-  }
-  
-  console.log('[SMART] Precios parseados:', items.length);
-  console.log(items);
-  
-  // Cambiar al estado 2 (progreso)
-  document.getElementById('smartStep1').style.display = 'none';
-  document.getElementById('smartStep2').style.display = 'block';
-  document.getElementById('smartAnalyzeBtn').style.display = 'none';
-  document.getElementById('smartProgressBar').style.width = '0%';
-  document.getElementById('smartProgressText').textContent = 'Procesando 0 de ' + files.length + ' imágenes';
-  
-  // Procesar cada imagen: comprimir + subir + IA
-  const resultados = [];
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const progreso = ((i + 1) / files.length) * 100;
-    document.getElementById('smartProgressBar').style.width = progreso + '%';
-    document.getElementById('smartProgressText').textContent = 
-      'Procesando ' + (i + 1) + ' de ' + files.length + ' imágenes...';
-    
-    try {
-      // 1. Comprimir
-      const blobComprimido = await window.comprimirImagenSmart(file, 900);
-      
-      // 2. Convertir a base64
-      const base64 = await window.blobToBase64Smart(blobComprimido);
-      
-      // 3. Subir a Supabase
-      const uploadResult = await window.analizarImagenConIA(base64);
-      if (!uploadResult.url) {
-        resultados.push({ file, url: null, titulo: file.name, error: uploadResult.error });
-        continue;
-      }
-      
-      // 4. Para BLOQUE 3: la IA de título viene del backend al procesar
-      // Por ahora, usar el nombre del archivo como título temporal
-      resultados.push({
-        file,
-        blobComprimido,
-        url: uploadResult.url,
-        titulo: file.name.replace(/\.[^.]+$/, ''), // quitar extensión
-        error: null
-      });
-    } catch(e) {
-      console.error('[SMART] Error en imagen ' + (i + 1) + ':', e);
-      resultados.push({ file, url: null, titulo: file.name, error: e.message });
-    }
-    
-    // Pausa entre imágenes para no saturar
-    if (i < files.length - 1) {
-      await new Promise(r => setTimeout(r, 500));
-    }
-  }
-  
-  console.log('[SMART] Uploads completados:', resultados);
-  
-  // Matching
-  const titulos = resultados.map(r => r.titulo);
-  const matched = window.matchingPrecios(items, titulos);
-  
-  // Guardar en estado global para BLOQUE 3
-  window._smartResultados = resultados.map((r, i) => ({
-    ...r,
-    precio_usd: matched[i]?.precio_usd || 0,
-    precio_cup: matched[i]?.precio_cup || 0,
-    matchType: matched[i]?.matchType || 'sin_precio'
-  }));
-  
-  // Cambiar al estado 3 (preview)
-  document.getElementById('smartStep2').style.display = 'none';
-  document.getElementById('smartStep3').style.display = 'block';
-  document.getElementById('smartSaveBtn').style.display = 'block';
-  
-  // Renderizar preview
-  window.renderSmartPreview();
-};
-
-// Renderizar preview editable
-window.renderSmartPreview = function() {
-  const container = document.getElementById('smartPreviewList');
-  const resultados = window._smartResultados || [];
-  
-  if (resultados.length === 0) {
-    container.innerHTML = '<p style="color:#f87171">No hay resultados</p>';
-    return;
-  }
-  
-  let html = '';
-  let exitosos = 0;
-  let conError = 0;
-  
-  resultados.forEach((r, i) => {
-    const tieneError = !r.url;
-    const sinPrecio = !r.precio_usd || r.precio_usd <= 0;
-    
-    if (tieneError) conError++;
-    else exitosos++;
-    
-    html += '<div style="background:#0F172A;border:1px solid #1F2A44;border-radius:10px;padding:12px;margin-bottom:10px">';
-    html += '<div style="display:flex;gap:10px;align-items:start">';
-    
-    if (r.url) {
-      html += '<img src="' + r.url + '" style="width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0">';
-    } else {
-      html += '<div style="width:60px;height:60px;background:#1F2A44;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:20px;flex-shrink:0">❌</div>';
-    }
-    
-    html += '<div style="flex:1;min-width:0">';
-    
-    html += '<input type="text" value="' + (r.titulo || '').replace(/"/g, '&quot;') + '" onchange="window._smartResultados[' + i + '].titulo = this.value" style="width:100%;padding:6px 8px;background:#0A0E1A;border:1px solid #1F2A44;border-radius:6px;color:#F1F5F9;font-size:13px;margin-bottom:6px" placeholder="Título del producto">';
-    
-    // 2 columnas: USD + CUP
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
-    html += '<div style="display:flex;gap:4px;align-items:center"><span style="color:#22C55E;font-size:11px;font-weight:700">USD</span><input type="number" value="' + (r.precio_usd || '') + '" onchange="window._smartResultados[' + i + '].precio_usd = parseFloat(this.value) || 0" style="flex:1;padding:6px;background:#0A0E1A;border:1px solid ' + (sinPrecio ? '#f87171' : '#1F2A44') + ';border-radius:6px;color:#F1F5F9;font-size:12px" placeholder="0.00" step="0.01" min="0"></div>';
-    html += '<div style="display:flex;gap:4px;align-items:center"><span style="color:#fbbf24;font-size:11px;font-weight:700">CUP</span><input type="number" value="' + (r.precio_cup || '') + '" onchange="window._smartResultados[' + i + '].precio_cup = parseFloat(this.value) || 0" style="flex:1;padding:6px;background:#0A0E1A;border:1px solid #1F2A44;border-radius:6px;color:#F1F5F9;font-size:12px" placeholder="0" step="1" min="0"></div>';
-    html += '</div>';
-    
-    if (tieneError) {
-      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(248,113,113,.2);color:#f87171;border-radius:999px;font-size:10px;font-weight:700">❌ ' + (r.error || 'Error') + '</span>';
-    } else if (sinPrecio) {
-      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(251,191,36,.2);color:#fbbf24;border-radius:999px;font-size:10px;font-weight:700">⚠️ Falta precio USD</span>';
-    } else {
-      html += '<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:rgba(34,197,94,.2);color:#22C55E;border-radius:999px;font-size:10px;font-weight:700">✅ ' + (r.matchType === 'nombre' ? 'Match nombre' : 'Match orden') + '</span>';
-    }
-    
-    html += '</div></div></div>';
+';
   });
   
   const resumen = '<div style="padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;margin-bottom:12px;color:#A78BFA;font-size:12px;font-weight:600">' +
