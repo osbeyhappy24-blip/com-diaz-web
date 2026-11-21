@@ -2470,16 +2470,6 @@ function renderProductos() {
 }
 
 // Función para abrir el modal de pago correctamente
-function abrirModalPago(plan) {
-    document.getElementById('ptlPlanNombre').innerText = plan;
-    const modal = document.getElementById('ptlModalPago');
-    if (modal) modal.style.display = 'flex';
-    
-    const waBtn = document.getElementById('ptlBtnWA');
-    if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
-}
-
-
 function abrirAcciones(id) {
     const p = productos.find(x => String(x.id) === String(id));
     if (!p) return;
@@ -3750,6 +3740,16 @@ window.forceRegisterPush = async function() {
     const banner = document.getElementById('planBanner');
     const overlay = document.getElementById('planSuspendedOverlay');
     const planValue = document.getElementById('sellerPlan');
+
+    // ═══ REGLA: Plan Básico NO renueva (gratis para siempre) ═══
+    const _planTexto = (planValue?.textContent || '').toLowerCase().trim();
+    const _esBasico = _planTexto.includes('básico') || _planTexto.includes('basico') || _planTexto === 'gratis' || _planTexto === 'free';
+    if (_esBasico) {
+      const _banner = document.getElementById('planBanner');
+      if (_banner) _banner.classList.remove('show');
+      return; // NO procesar banner para Básico
+    }
+
 
     // Badge de días restantes en la card de plan
     if (planValue && info.diasRestantes !== null && info.diasRestantes !== undefined) {
