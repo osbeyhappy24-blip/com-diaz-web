@@ -5304,23 +5304,41 @@ document.addEventListener('DOMContentLoaded', function() {
 // ═══════════════════════════════════════════════════════
 // IR A WHATSAPP — Sistema simple de pago
 // ═══════════════════════════════════════════════════════
-window.irAWhatsApp = function(accion, plan) {
+window.irAWhatsApp = function(accion, planNuevo) {
   try {
     const nombreTienda = (sellerData && sellerData.tienda && sellerData.tienda.nombre) || '(sin tienda)';
     const telefono = (sellerData && sellerData.telefono) || '?';
     const nombre = (sellerData && sellerData.nombre) || '?';
-    const planActual = (sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico';
+    const planActual = ((sellerData && sellerData.plan && sellerData.plan.nombre) || 'Básico').trim();
     const diasRestantes = (sellerData && sellerData.plan && sellerData.plan.dias_restantes) || '?';
+    
+    // Normalizar el plan nuevo (puede venir con precio)
+    const planLimpio = planNuevo ? planNuevo.split(' ')[0].trim() : '';
     
     let mensaje = '';
     
     if (accion === 'actualizar') {
-      mensaje = `Hola admin de ProfitToLife. Quiero actualizar mi plan a ${plan}.\n\n` +
-                `Mi tienda: ${nombreTienda}\n` +
-                `Mi teléfono: ${telefono}\n` +
-                `Mi nombre: ${nombre}\n\n` +
-                `Espero instrucciones para el pago.`;
+      // Cambio de plan (Básico→Pro, Básico→Premium, Pro→Premium, etc)
+      if (planActual.toLowerCase() === 'básico' || planActual.toLowerCase() === 'basico') {
+        mensaje = `Hola admin de ProfitToLife. Soy vendedor con plan Básico y quiero actualizar a ${planLimpio}.\n\n` +
+                  `Mi tienda: ${nombreTienda}\n` +
+                  `Mi teléfono: ${telefono}\n` +
+                  `Mi nombre: ${nombre}\n\n` +
+                  `Espero instrucciones para el pago.`;
+      } else {
+        // Pro → Premium
+        mensaje = `Hola admin de ProfitToLife. Soy vendedor con plan ${planActual} y quiero actualizar a ${planLimpio}.\n\n` +
+                  `Mi tienda: ${nombreTienda}\n` +
+                  `Mi teléfono: ${telefono}\n` +
+                  `Mi nombre: ${nombre}\n\n` +
+                  `Espero instrucciones para el pago.`;
+      }
     } else if (accion === 'renovar') {
+      // Solo Pro y Premium renuevan. Básico NO (validación extra)
+      if (planActual.toLowerCase() === 'básico' || planActual.toLowerCase() === 'basico') {
+        alert('El plan Básico es gratuito y no requiere renovación.');
+        return;
+      }
       mensaje = `Hola admin de ProfitToLife. Quiero renovar mi plan ${planActual}.\n\n` +
                 `Mi tienda: ${nombreTienda}\n` +
                 `Mi teléfono: ${telefono}\n` +
@@ -5328,6 +5346,7 @@ window.irAWhatsApp = function(accion, plan) {
                 `Mi plan vence en ${diasRestantes} días.\n` +
                 `Espero instrucciones para el pago.`;
     } else if (accion === 'pagar_suspendido') {
+      // Solo Pro y Premium se suspenden por pago
       mensaje = `Hola admin de ProfitToLife. Mi cuenta está suspendida por pago vencido.\n\n` +
                 `Quiero pagar para reactivar mi plan ${planActual}.\n\n` +
                 `Mi tienda: ${nombreTienda}\n` +
@@ -6182,25 +6201,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-document.addEventListener('click', function(e) {
-    let target = e.target;
-    while (target && target !== document) {
-        if (target.tagName === 'BUTTON' || target.tagName === 'A') {
-            const text = (target.innerText || target.textContent || '').trim();
-            if (text.includes('Actualizar a Pro')) {
-                e.preventDefault(); e.stopPropagation();
-                window.abrirModalPago('Pro ($5 USD/mes)');
-                return;
-            }
-            if (text.includes('Actualizar a Premium')) {
-                e.preventDefault(); e.stopPropagation();
-                window.abrirModalPago('Premium ($15 USD/mes)');
-                return;
-            }
-        }
-        target = target.parentNode;
-    }
-}, true);
+// [ELIMINADO] Listener de Actualizar a Pro/Premium — ahora usa irAWhatsApp() directo
 </script>
 
 
