@@ -1768,8 +1768,7 @@ window.addEventListener('error', e => {
 window.addEventListener('unhandledrejection', e => {
   alert('PROMESA RECHAZADA: ' + e.reason);
 });
-console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,100); };
-</script>
+console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,100); };<\/script>
   <link rel="stylesheet" href="brand-ptl.css">
 
     <script>
@@ -1793,8 +1792,7 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
             });
         });
       };
-    })();
-    </script>
+    })();<\/script>
     
 
 
@@ -1825,9 +1823,8 @@ console.log = (...args) => { document.title = 'LOG: ' + args.join(' ').slice(0,1
       addBtn.style.opacity = '1';
     }
   });
-})();
-</script>
-<script>window.API_BASE = "https://com-diaz-ty2b.onrender.com";</script>
+})();<\/script>
+<script>window.API_BASE = "https://com-diaz-ty2b.onrender.com";<\/script>
 
 <style>
 .tab-view { display: none; padding: 16px; padding-bottom: 100px; }
@@ -3061,9 +3058,7 @@ window.cambiarWhatsApp = async function() {
   } catch(e) {
     toast('❌ ' + e.message, 'err');
   }
-};
-
-</script>
+};<\/script>
 
 
 <!-- Overlay + Panel de notificaciones -->
@@ -3306,8 +3301,7 @@ window.cambiarWhatsApp = async function() {
   }, 2000);
 
   console.log('✅ Notificaciones modernas listas');
-})();
-</script>
+})();<\/script>
 
 
 <script>
@@ -3427,8 +3421,7 @@ window.cambiarWhatsApp = async function() {
   }
 
   console.log('✅ Push subscription helper cargado');
-})();
-</script>
+})();<\/script>
 
 
 <script>
@@ -3583,8 +3576,7 @@ window.cambiarWhatsApp = async function() {
 
   // Ejecutar al cargar
   setTimeout(checkEstado, 1000);
-})();
-</script>
+})();<\/script>
 
 
 <script>
@@ -3694,8 +3686,7 @@ window.forceRegisterPush = async function() {
     console.error('[FORCE-PUSH]', e);
     alert('Error: ' + (e.message || e) + '\n\nToca el panel azul para ver el detalle.');
   }
-};
-</script>
+};<\/script>
 
 
 <!-- Overlay de suspensión por falta de pago -->
@@ -3830,8 +3821,7 @@ window.forceRegisterPush = async function() {
   setInterval(cargarPlanInfo, 5 * 60 * 1000);
 
   console.log('✅ Plan info helper listo');
-})();
-</script>
+})();<\/script>
 
 
 
@@ -3843,9 +3833,7 @@ window.forceRegisterPush = async function() {
 <script>
 // ═══════════════════════════════════════════════════════
 // Sistema de pago / renovación
-// ═══════════════════════════════════════════════════════
-
-</script>
+// ═══════════════════════════════════════════════════════<\/script>
 
 
 <!-- fallback removido, se reinserta al final -->
@@ -3932,8 +3920,7 @@ window.forceRegisterPush = async function() {
 
   setTimeout(cargarReferidos, 3000);
   console.log('Referral UI listo');
-})();
-</script>
+})();<\/script>
 
 
 <!-- 📸 Modal carga masiva A.1 -->
@@ -4339,8 +4326,7 @@ if (rUpload.status === 401) {
   };
 
   console.log('Bulk v2 A.1 listo');
-})();
-</script>
+})();<\/script>
 
 
 <script>
@@ -4599,8 +4585,7 @@ if (rUpload.status === 401) {
   }, 5000);
 
 console.log('[IDB] IndexedDB listo');
-})();
-</script>
+})();<\/script>
 
 
 <script>
@@ -4846,8 +4831,7 @@ console.log('[IDB] IndexedDB listo');
   });
 
   console.log('[PENDING] Cola de sincronización lista');
-})();
-</script>
+})();<\/script>
 
 
 <!-- 🏪 MODAL CREAR/EDITAR TIENDA -->
@@ -5483,8 +5467,7 @@ window.guardarTienda = async function() {
   }, 500);
 
   console.log('✅ Módulo tienda listo');
-})();
-</script>
+})();<\/script>
 
 
 <script>
@@ -5597,8 +5580,7 @@ window.guardarTienda = async function() {
     document.title = document.title.replace(/Comdiaz Shop/g, 'ProfitToLife Marketplace').replace(/Comdiaz/g, 'ProfitToLife');
   }
   console.log('✅ [PTL] Tema seller-panel.html aplicado');
-})();
-</script>
+})();<\/script>
 
 
 
@@ -5703,8 +5685,7 @@ function renderIABannerOld(job) {
 // Iniciar apenas cargue la página
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(checkIAStatus, 1500);
-});
-</script>
+});<\/script>
 
 
 
@@ -5748,8 +5729,7 @@ document.addEventListener('DOMContentLoaded', function() {
       nameEl.textContent = 'Vendedor (recargando...)';
     }
   }, 3000);
-});
-</script>
+});<\/script>
 
 <script>
 // ═══ FORZAR VISIBILIDAD ABSOLUTA ═══
@@ -5773,8 +5753,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Visibilidad forzada');
   });
-})();
-</script>
+})();<\/script>
 
 
 <div id="tab-inventario" class="tab-view">
@@ -6078,8 +6057,7 @@ window.pedirPlan = pedirPlan;
 window.borrarCuenta = borrarCuenta;
 
 // Inicializar con tab main
-if (document.body) document.body.classList.add('tab-main');
-</script>
+if (document.body) document.body.classList.add('tab-main');<\/script>
 
 <script>
 // ═══ DIAGNÓSTICO DE SESIÓN ═══
@@ -6108,8 +6086,7 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('[DIAGNOSTICO] typeof cargarPerfil:', typeof window.cargarPerfil);
     }
   }, 3000);
-});
-</script>
+});<\/script>
 
 <script>
 (function() {
@@ -6132,8 +6109,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.classList.remove('modal-open');
     }
   }, 500);
-})();
-</script>
+})();<\/script>
 
 
 
@@ -6204,94 +6180,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <!-- MODAL PAGO INICIO -->
-';
-  });
-  
-  const resumen = '<div style="padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;margin-bottom:12px;color:#A78BFA;font-size:12px;font-weight:600">' +
-    '✅ ' + exitosos + ' listos · ❌ ' + conError + ' con error · ' + (resultados.length - exitosos) + ' requieren revisión' +
-    '</div>';
-  
-  container.innerHTML = resumen + html;
-};
-
-// GUARDAR (placeholder para BLOQUE 3)
-window.guardarCargaInteligente = async function() {
-  const resultados = window._smartResultados || [];
-  const validos = resultados.filter(r => r.url && r.precio_usd > 0 && r.titulo);
-  
-  if (validos.length === 0) {
-    alert('No hay productos válidos para guardar.\n\nNecesitas: título + precio USD');
-    return;
+';\n  });\n  \n  const resumen = '<div style="padding:10px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;margin-bottom:12px;color:#A78BFA;font-size:12px;font-weight:600">' +\n    '✅ ' + exitosos + ' listos · ❌ ' + conError + ' con error · ' + (resultados.length - exitosos) + ' requieren revisión' +\n    '</div>';\n  \n  container.innerHTML = resumen + html;\n};\n\n// GUARDAR (placeholder para BLOQUE 3)\nwindow.guardarCargaInteligente = async function() {\n  const resultados = window._smartResultados || [];\n  const validos = resultados.filter(r => r.url && r.precio_usd > 0 && r.titulo);\n  \n  if (validos.length === 0) {\n    alert('No hay productos válidos para guardar.\n\nNecesitas: título + precio USD');\n    return;\n  }\n  \n  if (!confirm('¿Guardar ' + validos.length + ' productos?\n\nLos productos sin precio válido se descartarán.')) return;\n  \n  const saveBtn = document.getElementById('smartSaveBtn');\n  saveBtn.disabled = true;\n  saveBtn.textContent = 'Guardando 0 de ' + validos.length + '...';\n  \n  let exitosos = 0;\n  let fallos = 0;\n  \n  for (let i = 0; i < validos.length; i++) {\n    const p = validos[i];\n    saveBtn.textContent = 'Guardando ' + (i + 1) + ' de ' + validos.length + '...';\n    \n    try {\n      const body = {\n        titulo: p.titulo.trim(),\n        descripcion: '',\n        precio_usd: p.precio_usd,\n        precio_cup: p.precio_cup || 0,\n        categoria: '', // IA asignará después\n        provincia: sellerData?.provincia || 'Camagüey',\n        municipio: sellerData?.municipio || 'Camagüey',\n        estado_producto: 'nuevo',\n        stock: 1,\n        imagenes: [p.url],\n        publicado: true\n      };\n      \n      const r = await fetch(API + '/api/seller/products', {\n        method: 'POST',\n        headers: {\n          'Content-Type': 'application/json',\n          'Authorization': 'Bearer ' + TOKEN\n        },\n        body: JSON.stringify(body)\n      });\n      \n      const d = await r.json();\n      if (d.ok) {\n        exitosos++;\n      } else {\n        console.error('[SMART] Falló producto ' + (i+1) + ':', d.error);\n        fallos++;\n      }\n    } catch(e) {\n      console.error('[SMART] Error producto ' + (i+1) + ':', e);\n      fallos++;\n    }\n    \n    // Pausa entre productos\n    if (i < validos.length - 1) {\n      await new Promise(r => setTimeout(r, 800));\n    }\n  }\n  \n  saveBtn.disabled = false;\n  saveBtn.textContent = '✅ Guardar todos';\n  \n  alert('✅ Guardados: ' + exitosos + '\n❌ Fallos: ' + fallos + '\n\nLos productos ya están en tu tienda. La IA procesará los títulos en los próximos minutos.');\n  \n  // Cerrar modal y recargar productos\n  if (exitosos > 0) {\n    cerrarModalCargaInteligente();\n    if (typeof cargarProductos === 'function') cargarProductos();
   }
-  
-  if (!confirm('¿Guardar ' + validos.length + ' productos?\n\nLos productos sin precio válido se descartarán.')) return;
-  
-  const saveBtn = document.getElementById('smartSaveBtn');
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Guardando 0 de ' + validos.length + '...';
-  
-  let exitosos = 0;
-  let fallos = 0;
-  
-  for (let i = 0; i < validos.length; i++) {
-    const p = validos[i];
-    saveBtn.textContent = 'Guardando ' + (i + 1) + ' de ' + validos.length + '...';
-    
-    try {
-      const body = {
-        titulo: p.titulo.trim(),
-        descripcion: '',
-        precio_usd: p.precio_usd,
-        precio_cup: p.precio_cup || 0,
-        categoria: '', // IA asignará después
-        provincia: sellerData?.provincia || 'Camagüey',
-        municipio: sellerData?.municipio || 'Camagüey',
-        estado_producto: 'nuevo',
-        stock: 1,
-        imagenes: [p.url],
-        publicado: true
-      };
-      
-      const r = await fetch(API + '/api/seller/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + TOKEN
-        },
-        body: JSON.stringify(body)
-      });
-      
-      const d = await r.json();
-      if (d.ok) {
-        exitosos++;
-      } else {
-        console.error('[SMART] Falló producto ' + (i+1) + ':', d.error);
-        fallos++;
-      }
-    } catch(e) {
-      console.error('[SMART] Error producto ' + (i+1) + ':', e);
-      fallos++;
-    }
-    
-    // Pausa entre productos
-    if (i < validos.length - 1) {
-      await new Promise(r => setTimeout(r, 800));
-    }
-  }
-  
-  saveBtn.disabled = false;
-  saveBtn.textContent = '✅ Guardar todos';
-  
-  alert('✅ Guardados: ' + exitosos + '\n❌ Fallos: ' + fallos + '\n\nLos productos ya están en tu tienda. La IA procesará los títulos en los próximos minutos.');
-  
-  // Cerrar modal y recargar productos
-  if (exitosos > 0) {
-    cerrarModalCargaInteligente();
-    if (typeof cargarProductos === 'function') cargarProductos();
-  }
-};
-
-</script>
+};<\/script>
 
 
 <style id="kill-ia-banner">
