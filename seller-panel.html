@@ -2305,8 +2305,8 @@ body { padding-bottom: 100px; }
 
 <script>
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-  ? 'http://localhost:3000'
-  : 'https://com-diaz-ty2b.onrender.com';
+  ? 'http://localhost:3000' +
+'  : 'https://com-diaz-ty2b.onrender.com';
 
 const TOKEN = localStorage.getItem('comdiaz_seller_token');
 if (!TOKEN) {
@@ -3109,8 +3109,8 @@ window.cambiarWhatsApp = async function() {
     suspendido: '🚫',
     plan_por_vencer: '⏰',
     plan_caducado: '⚠️',
-    info: '🔔'
-  };
+    info: '🔔' +
+'  };
 
   let _timer = null;
   let _lastCount = -1;
@@ -3210,8 +3210,8 @@ window.cambiarWhatsApp = async function() {
           '<div class="notif-titulo">' + esc(n.titulo) + '</div>' +
           (n.mensaje ? '<div class="notif-mensaje">' + esc(n.mensaje) + '</div>' : '') +
           '<div class="notif-fecha">' + tiempoRelativo(n.created_at) + '</div>' +
-        '</div>'
-      );
+        '</div>' +
+'      );
     }).join('');
 
     // Bind clicks
@@ -3530,8 +3530,8 @@ window.cambiarWhatsApp = async function() {
     if (Notification.permission === 'denied') {
       showDebugPanel('🔕 Notificaciones bloqueadas', [
         'Abre Ajustes de Android → ProfitToLife Marketplace → Notificaciones → Permitir.',
-        'Después vuelve aquí y toca el botón.'
-      ]);
+        'Después vuelve aquí y toca el botón.' +
+'      ]);
       return;
     }
 
@@ -5085,8 +5085,8 @@ console.log('[IDB] IndexedDB listo');
       status.style.color = '#f87171';
       return;
     }
-    status.textContent = '✅ Formato válido (se verifica al guardar)'
-    status.style.color = '#10b981';
+    status.textContent = '✅ Formato válido (se verifica al guardar)' +
+'    status.style.color = '#10b981';
   };
 
   // ─── Abrir modal ───
@@ -5410,8 +5410,8 @@ window.guardarTienda = async function() {
         method: method,
         headers: {
           'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        },
+          'Content-Type': 'application/json' +
+'        },
         body: JSON.stringify(body)
       });
       var d = await r.json();
