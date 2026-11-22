@@ -1,3 +1,4 @@
+<!-- Fix forzado: salto de línea reparado -->
 
 <!doctype html>
 <html lang="es">
@@ -2470,16 +2471,6 @@ function renderProductos() {
 }
 
 // Función para abrir el modal de pago correctamente
-function abrirModalPago(plan) {
-    document.getElementById('ptlPlanNombre').innerText = plan;
-    const modal = document.getElementById('ptlModalPago');
-    if (modal) modal.style.display = 'flex';
-    
-    const waBtn = document.getElementById('ptlBtnWA');
-    if (waBtn) waBtn.href = `https://wa.me/5358980267?text=Hola,%20quiero%20actualizar%20mi%20plan%20a%20${plan}%20en%20ProfitToLife`;
-}
-
-
 function abrirAcciones(id) {
     const p = productos.find(x => String(x.id) === String(id));
     if (!p) return;
@@ -3110,7 +3101,7 @@ window.cambiarWhatsApp = async function() {
     plan_por_vencer: '⏰',
     plan_caducado: '⚠️',
     info: '🔔'
-};
+  };
 
   let _timer = null;
   let _lastCount = -1;
@@ -3210,8 +3201,8 @@ window.cambiarWhatsApp = async function() {
           '<div class="notif-titulo">' + esc(n.titulo) + '</div>' +
           (n.mensaje ? '<div class="notif-mensaje">' + esc(n.mensaje) + '</div>' : '') +
           '<div class="notif-fecha">' + tiempoRelativo(n.created_at) + '</div>' +
-        '</div>' +
-'      );
+        '</div>'
+      );
     }).join('');
 
     // Bind clicks
@@ -3530,8 +3521,8 @@ window.cambiarWhatsApp = async function() {
     if (Notification.permission === 'denied') {
       showDebugPanel('🔕 Notificaciones bloqueadas', [
         'Abre Ajustes de Android → ProfitToLife Marketplace → Notificaciones → Permitir.',
-        'Después vuelve aquí y toca el botón.' +
-'      ]);
+        'Después vuelve aquí y toca el botón.'
+      ]);
       return;
     }
 
@@ -3750,6 +3741,16 @@ window.forceRegisterPush = async function() {
     const banner = document.getElementById('planBanner');
     const overlay = document.getElementById('planSuspendedOverlay');
     const planValue = document.getElementById('sellerPlan');
+
+    // ═══ REGLA: Plan Básico NO renueva (gratis para siempre) ═══
+    const _planTexto = (planValue?.textContent || '').toLowerCase().trim();
+    const _esBasico = _planTexto.includes('básico') || _planTexto.includes('basico') || _planTexto === 'gratis' || _planTexto === 'free';
+    if (_esBasico) {
+      const _banner = document.getElementById('planBanner');
+      if (_banner) _banner.classList.remove('show');
+      return; // NO procesar banner para Básico
+    }
+
 
     // Badge de días restantes en la card de plan
     if (planValue && info.diasRestantes !== null && info.diasRestantes !== undefined) {
@@ -5085,8 +5086,8 @@ console.log('[IDB] IndexedDB listo');
       status.style.color = '#f87171';
       return;
     }
-    status.textContent = '✅ Formato válido (se verifica al guardar)' +
-'    status.style.color = '#10b981';
+    status.textContent = '✅ Formato válido (se verifica al guardar)'
+    status.style.color = '#10b981';
   };
 
   // ─── Abrir modal ───
@@ -5410,8 +5411,8 @@ window.guardarTienda = async function() {
         method: method,
         headers: {
           'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json' +
-'        },
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(body)
       });
       var d = await r.json();
