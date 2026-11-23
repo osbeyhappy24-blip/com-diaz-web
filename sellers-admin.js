@@ -254,7 +254,7 @@
     const confirmMsg = `¿Estás seguro de renovar el plan de ${s.nombre || s.email} por 30 días más?`;
     if (!confirm(confirmMsg)) return;
     try {
-      const res = await api(`/api/admin/sellers/${s.id}/renew`, { method: 'POST' });
+      const res = await api(`/api/admin/sellers/${s.id}/renew`, { method: 'POST', body: JSON.stringify({ plan_id: s.plan_id || 'pro' }) });
       if (res.ok) {
         alert('✅ Plan renovado con éxito por 30 días.');
         location.reload(); // Recargar para ver la nueva fecha
