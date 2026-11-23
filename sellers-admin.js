@@ -117,6 +117,7 @@
       }
       acciones.push(`<button class="btn-view" data-action="ver" data-id="${s.id}">👁️ Ver</button>`);
       acciones.push(`<button class="btn-reset" data-action="reset-password" data-id="${s.id}" style="margin-left: 5px;">🔑</button>`);
+      acciones.push(`<button class="btn-renew" data-action="renew-plan" data-id="${s.id}" style="margin-left: 5px;">🔄 Renovar</button>`);
 
       return `
         <div class="seller-card ${estado}" data-id="${s.id}">
@@ -205,6 +206,9 @@
     else if (action === 'reset-password') {
       return resetPassword(s);
     }
+    else if (action === 'renew-plan') {
+      return renovarPlan(s);
+    }
     else if (action === 'ver') {
       verDetalles(seller);
     }
@@ -242,6 +246,23 @@
       }
     } catch (e) {
       alert('Error de red: ' + e.message);
+    }
+  }
+
+  
+  async function renovarPlan(s) {
+    const confirmMsg = `¿Estás seguro de renovar el plan de ${s.nombre || s.email} por 30 días más?`;
+    if (!confirm(confirmMsg)) return;
+    try {
+      const res = await api(`/api/admin/sellers/${s.id}/renew`, { method: 'POST' });
+      if (res.ok) {
+        alert('✅ Plan renovado con éxito por 30 días.');
+        location.reload(); // Recargar para ver la nueva fecha
+      } else {
+        alert('Error: ' + (res.error || 'No se pudo renovar el plan'));
+      }
+    } catch (e) {
+      alert('Error de red al renovar: ' + e.message);
     }
   }
 
