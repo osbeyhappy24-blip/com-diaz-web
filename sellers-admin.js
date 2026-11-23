@@ -204,10 +204,10 @@
       }
     }
     else if (action === 'reset-password') {
-      return resetPassword(s);
+      return resetPassword(seller);
     }
     else if (action === 'renew-plan') {
-      return renovarPlan(s);
+      return renovarPlan(seller);
     }
     else if (action === 'ver') {
       verDetalles(seller);
