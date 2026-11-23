@@ -5366,6 +5366,7 @@ window.irAWhatsApp = function(accion, planNuevo) {
                 `Mi nombre: ${nombre}`;
     }
     
+    alert('✅ Tu solicitud ha sido enviada. El administrador te atenderá en breve por WhatsApp.');
     const url = 'https://wa.me/5358980267?text=' + encodeURIComponent(mensaje);
     console.log('[WHATSAPP] Abriendo:', url);
     window.open(url, '_blank');
