@@ -116,6 +116,7 @@
         acciones.push(`<button class="btn-approve" data-action="approve" data-id="${s.id}">✅ Reactivar</button>`);
       }
       acciones.push(`<button class="btn-view" data-action="ver" data-id="${s.id}">👁️ Ver</button>`);
+      acciones.push(`<button class="btn-reset" data-action="reset-password" data-id="${s.id}" style="margin-left: 5px;">🔑</button>`);
 
       return `
         <div class="seller-card ${estado}" data-id="${s.id}">
@@ -201,12 +202,49 @@
         toast('Error: ' + e.message, 'err');
       }
     }
+    else if (action === 'reset-password') {
+      return resetPassword(s);
+    }
     else if (action === 'ver') {
       verDetalles(seller);
     }
   }
 
   // ═══ MODAL VER DETALLES ═══
+  
+  async function resetPassword(s) {
+    if (!confirm(`¿Estás seguro de que quieres restablecer la contraseña de ${s.nombre || s.email}?`)) return;
+    try {
+      const res = await api(`/api/admin/sellers/${s.id}/reset-password`, { method: 'POST' });
+      if (res.ok) {
+        const nuevaPass = res.password;
+        const modalHtml = `
+          <div id="resetPassModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;">
+            <div style="background:#1e1e2f;padding:20px;border-radius:12px;color:#fff;max-width:400px;width:90%;">
+              <h3 style="margin-top:0;color:#A78BFA;">Contraseña Restablecida</h3>
+              <p>La nueva contraseña es:</p>
+              <input type="text" id="newPassInput" value="${nuevaPass}" readonly style="width:100%;padding:10px;border-radius:6px;border:none;background:#333;color:#fff;margin-bottom:15px;text-align:center;font-size:18px;font-weight:bold;">
+              <div style="display:flex;gap:10px;">
+                <button id="copyPassBtn" style="flex:1;padding:10px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;">📋 Copiar</button>
+                <a href="https://wa.me/53${s.telefono || ''}?text=Hola%20${encodeURIComponent(s.nombre || '')},%20tu%20nueva%20contraseña%20es:%20${nuevaPass}" target="_blank" style="flex:1;padding:10px;background:#22c55e;color:#fff;text-align:center;border-radius:6px;text-decoration:none;font-weight:bold;">💬 WhatsApp</a>
+              </div>
+              <button onclick="document.getElementById('resetPassModal').remove()" style="width:100%;margin-top:15px;padding:10px;background:transparent;color:#999;border:none;cursor:pointer;">Cerrar</button>
+            </div>
+          </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('copyPassBtn').onclick = () => {
+          navigator.clipboard.writeText(nuevaPass);
+          alert('Contraseña copiada al portapapeles');
+        };
+      } else {
+        alert('Error: ' + (res.error || 'No se pudo restablecer'));
+      }
+    } catch (e) {
+      alert('Error de red: ' + e.message);
+    }
+  }
+
   function verDetalles(s) {
     const info = [
       ['ID', s.id],
