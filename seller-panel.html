@@ -5340,7 +5340,12 @@ window.irAWhatsApp = function(accion, planNuevo) {
         alert('El plan Básico es gratuito y no requiere renovación.');
         return;
       }
-      mensaje = `Hola admin de ProfitToLife. Quiero renovar mi plan ${planActual}.\n\n` +
+      fetch(API + '/api/seller/request-renewal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: nombre, telefono: telefono, tienda: nombreTienda, plan: planActual, dias: diasRestantes })
+        }).catch(e => console.error('Telegram notify error:', e));
+        mensaje = `Hola admin de ProfitToLife. Quiero renovar mi plan ${planActual}.\n\n` +
                 `Mi tienda: ${nombreTienda}\n` +
                 `Mi teléfono: ${telefono}\n` +
                 `Mi nombre: ${nombre}\n\n` +
