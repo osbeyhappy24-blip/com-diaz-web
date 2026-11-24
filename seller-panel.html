@@ -4993,7 +4993,11 @@ console.log('[IDB] IndexedDB listo');
     var banner = document.getElementById('miTiendaBanner');
     if (t.banner) {
       banner.style.backgroundImage = "url('" + t.banner + "')";
+      banner.style.backgroundSize = 'cover';
+      banner.style.backgroundPosition = 'center';
+      banner.style.backgroundColor = 'transparent';
     } else {
+      banner.style.backgroundImage = 'none';
       banner.style.background = 'linear-gradient(135deg,' + (t.color || '#22C55E') + ',#001a35)';
     }
 
