@@ -4888,7 +4888,21 @@ console.log('[IDB] IndexedDB listo');
     </div>
     <div style="text-align:left">
       <div id="previewLogoNombre" style="color:#F1F5F9;font-size:14px;font-weight:700">Tu tienda</div>
-      <div style="color:#94A3B8;font-size:11px">Logo circular · 64px</div>
+      <div style="color:#94A3B8;font-size:11px">Logo circular · 64px
+    <!-- SECCIÓN DE REFERIDOS -->
+    <div class="tienda-referidos-box" style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+      <h4 style="margin:0 0 10px 0; color:#fff; display:flex; align-items:center; gap:8px;">💸 Campaña "Comparte y Gana"</h4>
+      <label style="display:flex; align-items:center; cursor:pointer; color:#94A3B8; font-size:14px;">
+        <input type="checkbox" id="toggleReferidos" onchange="toggleCampanaRef(this.checked)" style="margin-right:10px; width:18px; height:18px; cursor:pointer;">
+        Activar referidos en mi tienda
+      </label>
+      <div id="referidosList" style="margin-top:15px; display:none; font-size:13px;">
+        <p style="color:#FCD34D; margin-bottom:8px; font-weight:bold;">Personas que han compartido:</p>
+        <div id="listaRefItems" style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </div>
+    
+</div>
     </div>
   </div>
   <button type="button" onclick="quitarLogo()" style="margin-top:8px;background:transparent;border:1px solid #f87171;color:#f87171;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer">✕ Quitar logo</button>
@@ -6396,6 +6410,53 @@ O también sirve:
     </div>
   </div>
 </div>
+
+<script>
+async function cargarCampanaRef() {
+  try {
+    const r = await fetch(API + '/api/seller/referidos/list', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+    const d = await r.json();
+    if (d.ok && d.campana) {
+      document.getElementById('toggleReferidos').checked = d.campana.activa;
+      const lista = document.getElementById('listaRefItems');
+      if (d.campana.usuarios && d.campana.usuarios.length > 0) {
+        document.getElementById('referidosList').style.display = 'block';
+        lista.innerHTML = d.campana.usuarios.map(u => `
+          <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="color:#fff; font-weight:bold;">${u.nombre}</div>
+              <div style="color:#94A3B8; font-size:11px;">${u.telefono}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="color:#22C55E; font-weight:bold; font-size:14px;">${u.visitas} visitas</div>
+              <a href="https://wa.me/53${u.telefono.replace(/[^0-9]/g,'')}?text=Hola%20${encodeURIComponent(u.nombre)},%20gracias%20por%20compartir%20mi%20tienda.%20Tienes%20${u.visitas}%20visitas%20válidas." target="_blank" style="font-size:11px; color:#25D366; text-decoration:none;">Pagar por WhatsApp</a>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('referidosList').style.display = 'block';
+        lista.innerHTML = '<div style="color:#94A3B8;">Aún nadie ha compartido tu tienda.</div>';
+      }
+    }
+  } catch(e) { console.log('Error cargando referidos', e); }
+}
+
+window.toggleCampanaRef = async function(activa) {
+  try {
+    const r = await fetch(API + '/api/seller/referidos/campaign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ activa: activa })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      alert(activa ? '✅ Campaña activada. El botón ya aparece en tu tienda.' : '🚫 Campaña desactivada.');
+      cargarCampanaRef();
+    }
+  } catch(e) { alert('Error de red'); }
+};
+</script>
+
 </body>
 </html>
 
