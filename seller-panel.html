@@ -5390,6 +5390,27 @@ window.guardarTienda = async function() {
     var slug = document.getElementById('tiendaSlugInput').value.trim();
     var descripcion = document.getElementById('tiendaDescInput').value.trim();
     var logo = document.getElementById('tiendaLogoInput').value.trim();
+    
+    // ═══ FIX MAESTRO: Subir Base64 a Supabase Storage ═══
+    if (logo && logo.startsWith('data:image')) {
+      btn.textContent = 'Subiendo logo a Supabase...';
+      try {
+        const uploadRes = await fetch(API_BASE + '/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify({ image: logo })
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.ok) {
+          logo = uploadData.url || uploadData.image_url || uploadData.link;
+          document.getElementById('tiendaLogoInput').value = logo;
+        } else {
+          throw new Error(uploadData.error || 'Error subiendo logo');
+        }
+      } catch(e) {
+        return showError('Error al subir logo: ' + e.message);
+      }
+    }
     var banner = document.getElementById('tiendaBannerInput').value.trim();
     var color = document.getElementById('tiendaColorInput').value;
     var whatsapp = document.getElementById('tiendaWaInput').value.trim();
