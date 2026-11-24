@@ -400,5 +400,98 @@ cargarTienda();
 
 </script>
 <script src="tienda-carrito.js"></script>
+
+<!-- BOTÓN FLOTANTE COMPARTE Y GANA -->
+<button id="btnComparteGana" style="display:none; position:fixed; bottom:20px; right:20px; z-index:9999; background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; border:none; padding:15px 20px; border-radius:30px; font-weight:800; font-size:16px; box-shadow:0 4px 15px rgba(239,68,68,0.4); cursor:pointer; align-items:center; gap:8px;">
+  <span>💸</span> Comparte y Gana
+</button>
+
+<!-- MODAL COMPARTE Y GANA -->
+<div id="modalComparteGana" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; padding:20px;">
+  <div style="background:#131A2E; border:1px solid #1F2A44; border-radius:16px; padding:24px; width:100%; max-width:400px; text-align:center; color:#fff; position:relative;">
+    <button onclick="cerrarModalRef()" style="position:absolute; top:10px; right:15px; background:none; border:none; color:#94A3B8; font-size:24px; cursor:pointer;">&times;</button>
+    <h3 style="margin-top:0; color:#FCD34D; font-size:22px;">💸 Gana Dinero Compartiendo</h3>
+    <p style="font-size:14px; color:#94A3B8; margin-bottom:20px;">Ingresa tus datos para generar tu enlace único y empezar a ganar.</p>
+    
+    <div id="refForm">
+      <input type="text" id="refNombre" placeholder="Tu Nombre" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #1F2A44; background:#0A0E1A; color:#fff; box-sizing:border-box;">
+      <input type="tel" id="refTelefono" placeholder="Tu WhatsApp" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #1F2A44; background:#0A0E1A; color:#fff; box-sizing:border-box;">
+      <button onclick="generarEnlaceRef()" style="width:100%; padding:14px; background:#22C55E; color:#fff; border:none; border-radius:8px; font-weight:800; font-size:16px; cursor:pointer;">Generar mi Enlace</button>
+    </div>
+
+    <div id="refResult" style="display:none;">
+      <p style="color:#22C55E; font-weight:bold;">¡Enlace generado con éxito!</p>
+      <input type="text" id="refLink" readonly style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #1F2A44; background:#0A0E1A; color:#fff; text-align:center; box-sizing:border-box;">
+      <button onclick="copiarEnlaceRef()" style="width:100%; padding:14px; background:#3b82f6; color:#fff; border:none; border-radius:8px; font-weight:800; font-size:16px; cursor:pointer; margin-bottom:10px;">📋 Copiar Enlace</button>
+      <a id="refWaBtn" href="#" target="_blank" style="display:block; width:100%; padding:14px; background:#25D366; color:#fff; border:none; border-radius:8px; font-weight:800; font-size:16px; text-decoration:none; box-sizing:border-box;">💬 Compartir por WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const refId = urlParams.get('ref');
+  const slug = urlParams.get('slug');
+  
+  // 1. Verificar si la campaña está activa
+  if (slug) {
+    fetch(API + '/api/public/referidos/' + slug)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && data.activa) {
+          const btn = document.getElementById('btnComparteGana');
+          btn.style.display = 'flex';
+          btn.onclick = () => { document.getElementById('modalComparteGana').style.display = 'flex'; };
+        }
+      }).catch(e => console.log('Ref error:', e));
+  }
+
+  // 2. Rastrear visita si viene con ?ref=
+  if (slug && refId) {
+    setTimeout(() => {
+      fetch(API + '/api/public/referidos/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: slug, ref_id: refId })
+      }).then(r => r.json()).then(d => console.log('[REF TRACK]', d)).catch(e => console.log(e));
+    }, 5000); // 5 segundos anti-bot
+  }
+
+  window.cerrarModalRef = () => { document.getElementById('modalComparteGana').style.display = 'none'; };
+
+  window.generarEnlaceRef = async () => {
+    const nombre = document.getElementById('refNombre').value.trim();
+    const telefono = document.getElementById('refTelefono').value.trim();
+    if (!nombre || !telefono) return alert('Por favor completa ambos campos.');
+    
+    try {
+      const res = await fetch(API + '/api/public/referidos/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: slug, nombre: nombre, telefono: telefono })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const enlace = window.location.origin + window.location.pathname + '?slug=' + slug + '&ref=' + data.ref_id;
+        document.getElementById('refLink').value = enlace;
+        document.getElementById('refWaBtn').href = 'https://wa.me/?text=' + encodeURIComponent('¡Mira esta tienda! ' + enlace);
+        document.getElementById('refForm').style.display = 'none';
+        document.getElementById('refResult').style.display = 'block';
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch(e) { alert('Error de red'); }
+  };
+
+  window.copiarEnlaceRef = () => {
+    const copyText = document.getElementById('refLink');
+    copyText.select();
+    document.execCommand('copy');
+    alert('¡Enlace copiado!');
+  };
+})();
+</script>
+
 </body>
 </html>
