@@ -5105,6 +5105,7 @@ console.log('[IDB] IndexedDB listo');
       document.getElementById('tiendaSlugInput').style.opacity = '.6';
       document.getElementById('tiendaDescInput').value = tiendaActual.descripcion || '';
       document.getElementById('tiendaLogoInput').value = tiendaActual.logo || '';
+      document.getElementById('tiendaLogoUrlInput').value = (tiendaActual.logo && !tiendaActual.logo.startsWith('data:')) ? tiendaActual.logo : '';
       document.getElementById('tiendaBannerInput').value = tiendaActual.banner || '';
       document.getElementById('tiendaColorInput').value = tiendaActual.color || '#22C55E';
       document.getElementById('tiendaWaInput').value = tiendaActual.whatsapp || '';
