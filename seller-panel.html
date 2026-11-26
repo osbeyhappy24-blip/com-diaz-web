@@ -2125,13 +2125,35 @@ body { padding-bottom: 100px; }
         <div class="referral-header-icon">🎁</div>
         <div>
           
-    <!-- SECCIÓN DE REFERIDOS -->
+    
+    
+
+    <!-- SECCIÓN DE REFERIDOS V2 -->
     <div class="tienda-referidos-box" style="margin: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
       <h4 style="margin:0 0 10px 0; color:#fff; display:flex; align-items:center; gap:8px;">💸 Campaña "Comparte y Gana"</h4>
-      <label style="display:flex; align-items:center; cursor:pointer; color:#94A3B8; font-size:14px;">
+      
+      <label style="display:flex; align-items:center; cursor:pointer; color:#94A3B8; font-size:14px; margin-bottom:10px;">
         <input type="checkbox" id="toggleReferidos" onchange="toggleCampanaRef(this.checked)" style="margin-right:10px; width:18px; height:18px; cursor:pointer;">
         Activar referidos en mi tienda
       </label>
+
+      <div id="refConfigBox" style="display:none; flex-direction:column; gap:10px; margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+        <div>
+          <label style="font-size:12px; color:#94A3B8;">Mensaje para compartir:</label>
+          <input type="text" id="refMensajeInput" placeholder="¡Ayúdame a crecer! Comparte mi tienda." style="width:100%; padding:10px; border-radius:6px; background:#0A0E1A; border:1px solid #1F2A44; color:#fff; font-size:13px; margin-top:4px;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:#94A3B8;">Imagen de la recompensa:</label>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <input type="text" id="refImagenInput" placeholder="URL de imagen o sube una" style="flex:1; padding:10px; border-radius:6px; background:#0A0E1A; border:1px solid #1F2A44; color:#fff; font-size:13px;">
+            <button type="button" onclick="document.getElementById('refImagenFile').click()" style="padding:10px; background:#3b82f6; color:#fff; border:none; border-radius:6px; cursor:pointer;">📁 Subir</button>
+            <input type="file" id="refImagenFile" accept="image/*" style="display:none;" onchange="subirImagenRecompensa(this)">
+          </div>
+          <img id="refImagenPreview" src="" style="display:none; margin-top:10px; max-height:80px; border-radius:6px;">
+        </div>
+        <button onclick="guardarConfigRef()" style="padding:10px; background:#22C55E; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Guardar Ajustes de Campaña</button>
+      </div>
+
       <div id="referidosList" style="margin-top:15px; display:none; font-size:13px;">
         <p style="color:#FCD34D; margin-bottom:8px; font-weight:bold;">Personas que han compartido:</p>
         <div id="listaRefItems" style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
@@ -6421,9 +6443,19 @@ async function cargarCampanaRef() {
     const d = await r.json();
     if (d.ok && d.campana) {
       document.getElementById('toggleReferidos').checked = d.campana.activa;
+      document.getElementById('refConfigBox').style.display = d.campana.activa ? 'flex' : 'none';
+      document.getElementById('refMensajeInput').value = d.campana.mensaje || '';
+      document.getElementById('refImagenInput').value = d.campana.imagen || '';
+      if (d.campana.imagen) {
+        document.getElementById('refImagenPreview').src = d.campana.imagen;
+        document.getElementById('refImagenPreview').style.display = 'block';
+      } else {
+        document.getElementById('refImagenPreview').style.display = 'none';
+      }
       const lista = document.getElementById('listaRefItems');
       if (d.campana.usuarios && d.campana.usuarios.length > 0) {
         document.getElementById('referidosList').style.display = 'block';
+      document.getElementById('refConfigBox').style.display = activa ? 'flex' : 'none';
         lista.innerHTML = d.campana.usuarios.map(u => `
           <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
             <div>
@@ -6443,6 +6475,46 @@ async function cargarCampanaRef() {
     }
   } catch(e) { console.log('Error cargando referidos', e); }
 }
+
+
+window.subirImagenRecompensa = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    document.getElementById('refImagenPreview').src = base64;
+    document.getElementById('refImagenPreview').style.display = 'block';
+    try {
+      const res = await fetch(API + '/api/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ image: base64 })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById('refImagenInput').value = data.url || data.image_url || data.link;
+        alert('Imagen subida correctamente.');
+      } else {
+        alert('Error subiendo imagen.');
+      }
+    } catch(e) { alert('Error de red subiendo imagen.'); }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.guardarConfigRef = async function() {
+  const mensaje = document.getElementById('refMensajeInput').value.trim();
+  const imagen = document.getElementById('refImagenInput').value.trim();
+  try {
+    await fetch(API + '/api/seller/referidos/campaign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ mensaje: mensaje, imagen: imagen })
+    });
+    alert('✅ Ajustes guardados en Supabase.');
+  } catch(e) { alert('Error guardando ajustes.'); }
+};
 
 window.toggleCampanaRef = async function(activa) {
   try {
