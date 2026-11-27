@@ -5081,6 +5081,11 @@ console.log('[IDB] IndexedDB listo');
     window._actualizarContadorTienda();
     setTimeout(window._actualizarContadorTienda, 1500);
     setTimeout(window._actualizarContadorTienda, 4000);
+    
+    // ═══ SINCRONIZACIÓN DE REFERIDOS ═══
+    if (typeof cargarCampanaRef === 'function') {
+      setTimeout(cargarCampanaRef, 500); // Espera medio segundo a que cargue el token
+    }
   }
 
   // ─── Generar slug ───
