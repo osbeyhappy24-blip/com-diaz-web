@@ -6444,7 +6444,7 @@ O también sirve:
 <script>
 async function cargarCampanaRef() {
   try {
-    const r = await fetch(API + '/api/seller/referidos/list', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+    const _t = localStorage.getItem('comdiaz_seller_token'); const r = await fetch(API + '/api/seller/referidos/list', { headers: { 'Authorization': 'Bearer ' + _t } });
     const d = await r.json();
     if (d.ok && d.campana) {
       document.getElementById('toggleReferidos').checked = d.campana.activa;
@@ -6535,6 +6535,25 @@ window.toggleCampanaRef = async function(activa) {
     }
   } catch(e) { alert('Error de red'); }
 };
+</script>
+
+
+<script>
+(async function syncOnLoad() {
+  try {
+    console.log('[SYNC] Pidiendo a Render que actualice su memoria desde Supabase...');
+    const _t = localStorage.getItem('comdiaz_seller_token');
+    await fetch(API + '/api/admin/sync-state', { headers: { 'Authorization': 'Bearer ' + _t } });
+    
+    // Una vez sincronizado, recargamos el perfil visualmente para que muestre el logo y la campaña
+    if (typeof cargarPerfil === 'function') {
+      await cargarPerfil();
+    }
+    if (typeof cargarCampanaRef === 'function') {
+      await cargarCampanaRef();
+    }
+  } catch(e) { console.error('Error en syncOnLoad:', e); }
+})();
 </script>
 
 </body>
